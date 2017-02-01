@@ -10,7 +10,7 @@ Python 3.5, Windows 10, Google Tensorflow, Rocket League v1.28
 ### Longer Description
 
 #### Video Example
-[![Video](https://github.com/drssoccer55/RLBot/images/vid2thumb.jpg)](https://www.youtube.com/watch?v=AFxW83FZBWo)
+[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb.JPG)](https://www.youtube.com/watch?v=AFxW83FZBWo)
 
 #### Reading Values From Game
 RLBot is fed values which are read from process memory or derived values from read inputs.  These values include amount of boost, xyz positional coordinates for player, ball, and opponent, rotational values, relative velocities, 
