@@ -1,26 +1,31 @@
 # RLBot
 
 ### Short Description
-RLBot is a program which plays rocket league autonomously.  It is fed data from the game and outputs key presses to the game.  RLBot works for 1v1 exhibition games of player vs bot opponent.  RLBot uses Google Tensorflow.  Thanks to Kevin Hughes' [TensorKart](https://github.com/kevinhughes27/TensorKart) 
+RLBot is a program to play rocket league by reading values from the process memory as input and outputing button presses to the game.  RLBot "works"(if your standards are low at the moment) for 1v1 exhibition games of player vs bot opponent.  
+The current goal of the project is to create a bot which can play the game autonomously.  All autonomous bots that are created should be fed game values as input and perform whatever processing they wish before outputting 
+key presses as output. The idea is to allow player made bots to be interchangeable.  One of the bots being worked, and my initial project, requires Google Tensorflow.
+
+#### Future Goals
+In the future hopefully I will be able to pit player created programs against each other and host a tournament of sorts.  There are a couple tricky things to work out first.  One thing is Rocket League does not allow two keyboard player inputs.  
+I will likely have to emulate 2 controllers to get this part to work.  Another thing would be defining what inputs will be given officially.  
+One thing to consider here is blue's target and orange's target are at different places so the player needs to know what color they are playing as.  Another thing is having a limit on allowed process time.
+
+#### Quick Shoutout
+Thanks to Kevin Hughes' [TensorKart](https://github.com/kevinhughes27/TensorKart) 
 which helped influence and modify my original design for the project and gave me direction.
 
 ### Requirements
-Python 3.5, Windows 10, Google Tensorflow, Rocket League v1.28
+Windows 10, Rocket League at least.  If you are running the tensorflow bot than definitley need (Python 3.5, Google Tensorflow).
 
 ### Longer Description
 
 #### Video Example
-[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb.JPG)](https://www.youtube.com/watch?v=AFxW83FZBWo)
+[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb2.JPG)](https://www.youtube.com/watch?v=a-kyXoxCQ3k)
 
 #### Reading Values From Game
 RLBot is fed values which are read from process memory or derived values from read inputs.  These values include amount of boost, xyz positional coordinates for player, ball, and opponent, rotational values, relative velocities, 
-and score from the game to name a few.  Look at PlayHelper.py for all values.  The way values are read from process memory is very finicky and may require modifying pointer trails in PlayHelper.py.  I use CheatEngine to find pointer trails.
+and score from the game to name a few.  Look at PlayHelper.py for all values.  The way values are read from process memory is very finicky and may require modifying pointer trails in PlayHelper.py.  I use CheatEngine to find pointer trails.  
+**It is likely you will have to do some work tracking down pointers to get this program to work!**
 
-#### Recording
-To train, controller presses from an xbox 360 controller are recorded along with the simultaneous game values used.  The game inputs are appended to the x.csv file and the controller inputs are appended to the y.csv file.
-
-#### Training
-train.py is used for training a model.  Command line arguments allow the specification of loading an input model and specifing the name of the saved output model.
-
-#### Playing
-play.py is used for playing.  Usually I just pause the game after the bot has spawned and countdown timer to start is around 2, alt tab out and start the play script, and then resume the game and sit back.
+#### Runner
+Run "python runner.py" after the game is loaded and all bots and the ball are loaded on the playfield.  A GUI window should pop up after a second displaying game values.  I try my best to make sure these values are correct but it is buggy at the moment.
