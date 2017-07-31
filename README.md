@@ -7,8 +7,7 @@ key presses as output. The idea is to allow player made bots to be interchangeab
 
 #### Future Goals
 In the future hopefully I will be able to pit player created programs against each other and host a tournament of sorts.  There are a couple tricky things to work out first.  One thing is Rocket League does not allow two keyboard player inputs.  
-I will likely have to emulate 2 controllers to get this part to work.  Another thing would be defining what inputs will be given officially.  One thing to consider here is blue's target and orange's target are at different places so the player needs to know what color they are playing as.  
-Another thing is having a limit on allowed process time.
+I will likely have to emulate 2 controllers to get this part to work.  Another thing would be defining what inputs will be given officially.  One thing to consider here is blue's target and orange's target are at different places so the player needs to know what color they are playing as.  Another thing is having a limit on allowed process time.
 
 #### Quick Shoutout
 Thanks to Kevin Hughes' [TensorKart](https://github.com/kevinhughes27/TensorKart) 
