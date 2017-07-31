@@ -39,10 +39,10 @@ class play_helper:
     def GetAddressVector(self, processHandle, rocketLeagueBaseAddress):
         addressList = array.array('i',(0,)*42) # Create a tuple with 42 values
         
-        addressList[0]= self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x017379B8, 0x34, 0x294, 0x1CC, 0x1AC, 0x144]) # Boost address (Need to update these for v1.27)
-        addressList[1] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x016D50A8, 0x4, 0x54, 0x18, 0xF0, 0x44]) # Player z address
-        addressList[2] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x0160D4F4, 0x8, 0x20, 0x44]) # Ball z address
-        addressList[3] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01731340, 0x114, 0x14, 0x1BC, 0xF0, 0x44]) # Bot (orange) z address
+        addressList[0]= self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01922834, 0x188, 0x7AC, 0x0, 0xC]) # Boost address (Updated July 29, 2017)
+        addressList[1] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x4, 0x20, 0x44]) # Player z address
+        addressList[2] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x8, 0x20, 0x44]) # Ball z address
+        addressList[3] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x0, 0x20, 0x44]) # Bot (orange) z address
         addressList[4] = addressList[1] + 4 # Player y address
         addressList[5] = addressList[1] - 4 # Player x address
         addressList[6] = addressList[2] + 4 # Ball y address
@@ -67,10 +67,10 @@ class play_helper:
         addressList[25] = addressList[24] + 8 # Bot rot7
         addressList[26] = addressList[25] + 4 # Bot rot8
         addressList[27] = addressList[26] + 4 # Bot rot9
-        addressList[28] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x016D5090, 0x8, 0x318, 0x130, 0x0, 0x1F0]) # Blue score address
-        addressList[29] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01732F00, 0x178, 0x84, 0x28, 0x84, 0x1F0]) # Orange score address
-        addressList[30] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x016D5084, 0xF8, 0x8, 0x28, 0x5B4, 0x2F4]) # Blue "Score" address
-        addressList[31] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x016D5090, 0x10, 0xA8, 0x1E4, 0x35C, 0x2F4]) # Orange "Score" address
+        addressList[28] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x019A3BA0, 0x8, 0x228, 0x20C]) # Blue score address
+        addressList[29] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x019A3BA0, 0x10, 0x228, 0x20C]) # Orange score address
+        addressList[30] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x019A3BA0, 0x8, 0x310]) # Blue "Score" address
+        addressList[31] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x019A3BA0, 0x10, 0x310]) # Orange "Score" address
         addressList[32] = addressList[30] + 4 # Blue goals
         addressList[33] = addressList[32] + 8 # Blue assists
         addressList[34] = addressList[32] + 12 # Blue saves
@@ -86,7 +86,7 @@ class play_helper:
         
     def GetValueVector(self, processHandle, addressVect):
         neuralInputs = array.array('f',(0,)*43) # Create a tuple with 43 float values
-        scoring = array.array('f',(0,)*4) # Create a tuple with 4 float values
+        scoring = array.array('f',(0,)*14) # Create a tuple with 4 float values
         # scoring = modify this with what I want to return for scoring function
         # Need to read 28 values for neural inputs and calculate 9 velocities and 6 relative positions
          
@@ -136,6 +136,10 @@ class play_helper:
         scoring[1] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[29])) # Orange Score
         scoring[2] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[40])) # Demos on blue
         scoring[3] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[41])) # Demos on orange
+		
+		# Now fill in the other scoring values
+        for i in range(30,40):
+            scoring[i - 26] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[i]))
 
         # Now update to old values
         self.timeStamp = curTime
@@ -247,52 +251,3 @@ class play_helper:
             SendKeys.ReleaseKey(self.J_CODE)
         if (self.K):
             SendKeys.ReleaseKey(self.K_CODE)
-        
-'''
-
-Some original code here in case I made mistakes
-
-# Find beginning pointers to structures
-boostAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01738774, 0xB4, 0x294, 0x1CC, 0x1AC, 0x14C])
-zAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01732220, 0x114, 0xC, 0x1BC, 0xF0, 0x44]) # improved z position (must refolow path after every car reset (goal/overtime)
-ballzAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x016E88B4, 0x90, 0xC, 0x10, 0xF0, 0x44])
-blueScoreAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x0166A648, 0x5B4, 0x28, 0x3C, 0x5DC, 0x1F0])
-orngScoreAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01733DE0, 0x104, 0x2A0, 0x20C, 0x1F0])
-blueRLScoreAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01733DE0, 0x110, 0x10, 0x268, 0x0, 0x2F4])
-orngRLScoreAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x0166793C, 0x654, 0x28, 0x3C, 0x668, 0x2F4])
-orngZAddress = rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01732220, 0x114, 0x14, 0x1BC, 0xF0, 0x44]) # improved z position (must refolow path after every car reset (goal/overtime)
-
-# Get other memory locations
-yAddress = zAddress + 4
-xAddress = zAddress - 4
-ballyAddress = ballzAddress + 4
-ballxAddress = ballzAddress - 4
-rot1 = yAddress + 8
-rot2 = rot1 + 4
-rot3 = rot2 + 4
-rot4 = rot3 + 8
-rot5 = rot4 + 4
-rot6 = rot5 + 4
-rot7 = rot6 + 8
-rot8 = rot7 + 4
-rot9 = rot8 + 4
-blueGoals = blueRLScoreAddress + 4 # If only do 1v1s this is same as blueScoreAddress
-blueAssists = blueGoals + 8 # If I only do 1v1s I will never use this
-blueSaves = blueGoals + 12
-blueShots = blueGoals + 16
-orngGoals = orngRLScoreAddress + 4 # If only do 1v1s this is same as blueScoreAddress
-orngAssists = orngGoals + 8 # If I only do 1v1s I will never use this
-orngSaves = orngGoals + 12
-orngShots = orngGoals + 16
-orngYAddress = orngZAddress + 4
-orngXAddress = orngZAddress - 4
-orngRot1 = orngYAddress + 8
-orngRot2 = orngRot1 + 4
-orngRot3 = orngRot2 + 4
-orngRot4 = orngRot3 + 8
-orngRot5 = orngRot4 + 4
-orngRot6 = orngRot5 + 4
-orngRot7 = orngRot6 + 8
-orngRot8 = orngRot7 + 4
-orngRot9 = orngRot8 + 4
-'''
