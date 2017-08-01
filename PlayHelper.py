@@ -39,10 +39,13 @@ class play_helper:
     def GetAddressVector(self, processHandle, rocketLeagueBaseAddress):
         addressList = array.array('i',(0,)*42) # Create a tuple with 42 values
         
-        addressList[0]= self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x01922834, 0x188, 0x7AC, 0x0, 0xC]) # Boost address (Updated July 29, 2017)
+        addressList[0] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x0193A9B4, 0x188, 0x7AC, 0x0, 0xC]) # Boost address (Updated July 31, 2017)
         addressList[1] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x4, 0x20, 0x44]) # Player z address
         addressList[2] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x8, 0x20, 0x44]) # Ball z address
         addressList[3] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x0, 0x20, 0x44]) # Bot (orange) z address
+
+        self.verifyPlayerPointers(processHandle, addressList) # Still need to deal with demolitions bing wacky pointers but that can be done later
+
         addressList[4] = addressList[1] + 4 # Player y address
         addressList[5] = addressList[1] - 4 # Player x address
         addressList[6] = addressList[2] + 4 # Ball y address
@@ -83,7 +86,19 @@ class play_helper:
         addressList[41] = addressList[35] + 4 # Demos by blue
 
         return addressList
-        
+
+    def getKey(self, item):
+        return item[1]
+
+    def verifyPlayerPointers(self, processHandle, addressVect):
+        # So after a goal, we have pointers to blue, white, orange, but not necessarily that correct order. Check values and reorganize.
+        tupleList = [(addressVect[1],self.rwm.ReadFloatFromAddress(processHandle, addressVect[1])), (addressVect[2],self.rwm.ReadFloatFromAddress(processHandle, addressVect[2])), (addressVect[3],self.rwm.ReadFloatFromAddress(processHandle, addressVect[3]))]
+        sortedList = sorted(tupleList, key=self.getKey)
+        # Now assign
+        addressVect[1] = sortedList[0][0]
+        addressVect[2] = sortedList[1][0]
+        addressVect[3] = sortedList[2][0]
+
     def GetValueVector(self, processHandle, addressVect):
         neuralInputs = array.array('f',(0,)*43) # Create a tuple with 43 float values
         scoring = array.array('f',(0,)*14) # Create a tuple with 4 float values

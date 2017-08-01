@@ -30,7 +30,7 @@ blueDemo = None
 orangeDemo = None
 
 time.sleep(1) # Sleep 1 second before starting to give me time to set things up
-for i in range(6000):
+for i in range(8000):
     values = ph.GetValueVector(processHandle, addresses)
 	
     rtd.UpdateDisplay(values) # Update display first because we might sleep if score or demo

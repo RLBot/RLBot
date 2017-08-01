@@ -19,7 +19,7 @@ Windows 10, Rocket League at least.  If you are running the tensorflow bot than 
 ### Longer Description
 
 #### Video Example
-[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb2.JPG)](https://www.youtube.com/watch?v=a-kyXoxCQ3k)
+[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb3.JPG)](https://www.youtube.com/watch?v=Ay5HpvM9ikY)
 
 #### Reading Values From Game
 RLBot is fed values which are read from process memory or derived values from read inputs.  These values include amount of boost, xyz positional coordinates for player, ball, and opponent, rotational values, relative velocities, 

@@ -100,38 +100,38 @@ class real_time_display:
 		# SCOREBOARD
 		Label(scoreboardFrame, textvariable=self.blueScore, fg="blue", width=self.SCOREBOARD_SCORE_WIDTH).pack(side=LEFT)
 		Label(scoreboardFrame, text="-").pack(side=LEFT)
-		Label(scoreboardFrame, textvariable=self.orngScore, fg="orange", width=self.SCOREBOARD_SCORE_WIDTH).pack(side=LEFT)
+		Label(scoreboardFrame, textvariable=self.orngScore, fg="darkorange2", width=self.SCOREBOARD_SCORE_WIDTH).pack(side=LEFT)
 
 		# STATS
 		Label(statBoardFrame, text="Points:").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.bluePoints, fg="blue").pack(side=LEFT)
 		Label(statBoardFrame, text="/").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.orngPoints, fg="orange").pack(side=LEFT)
+		Label(statBoardFrame, textvariable=self.orngPoints, fg="darkorange2").pack(side=LEFT)
 
 		Label(statBoardFrame, text="Goals:").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.blueGoals, fg="blue").pack(side=LEFT)
 		Label(statBoardFrame, text="/").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.orngGoals, fg="orange").pack(side=LEFT)
+		Label(statBoardFrame, textvariable=self.orngGoals, fg="darkorange2").pack(side=LEFT)
 		
 		Label(statBoardFrame, text="Shots:").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.blueShots, fg="blue").pack(side=LEFT)
 		Label(statBoardFrame, text="/").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.orngShots, fg="orange").pack(side=LEFT)
+		Label(statBoardFrame, textvariable=self.orngShots, fg="darkorange2").pack(side=LEFT)
 
 		Label(statBoardFrame, text="Assists:").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.blueAssists, fg="blue").pack(side=LEFT)
 		Label(statBoardFrame, text="/").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.orngAssists, fg="orange").pack(side=LEFT)
+		Label(statBoardFrame, textvariable=self.orngAssists, fg="darkorange2").pack(side=LEFT)
 
 		Label(statBoardFrame, text="Saves:").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.blueSaves, fg="blue").pack(side=LEFT)
 		Label(statBoardFrame, text="/").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.orngSaves, fg="orange").pack(side=LEFT)
+		Label(statBoardFrame, textvariable=self.orngSaves, fg="darkorange2").pack(side=LEFT)
 
 		Label(statBoardFrame, text="Demolitions:").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.blueDemos, fg="blue").pack(side=LEFT)
 		Label(statBoardFrame, text="/").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.orngDemos, fg="orange").pack(side=LEFT)
+		Label(statBoardFrame, textvariable=self.orngDemos, fg="darkorange2").pack(side=LEFT)
 
 		# MIDDLE FRAME
 
@@ -177,19 +177,19 @@ class real_time_display:
 		Label(blueValueFrame, textvariable=self.blueRot8, fg="blue", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(blueValueFrame, textvariable=self.blueRot9, fg="blue", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		
-		Label(orngValueFrame, textvariable=self.orngXZYPos, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngXZYVel, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot1, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot2, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot3, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot4, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot5, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot6, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot7, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot8, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.orngRot9, fg="orange", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.ballXZYPos, fg="purple1", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.ballXZYVel, fg="purple1", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngXZYPos, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngXZYVel, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot1, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot2, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot3, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot4, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot5, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot6, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot7, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot8, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngRot9, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.ballXZYPos, fg="purple4", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.ballXZYVel, fg="purple4", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 
 		# DRAW INITIAL FIELD
 		fieldCanvas.create_image(2, 2, anchor="nw", image=self.field, state="normal") # Why does this need to start at 2,2 and not 0,0 to align with the canvas? I have no idea, probably some border somewhere or something.
@@ -255,8 +255,8 @@ class real_time_display:
 		self.orngRot7.set(round(values[0][25],2))
 		self.orngRot8.set(round(values[0][26],2))
 		self.orngRot9.set(round(values[0][27],2))
-		self.blueDemos.set(int(values[1][2]))
-		self.orngDemos.set(int(values[1][3]))
+		self.orngDemos.set(int(values[1][2])) # Demos by orng, not when orng gets demo!
+		self.blueDemos.set(int(values[1][3])) # Demos by orng, not when orng gets demo!
 		self.bluePoints.set(int(values[1][4]))
 		self.orngPoints.set(int(values[1][5]))
 		self.blueGoals.set(int(values[1][6]))

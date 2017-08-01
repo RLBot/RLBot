@@ -60,9 +60,4 @@ def ReleaseKey(hexKeyCode):
 # 0x24 J
 # 0x25 K
 
-time.sleep(3) # Sleep for only half a second
-PressKey(0x11)
-time.sleep(1)
-ReleaseKey(0x11)
-
 
