@@ -55,6 +55,7 @@ class real_time_display:
 	orngRot9 = StringVar(value="rot9")
 	ballXZYPos = StringVar(value="p(x,z,y)")
 	ballXZYVel = StringVar(value="v(x,z,y)")
+	outputVector = StringVar(value="[0.0, 0.0, 0.0, 0.0, 0.0]")
 	
 	field = PhotoImage(width=FIELD_WIDTH, height=FIELD_HEIGHT)
 	
@@ -211,7 +212,7 @@ class real_time_display:
 				self.field.put("dimgrey", (x,y))
 
 		# BUTTONS FRAME
-		labelButton = Label(buttonFrame, text="TODO: Buttons Pressed")
+		labelButton = Label(buttonFrame, textvariable=self.outputVector)
 		labelButton.pack()
 		
 		# Display
@@ -303,6 +304,13 @@ class real_time_display:
 			for i in range(self.lastBallZ, self.lastBallZ + self.PLAYER_PIXEL_SIZE):
 				for j in range(self.lastBallX, self.lastBallX + self.PLAYER_PIXEL_SIZE):
 					self.field.put("white", (i, j))
+		
+		# Now refresh gui
+		self.root.update_idletasks()
+		self.root.update()
+		
+	def UpdateKeyPresses(self, output):
+		self.outputVector.set("Key press vector: " + str(output[0]) + ", " + str(output[1]) + ", " + str(output[2]) + ", " + str(output[3]) + ", " + str(output[4]))
 		
 		# Now refresh gui
 		self.root.update_idletasks()

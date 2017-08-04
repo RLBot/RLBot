@@ -6,6 +6,7 @@ import time
 import ReadWriteMem
 import PlayHelper
 import array
+import AlwaysTowardsBallAgent
 
 OpenProcess = windll.kernel32.OpenProcess
 CloseHandle = windll.kernel32.CloseHandle
@@ -22,6 +23,7 @@ rtd = realTimeDisplay.real_time_display()
 rtd.build_initial_window()
 
 ph = PlayHelper.play_helper()
+agent = AlwaysTowardsBallAgent.agent()
 addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
 
 blueScore = None
@@ -29,7 +31,7 @@ orangeScore = None
 blueDemo = None
 orangeDemo = None
 
-time.sleep(1) # Sleep 1 second before starting to give me time to set things up
+time.sleep(3) # Sleep 3 second before starting to give me time to set things up
 for i in range(8000):
     values = ph.GetValueVector(processHandle, addresses)
 	
@@ -69,6 +71,9 @@ for i in range(8000):
     
     # Use output vector to control button inputs
     #print(values)
+    output = agent.get_output_vector(values)
+    ph.update_keys(output)
+    rtd.UpdateKeyPresses(output)
                             
     time.sleep(0.05) # Sleep for a set interval
 
