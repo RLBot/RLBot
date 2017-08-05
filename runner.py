@@ -71,9 +71,9 @@ for i in range(8000):
     
     # Use output vector to control button inputs
     #print(values)
-    output = agent.get_output_vector(values)
-    ph.update_keys(output)
-    rtd.UpdateKeyPresses(output)
+    #output = agent.get_output_vector(values)
+    #ph.update_keys(output)
+    #rtd.UpdateKeyPresses(output)
                             
     time.sleep(0.05) # Sleep for a set interval
 

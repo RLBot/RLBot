@@ -11,7 +11,7 @@ class real_time_display:
 	SCOREBOARD_SCORE_WIDTH = 2
 	GOAL_DEPTH = 10
 	GOAL_LENGTH = 36
-	PLAYER_PIXEL_SIZE = 2
+	PLAYER_PIXEL_SIZE = 4
 	
 	# Variables
 	root = Tk()
@@ -24,8 +24,6 @@ class real_time_display:
 	orngGoals = StringVar(value="D")
 	blueShots = StringVar(value="E")
 	orngShots = StringVar(value="F")
-	blueAssists = StringVar(value="G")
-	orngAssists = StringVar(value="H")
 	blueSaves = StringVar(value="I")
 	orngSaves = StringVar(value="J")
 	blueDemos = StringVar(value="K")
@@ -67,6 +65,7 @@ class real_time_display:
 	lastBallZ = 50
 	
 	def build_initial_window(self):
+		
 		# Set up frames
 		windowFrame = Frame(self.root)
 		windowFrame.pack()
@@ -82,15 +81,15 @@ class real_time_display:
 
 		buttonFrame = Frame(windowFrame)
 		buttonFrame.pack()
+		
+		fieldCanvas = Canvas(middleFrame, width=(self.FIELD_WIDTH), height=(self.FIELD_HEIGHT), bg="lightgreen")
+		fieldCanvas.pack(side=TOP)
 
 		blueLabelFrame = Frame(middleFrame)
 		blueLabelFrame.pack(side=LEFT, fill=BOTH)
 
 		blueValueFrame = Frame(middleFrame)
 		blueValueFrame.pack(side=LEFT, fill=BOTH)
-
-		fieldCanvas = Canvas(middleFrame, width=(self.FIELD_WIDTH), height=(self.FIELD_HEIGHT), bg="lightgreen")
-		fieldCanvas.pack(side=LEFT)
 
 		orngLabelFrame = Frame(middleFrame)
 		orngLabelFrame.pack(side=LEFT, fill=BOTH)
@@ -118,11 +117,6 @@ class real_time_display:
 		Label(statBoardFrame, textvariable=self.blueShots, fg="blue").pack(side=LEFT)
 		Label(statBoardFrame, text="/").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.orngShots, fg="darkorange2").pack(side=LEFT)
-
-		Label(statBoardFrame, text="Assists:").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.blueAssists, fg="blue").pack(side=LEFT)
-		Label(statBoardFrame, text="/").pack(side=LEFT)
-		Label(statBoardFrame, textvariable=self.orngAssists, fg="darkorange2").pack(side=LEFT)
 
 		Label(statBoardFrame, text="Saves:").pack(side=LEFT)
 		Label(statBoardFrame, textvariable=self.blueSaves, fg="blue").pack(side=LEFT)
@@ -261,11 +255,9 @@ class real_time_display:
 		self.bluePoints.set(int(values[1][4]))
 		self.orngPoints.set(int(values[1][5]))
 		self.blueGoals.set(int(values[1][6]))
-		self.blueAssists.set(int(values[1][7]))
 		self.blueSaves.set(int(values[1][8]))
 		self.blueShots.set(int(values[1][9]))
 		self.orngGoals.set(int(values[1][10]))
-		self.orngAssists.set(int(values[1][11]))
 		self.orngSaves.set(int(values[1][12]))
 		self.orngShots.set(int(values[1][13]))
 		
