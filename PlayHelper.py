@@ -1,17 +1,9 @@
 import ReadWriteMem
 import array
 import time
-import SendKeys
+import pyvjoy
 
 class play_helper:
-    
-    W_CODE = 0x11
-    A_CODE = 0x1E
-    S_CODE = 0x1F
-    D_CODE = 0x20
-    LSHIFT_CODE = 0x2A
-    J_CODE = 0x24
-    K_CODE = 0x25
     
     rwm = ReadWriteMem.ReadWriteMem()
     
@@ -26,25 +18,15 @@ class play_helper:
     boty = None
     botz = None
     
-    # Key presses
-    W = False
-    A = False
-    S = False
-    D = False
-    LSHIFT = False
-    J = False
-    K = False
-    
-    
     def GetAddressVector(self, processHandle, rocketLeagueBaseAddress):
-        addressList = array.array('i',(0,)*42) # Create a tuple with 42 values
+        addressList = array.array('i',(0,)*41) # Create a tuple with 41 values
         
-        addressList[0] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x0193A9B4, 0x188, 0x7AC, 0x0, 0xC]) # Boost address (Updated July 31, 2017)
+        addressList[0] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x019FCF34, 0xCC, 0x30, 0x54]) # Blue Boost address (Updated August 5, 2017)
         addressList[1] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x4, 0x20, 0x44]) # Player z address
         addressList[2] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x8, 0x20, 0x44]) # Ball z address
         addressList[3] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x018DB9C4, 0x0, 0x20, 0x44]) # Bot (orange) z address
 
-        self.verifyPlayerPointers(processHandle, addressList) # Still need to deal with demolitions bing wacky pointers but that can be done later
+        self.verifyPlayerPointers(processHandle, addressList) # Still need to deal with demolitions being wacky pointers but that can be done later if possible
 
         addressList[4] = addressList[1] + 4 # Player y address
         addressList[5] = addressList[1] - 4 # Player x address
@@ -59,7 +41,7 @@ class play_helper:
         addressList[14] = addressList[13] + 8 # Player rot7
         addressList[15] = addressList[14] + 4 # Player rot8
         addressList[16] = addressList[15] + 4 # Player rot9
-        addressList[17] = addressList[3] + 4 # Bot y address
+        addressList[17] = addressList[3] + 4 # Bot y address (orange)
         addressList[18] = addressList[3] - 4 # Bot x address
         addressList[19] = addressList[17] + 8 # Bot rot1
         addressList[20] = addressList[19] + 4 # Bot rot2
@@ -75,15 +57,14 @@ class play_helper:
         addressList[30] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x019A3BA0, 0x8, 0x310]) # Blue "Score" address
         addressList[31] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x019A3BA0, 0x10, 0x310]) # Orange "Score" address
         addressList[32] = addressList[30] + 4 # Blue goals
-        addressList[33] = addressList[32] + 8 # Blue assists
-        addressList[34] = addressList[32] + 12 # Blue saves
-        addressList[35] = addressList[32] + 16 # Blue shots
-        addressList[36] = addressList[31] + 4 # Orange goals
-        addressList[37] = addressList[36] + 8 # Orange assists
-        addressList[38] = addressList[36] + 12 # Orange saves
-        addressList[39] = addressList[36] + 16 # Orange shots
-        addressList[40] = addressList[39] + 4 # Demos by orange
-        addressList[41] = addressList[35] + 4 # Demos by blue
+        addressList[33] = addressList[32] + 12 # Blue saves
+        addressList[34] = addressList[32] + 16 # Blue shots
+        addressList[35] = addressList[31] + 4 # Orange goals
+        addressList[36] = addressList[35] + 12 # Orange saves
+        addressList[37] = addressList[35] + 16 # Orange shots
+        addressList[38] = addressList[37] + 4 # Demos by orange
+        addressList[39] = addressList[34] + 4 # Demos by blue
+        addressList[40] = self.rwm.GetFinalAddress(processHandle, rocketLeagueBaseAddress, [0x0192F0A4, 0x688, 0x8, 0x30C]) # Orange Boost address
 
         return addressList
 
@@ -99,14 +80,41 @@ class play_helper:
         addressVect[2] = sortedList[1][0]
         addressVect[3] = sortedList[2][0]
 
+    def ping_refreshed_pointers(self, processHandle, addressVect):
+        # Make sure pointers after goal are pointing to z values that make sense
+        tupleList = [(addressVect[1],self.rwm.ReadFloatFromAddress(processHandle, addressVect[1])), (addressVect[2],self.rwm.ReadFloatFromAddress(processHandle, addressVect[2])), (addressVect[3],self.rwm.ReadFloatFromAddress(processHandle, addressVect[3]))]
+        sortedList = sorted(tupleList, key=self.getKey)
+        value1 = sortedList[0][1]
+        value2 = sortedList[1][1]
+        value3 = sortedList[2][1]
+        if (value1 < -100 or value1 > -30):
+            print("Ping failed blue z value check")
+            return True
+        if (value2 < -5 or value2 > 5):
+            print("Ping failed ball z value check")
+            return True
+        if (value3 < 30 or value3 > 100):
+            print("Ping failed orng z value check")
+            return True
+
+        # Check boost values are reset
+        if (not float(self.rwm.ReadIntFromAddress(processHandle, addressVect[0])) == 33):
+            print("Ping failed blue boost check")
+            return True
+        if (not float(self.rwm.ReadIntFromAddress(processHandle, addressVect[40])) == 33):
+            print("Ping failed orange boost check")
+            return True
+
+        return False
+
     def GetValueVector(self, processHandle, addressVect):
-        neuralInputs = array.array('f',(0,)*43) # Create a tuple with 43 float values
-        scoring = array.array('f',(0,)*14) # Create a tuple with 4 float values
-        # scoring = modify this with what I want to return for scoring function
-        # Need to read 28 values for neural inputs and calculate 9 velocities and 6 relative positions
+        neuralInputs = array.array('f',(0,)*38) # Create a tuple with 38 float values
+        scoring = array.array('f',(0,)*14) # Create a tuple with 14 float values
+        # Need to read 28 values for neural inputs and calculate 9 velocities
          
         # Boost is an int so different case
         neuralInputs[0] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[0]))
+        neuralInputs[37] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[40]))
         for i in range(1,28):
             neuralInputs[i] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[i])
         
@@ -137,23 +145,15 @@ class play_helper:
         neuralInputs[34] = (neuralInputs[18] - self.botx) / timeDiff
         neuralInputs[35] = (neuralInputs[17] - self.boty) / timeDiff
         neuralInputs[36] = (neuralInputs[3] - self.botz) / timeDiff
-
-        # Calculate relative positions
-        neuralInputs[37] = neuralInputs[7] - neuralInputs[5] # Relative x position to ball
-        neuralInputs[38] = neuralInputs[6] - neuralInputs[4] # Relative y position to ball
-        neuralInputs[39] = neuralInputs[2] - neuralInputs[1] # Relative z position to ball
-        neuralInputs[40] = neuralInputs[18] - neuralInputs[5] # Relative x position to bot
-        neuralInputs[41] = neuralInputs[17] - neuralInputs[4] # Relative y position to bot
-        neuralInputs[42] = neuralInputs[3] - neuralInputs[1] # Relative z position to bot
         
         # Also create tuple of scoring changes/demos so I can know when reset is necessary
         scoring[0] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[28])) # Blue Score
         scoring[1] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[29])) # Orange Score
-        scoring[2] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[40])) # Demos on blue
-        scoring[3] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[41])) # Demos on orange
+        scoring[2] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[38])) # Demos on blue
+        scoring[3] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[39])) # Demos on orange
 		
 		# Now fill in the other scoring values
-        for i in range(30,40):
+        for i in range(30,38):
             scoring[i - 26] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[i]))
 
         # Now update to old values
@@ -169,100 +169,59 @@ class play_helper:
         self.botz = neuralInputs[3]
 
         return neuralInputs, scoring
+
+    def reset_contollers(self):
+        p1 = pyvjoy.VJoyDevice(1)
+        p2 = pyvjoy.VJoyDevice(2)
+
+        p1.data.wAxisX = 16383
+        p1.data.wAxisY = 16383
+        p1.data.wAxisYRot = 16383
+        p1.data.wAxisXRot = 16383
+        p1.data.wAxisZ = 0
+        p1.data.wAxisZRot = 0
+        p1.data.lButtons = 0
+
+        p2.data.wAxisX = 16383
+        p2.data.wAxisY = 16383
+        p2.data.wAxisYRot = 16383
+        p2.data.wAxisXRot = 16383
+        p2.data.wAxisZ = 0
+        p2.data.wAxisZRot = 0
+        p2.data.lButtons = 0
+
+        #send data to vJoy device
+        p1.update()
+        p2.update()
         
-    def update_keys(self, output):
-        # Need to press keys that need to be pressed and aren't already pressed
-        # Need to unpress keys that are pressed and need to be unpressed
-        
-        # If output[0] < -1 decelerate, > 1 accelerate, otherwise don't move
-        if output[0] < -1.0:
-            if (not self.S):
-                SendKeys.PressKey(self.S_CODE)
-                self.S = True
-            if (self.W):
-                SendKeys.ReleaseKey(self.W_CODE)
-                self.W = False
-        elif output[0] > 1.0:
-            if (not self.W):
-                SendKeys.PressKey(self.W_CODE)
-                self.W = True
-            if (self.S):
-                SendKeys.ReleaseKey(self.S_CODE)
-                self.S = False
-        else:
-            if (self.W):
-                SendKeys.ReleaseKey(self.W_CODE)
-                self.W = False
-            if (self.S):
-                SendKeys.ReleaseKey(self.S_CODE)
-                self.S = False
-                
-        # output[1], check for left, none, right
-        if output[1] < -1.0:
-            if (not self.A):
-                SendKeys.PressKey(self.A_CODE)
-                self.A = True
-            if (self.D):
-                SendKeys.ReleaseKey(self.D_CODE)
-                self.D = False
-        elif output[1] > 1.0:
-            if (not self.D):
-                SendKeys.PressKey(self.D_CODE)
-                self.D = True
-            if (self.A):
-                SendKeys.ReleaseKey(self.A_CODE)
-                self.A = False
-        else:
-            if (self.D):
-                SendKeys.ReleaseKey(self.D_CODE)
-                self.D = False
-            if (self.A):
-                SendKeys.ReleaseKey(self.A_CODE)
-                self.A = False
-                
-        # output[2], dift key off/on
-        if output[2] < 0.0:
-            if (self.LSHIFT):
-                SendKeys.ReleaseKey(self.LSHIFT_CODE)
-                self.LSHIFT = False
-        else:
-            if (not self.LSHIFT):
-                SendKeys.PressKey(self.LSHIFT_CODE)
-                self.LSHIFT = True
-                
-        # output[3], boost key off/on
-        if output[3] < 0.0:
-            if (self.J):
-                SendKeys.ReleaseKey(self.J_CODE)
-                self.J = False
-        else:
-            if (not self.J):
-                SendKeys.PressKey(self.J_CODE)
-                self.J = True
-                
-        # output[4], jump key off/on
-        if output[4] < 0.0:
-            if (self.K):
-                SendKeys.ReleaseKey(self.K_CODE)
-                self.K = False
-        else:
-            if (not self.K):
-                SendKeys.PressKey(self.K_CODE)
-                self.K = True
-                
-    def release_keys(self):
-        # Make sure to unpress all keys when done
-        if (self.W):
-            SendKeys.ReleaseKey(self.W_CODE)
-        if (self.A):
-            SendKeys.ReleaseKey(self.A_CODE)
-        if (self.S):
-            SendKeys.ReleaseKey(self.S_CODE)
-        if (self.D):
-            SendKeys.ReleaseKey(self.D_CODE)
-        if (self.LSHIFT):
-            SendKeys.ReleaseKey(self.LSHIFT_CODE)
-        if (self.J):
-            SendKeys.ReleaseKey(self.J_CODE)
-        if (self.K):
-            SendKeys.ReleaseKey(self.K_CODE)
+    def update_controllers(self, output1, output2):
+        # Update controller buttons for both players
+
+        # TODO: Sanitize input players give
+        p1 = pyvjoy.VJoyDevice(1)
+        p2 = pyvjoy.VJoyDevice(2)
+
+        p1.data.wAxisX = output1[0]
+        p2.data.wAxisX = output2[0]
+
+        p1.data.wAxisY = output1[1]
+        p2.data.wAxisY = output2[1]
+
+        p1.data.wAxisZRot = output1[2]
+        p2.data.wAxisZRot = output2[2]
+
+        p1.data.wAxisZ = output1[3]
+        p2.data.wAxisZ = output2[3]
+
+        p1.data.lButtons = (1 * output1[4]) + (2 * output1[5]) + (4 * output1[6])
+        p2.data.lButtons = (1 * output2[4]) + (2 * output2[5]) + (4 * output2[6])
+
+        p1.data.wAxisXRot = 16383
+        p2.data.wAxisXRot = 16383
+
+        p1.data.wAxisYRot = 16383
+        p2.data.wAxisYRot = 16383
+
+        #send data to vJoy device
+        p1.update()
+        p2.update()

@@ -6,8 +6,6 @@ import time
 p1 = pyvjoy.VJoyDevice(1)
 p2 = pyvjoy.VJoyDevice(2)
 
-time.sleep(3)
-
 p1.data.wAxisX = 16383
 p1.data.wAxisY = 16383
 p1.data.wAxisYRot = 16383

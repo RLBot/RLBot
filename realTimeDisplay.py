@@ -8,6 +8,7 @@ class real_time_display:
 	FIELD_HEIGHT = 164
 	PLAYER_LABEL_WIDTH = 11
 	PLAYER_VALUE_WIDTH = 14
+	OUTPUT_WIDTH = 28
 	SCOREBOARD_SCORE_WIDTH = 2
 	GOAL_DEPTH = 10
 	GOAL_LENGTH = 36
@@ -31,6 +32,7 @@ class real_time_display:
 	blueXZYPos = StringVar(value="p(x,z,y)")
 	blueXZYVel = StringVar(value="v(x,z,y)")
 	blueBoost = StringVar(value="boost")
+	orngBoost = StringVar(value="boost")
 	blueRot1 = StringVar(value="rot1")
 	blueRot2 = StringVar(value="rot2")
 	blueRot3 = StringVar(value="rot3")
@@ -53,7 +55,8 @@ class real_time_display:
 	orngRot9 = StringVar(value="rot9")
 	ballXZYPos = StringVar(value="p(x,z,y)")
 	ballXZYVel = StringVar(value="v(x,z,y)")
-	outputVector = StringVar(value="[0.0, 0.0, 0.0, 0.0, 0.0]")
+	blueOutput = StringVar(value="Blue Output")
+	orngOutput = StringVar(value="Blue Output")
 	
 	field = PhotoImage(width=FIELD_WIDTH, height=FIELD_HEIGHT)
 	
@@ -64,7 +67,7 @@ class real_time_display:
 	lastBallX = 50
 	lastBallZ = 50
 	
-	def build_initial_window(self):
+	def build_initial_window(self, blueBotName, orngBotName):
 		
 		# Set up frames
 		windowFrame = Frame(self.root)
@@ -78,9 +81,6 @@ class real_time_display:
 
 		middleFrame = Frame(windowFrame)
 		middleFrame.pack()
-
-		buttonFrame = Frame(windowFrame)
-		buttonFrame.pack()
 		
 		fieldCanvas = Canvas(middleFrame, width=(self.FIELD_WIDTH), height=(self.FIELD_HEIGHT), bg="lightgreen")
 		fieldCanvas.pack(side=TOP)
@@ -97,10 +97,30 @@ class real_time_display:
 		orngValueFrame = Frame(middleFrame)
 		orngValueFrame.pack(side=LEFT, fill=BOTH)
 
+		blueControllerFrame = Frame(windowFrame)
+		blueControllerFrame.pack()
+
+		blueControllerLabel = Frame(blueControllerFrame)
+		blueControllerLabel.pack(side=LEFT, fill=BOTH)
+
+		blueControllerValue = Frame(blueControllerFrame)
+		blueControllerValue.pack(side=LEFT, fill=BOTH)
+
+		orngControllerFrame = Frame(windowFrame)
+		orngControllerFrame.pack()
+
+		orngControllerLabel = Frame(orngControllerFrame)
+		orngControllerLabel.pack(side=LEFT, fill=BOTH)
+
+		orngControllerValue = Frame(orngControllerFrame)
+		orngControllerValue.pack(side=LEFT, fill=BOTH)
+
 		# SCOREBOARD
-		Label(scoreboardFrame, textvariable=self.blueScore, fg="blue", width=self.SCOREBOARD_SCORE_WIDTH).pack(side=LEFT)
+		Label(scoreboardFrame, text=blueBotName, fg="blue").pack(side=LEFT)
+		Label(scoreboardFrame, textvariable=self.blueScore, fg="blue").pack(side=LEFT)
 		Label(scoreboardFrame, text="-").pack(side=LEFT)
-		Label(scoreboardFrame, textvariable=self.orngScore, fg="darkorange2", width=self.SCOREBOARD_SCORE_WIDTH).pack(side=LEFT)
+		Label(scoreboardFrame, textvariable=self.orngScore, fg="darkorange2").pack(side=LEFT)
+		Label(scoreboardFrame, text=orngBotName, fg="darkorange2").pack(side=LEFT)
 
 		# STATS
 		Label(statBoardFrame, text="Points:").pack(side=LEFT)
@@ -143,9 +163,11 @@ class real_time_display:
 		Label(blueLabelFrame, text="Rotation 7:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(blueLabelFrame, text="Rotation 8:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(blueLabelFrame, text="Rotation 9:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
+		Label(blueLabelFrame, text="Ball pos (x,z,y):", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 
 		Label(orngLabelFrame, text="Position (x,z,y):", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(orngLabelFrame, text="Velocity (x,z,y):", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
+		Label(orngLabelFrame, text="Boost:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(orngLabelFrame, text="Rotation 1:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(orngLabelFrame, text="Rotation 2:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(orngLabelFrame, text="Rotation 3:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
@@ -155,7 +177,6 @@ class real_time_display:
 		Label(orngLabelFrame, text="Rotation 7:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(orngLabelFrame, text="Rotation 8:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(orngLabelFrame, text="Rotation 9:", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
-		Label(orngLabelFrame, text="Ball pos (x,z,y):", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 		Label(orngLabelFrame, text="Ball vel (x,z,y):", justify="left", anchor="w", width=self.PLAYER_LABEL_WIDTH).pack()
 
 		# Create value for labels
@@ -171,9 +192,11 @@ class real_time_display:
 		Label(blueValueFrame, textvariable=self.blueRot7, fg="blue", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(blueValueFrame, textvariable=self.blueRot8, fg="blue", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(blueValueFrame, textvariable=self.blueRot9, fg="blue", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(blueValueFrame, textvariable=self.ballXZYPos, fg="purple4", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		
 		Label(orngValueFrame, textvariable=self.orngXZYPos, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(orngValueFrame, textvariable=self.orngXZYVel, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
+		Label(orngValueFrame, textvariable=self.orngBoost, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(orngValueFrame, textvariable=self.orngRot1, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(orngValueFrame, textvariable=self.orngRot2, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(orngValueFrame, textvariable=self.orngRot3, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
@@ -183,7 +206,6 @@ class real_time_display:
 		Label(orngValueFrame, textvariable=self.orngRot7, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(orngValueFrame, textvariable=self.orngRot8, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(orngValueFrame, textvariable=self.orngRot9, fg="darkorange2", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
-		Label(orngValueFrame, textvariable=self.ballXZYPos, fg="purple4", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 		Label(orngValueFrame, textvariable=self.ballXZYVel, fg="purple4", justify="left", anchor="w", width=self.PLAYER_VALUE_WIDTH).pack()
 
 		# DRAW INITIAL FIELD
@@ -205,10 +227,13 @@ class real_time_display:
 			for y in range(int(self.FIELD_HEIGHT - (self.FIELD_HEIGHT / 2) + (self.GOAL_LENGTH / 2)), self.FIELD_HEIGHT):
 				self.field.put("dimgrey", (x,y))
 
-		# BUTTONS FRAME
-		labelButton = Label(buttonFrame, textvariable=self.outputVector)
-		labelButton.pack()
-		
+		# CONTROLLER PRESS FRAME
+		Label(blueControllerLabel, text="P1:", justify="left", anchor="w", width=self.SCOREBOARD_SCORE_WIDTH).pack()
+		Label(orngControllerLabel, text="P2:", justify="left", anchor="w", width=self.SCOREBOARD_SCORE_WIDTH).pack()
+
+		Label(blueControllerValue, textvariable=self.blueOutput, fg="blue", justify="left", anchor="w", width=self.OUTPUT_WIDTH).pack()
+		Label(orngControllerValue, textvariable=self.orngOutput, fg="darkorange2", justify="left", anchor="w", width=self.OUTPUT_WIDTH).pack()
+
 		# Display
 		self.root.update_idletasks()
 		self.root.update()
@@ -232,6 +257,7 @@ class real_time_display:
 		self.orngXZYVel.set(str(round(values[0][34],2)) + "," + str(round(values[0][36],2)) + "," + str(round(values[0][35],2)))
 		self.ballXZYVel.set(str(round(values[0][31],2)) + "," + str(round(values[0][33],2)) + "," + str(round(values[0][32],2)))
 		self.blueBoost.set(int(values[0][0]))
+		self.orngBoost.set(int(values[0][37]))
 		self.blueRot1.set(round(values[0][8],2))
 		self.blueRot2.set(round(values[0][9],2))
 		self.blueRot3.set(round(values[0][10],2))
@@ -251,15 +277,15 @@ class real_time_display:
 		self.orngRot8.set(round(values[0][26],2))
 		self.orngRot9.set(round(values[0][27],2))
 		self.orngDemos.set(int(values[1][2])) # Demos by orng, not when orng gets demo!
-		self.blueDemos.set(int(values[1][3])) # Demos by orng, not when orng gets demo!
+		self.blueDemos.set(int(values[1][3]))
 		self.bluePoints.set(int(values[1][4]))
 		self.orngPoints.set(int(values[1][5]))
 		self.blueGoals.set(int(values[1][6]))
-		self.blueSaves.set(int(values[1][8]))
-		self.blueShots.set(int(values[1][9]))
-		self.orngGoals.set(int(values[1][10]))
-		self.orngSaves.set(int(values[1][12]))
-		self.orngShots.set(int(values[1][13]))
+		self.blueSaves.set(int(values[1][7]))
+		self.blueShots.set(int(values[1][8]))
+		self.orngGoals.set(int(values[1][9]))
+		self.orngSaves.set(int(values[1][10]))
+		self.orngShots.set(int(values[1][11]))
 		
 		# Draw blue player
 		if (self.sanity_check_x(self.lastBlueX) and self.sanity_check_z(self.lastBlueZ)):
@@ -301,8 +327,9 @@ class real_time_display:
 		self.root.update_idletasks()
 		self.root.update()
 		
-	def UpdateKeyPresses(self, output):
-		self.outputVector.set("Key press vector: " + str(output[0]) + ", " + str(output[1]) + ", " + str(output[2]) + ", " + str(output[3]) + ", " + str(output[4]))
+	def UpdateKeyPresses(self, output1, output2):
+		self.blueOutput.set(str(output1))
+		self.orngOutput.set(str(output2))
 		
 		# Now refresh gui
 		self.root.update_idletasks()
