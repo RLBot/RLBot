@@ -27,7 +27,10 @@ Windows 10, Rocket League, vjoy + pyvjoy + x360ce at least.  If you are running 
 #### Reading Values From Game
 RLBot is fed values which are read from process memory or derived values from read inputs.  These values include amount of boost, xyz positional coordinates for player, ball, and opponent, rotational values, relative velocities, 
 and score from the game to name a few.  Look at PlayHelper.py for all values.  The way values are read from process memory is very finicky and may require modifying pointer trails in PlayHelper.py.  I use CheatEngine to find pointer trails.  
-**It is likely you will have to do some work tracking down pointers to get this program to work!**
+**Pointers have been tested on multiple machines with consistency so this should work out of the box.  If there is a game update it is possible pointers will need to be updated and this repository will need to be updated.**
 
 #### Runner
-Run "python runner.py" after the game is loaded and all bots and the ball are loaded on the playfield.  A GUI window should pop up after a second displaying game values.  I try my best to make sure these values are correct and the display is there so we know for sure!
+Run "python runner.py" after the game is loaded and all bots and the ball are loaded on the playfield.  A GUI window should pop up after a second displaying game values.  I try my best to make sure these values are correct and the display is there so we know for sure!  I assume that replays after goals are not skipped so if you skip a replay you might need to wait a few seconds before the program starts working again.
+
+#### p2join scripts
+In order to get player 2 to join in you need to press start initially, you also need to press a at the team selection menu.  I have a couple scripts that just wait a couple seconds and then press and release the button for this purpose.  So to run them you can just minimize out rocket league, start the script, and pop back into the game and it'll press the button for you.
