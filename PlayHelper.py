@@ -109,7 +109,7 @@ class play_helper:
 
     def GetValueVector(self, processHandle, addressVect):
         neuralInputs = array.array('f',(0,)*38) # Create a tuple with 38 float values
-        scoring = array.array('f',(0,)*14) # Create a tuple with 14 float values
+        scoring = array.array('f',(0,)*12) # Create a tuple with 12 float values
         # Need to read 28 values for neural inputs and calculate 9 velocities
          
         # Boost is an int so different case
