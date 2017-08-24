@@ -21,18 +21,22 @@ debug any runtime issues that occur with your bot.
 # Can this bot's code be shared publicly (Default: No):
 # Can non-tournment gameplay of this bot be displayed publicly (Default: No):
 
+gateway = JavaGateway(gateway_parameters=GatewayParameters(auto_convert=True))
+javaAgent = gateway.entry_point.getAgent()
+
 class agent:
 
 	def __init__(self, team):
 		self.team = team # use self.team to determine what team you are. I will set to "blue" or "orange"
-		self.gateway = JavaGateway(gateway_parameters=GatewayParameters(auto_convert=True))
-		self.agent = self.gateway.entry_point.getAgent()
 
 	def get_bot_name(self):
 		# This is the name that will be displayed on screen in the real time display!
 		return "JavaAgent"
 
 	def get_output_vector(self, input):
-		return self.agent.getOutputVector(input, self.team)
+		# Call the java process to get the output
+		listOutput = javaAgent.getOutputVector([list(input[0]), list(input[1])], self.team)
+		# Convert to a regular python list
+		return list(listOutput)
 
 	
