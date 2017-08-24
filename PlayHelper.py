@@ -7,17 +7,6 @@ class play_helper:
     
     rwm = ReadWriteMem.ReadWriteMem()
     
-    timeStamp = None
-    x = None
-    y = None
-    z = None
-    ballx = None
-    bally = None
-    ballz = None
-    botx = None
-    boty = None
-    botz = None
-    
     def GetAddressVector(self, processHandle, rocketLeagueBaseAddress):
         addressList = array.array('i',(0,)*41) # Create a tuple with 41 values
         
@@ -117,34 +106,16 @@ class play_helper:
         neuralInputs[37] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[40]))
         for i in range(1,28):
             neuralInputs[i] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[i])
-        
-        if (self.timeStamp == None):
-            # Need to set values for first time reading
-            self.timeStamp = time.time()
-            self.x = neuralInputs[5]
-            self.y = neuralInputs[4]
-            self.z = neuralInputs[1]
-            self.ballx = neuralInputs[7]
-            self.bally = neuralInputs[6]
-            self.ballz = neuralInputs[2]
-            self.botx = neuralInputs[18]
-            self.boty = neuralInputs[17]
-            self.botz = neuralInputs[3]
 
-        # Calculate velocities
-        curTime = time.time() # Shouldn't really matter where I put this so long as it is equally spaced apart
-        timeDiff = curTime - self.timeStamp
-        if (timeDiff == 0):
-            timeDiff = 1
-        neuralInputs[28] = (neuralInputs[5] - self.x) / timeDiff
-        neuralInputs[29] = (neuralInputs[4] - self.y) / timeDiff
-        neuralInputs[30] = (neuralInputs[1] - self.z) / timeDiff
-        neuralInputs[31] = (neuralInputs[7] - self.ballx) / timeDiff
-        neuralInputs[32] = (neuralInputs[6] - self.bally) / timeDiff
-        neuralInputs[33] = (neuralInputs[2] - self.ballz) / timeDiff
-        neuralInputs[34] = (neuralInputs[18] - self.botx) / timeDiff
-        neuralInputs[35] = (neuralInputs[17] - self.boty) / timeDiff
-        neuralInputs[36] = (neuralInputs[3] - self.botz) / timeDiff
+        neuralInputs[28] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[1] + 268) # x
+        neuralInputs[29] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[1] + 276) # "y"
+        neuralInputs[30] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[1] + 272) # "z"
+        neuralInputs[31] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[2] + 268) # x
+        neuralInputs[32] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[2] + 276) # "y"
+        neuralInputs[33] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[2] + 272) # "z"
+        neuralInputs[34] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[3] + 268) # x
+        neuralInputs[35] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[3] + 276) # "y"
+        neuralInputs[36] = self.rwm.ReadFloatFromAddress(processHandle, addressVect[3] + 272) # "z"
         
         # Also create tuple of scoring changes/demos so I can know when reset is necessary
         scoring[0] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[28])) # Blue Score
@@ -155,18 +126,6 @@ class play_helper:
 		# Now fill in the other scoring values
         for i in range(30,38):
             scoring[i - 26] = float(self.rwm.ReadIntFromAddress(processHandle, addressVect[i]))
-
-        # Now update to old values
-        self.timeStamp = curTime
-        self.x = neuralInputs[5]
-        self.y = neuralInputs[4]
-        self.z = neuralInputs[1]
-        self.ballx = neuralInputs[7]
-        self.bally = neuralInputs[6]
-        self.ballz = neuralInputs[2]
-        self.botx = neuralInputs[18]
-        self.boty = neuralInputs[17]
-        self.botz = neuralInputs[3]
 
         return neuralInputs, scoring
 
