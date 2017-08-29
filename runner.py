@@ -3,6 +3,7 @@ from ctypes.wintypes import *
 from multiprocessing import Process, Array, Queue
 
 import time
+import atexit
 import realTimeDisplay
 import ReadWriteMem
 import PlayHelper
@@ -77,6 +78,9 @@ def updateInputs(inputs, scoring, ph):
 		for i in range(len(values[1])):
 			scoring[i] = values[1][i]
 		time.sleep(0.01)
+		
+def resetInputs():
+	exec(open("resetDevices.py").read())
 
 def runAgent(inputs, scoring, agent, q):
 	# Deep copy inputs?
@@ -89,6 +93,8 @@ def runAgent(inputs, scoring, agent, q):
 		time.sleep(0.01)
 			
 if __name__ == '__main__':
+	# Make sure input devices are reset to neutral whenever the script terminates
+	atexit.register(resetInputs)
 
 	time.sleep(3) # Sleep 3 second before starting to give me time to set things up
 
