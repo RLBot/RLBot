@@ -39,12 +39,14 @@ public class AgentInput {
 
         orangePosition = new Vec3d(neuralInputs.get(18), neuralInputs.get(17), neuralInputs.get(3));
         orangeVelocity = new Vec3d(neuralInputs.get(34), neuralInputs.get(35), neuralInputs.get(36));
-        orangeRotation = new CarRotation(neuralInputs.get(19), neuralInputs.get(25), neuralInputs.get(22), neuralInputs.get(27));
+        orangeRotation = new CarRotation(new Vec3d(neuralInputs.get(19), neuralInputs.get(25), neuralInputs.get(22)),
+                new Vec3d(neuralInputs.get(21), neuralInputs.get(24), neuralInputs.get(27)));
         orangeBoost = neuralInputs.get(37);
 
         bluePosition = new Vec3d(neuralInputs.get(5), neuralInputs.get(4), neuralInputs.get(1));
         blueVelocity = new Vec3d(neuralInputs.get(28), neuralInputs.get(29), neuralInputs.get(30));
-        blueRotation = new CarRotation(neuralInputs.get(8), neuralInputs.get(7), neuralInputs.get(4), neuralInputs.get(16));
+        blueRotation = new CarRotation(new Vec3d(neuralInputs.get(8), neuralInputs.get(14), neuralInputs.get(11)),
+                new Vec3d(neuralInputs.get(10), neuralInputs.get(16),  neuralInputs.get(13)));
         blueBoost = neuralInputs.get(0);
     }
 }

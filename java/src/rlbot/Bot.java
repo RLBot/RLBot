@@ -22,7 +22,7 @@ public class Bot {
         Vec3d myPosition = team == Team.BLUE ? input.bluePosition : input.orangePosition;
         CarRotation myRotation = team == Team.BLUE ? input.blueRotation : input.orangeRotation;
 
-        float playerDirectionRad = (float) Math.atan2(myRotation.noseX, myRotation.noseZ);
+        float playerDirectionRad = (float) Math.atan2(myRotation.noseVector.x, myRotation.noseVector.z);
 
         float relativeAngleToBallRad = (float) Math.atan2(ballPosition.x - myPosition.x, ballPosition.z - myPosition.z);
 
