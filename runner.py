@@ -112,7 +112,7 @@ if __name__ == '__main__':
 	output2 = [16383, 16383, 32767, 0, 0, 0, 0]
 	
 	rtd = realTimeDisplay.real_time_display()
-	rtd.build_initial_window(agent1.agent("blue").get_bot_name(), agent2.agent("orange").get_bot_name())
+	rtd.build_initial_window(agent1.BOT_NAME, agent2.BOT_NAME)
 	
 	ph = PlayHelper.play_helper()
 	

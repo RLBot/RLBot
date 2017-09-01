@@ -4,7 +4,7 @@ from py4j.java_gateway import GatewayParameters
 
 # In order to run this successfully:
 # 1. Run 'pip install py4j'  (one time setup)
-# 2. Modify runner.py to use this agent, e.g. "agent2 = JavaAgent.agent("orange")"
+# 2. Modify runner.py to use this agent, e.g. "import JavaAgent as agent2"
 # 3. Choose a port number, and put it both in this class and in AgentEntryPoint.java
 #    - Avoid 25333 because that's the default, and other bots may be using it!
 #    - See the myPort variable below, which I've set to -1 so that you're forced to see this.
@@ -46,14 +46,14 @@ print("Connecting to Java Gateway on port " + str(myPort))
 gateway = JavaGateway(gateway_parameters=GatewayParameters(auto_convert=True, port=myPort))
 javaAgent = gateway.entry_point.getAgent()
 
+
+# This is the name that will be displayed on screen in the real time display!
+BOT_NAME = "JavaAgent"
+
 class agent:
 
 	def __init__(self, team):
 		self.team = team # use self.team to determine what team you are. I will set to "blue" or "orange"
-
-	def get_bot_name(self):
-		# This is the name that will be displayed on screen in the real time display!
-		return "JavaAgent"
 
 	def get_output_vector(self, input):
 		# Call the java process to get the output

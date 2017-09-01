@@ -13,14 +13,15 @@ debug any runtime issues that occur with your bot.
 # Can this bot's code be shared publicly (Default: No):
 # Can non-tournment gameplay of this bot be displayed publicly (Default: No):
 
+
+# This is the name that will be displayed on screen in the real time display!
+BOT_NAME = "AlwaysTowardsBallAgent"
+
+
 class agent:
 
 	def __init__(self, team):
 		self.team = team # use self.team to determine what team you are. I will set to "blue" or "orange"
-
-	def get_bot_name(self):
-		# This is the name that will be displayed on screen in the real time display!
-		return "AlwaysTowardsBallAgent"
 
 	def get_output_vector(self, input):
 		ball_z = input[0][2]
