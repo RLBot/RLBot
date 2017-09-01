@@ -48,7 +48,7 @@ javaAgent = gateway.entry_point.getAgent()
 
 
 # This is the name that will be displayed on screen in the real time display!
-BOT_NAME = "AlwaysTowardsBallAgent"
+BOT_NAME = "JavaAgent"
 
 class agent:
 
