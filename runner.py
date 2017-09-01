@@ -8,7 +8,8 @@ import realTimeDisplay
 import ReadWriteMem
 import PlayHelper
 import array
-import AlwaysTowardsBallAgent
+import AlwaysTowardsBallAgent as agent1
+import AlwaysTowardsBallAgent as agent2
 
 OpenProcess = windll.kernel32.OpenProcess
 CloseHandle = windll.kernel32.CloseHandle
@@ -82,12 +83,16 @@ def updateInputs(inputs, scoring, ph):
 def resetInputs():
 	exec(open("resetDevices.py").read())
 
-def runAgent(inputs, scoring, agent, q):
+def runAgent(inputs, scoring, team, q):
 	# Deep copy inputs?
+	if team == "blue":
+		agent = agent1.agent("blue")
+	else:
+		agent = agent2.agent("orange")
 	while(True):
-		output1 = agent.get_output_vector((inputs,scoring))
+		output = agent.get_output_vector((inputs,scoring))
 		try:
-			q.put(output1)
+			q.put(output)
 		except Queue.Full:
 			pass
 		time.sleep(0.01)
@@ -100,8 +105,6 @@ if __name__ == '__main__':
 
 	inputs = Array('f', [0.0 for x in range(38)])
 	scoring = Array('f', [0.0 for x in range(12)])
-	agent1 = AlwaysTowardsBallAgent.agent("blue")
-	agent2 = AlwaysTowardsBallAgent.agent("orange")
 	q1 = Queue(1)
 	q2 = Queue(1)
 	
@@ -109,15 +112,15 @@ if __name__ == '__main__':
 	output2 = [16383, 16383, 32767, 0, 0, 0, 0]
 	
 	rtd = realTimeDisplay.real_time_display()
-	rtd.build_initial_window(agent1.get_bot_name(), agent2.get_bot_name())
+	rtd.build_initial_window(agent1.agent("blue").get_bot_name(), agent2.agent("orange").get_bot_name())
 	
 	ph = PlayHelper.play_helper()
 	
 	p1 = Process(target=updateInputs, args=(inputs, scoring, ph))
 	p1.start()
-	p2 = Process(target=runAgent, args=(inputs, scoring, agent1, q1))
+	p2 = Process(target=runAgent, args=(inputs, scoring, "blue", q1))
 	p2.start()
-	p3 = Process(target=runAgent, args=(inputs, scoring, agent2, q2))
+	p3 = Process(target=runAgent, args=(inputs, scoring, "orange", q2))
 	p3.start()
 	
 	while (True):
