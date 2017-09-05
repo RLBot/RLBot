@@ -24,29 +24,6 @@ debug any runtime issues that occur with your bot.
 # Can this bot's code be shared publicly (Default: No):
 # Can non-tournment gameplay of this bot be displayed publicly (Default: No):
 
-myPort = -1  # -1 fails on purpose, see instructions above to change it!
-if myPort < 0:
-	# Feel free to remove this once you've chosen a port!
-	raise Exception('The person programming this bot (you?) needs to choose a port number! See instructions in this file')
-
-
-# Scenario: you finished your bot and submitted it to a tournament. Your opponent hard-coded the same
-# as you, and the match can't start because of the conflict. Because of this line, you can ask the
-# organizer make a file called "port.txt" in the same directory as your .jar, and put some other number in it.
-# This matches code in AgentEntryPoint.java
-try:
-	with open("port.txt", "r") as portFile:
-		myPort = int(portFile.readline())
-except ValueError:
-	print("Failed to parse port file! Will proceed with hard-coded port number.")
-except:
-	pass
-
-print("Connecting to Java Gateway on port " + str(myPort))
-gateway = JavaGateway(gateway_parameters=GatewayParameters(auto_convert=True, port=myPort))
-javaAgent = gateway.entry_point.getAgent()
-
-
 # This is the name that will be displayed on screen in the real time display!
 BOT_NAME = "JavaAgent"
 
@@ -54,11 +31,50 @@ class agent:
 
 	def __init__(self, team):
 		self.team = team # use self.team to determine what team you are. I will set to "blue" or "orange"
+		self.myPort = -1  # -1 fails on purpose, see instructions above to change it!
+		if self.myPort < 0:
+			# Feel free to remove this once you've chosen a port!
+			raise Exception('The person programming this bot (you?) needs to choose a port number! See instructions in this file')
+
+		# Scenario: you finished your bot and submitted it to a tournament. Your opponent hard-coded the same
+		# as you, and the match can't start because of the conflict. Because of this line, you can ask the
+		# organizer make a file called "port.txt" in the same directory as your .jar, and put some other number in it.
+		# This matches code in AgentEntryPoint.java
+		try:
+			with open("port.txt", "r") as portFile:
+				self.myPort = int(portFile.readline())
+		except ValueError:
+			print("Failed to parse port file! Will proceed with hard-coded port number.")
+		except:
+			pass
+
+		try:
+			self.init_py4j_stuff()
+		except:
+			print("Exception when trying to connect to java! Make sure the java program is running!")
+			pass
+
+
+	def init_py4j_stuff(self):
+		print("Connecting to Java Gateway on port " + str(self.myPort))
+		self.gateway = JavaGateway(gateway_parameters=GatewayParameters(auto_convert=True, port=self.myPort))
+		self.javaAgent = self.gateway.entry_point.getAgent()
+		print("Connection to Java successful!")
+
 
 	def get_output_vector(self, input):
-		# Call the java process to get the output
-		listOutput = javaAgent.getOutputVector([list(input[0]), list(input[1])], self.team)
-		# Convert to a regular python list
-		return list(listOutput)
+		try:
+			# Call the java process to get the output
+			listOutput = self.javaAgent.getOutputVector([list(input[0]), list(input[1])], self.team)
+			# Convert to a regular python list
+			return list(listOutput)
+		except:
+			print("Exception when calling java! Will recreate gateway...")
+			self.gateway.shutdown_callback_server()
+			try:
+				self.init_py4j_stuff()
+			except:
+				print("Reinitialization failed")
+				pass
 
-	
+			return [16383, 16383, 0, 0, 0, 0, 0] # No motion
