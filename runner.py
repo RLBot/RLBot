@@ -8,8 +8,8 @@ import realTimeDisplay
 import ReadWriteMem
 import PlayHelper
 import array
-import AlwaysTowardsBallAgent as agent1
-import AlwaysTowardsBallAgent as agent2
+import configparser
+import importlib
 
 OpenProcess = windll.kernel32.OpenProcess
 CloseHandle = windll.kernel32.CloseHandle
@@ -85,9 +85,13 @@ def resetInputs():
 
 def runAgent(inputs, scoring, team, q):
 	# Deep copy inputs?
+	config = configparser.RawConfigParser()
+	config.read('rlbot.cfg')
 	if team == "blue":
+		agent1 = importlib.import_module(config.get('Player Configuration', 'p1Agent'))
 		agent = agent1.agent("blue")
 	else:
+		agent2 = importlib.import_module(config.get('Player Configuration', 'p2Agent'))
 		agent = agent2.agent("orange")
 	while(True):
 		output = agent.get_output_vector((inputs,scoring))
@@ -102,6 +106,14 @@ if __name__ == '__main__':
 	atexit.register(resetInputs)
 
 	time.sleep(3) # Sleep 3 second before starting to give me time to set things up
+
+	# Read config for agents
+	config = configparser.RawConfigParser()
+	config.read('rlbot.cfg')
+	agent1 = importlib.import_module(config.get('Player Configuration', 'p1Agent'))
+	agent2 = importlib.import_module(config.get('Player Configuration', 'p2Agent'))
+	agent1Color = config.get('Player Configuration', 'p1Color')
+	agent2Color = config.get('Player Configuration', 'p2Color')
 
 	inputs = Array('f', [0.0 for x in range(38)])
 	scoring = Array('f', [0.0 for x in range(12)])
@@ -118,9 +130,9 @@ if __name__ == '__main__':
 	
 	p1 = Process(target=updateInputs, args=(inputs, scoring, ph))
 	p1.start()
-	p2 = Process(target=runAgent, args=(inputs, scoring, "blue", q1))
+	p2 = Process(target=runAgent, args=(inputs, scoring, agent1Color, q1))
 	p2.start()
-	p3 = Process(target=runAgent, args=(inputs, scoring, "orange", q2))
+	p3 = Process(target=runAgent, args=(inputs, scoring, agent2Color, q2))
 	p3.start()
 	
 	while (True):
