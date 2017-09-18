@@ -1,89 +1,148 @@
-from ctypes import *
-from ctypes.wintypes import *
-from multiprocessing import Process, Array, Queue
+from multiprocessing import Process, Array, Queue, Value
 
 import time
 import atexit
 import realTimeDisplay
 import ReadWriteMem
 import PlayHelper
-import array
 import configparser
 import importlib
+import cStructure
+import ctypes
+import mmap
+import math
+import numpy as np
 
-OpenProcess = windll.kernel32.OpenProcess
-CloseHandle = windll.kernel32.CloseHandle
-
-ph = PlayHelper.play_helper()
-
-def updateInputs(inputs, scoring, ph):
-
-	PROCESS_ALL_ACCESS = 0x1F0FFF
-
-	rwm = ReadWriteMem.ReadWriteMem()
-	pid = rwm.GetProcessIdByName("RocketLeague.exe")
-	rocketLeagueBaseAddress = rwm.GetBaseAddress(pid)
-
-	processHandle = OpenProcess(PROCESS_ALL_ACCESS, False, pid)
+def convert_new_input_to_old_input(sharedValue):
 	
-	blueScore = None
-	orangeScore = None
-	blueDemo = None
-	orangeDemo = None
-	
-	addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
-	while(True):
-		values = ph.GetValueVector(processHandle, addresses)
+		UU_TO_GAMEVALUES = 50
 		
-		# Process scoring to see if any new goals or demos
-		if (blueScore == None):
-			# Need to update values if don't already exist
-			blueScore = values[1][0]
-			orangeScore = values[1][1]
-			blueDemo = values[1][2]
-			orangeDemo = values[1][3]
+		UCONST_Pi = 3.1415926
+		URotation180 = float(32768)
+		URotationToRadians = UCONST_Pi / URotation180 
+	
+		inputs = np.zeros(38)
+		scoring = np.zeros(12)
+	
+		gameTickPacket = sharedValue.GameTickPacket
+		
+		numCars = gameTickPacket.numCars
+		numBoosts = gameTickPacket.numBoosts
+		
+		team1Blue = (gameTickPacket.CarInfo[0].Team == 0)
+		
+		if team1Blue:
+			blueIndex = 0
+			orngIndex = 1
+		else:
+			blueIndex = 1
+			orngIndex = 0
+		
+		# -------------------------------
+		# First convert ball info
+		# -------------------------------
+		
+		# Ball positions
+		inputs[2] = gameTickPacket.gameBall.Location.Y / UU_TO_GAMEVALUES
+		inputs[7] = gameTickPacket.gameBall.Location.X / UU_TO_GAMEVALUES
+		inputs[17] = gameTickPacket.gameBall.Location.Z / UU_TO_GAMEVALUES
+		
+		# Ball velocities
+		inputs[28] = gameTickPacket.gameBall.Velocity.X  / UU_TO_GAMEVALUES
+		inputs[29] = gameTickPacket.gameBall.Velocity.Z  / UU_TO_GAMEVALUES
+		inputs[30] = gameTickPacket.gameBall.Velocity.Y  / UU_TO_GAMEVALUES
+		
+		# -------------------------------
+		# Now do all scoreboard values
+		# -------------------------------
+		scoring[0] = gameTickPacket.CarInfo[blueIndex].Score.Goals + gameTickPacket.CarInfo[1].Score.OwnGoals # Blue Scoreboard Score
+		scoring[1] = gameTickPacket.CarInfo[orngIndex].Score.Goals + gameTickPacket.CarInfo[0].Score.OwnGoals # Orange Scoreboard Score
+		scoring[2] = gameTickPacket.CarInfo[orngIndex].Score.Demolitions # Demos by orange
+		scoring[3] = gameTickPacket.CarInfo[blueIndex].Score.Demolitions # Demos by blue
+		scoring[4] = gameTickPacket.CarInfo[blueIndex].Score.Score # Blue points
+		scoring[5] = gameTickPacket.CarInfo[orngIndex].Score.Score # Orange points
+		scoring[6] = gameTickPacket.CarInfo[blueIndex].Score.Goals # Blue Goals
+		scoring[7] = gameTickPacket.CarInfo[blueIndex].Score.Saves # Blue Saves
+		scoring[8] = gameTickPacket.CarInfo[blueIndex].Score.Shots # Blue Shots
+		scoring[9] = gameTickPacket.CarInfo[orngIndex].Score.Goals # Orange Goals
+		scoring[10] = gameTickPacket.CarInfo[orngIndex].Score.Saves # Orange Saves
+		scoring[11] = gameTickPacket.CarInfo[orngIndex].Score.Shots # Orange Shots
+			
+		# -------------------------------
+		# Now do all car values
+		# -------------------------------
+		
+		# Blue pos
+		inputs[1] = gameTickPacket.CarInfo[blueIndex].Location.Y / UU_TO_GAMEVALUES
+		inputs[5] = gameTickPacket.CarInfo[blueIndex].Location.X / UU_TO_GAMEVALUES
+		inputs[4] = gameTickPacket.CarInfo[blueIndex].Location.Z / UU_TO_GAMEVALUES
+		
+		# Orange pos
+		inputs[3] = gameTickPacket.CarInfo[orngIndex].Location.Y / UU_TO_GAMEVALUES
+		inputs[18] = gameTickPacket.CarInfo[orngIndex].Location.X / UU_TO_GAMEVALUES
+		inputs[17] = gameTickPacket.CarInfo[orngIndex].Location.Z / UU_TO_GAMEVALUES
+		
+		# Blue velocity
+		inputs[28] = gameTickPacket.CarInfo[blueIndex].Velocity.X / UU_TO_GAMEVALUES
+		inputs[29] = gameTickPacket.CarInfo[blueIndex].Velocity.Z / UU_TO_GAMEVALUES
+		inputs[30] = gameTickPacket.CarInfo[blueIndex].Velocity.Y / UU_TO_GAMEVALUES
+		
+		# Orange velocity
+		inputs[34] = gameTickPacket.CarInfo[orngIndex].Velocity.X / UU_TO_GAMEVALUES
+		inputs[35] = gameTickPacket.CarInfo[orngIndex].Velocity.Z / UU_TO_GAMEVALUES
+		inputs[36] = gameTickPacket.CarInfo[orngIndex].Velocity.Y / UU_TO_GAMEVALUES
+		
+		# Boost
+		inputs[0] = gameTickPacket.CarInfo[blueIndex].Boost
+		inputs[37] = gameTickPacket.CarInfo[orngIndex].Boost
+		
+		# Rotations
+		bluePitch = float(gameTickPacket.CarInfo[blueIndex].Rotation.Pitch)
+		blueYaw = float(gameTickPacket.CarInfo[blueIndex].Rotation.Yaw)
+		blueRoll = float(gameTickPacket.CarInfo[blueIndex].Rotation.Roll)
+		orngPitch = float(gameTickPacket.CarInfo[orngIndex].Rotation.Pitch)
+		orngYaw = float(gameTickPacket.CarInfo[orngIndex].Rotation.Yaw)
+		orngRoll = float(gameTickPacket.CarInfo[orngIndex].Rotation.Roll)
+		
+		# Blue rotations
+		inputs[8] = math.cos(bluePitch * URotationToRadians) * math.cos(blueYaw * URotationToRadians) # Rot 1
+		inputs[9] = math.sin(blueRoll * URotationToRadians) * math.sin(bluePitch * URotationToRadians) * math.cos(blueYaw * URotationToRadians) - math.cos(blueRoll * URotationToRadians) * math.sin(blueYaw * URotationToRadians) # Rot2
+		inputs[10] = -1 * math.cos(blueRoll * URotationToRadians) * math.sin(bluePitch * URotationToRadians) * math.cos(blueYaw * URotationToRadians) + math.sin(blueRoll * URotationToRadians) * math.sin(blueYaw * URotationToRadians)  # Rot 3
+		inputs[11] = math.cos(bluePitch * URotationToRadians) * math.sin(blueYaw * URotationToRadians) # Rot 4
+		inputs[12] = math.sin(blueRoll * URotationToRadians) * math.sin(bluePitch * URotationToRadians) * math.sin(blueYaw * URotationToRadians) + math.cos(blueRoll * URotationToRadians) * math.cos(blueYaw * URotationToRadians) # Rot5
+		inputs[13] = -1 * math.sin(blueRoll * URotationToRadians) * math.cos(bluePitch * URotationToRadians) # Rot 6
+		inputs[14] = math.cos(bluePitch * URotationToRadians)# Rot 7
+		inputs[15] = math.cos(blueYaw * URotationToRadians) * math.sin(blueRoll * URotationToRadians) - math.cos(blueRoll * URotationToRadians) * math.sin(bluePitch * URotationToRadians) * math.sin(blueYaw * URotationToRadians) # Rot 8
+		inputs[16] = math.cos(blueRoll * URotationToRadians) * math.cos(bluePitch * URotationToRadians) # Rot 9
+		
+		# Orange rot
+		inputs[19] = math.cos(orngPitch * URotationToRadians) * math.cos(orngYaw * URotationToRadians) # Rot 1
+		inputs[20] = math.sin(orngRoll * URotationToRadians) * math.sin(orngPitch * URotationToRadians) * math.cos(orngYaw * URotationToRadians) - math.cos(orngRoll * URotationToRadians) * math.sin(orngYaw * URotationToRadians) # Rot2
+		inputs[21] = -1 * math.cos(orngRoll * URotationToRadians) * math.sin(orngPitch * URotationToRadians) * math.cos(orngYaw * URotationToRadians) + math.sin(orngRoll * URotationToRadians) * math.sin(orngYaw * URotationToRadians)  # Rot 3
+		inputs[22] = math.cos(orngPitch * URotationToRadians) * math.sin(orngYaw * URotationToRadians) # Rot 4
+		inputs[23] = math.sin(orngRoll * URotationToRadians) * math.sin(orngPitch * URotationToRadians) * math.sin(orngYaw * URotationToRadians) + math.cos(orngRoll * URotationToRadians) * math.cos(orngYaw * URotationToRadians) # Rot5
+		inputs[24] = -1 * math.sin(orngRoll * URotationToRadians) * math.cos(orngPitch * URotationToRadians) # Rot 6
+		inputs[25] = math.cos(orngPitch * URotationToRadians)# Rot 7
+		inputs[26] = math.cos(orngYaw * URotationToRadians) * math.sin(orngRoll * URotationToRadians) - math.cos(orngRoll * URotationToRadians) * math.sin(orngPitch * URotationToRadians) * math.sin(orngYaw * URotationToRadians) # Rot 8
+		inputs[27] = math.cos(orngRoll * URotationToRadians) * math.cos(orngPitch * URotationToRadians) # Rot 9
+		
+		return(inputs,scoring)
 
-		if (not blueScore == values[1][0]):
-			print("Blue has scored! Waiting for ball and players to reset")
-			blueScore = values[1][0]
-			time.sleep(15) # Sleep 15 seconds for goal and replay then ping for correct values
-			addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
-			while (ph.ping_refreshed_pointers(processHandle, addresses)):
-				time.sleep(0.5)
-				addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
+def updateInputs(inputs):
 
-		if (not orangeScore == values[1][1]):
-			print("Orange has scored! Waiting for ball and players to reset")
-			orangeScore = values[1][1]
-			time.sleep(15) # Sleep 15 seconds for goal and replay then ping for correct values
-			addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
-			while (ph.ping_refreshed_pointers(processHandle, addresses)):
-				time.sleep(0.5)
-				addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
-
-		if (not blueDemo == values[1][2]):
-			print("Orange has scored a demo on blue! Waiting for blue player to reset")
-			blueDemo = values[1][2]
-			time.sleep(4) # Takes about 3 seconds to respawn for a demo
-			addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
-
-		if (not orangeDemo == values[1][3]):
-			print("Blue has scored a demo on orange! Waiting for orange player to reset")
-			orangeDemo = values[1][3]
-			time.sleep(4) # Takes about 3 seconds to respawn from demo. Even though blue can keep playing, for training I am just sleeping
-			addresses = ph.GetAddressVector(processHandle,rocketLeagueBaseAddress)
-
-		# Finally update input to values
-		for i in range(len(values[0])):
-			inputs[i] = values[0][i]
-		for i in range(len(values[1])):
-			scoring[i] = values[1][i]
+	# Open shared memory
+	shm = mmap.mmap(0, 1868, "Local\\RLBot")
+	
+	while(True):
+		shm.seek(0) # Move to beginning of shared memory
+		ctypes.memmove(ctypes.addressof(inputs.GameTickPacket), shm.read(1868), ctypes.sizeof(inputs.GameTickPacket)) # copy shared memory into struct
+		
 		time.sleep(0.01)
 		
 def resetInputs():
 	exec(open("resetDevices.py").read())
 
-def runAgent(inputs, scoring, team, q):
+def runAgent(inputs, team, q):
 	# Deep copy inputs?
 	config = configparser.RawConfigParser()
 	config.read('rlbot.cfg')
@@ -94,7 +153,7 @@ def runAgent(inputs, scoring, team, q):
 		agent2 = importlib.import_module(config.get('Player Configuration', 'p2Agent'))
 		agent = agent2.agent("orange")
 	while(True):
-		output = agent.get_output_vector((inputs,scoring))
+		output = agent.get_output_vector((inputs))
 		try:
 			q.put(output)
 		except Queue.Full:
@@ -114,9 +173,13 @@ if __name__ == '__main__':
 	agent2 = importlib.import_module(config.get('Player Configuration', 'p2Agent'))
 	agent1Color = config.get('Player Configuration', 'p1Color')
 	agent2Color = config.get('Player Configuration', 'p2Color')
+	
+	gameTickPacket = cStructure.GameTickPacket()
+	shm = mmap.mmap(0, 1868, "Local\\RLBot")
+	shm.seek(0) # Move to beginning of shared memory
+	ctypes.memmove(ctypes.addressof(gameTickPacket), shm.read(1868), ctypes.sizeof(gameTickPacket)) # copy shared memory into struct
+	inputs = Value(cStructure.SharedInputs, gameTickPacket)
 
-	inputs = Array('f', [0.0 for x in range(38)])
-	scoring = Array('f', [0.0 for x in range(12)])
 	q1 = Queue(1)
 	q2 = Queue(1)
 	
@@ -128,17 +191,17 @@ if __name__ == '__main__':
 	
 	ph = PlayHelper.play_helper()
 	
-	p1 = Process(target=updateInputs, args=(inputs, scoring, ph))
+	p1 = Process(target=updateInputs, args=(inputs,))
 	p1.start()
-	p2 = Process(target=runAgent, args=(inputs, scoring, agent1Color, q1))
+	p2 = Process(target=runAgent, args=(inputs, agent1Color, q1))
 	p2.start()
-	p3 = Process(target=runAgent, args=(inputs, scoring, agent2Color, q2))
+	p3 = Process(target=runAgent, args=(inputs, agent2Color, q2))
 	p3.start()
 	
 	while (True):
 		updateFlag = False
 		
-		rtd.UpdateDisplay((inputs,scoring))
+		rtd.UpdateDisplay(convert_new_input_to_old_input(inputs))
 		
 		try:
 			output1 = q1.get()
