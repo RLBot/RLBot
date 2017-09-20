@@ -29,7 +29,7 @@ def convert_new_input_to_old_input(sharedValue):
 		numCars = gameTickPacket.numCars
 		numBoosts = gameTickPacket.numBoosts
 		
-		team1Blue = (gameTickPacket.CarInfo[0].Team == 0)
+		team1Blue = (gameTickPacket.gamecars[0].Team == 0)
 		
 		if team1Blue:
 			blueIndex = 0
@@ -43,66 +43,66 @@ def convert_new_input_to_old_input(sharedValue):
 		# -------------------------------
 		
 		# Ball positions
-		inputs[2] = gameTickPacket.gameBall.Location.Y / UU_TO_GAMEVALUES
-		inputs[7] = gameTickPacket.gameBall.Location.X / UU_TO_GAMEVALUES
-		inputs[17] = gameTickPacket.gameBall.Location.Z / UU_TO_GAMEVALUES
+		inputs[2] = gameTickPacket.gameball.Location.Y / UU_TO_GAMEVALUES
+		inputs[7] = gameTickPacket.gameball.Location.X / UU_TO_GAMEVALUES
+		inputs[17] = gameTickPacket.gameball.Location.Z / UU_TO_GAMEVALUES
 		
 		# Ball velocities
-		inputs[28] = gameTickPacket.gameBall.Velocity.X  / UU_TO_GAMEVALUES
-		inputs[29] = gameTickPacket.gameBall.Velocity.Z  / UU_TO_GAMEVALUES
-		inputs[30] = gameTickPacket.gameBall.Velocity.Y  / UU_TO_GAMEVALUES
+		inputs[28] = gameTickPacket.gameball.Velocity.X  / UU_TO_GAMEVALUES
+		inputs[29] = gameTickPacket.gameball.Velocity.Z  / UU_TO_GAMEVALUES
+		inputs[30] = gameTickPacket.gameball.Velocity.Y  / UU_TO_GAMEVALUES
 		
 		# -------------------------------
 		# Now do all scoreboard values
 		# -------------------------------
-		scoring[0] = gameTickPacket.CarInfo[blueIndex].Score.Goals + gameTickPacket.CarInfo[1].Score.OwnGoals # Blue Scoreboard Score
-		scoring[1] = gameTickPacket.CarInfo[orngIndex].Score.Goals + gameTickPacket.CarInfo[0].Score.OwnGoals # Orange Scoreboard Score
-		scoring[2] = gameTickPacket.CarInfo[orngIndex].Score.Demolitions # Demos by orange
-		scoring[3] = gameTickPacket.CarInfo[blueIndex].Score.Demolitions # Demos by blue
-		scoring[4] = gameTickPacket.CarInfo[blueIndex].Score.Score # Blue points
-		scoring[5] = gameTickPacket.CarInfo[orngIndex].Score.Score # Orange points
-		scoring[6] = gameTickPacket.CarInfo[blueIndex].Score.Goals # Blue Goals
-		scoring[7] = gameTickPacket.CarInfo[blueIndex].Score.Saves # Blue Saves
-		scoring[8] = gameTickPacket.CarInfo[blueIndex].Score.Shots # Blue Shots
-		scoring[9] = gameTickPacket.CarInfo[orngIndex].Score.Goals # Orange Goals
-		scoring[10] = gameTickPacket.CarInfo[orngIndex].Score.Saves # Orange Saves
-		scoring[11] = gameTickPacket.CarInfo[orngIndex].Score.Shots # Orange Shots
+		scoring[0] = gameTickPacket.gamecars[blueIndex].Score.Goals + gameTickPacket.gamecars[1].Score.OwnGoals # Blue Scoreboard Score
+		scoring[1] = gameTickPacket.gamecars[orngIndex].Score.Goals + gameTickPacket.gamecars[0].Score.OwnGoals # Orange Scoreboard Score
+		scoring[2] = gameTickPacket.gamecars[orngIndex].Score.Demolitions # Demos by orange
+		scoring[3] = gameTickPacket.gamecars[blueIndex].Score.Demolitions # Demos by blue
+		scoring[4] = gameTickPacket.gamecars[blueIndex].Score.Score # Blue points
+		scoring[5] = gameTickPacket.gamecars[orngIndex].Score.Score # Orange points
+		scoring[6] = gameTickPacket.gamecars[blueIndex].Score.Goals # Blue Goals
+		scoring[7] = gameTickPacket.gamecars[blueIndex].Score.Saves # Blue Saves
+		scoring[8] = gameTickPacket.gamecars[blueIndex].Score.Shots # Blue Shots
+		scoring[9] = gameTickPacket.gamecars[orngIndex].Score.Goals # Orange Goals
+		scoring[10] = gameTickPacket.gamecars[orngIndex].Score.Saves # Orange Saves
+		scoring[11] = gameTickPacket.gamecars[orngIndex].Score.Shots # Orange Shots
 			
 		# -------------------------------
 		# Now do all car values
 		# -------------------------------
 		
 		# Blue pos
-		inputs[1] = gameTickPacket.CarInfo[blueIndex].Location.Y / UU_TO_GAMEVALUES
-		inputs[5] = gameTickPacket.CarInfo[blueIndex].Location.X / UU_TO_GAMEVALUES
-		inputs[4] = gameTickPacket.CarInfo[blueIndex].Location.Z / UU_TO_GAMEVALUES
+		inputs[1] = gameTickPacket.gamecars[blueIndex].Location.Y / UU_TO_GAMEVALUES
+		inputs[5] = gameTickPacket.gamecars[blueIndex].Location.X / UU_TO_GAMEVALUES
+		inputs[4] = gameTickPacket.gamecars[blueIndex].Location.Z / UU_TO_GAMEVALUES
 		
 		# Orange pos
-		inputs[3] = gameTickPacket.CarInfo[orngIndex].Location.Y / UU_TO_GAMEVALUES
-		inputs[18] = gameTickPacket.CarInfo[orngIndex].Location.X / UU_TO_GAMEVALUES
-		inputs[17] = gameTickPacket.CarInfo[orngIndex].Location.Z / UU_TO_GAMEVALUES
+		inputs[3] = gameTickPacket.gamecars[orngIndex].Location.Y / UU_TO_GAMEVALUES
+		inputs[18] = gameTickPacket.gamecars[orngIndex].Location.X / UU_TO_GAMEVALUES
+		inputs[17] = gameTickPacket.gamecars[orngIndex].Location.Z / UU_TO_GAMEVALUES
 		
 		# Blue velocity
-		inputs[28] = gameTickPacket.CarInfo[blueIndex].Velocity.X / UU_TO_GAMEVALUES
-		inputs[29] = gameTickPacket.CarInfo[blueIndex].Velocity.Z / UU_TO_GAMEVALUES
-		inputs[30] = gameTickPacket.CarInfo[blueIndex].Velocity.Y / UU_TO_GAMEVALUES
+		inputs[28] = gameTickPacket.gamecars[blueIndex].Velocity.X / UU_TO_GAMEVALUES
+		inputs[29] = gameTickPacket.gamecars[blueIndex].Velocity.Z / UU_TO_GAMEVALUES
+		inputs[30] = gameTickPacket.gamecars[blueIndex].Velocity.Y / UU_TO_GAMEVALUES
 		
 		# Orange velocity
-		inputs[34] = gameTickPacket.CarInfo[orngIndex].Velocity.X / UU_TO_GAMEVALUES
-		inputs[35] = gameTickPacket.CarInfo[orngIndex].Velocity.Z / UU_TO_GAMEVALUES
-		inputs[36] = gameTickPacket.CarInfo[orngIndex].Velocity.Y / UU_TO_GAMEVALUES
+		inputs[34] = gameTickPacket.gamecars[orngIndex].Velocity.X / UU_TO_GAMEVALUES
+		inputs[35] = gameTickPacket.gamecars[orngIndex].Velocity.Z / UU_TO_GAMEVALUES
+		inputs[36] = gameTickPacket.gamecars[orngIndex].Velocity.Y / UU_TO_GAMEVALUES
 		
 		# Boost
-		inputs[0] = gameTickPacket.CarInfo[blueIndex].Boost
-		inputs[37] = gameTickPacket.CarInfo[orngIndex].Boost
+		inputs[0] = gameTickPacket.gamecars[blueIndex].Boost
+		inputs[37] = gameTickPacket.gamecars[orngIndex].Boost
 		
 		# Rotations
-		bluePitch = float(gameTickPacket.CarInfo[blueIndex].Rotation.Pitch)
-		blueYaw = float(gameTickPacket.CarInfo[blueIndex].Rotation.Yaw)
-		blueRoll = float(gameTickPacket.CarInfo[blueIndex].Rotation.Roll)
-		orngPitch = float(gameTickPacket.CarInfo[orngIndex].Rotation.Pitch)
-		orngYaw = float(gameTickPacket.CarInfo[orngIndex].Rotation.Yaw)
-		orngRoll = float(gameTickPacket.CarInfo[orngIndex].Rotation.Roll)
+		bluePitch = float(gameTickPacket.gamecars[blueIndex].Rotation.Pitch)
+		blueYaw = float(gameTickPacket.gamecars[blueIndex].Rotation.Yaw)
+		blueRoll = float(gameTickPacket.gamecars[blueIndex].Rotation.Roll)
+		orngPitch = float(gameTickPacket.gamecars[orngIndex].Rotation.Pitch)
+		orngYaw = float(gameTickPacket.gamecars[orngIndex].Rotation.Yaw)
+		orngRoll = float(gameTickPacket.gamecars[orngIndex].Rotation.Roll)
 		
 		# Blue rotations
 		inputs[8] = math.cos(bluePitch * URotationToRadians) * math.cos(blueYaw * URotationToRadians) # Rot 1
@@ -131,11 +131,11 @@ def convert_new_input_to_old_input(sharedValue):
 def updateInputs(inputs):
 
 	# Open shared memory
-	shm = mmap.mmap(0, 1868, "Local\\RLBot")
+	shm = mmap.mmap(0, 2000, "Local\\RLBot")
 	
 	while(True):
 		shm.seek(0) # Move to beginning of shared memory
-		ctypes.memmove(ctypes.addressof(inputs.GameTickPacket), shm.read(1868), ctypes.sizeof(inputs.GameTickPacket)) # copy shared memory into struct
+		ctypes.memmove(ctypes.addressof(inputs.GameTickPacket), shm.read(2000), ctypes.sizeof(inputs.GameTickPacket)) # copy shared memory into struct
 		
 		time.sleep(0.01)
 		

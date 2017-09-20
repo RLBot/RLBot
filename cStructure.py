@@ -23,13 +23,15 @@ class ScoreInfo(ctypes.Structure):
                 ("Shots", ctypes.c_int),
 				("Demolitions", ctypes.c_int)]
 				
-class CarInfo(ctypes.Structure):
+class PlayerInfo(ctypes.Structure):
 	_fields_ = [("Location", Vector3),
                 ("Rotation", Rotator),
                 ("Velocity", Vector3),
+				("AngularVelocity", Vector3),
 				("Score", ScoreInfo),
-                ("SuperSonic", ctypes.c_bool),
-                ("Bot", ctypes.c_bool),
+				("bDemolished", ctypes.c_bool),
+                ("bSuperSonic", ctypes.c_bool),
+                ("bBot", ctypes.c_bool),
 				("PlayerID", ctypes.c_int),
 				("Team", ctypes.c_ubyte),
 				("Boost", ctypes.c_int)]
@@ -43,15 +45,21 @@ class BallInfo(ctypes.Structure):
 				
 class BoostInfo(ctypes.Structure):
 	_fields_ = [("Location", Vector3),
-                ("Active", ctypes.c_bool),
+                ("bActive", ctypes.c_bool),
                 ("Timer", ctypes.c_int)]
 				
+class GameInfo(ctypes.Structure):
+	_fields_ = [("TimeSeconds", ctypes.c_float),
+                ("GameTimeRemaining", ctypes.c_float),
+                ("bOverTime", ctypes.c_bool)]
+				
 class GameTickPacket(ctypes.Structure):
-	_fields_ = [("CarInfo", CarInfo * maxCars),
+	_fields_ = [("gamecars", PlayerInfo * maxCars),
                 ("numCars", ctypes.c_int),
-                ("BoostInfo", BoostInfo * maxBoosts),
+                ("gameBoosts", BoostInfo * maxBoosts),
 				("numBoosts", ctypes.c_int),
-                ("gameBall", BallInfo)]
+                ("gameball", BallInfo),
+				("gameInfo", GameInfo)]
 				
 class SharedInputs(ctypes.Structure):
 	_fields_ = [("GameTickPacket", GameTickPacket)]
@@ -71,21 +79,24 @@ def printScoreInfo(scoreInfo):
 	print("Shots:       " + str(scoreInfo.Shots))
 	print("Demolitions: " + str(scoreInfo.Demolitions))
 	
-def printCarInfo(index, carInfo):
+def printPlayerInfo(index, playerInfo):
 	print("Car " + str(index))
-	print("PlayerID: " + str(carInfo.PlayerID))
-	print("Team: " + str(carInfo.Team))
-	print("Bot: " + str(carInfo.Bot))
+	print("PlayerID: " + str(playerInfo.PlayerID))
+	print("Team: " + str(playerInfo.Team))
+	print("Bot: " + str(playerInfo.bBot))
 	print("Location:")
-	printVector3(carInfo.Location)
+	printVector3(playerInfo.Location)
 	print("Rotation:")
-	printRotator(carInfo.Rotation)
+	printRotator(playerInfo.Rotation)
 	print("Velocity:")
-	printVector3(carInfo.Velocity)
-	print("SuperSonic: " + str(carInfo.SuperSonic))
-	print("Boost: " + str(carInfo.Boost))
+	printVector3(playerInfo.Velocity)
+	print("Angular Velocity:")
+	printVector3(playerInfo.AngularVelocity)
+	print("SuperSonic: " + str(playerInfo.bSuperSonic))
+	print("Demolished: " + str(playerInfo.bDemolished))
+	print("Boost: " + str(playerInfo.Boost))
 	print("Score Info: ")
-	printScoreInfo(carInfo.Score)
+	printScoreInfo(playerInfo.Score)
 	
 def printBallInfo(ballInfo):
 	print("Location:")
@@ -103,20 +114,27 @@ def printBoostInfo(index, boostInfo):
 	print("Boost Pad " + str(index))
 	print("Location:")
 	printVector3(boostInfo.Location)
-	print("Active: " + str(boostInfo.Active))
+	print("Active: " + str(boostInfo.bActive))
 	print("Timer: " + str(boostInfo.Timer))
+	
+def printGameInfo(gameInfo):
+	print("Seconds: " + str(gameInfo.TimeSeconds))
+	print("Game Time Remaining: " + str(gameInfo.GameTimeRemaining))
+	print("Overtime: " + str(gameInfo.bOverTime))
 	
 def printGameTickPacket(gameTickPacket):
 	print("NumCars: " +  str(gameTickPacket.numCars))
 	print("NumBoosts: " +  str(gameTickPacket.numBoosts))
 	print()
+	printGameInfo(gameTickPacket.gameInfo)
+	print()
 	print("Ball Info:")
-	printBallInfo(gameTickPacket.gameBall)
+	printBallInfo(gameTickPacket.gameball)
 	
 	for i in range(gameTickPacket.numCars):
 		print()
-		printCarInfo(i, gameTickPacket.CarInfo[i])
+		printPlayerInfo(i, gameTickPacket.gamecars[i])
 	
 	for i in range(gameTickPacket.numBoosts):
 		print()
-		printBoostInfo(i, gameTickPacket.BoostInfo[i])
+		printBoostInfo(i, gameTickPacket.gameBoosts[i])
