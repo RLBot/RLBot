@@ -1,5 +1,6 @@
 import struct
 import ctypes
+import json
 
 maxBoosts = 50
 maxCars = 10
@@ -138,3 +139,51 @@ def printGameTickPacket(gameTickPacket):
 	for i in range(gameTickPacket.numBoosts):
 		print()
 		printBoostInfo(i, gameTickPacket.gameBoosts[i])
+
+def gameTickPacketToJson(gameTickPacket):
+    return json.dumps(gameTickPacketToDict(gameTickPacket))
+
+def gameTickPacketToDict(gameTickPacket):
+    result = {}
+
+    def getdict(struct):
+        result = {}
+        def get_value(value):
+            if (type(value) not in [int, float, bool]) and not bool(value):
+                # it's a null pointer
+                value = None
+            elif hasattr(value, "_length_") and hasattr(value, "_type_"):
+                # Probably an array
+                #print value
+                value = get_array(value)
+            elif hasattr(value, "_fields_"):
+                # Probably another struct
+                value = getdict(value)
+            return value
+        def get_array(array):
+            ar = []
+            for value in array:
+                value = get_value(value)
+                ar.append(value)
+            return ar
+        for f  in struct._fields_:
+            field = f[0]
+            value = getattr(struct, field)
+            # if the type is not a primitive and it evaluates to False ...
+            value = get_value(value)
+            result[field] = value
+        return result
+
+    result['gamecars'] = []
+    result['numCars'] = gameTickPacket.numCars
+    for i in range(gameTickPacket.numCars):
+        result['gamecars'].append(getdict(gameTickPacket.gamecars[i]))
+
+    result['gameBoosts'] = []
+    result['numBoosts'] = gameTickPacket.numBoosts
+    for i in range(gameTickPacket.numBoosts):
+        result['gameBoosts'].append(getdict(gameTickPacket.gameBoosts[i]))
+
+    result['gameball'] = getdict(gameTickPacket.gameball)
+    result['gameInfo'] = getdict(gameTickPacket.gameInfo)
+    return result

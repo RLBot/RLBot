@@ -18,13 +18,18 @@ public class Bot {
 
     public AgentOutput getOutput(AgentInput input) {
 
+        CarData car = input.getMyCarData();
+
         Vec3d ballPosition = input.ballPosition;
-        Vec3d myPosition = team == Team.BLUE ? input.bluePosition : input.orangePosition;
-        CarRotation myRotation = team == Team.BLUE ? input.blueRotation : input.orangeRotation;
+        Vec3d myPosition = car.position;
+        CarRotation myRotation = car.rotation;
 
-        float playerDirectionRad = (float) Math.atan2(myRotation.noseVector.x, myRotation.noseVector.z);
+        float playerDirectionRad = (float) Math.atan2(myRotation.noseVector.z, myRotation.noseVector.x);
 
-        float relativeAngleToBallRad = (float) Math.atan2(ballPosition.x - myPosition.x, ballPosition.z - myPosition.z);
+        Vec3d toBall = new Vec3d();
+        toBall.sub(ballPosition, myPosition);
+
+        float relativeAngleToBallRad = (float) Math.atan2(toBall.z, toBall.x);
 
         if (Math.abs(playerDirectionRad - relativeAngleToBallRad) > Math.PI) {
             if (playerDirectionRad < 0) {
