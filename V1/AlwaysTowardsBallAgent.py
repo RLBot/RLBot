@@ -2,7 +2,7 @@ import math
 import numpy as np
 
 '''
-This is v2 code
+This is v1 code using the old input format! If you are new please look at v2
 '''
 
 '''
@@ -145,44 +145,26 @@ class agent:
 
 	def get_output_vector(self, sharedValue):
 	
-		UCONST_Pi = 3.1415926
-		URotation180 = float(32768)
-		URotationToRadians = UCONST_Pi / URotation180 
-	
-		gameTickPacket = sharedValue.GameTickPacket
+		input = self.convert_new_input_to_old_input(sharedValue)
 		
-		team1Blue = (gameTickPacket.gamecars[0].Team == 0)
-	
-		if team1Blue:
-			blueIndex = 0
-			orngIndex = 1
-		else:
-			blueIndex = 1
-			orngIndex = 0
-		
-		ball_y = gameTickPacket.gameball.Location.Y
-		ball_x = gameTickPacket.gameball.Location.X
-		bluePitch = float(gameTickPacket.gamecars[blueIndex].Rotation.Pitch)
-		blueYaw = float(gameTickPacket.gamecars[blueIndex].Rotation.Yaw)
-		orngPitch = float(gameTickPacket.gamecars[orngIndex].Rotation.Pitch)
-		orngYaw = float(gameTickPacket.gamecars[orngIndex].Rotation.Yaw)
-		
+		ball_z = input[0][2]
+		ball_x = input[0][7]
 		turn = 16383
 
 		if (self.team == "blue"):
-			player_y = gameTickPacket.gamecars[blueIndex].Location.Y
-			player_x = gameTickPacket.gamecars[blueIndex].Location.X
-			player_rot1 = math.cos(bluePitch * URotationToRadians) * math.cos(blueYaw * URotationToRadians) # Rot 1
-			player_rot4 = math.cos(bluePitch * URotationToRadians) * math.sin(blueYaw * URotationToRadians) # Rot 4
+			player_z = input[0][1]
+			player_x = input[0][5]
+			player_rot1 = input[0][8]
+			player_rot4 = input[0][11]
 		else:
-			player_y = gameTickPacket.gamecars[orngIndex].Location.Y
-			player_x = gameTickPacket.gamecars[orngIndex].Location.X
-			player_rot1 = math.cos(orngPitch * URotationToRadians) * math.cos(orngYaw * URotationToRadians) # Rot 1
-			player_rot4 = math.cos(orngPitch * URotationToRadians) * math.sin(orngYaw * URotationToRadians) # Rot 4
+			player_z = input[0][3]
+			player_x = input[0][18]
+			player_rot1 = input[0][19]
+			player_rot4 = input[0][22]
 		
 		# Need to handle atan2(0,0) case, aka straight up or down, eventually
 		player_front_direction_in_radians = math.atan2(player_rot1, player_rot4)
-		relative_angle_to_ball_in_radians = math.atan2((ball_x - player_x), (ball_y - player_y))
+		relative_angle_to_ball_in_radians = math.atan2((ball_x - player_x), (ball_z - player_z))
 
 		if (not (abs(player_front_direction_in_radians - relative_angle_to_ball_in_radians) < math.pi)):
 			# Add 2pi to negative values
