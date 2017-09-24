@@ -53,7 +53,8 @@ class GameInfo(ctypes.Structure):
 	_fields_ = [("TimeSeconds", ctypes.c_float),
                 ("GameTimeRemaining", ctypes.c_float),
                 ("bOverTime", ctypes.c_bool)]
-				
+
+# On the c++ side this struct has a long at the beginning for locking.  This flag is removed from this struct so it isn't visible to users.
 class GameTickPacket(ctypes.Structure):
 	_fields_ = [("gamecars", PlayerInfo * maxCars),
                 ("numCars", ctypes.c_int),

@@ -16,7 +16,7 @@ class real_time_display:
 	stickzone = PIL.ImageTk.PhotoImage(PIL.Image.open("./displays/images/stickzone.png"))
 	marker = PIL.ImageTk.PhotoImage(PIL.Image.open("./displays/images/marker.png"))
 	
-	canvas = Canvas(root, height=332, width=248, borderwidth=0)
+	canvas = Canvas(root, height=338, width=248, borderwidth=0)
 	
 	p1marker = 0
 	p2marker = 0
@@ -49,7 +49,7 @@ class real_time_display:
 	blue = 0
 	orng = 0
 	
-	PLAYER_PIXEL_SIZE = 4
+	PLAYER_PIXEL_SIZE = 3
 	FIELD_WIDTH = 242
 	FIELD_HEIGHT = 162
 	UU_FIELD_WIDTH = 11880
@@ -59,53 +59,56 @@ class real_time_display:
 		
 		# Everything starts at 2,2 (I can't figure out why tkinter pains me but it does...)
 		
-		self.p1decel = self.canvas.create_rectangle(4, 257, 36, 266, fill='lightcoral')
-		self.p1acel = self.canvas.create_rectangle(36, 257, 68, 266, fill='pale green')
-		self.p2decel = self.canvas.create_rectangle(183, 257, 215, 266, fill='lightcoral')
-		self.p2acel = self.canvas.create_rectangle(215, 257, 247, 266, fill='pale green')
+		self.canvas.create_rectangle(0, 0, 248, 338, fill='#9c9c9c') # Put a rectangle behind the acceleration/deceleration
 		
-		self.p1a = self.canvas.create_oval(2, 240, 18, 255, fill='pale green')
-		self.p1b = self.canvas.create_oval(21, 240, 35, 255, fill='lightcoral')
-		self.p1x = self.canvas.create_oval(38, 240, 52, 255, fill='steelblue1')
+		self.p1decel = self.canvas.create_rectangle(4, 262, 36, 271, fill='lightcoral')
+		self.p1acel = self.canvas.create_rectangle(36, 262, 68, 271, fill='pale green')
+		self.p2decel = self.canvas.create_rectangle(183, 262, 215, 271, fill='lightcoral')
+		self.p2acel = self.canvas.create_rectangle(215, 262, 247, 271, fill='pale green')
 		
-		self.p2a = self.canvas.create_oval(199, 240, 213, 255, fill='pale green')
-		self.p2b = self.canvas.create_oval(216, 240, 231, 255, fill='lightcoral')
-		self.p2x = self.canvas.create_oval(233, 240, 247, 255, fill='steelblue1')
+		self.p1a = self.canvas.create_oval(2, 244, 18, 259, fill='pale green')
+		self.p1b = self.canvas.create_oval(21, 244, 35, 259, fill='lightcoral')
+		self.p1x = self.canvas.create_oval(38, 244, 52, 259, fill='steelblue1')
 		
-		self.canvas.create_image(36, 300, image=self.stickzone)
-		self.canvas.create_image(216, 300, image=self.stickzone)
-		self.canvas.create_image(126, 168, image=self.background)
+		self.p2a = self.canvas.create_oval(199, 238, 213, 259, fill='pale green')
+		self.p2b = self.canvas.create_oval(216, 238, 231, 259, fill='lightcoral')
+		self.p2x = self.canvas.create_oval(233, 238, 247, 259, fill='steelblue1')
 		
-		self.p1marker = self.canvas.create_image(36, 300, image=self.marker)
-		self.p2marker = self.canvas.create_image(216, 300, image=self.marker)
+		self.canvas.create_image(36, 305, image=self.stickzone)
+		self.canvas.create_image(215, 305, image=self.stickzone)
+		
+		self.p1marker = self.canvas.create_image(36, 305, image=self.marker)
+		self.p2marker = self.canvas.create_image(216, 305, image=self.marker)
+		
+		self.canvas.create_image(126, 171, image=self.background)
 		
 		self.canvas.create_text(126, 13, text=blueBotName, fill='blue', font=("Calibri Bold", 13))
 		self.canvas.create_text(126, 56, text=orngBotName, fill='darkorange2', font=("Calibri Bold", 13))
 		
-		self.canvas.create_text(126, 245, text="Score")
-		self.canvas.create_text(126, 261, text="Goals")
-		self.canvas.create_text(126, 277, text="Own Goals")
-		self.canvas.create_text(126, 293, text="Shots")
-		self.canvas.create_text(126, 309, text="Saves")
-		self.canvas.create_text(126, 325, text="Demolitions")
+		self.canvas.create_text(126, 251, text="Score", font=("sans", 10))
+		self.canvas.create_text(126, 267, text="Goals", font=("sans", 10))
+		self.canvas.create_text(126, 283, text="Own Goals", font=("sans", 10))
+		self.canvas.create_text(126, 299, text="Shots", font=("sans", 10))
+		self.canvas.create_text(126, 315, text="Saves", font=("sans", 10))
+		self.canvas.create_text(126, 331, text="Demolitions", font=("sans", 10))
 		
-		self.p1score = self.canvas.create_text(72, 245, text="1111")
-		self.p1goals = self.canvas.create_text(79, 261, text="10")
-		self.p1owngoals = self.canvas.create_text(79, 277, text="11")
-		self.p1shots = self.canvas.create_text(79, 293, text="12")
-		self.p1saves = self.canvas.create_text(79, 309, text="13")
-		self.p1demos = self.canvas.create_text(79, 325, text="14")
+		self.p1score = self.canvas.create_text(86, 251, text="1111", anchor='e', font=("sans", 10))
+		self.p1goals = self.canvas.create_text(86, 267, text="10", anchor='e',font=("sans", 10))
+		self.p1owngoals = self.canvas.create_text(86, 283, text="11", anchor='e', font=("sans", 10))
+		self.p1shots = self.canvas.create_text(86, 299, text="12", anchor='e', font=("sans", 10))
+		self.p1saves = self.canvas.create_text(86, 315, text="13",anchor='e', font=("sans", 10))
+		self.p1demos = self.canvas.create_text(86, 331, text="14", anchor='e', font=("sans", 10))
 		
-		self.p2score = self.canvas.create_text(180, 245, text="2222")
-		self.p2goals = self.canvas.create_text(172, 261, text="20")
-		self.p2owngoals = self.canvas.create_text(172, 277, text="21")
-		self.p2shots = self.canvas.create_text(172, 293, text="22")
-		self.p2saves = self.canvas.create_text(172, 309, text="23")
-		self.p2demos = self.canvas.create_text(172, 325, text="24")
+		self.p2score = self.canvas.create_text(166, 251, text="2222", anchor='w', font=("sans", 10))
+		self.p2goals = self.canvas.create_text(166, 267, text="20", anchor='w', font=("sans", 10))
+		self.p2owngoals = self.canvas.create_text(166, 283, text="21", anchor='w', font=("sans", 10))
+		self.p2shots = self.canvas.create_text(166, 299, text="22", anchor='w', font=("sans", 10))
+		self.p2saves = self.canvas.create_text(166, 315, text="23", anchor='w', font=("sans", 10))
+		self.p2demos = self.canvas.create_text(166, 331, text="24", anchor='w', font=("sans", 10))
 		
-		self.p1scoreboardscore = self.canvas.create_text(91, 34, text="99", fill='blue')
-		self.p2scoreboardscore = self.canvas.create_text(161, 34, text="69", fill='darkorange2')
-		self.timeremaining = self.canvas.create_text(126, 34, text="500.24")
+		self.p1scoreboardscore = self.canvas.create_text(88, 34, text="99", fill='blue', font=("Calibri Bold", 13))
+		self.p2scoreboardscore = self.canvas.create_text(164, 34, text="69", fill='darkorange2', font=("Calibri Bold", 13))
+		self.timeremaining = self.canvas.create_text(126, 34, text="500.24", font=("Calibri Bold", 13))
 		
 		self.blue = self.canvas.create_rectangle(126, 154, 130, 158, fill='blue', outline='blue')
 		self.orange = self.canvas.create_rectangle(126, 154, 130, 158, fill='darkorange2', outline='darkorange2')
@@ -137,11 +140,16 @@ class real_time_display:
 			self.canvas.itemconfig(self.timeremaining, fill='black')
 		
 		# First update all string values
-		self.canvas.itemconfig(self.timeremaining, text=round(gameTickPacket.gameInfo.GameTimeRemaining,2))
+		timeRemaining = gameTickPacket.gameInfo.GameTimeRemaining
+		if timeRemaining >= 60:
+			self.canvas.itemconfig(self.timeremaining, text=("%d:%02d" % (int(timeRemaining / 60), (int(timeRemaining) % 60))))
+		else:
+			self.canvas.itemconfig(self.timeremaining, text=("%.2f" % timeRemaining))
+			
 		self.canvas.itemconfig(self.p1scoreboardscore, text=(gameTickPacket.gamecars[blueIndex].Score.Goals + gameTickPacket.gamecars[orngIndex].Score.OwnGoals))
 		self.canvas.itemconfig(self.p2scoreboardscore, text=(gameTickPacket.gamecars[orngIndex].Score.Goals + gameTickPacket.gamecars[blueIndex].Score.OwnGoals))
 		self.canvas.itemconfig(self.p1score, text=gameTickPacket.gamecars[blueIndex].Score.Score)
-		self.canvas.itemconfig(self.p2score, text=gameTickPacket.gamecars[orngIndex].Score.Score)
+		self.canvas.itemconfig(self.p2score, text=gameTickPacket.gamecars[orngIndex].Score.Score) 
 		self.canvas.itemconfig(self.p1goals, text=gameTickPacket.gamecars[blueIndex].Score.Goals)
 		self.canvas.itemconfig(self.p2goals, text=gameTickPacket.gamecars[orngIndex].Score.Goals)
 		self.canvas.itemconfig(self.p1owngoals, text=gameTickPacket.gamecars[blueIndex].Score.OwnGoals)
@@ -172,41 +180,41 @@ class real_time_display:
 		
 	def UpdateKeyPresses(self, output1, output2):
 	
-		self.canvas.coords(self.p1marker, output1[0] * 62 / 32767 + 5, output1[1] * 62 / 32767 + 268)
-		self.canvas.coords(self.p1acel, (36, 257, (36 + output1[2] * 32 / 32767), 266))
-		self.canvas.coords(self.p1decel, (36 - output1[3] * 32 / 32767), 257, 36, 266)
+		self.canvas.coords(self.p1marker, output1[0] * 62 / 32767 + 5, output1[1] * 62 / 32767 + 274)
+		self.canvas.coords(self.p1acel, (36, 261, (36 + output1[2] * 32 / 32767), 270))
+		self.canvas.coords(self.p1decel, (36 - output1[3] * 32 / 32767), 261, 36, 270)
 	
 		if output1[4] == 0:
-			self.canvas.itemconfig(self.p1a, fill='white')
+			self.canvas.itemconfig(self.p1a, fill='#9c9c9c')
 		else:
 			self.canvas.itemconfig(self.p1a, fill='pale green')
 			
 		if output1[5] == 0:
-			self.canvas.itemconfig(self.p1b, fill='white')
+			self.canvas.itemconfig(self.p1b, fill='#9c9c9c')
 		else:
 			self.canvas.itemconfig(self.p1b, fill='lightcoral')
 			
 		if output1[6] == 0:
-			self.canvas.itemconfig(self.p1x, fill='white')
+			self.canvas.itemconfig(self.p1x, fill='#9c9c9c')
 		else:
 			self.canvas.itemconfig(self.p1x, fill='steelblue1')
 			
-		self.canvas.coords(self.p2marker, output2[0] * 62 / 32767 + 184, output2[1] * 62 / 32767 + 268)
-		self.canvas.coords(self.p2acel, (215, 257, (215 + output2[2] * 32 / 32767), 266))
-		self.canvas.coords(self.p2decel, (215 - output2[3] * 32 / 32767), 257, 215, 266)
+		self.canvas.coords(self.p2marker, output2[0] * 62 / 32767 + 184, output2[1] * 62 / 32767 + 274)
+		self.canvas.coords(self.p2acel, (215, 261, (215 + output2[2] * 32 / 32767), 270))
+		self.canvas.coords(self.p2decel, (215 - output2[3] * 32 / 32767), 261, 215, 270)
 	
 		if output2[4] == 0:
-			self.canvas.itemconfig(self.p2a, fill='white')
+			self.canvas.itemconfig(self.p2a, fill='#9c9c9c')
 		else:
 			self.canvas.itemconfig(self.p2a, fill='pale green')
 			
 		if output2[5] == 0:
-			self.canvas.itemconfig(self.p2b, fill='white')
+			self.canvas.itemconfig(self.p2b, fill='#9c9c9c')
 		else:
 			self.canvas.itemconfig(self.p2b, fill='lightcoral')
 			
 		if output2[6] == 0:
-			self.canvas.itemconfig(self.p2x, fill='white')
+			self.canvas.itemconfig(self.p2x, fill='#9c9c9c')
 		else:
 			self.canvas.itemconfig(self.p2x, fill='steelblue1')
 		

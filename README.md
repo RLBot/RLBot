@@ -1,10 +1,11 @@
 # RLBot
 
 ### Short Description
-RLBot is a program to play rocket league by reading values from the process memory as input and outputing button presses to the game.  RLBot works for 1v1 exhibition games of player vs player opponent.  I use vjoy + pyvjoy + x360ce to acheive the controller simulation.  All autonomous bots that are created should be fed game values as input and perform whatever processing they wish before outputting key presses as output. The idea is to allow player made bots to be interchangeable.  One of the bots being worked on, and my initial project, requires Google Tensorflow.
+RLBot is a framewwork to create bots to play rocket league that reads values from the game and outputs button presses to the game.  RLBot works for 1v1 exhibition games of player vs player opponent.  I use vjoy + pyvjoy + x360ce to acheive the controller simulation.  All autonomous bots that are created should be fed game values as input and perform whatever processing they wish before outputting key presses as output. The idea is to allow player made bots to be interchangeable.  One of the bots being worked on, and my initial project, requires Google Tensorflow.
 
-#### Future Goals
-Host a tournament for players to pit their created bots against each other! Need to layout official rules for this (ex. Allowed process time and make official input/output vector rules).
+#### Tournament
+Inagural tournament submission deadline: October 2, 2017, 11:59PM Pacific
+Inagural tournament stream: October 6, 2017, Begins 7:00PM-10:00PM Pacific.  Continues on the 7th from 10:00AM-? if necessary.
 
 #### ToDo
 - General bug fixes as they come up
@@ -19,11 +20,10 @@ Windows, Rocket League, vjoy + pyvjoy + x360ce at least.  If you are running the
 ### Longer Description
 
 #### Video Example
-[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb4.JPG)](https://youtu.be/_heRDSm6C90)
+[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb5.JPG)](https://youtu.be/muReW_jawvI)
 
 #### Reading Values From Game
-RLBot is fed values from an injected dll.  These values include amount of boost, xyz positional coordinates for player, ball, and opponent, rotational values, relative velocities, 
-and score from the game to name a few.  Look at cStructure.py for an idea of all values.  I use CheatEngine to inject the dll for now.
+RLBot is fed values from an injected dll.  These values include amount of boost, xyz positional coordinates for player, ball, and opponent, rotational values, and score from the game to name a few.  Look at cStructure.py for an idea of all values.  I use CheatEngine to inject the dll for now.
 
 #### Runner
 Inject the dll into RocketLeague first (only need to do this step once each time you open rocketleague) Run "python runner.py" after the game is loaded and all bots and the ball are loaded on the playfield.  A GUI window should pop up after a second displaying game values.

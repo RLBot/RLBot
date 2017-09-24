@@ -11,22 +11,52 @@ import mmap
 import math
 import numpy as np
 
-def updateInputs(inputs):
+def updateInputs(blueInputs, orngInputs, displayInputs, blueIsLocked, orngIsLocked):
+
+	# I think performance here is good enough that it would not be improved by running 2 update processes concurrently. So updates for both inputs are done serial in this process.
+
+	REFRESH_IN_PROGRESS = 1
 
 	# Open shared memory
-	shm = mmap.mmap(0, 2000, "Local\\RLBot")
+	shm = mmap.mmap(0, 2004, "Local\\RLBot")
+	# This lock ensures that a read cannot start while the dll is writing to shared memory.
+	lock = ctypes.c_long(0)
 	
 	while(True):
+	
+		# First copy blueInputs
 		shm.seek(0) # Move to beginning of shared memory
-		ctypes.memmove(ctypes.addressof(inputs.GameTickPacket), shm.read(2000), ctypes.sizeof(inputs.GameTickPacket)) # copy shared memory into struct
+		ctypes.memmove(ctypes.addressof(lock), shm.read(4), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
 		
-		time.sleep(0.01)
+		if (lock.value != REFRESH_IN_PROGRESS):
+			if (not blueIsLocked.value):
+				blueIsLocked.value = 1 # Lock
+				ctypes.memmove(ctypes.addressof(blueInputs.GameTickPacket), shm.read(2000), ctypes.sizeof(blueInputs.GameTickPacket)) # copy shared memory into struct
+				blueIsLocked.value = 0 # Unlock
+		
+		# Now copy orngInputs
+		shm.seek(0)
+		ctypes.memmove(ctypes.addressof(lock), shm.read(4), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
+		
+		if (lock.value != REFRESH_IN_PROGRESS):
+			if (not orngIsLocked.value):
+				orngIsLocked.value = 1 # Lock
+				ctypes.memmove(ctypes.addressof(orngInputs.GameTickPacket), shm.read(2000), ctypes.sizeof(orngInputs.GameTickPacket)) # copy shared memory into struct
+				orngIsLocked.value = 0 # Unlock
+				
+		# Now refresh display
+		shm.seek(0) # Move to beginning of shared memory
+		ctypes.memmove(ctypes.addressof(lock), shm.read(4), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
+		
+		if (lock.value != REFRESH_IN_PROGRESS):
+			ctypes.memmove(ctypes.addressof(displayInputs.GameTickPacket), shm.read(2000), ctypes.sizeof(displayInputs.GameTickPacket)) # copy shared memory into struct
+		
+		time.sleep(0.005) # Sleep time half of agent sleep time
 		
 def resetInputs():
 	exec(open("resetDevices.py").read())
 
-def runAgent(inputs, team, q):
-	# Deep copy inputs?
+def runAgent(inputs, team, q, isLocked):
 	config = configparser.RawConfigParser()
 	config.read('rlbot.cfg')
 	if team == "blue":
@@ -36,7 +66,10 @@ def runAgent(inputs, team, q):
 		agent2 = importlib.import_module(config.get('Player Configuration', 'p2Agent'))
 		agent = agent2.agent("orange")
 	while(True):
-		output = agent.get_output_vector((inputs))
+		if(not isLocked.value):
+			isLocked.value = 1
+			output = agent.get_output_vector(inputs)
+			isLocked.value = 0
 		try:
 			q.put(output)
 		except Queue.Full:
@@ -57,11 +90,16 @@ if __name__ == '__main__':
 	agent1Color = config.get('Player Configuration', 'p1Color')
 	agent2Color = config.get('Player Configuration', 'p2Color')
 	
-	gameTickPacket = cStructure.GameTickPacket()
-	shm = mmap.mmap(0, 1868, "Local\\RLBot")
-	shm.seek(0) # Move to beginning of shared memory
-	ctypes.memmove(ctypes.addressof(gameTickPacket), shm.read(1868), ctypes.sizeof(gameTickPacket)) # copy shared memory into struct
-	inputs = Value(cStructure.SharedInputs, gameTickPacket)
+	blueGameTickPacket = cStructure.GameTickPacket()
+	orngGameTickPacket = cStructure.GameTickPacket()
+	displayGameTickPacket = cStructure.GameTickPacket()
+
+	blueInputs = Value(cStructure.SharedInputs, blueGameTickPacket)
+	orngInputs = Value(cStructure.SharedInputs, orngGameTickPacket)
+	displayInputs = Value(cStructure.SharedInputs, displayGameTickPacket)
+	
+	blueIsLocked = Value('i', 0)
+	orngIsLocked = Value('i', 0)
 
 	q1 = Queue(1)
 	q2 = Queue(1)
@@ -74,17 +112,17 @@ if __name__ == '__main__':
 	
 	ph = PlayHelper.play_helper()
 	
-	p1 = Process(target=updateInputs, args=(inputs,))
+	p1 = Process(target=updateInputs, args=(blueInputs, orngInputs, displayInputs, blueIsLocked, orngIsLocked))
 	p1.start()
-	p2 = Process(target=runAgent, args=(inputs, agent1Color, q1))
+	p2 = Process(target=runAgent, args=(blueInputs, agent1Color, q1, blueIsLocked))
 	p2.start()
-	p3 = Process(target=runAgent, args=(inputs, agent2Color, q2))
+	p3 = Process(target=runAgent, args=(blueInputs, agent2Color, q2, orngIsLocked))
 	p3.start()
 	
 	while (True):
 		updateFlag = False
 		
-		rtd.UpdateDisplay(inputs)
+		rtd.UpdateDisplay(displayInputs)
 		
 		try:
 			output1 = q1.get()
