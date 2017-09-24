@@ -1,7 +1,7 @@
 # RLBot
 
 ### Short Description
-RLBot is a framewwork to create bots to play rocket league that reads values from the game and outputs button presses to the game.  RLBot works for 1v1 exhibition games of player vs player opponent.  I use vjoy + pyvjoy + x360ce to acheive the controller simulation.  All autonomous bots that are created should be fed game values as input and perform whatever processing they wish before outputting key presses as output. The idea is to allow player made bots to be interchangeable.  One of the bots being worked on, and my initial project, requires Google Tensorflow.
+RLBot is a framework to create bots to play rocket league that reads values from the game and outputs button presses to the game.  RLBot works for 1v1 exhibition games of player vs player opponent.  I use vjoy + pyvjoy + x360ce to acheive the controller simulation.  All autonomous bots that are created should be fed game values as input and perform whatever processing they wish before outputting key presses as output. The idea is to allow player made bots to be interchangeable.  One of the bots being worked on, and my initial project, requires Google Tensorflow.
 
 #### Tournament
 Inagural tournament submission deadline: October 2, 2017, 11:59PM Pacific
