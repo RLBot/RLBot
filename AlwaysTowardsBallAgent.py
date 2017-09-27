@@ -1,5 +1,4 @@
 import math
-import numpy as np
 
 '''
 This is v2 code

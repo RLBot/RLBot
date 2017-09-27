@@ -9,7 +9,6 @@ import cStructure
 import ctypes
 import mmap
 import math
-import numpy as np
 
 def updateInputs(blueInputs, orngInputs, displayInputs, blueIsLocked, orngIsLocked):
 

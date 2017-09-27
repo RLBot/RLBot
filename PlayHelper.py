@@ -1,11 +1,16 @@
 import time
 import pyvjoy
+import configparser
 
 class play_helper:
 	
     def __init__(self):
         self.p1 = pyvjoy.VJoyDevice(1)
         self.p2 = pyvjoy.VJoyDevice(2)
+        config = configparser.RawConfigParser()
+        config.read('rlbot.cfg')
+        self.p1Enabled = ("True" == config.get('Player Configuration', 'p1Enabled'))
+        self.p2Enabled = ("True" == config.get('Player Configuration', 'p2Enabled'))
 
     def reset_contollers(self):
         p1 = pyvjoy.VJoyDevice(1)
@@ -55,6 +60,9 @@ class play_helper:
         self.p1.data.wAxisYRot = 16383
         self.p2.data.wAxisYRot = 16383
 
-        #send data to vJoy device
-        self.p1.update()
-        self.p2.update()
+        if (self.p1Enabled):
+            #send data to vJoy device
+            self.p1.update()
+
+        if (self.p2Enabled):
+            self.p2.update()
