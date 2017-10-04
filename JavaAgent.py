@@ -5,7 +5,7 @@ import cStructure
 
 # In order to run this successfully:
 # 1. Run 'pip install py4j'  (one time setup)
-# 2. Modify runner.py to use this agent, e.g. "import JavaAgent as agent2"
+# 2. Modify rlbot.cfg so that one of the agents is JavaAgent, e.g. "p2Agent = JavaAgent"
 # 3. Choose a port number, and put it both in this class and in AgentEntryPoint.java
 #    - Avoid 25333 because that's the default, and other bots may be using it!
 #    - See the myPort variable below, which I've set to -1 so that you're forced to see this.
