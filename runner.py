@@ -88,7 +88,9 @@ if __name__ == '__main__':
 	agent2 = importlib.import_module(config.get('Player Configuration', 'p2Agent'))
 	agent1Color = config.get('Player Configuration', 'p1Color')
 	agent2Color = config.get('Player Configuration', 'p2Color')
-	
+	agent1Enabled = "True" == config.get('Player Configuration', 'p1Enabled')
+	agent2Enabled = "True" == config.get('Player Configuration', 'p2Enabled')
+
 	player1GameTickPacket = cStructure.GameTickPacket()
 	player2GameTickPacket = cStructure.GameTickPacket()
 	displayGameTickPacket = cStructure.GameTickPacket()
@@ -103,34 +105,40 @@ if __name__ == '__main__':
 	q1 = Queue(1)
 	q2 = Queue(1)
 	
-	output1 = [16383, 16383, 32767, 0, 0, 0, 0]
-	output2 = [16383, 16383, 32767, 0, 0, 0, 0]
+	output1 = [16383, 16383, 0, 0, 0, 0, 0]
+	output2 = [16383, 16383, 0, 0, 0, 0, 0]
 	
 	rtd = importlib.import_module("displays." + config.get('RLBot Configuration', 'display')).real_time_display()
-	rtd.build_initial_window(agent1.BOT_NAME, agent2.BOT_NAME)
+	rtd.build_initial_window(agent1.BOT_NAME if agent1Enabled else '[Disabled]', agent2.BOT_NAME if agent2Enabled else '[Disabled]')
 
 	
 	p1 = Process(target=updateInputs, args=(player1Inputs, player2Inputs, displayInputs, player1IsLocked, player2IsLocked))
 	p1.start()
-	p2 = Process(target=runAgent, args=(player1Inputs, agent1Color, q1, player1IsLocked, 0))
-	p2.start()
-	p3 = Process(target=runAgent, args=(player2Inputs, agent2Color, q2, player2IsLocked, 1))
-	p3.start()
+
+	if (agent1Enabled):
+		p2 = Process(target=runAgent, args=(player1Inputs, agent1Color, q1, player1IsLocked, 0))
+		p2.start()
+
+	if (agent2Enabled):
+		p3 = Process(target=runAgent, args=(player2Inputs, agent2Color, q2, player2IsLocked, 1))
+		p3.start()
 	
 	while (True):
 		rtd.UpdateDisplay(displayInputs)
-		
-		try:
-			output1 = q1.get()
-			updateFlag = True
-		except Queue.Empty:
-			pass
-			
-		try:
-			output2 = q2.get()
-			updateFlag = True
-		except Queue.Empty:
-			pass
-		
+
+		if (agent1Enabled):
+			try:
+				output1 = q1.get()
+				updateFlag = True
+			except Queue.Empty:
+				pass
+
+		if (agent2Enabled):
+			try:
+				output2 = q2.get()
+				updateFlag = True
+			except Queue.Empty:
+				pass
+
 		rtd.UpdateKeyPresses(output1, output2)
 		time.sleep(0.01)
