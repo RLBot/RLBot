@@ -31,8 +31,15 @@ class PlayerInfo(ctypes.Structure):
 				("AngularVelocity", Vector3),
 				("Score", ScoreInfo),
 				("bDemolished", ctypes.c_bool),
+                # True if your wheels are on the ground, the wall, or the ceiling. False if you're midair or turtling.
+				("bOnGround", ctypes.c_bool),
                 ("bSuperSonic", ctypes.c_bool),
                 ("bBot", ctypes.c_bool),
+                # True if the player has jumped. Falling off the ceiling / driving off the goal post does not count.
+                ("bJumped", ctypes.c_bool),
+                # True if player has double jumped. False does not mean you have a jump remaining, because the
+                # aerial timer can run out, and that doesn't affect this flag.
+                ("bDoubleJumped", ctypes.c_bool),
 				("PlayerID", ctypes.c_int),
 				("Team", ctypes.c_ubyte),
 				("Boost", ctypes.c_int)]
@@ -52,7 +59,17 @@ class BoostInfo(ctypes.Structure):
 class GameInfo(ctypes.Structure):
 	_fields_ = [("TimeSeconds", ctypes.c_float),
                 ("GameTimeRemaining", ctypes.c_float),
-                ("bOverTime", ctypes.c_bool)]
+                ("bOverTime", ctypes.c_bool),
+                ("bUnlimitedTime", ctypes.c_bool),
+                # True when cars are allowed to move, and during the pause menu. False during replays.
+                ("bRoundActive", ctypes.c_bool),
+                # Only false during a kickoff, when the car is allowed to move, and the ball has not been hit,
+                # and the game clock has not started yet. If both players sit still, game clock will eventually
+                # start and this will become true.
+                ("bBallHasBeenHit", ctypes.c_bool),
+                # Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
+                # countdown. Turns false again the moment the 'choose team' screen appears.
+                ("bMatchEnded", ctypes.c_bool)]
 
 # On the c++ side this struct has a long at the beginning for locking.  This flag is removed from this struct so it isn't visible to users.
 class GameTickPacket(ctypes.Structure):

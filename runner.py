@@ -17,7 +17,7 @@ def updateInputs(player1_inputs, player2_inputs, display_inputs, p1_is_locked, p
 	REFRESH_IN_PROGRESS = 1
 
 	# Open shared memory
-	shm = mmap.mmap(0, 2004, "Local\\RLBot")
+	shm = mmap.mmap(0, 2048, "Local\\RLBot")
 	# This lock ensures that a read cannot start while the dll is writing to shared memory.
 	lock = ctypes.c_long(0)
 	
@@ -30,7 +30,7 @@ def updateInputs(player1_inputs, player2_inputs, display_inputs, p1_is_locked, p
 		if (lock.value != REFRESH_IN_PROGRESS):
 			if (not p1_is_locked.value):
 				p1_is_locked.value = 1 # Lock
-				ctypes.memmove(ctypes.addressof(player1_inputs.GameTickPacket), shm.read(2000), ctypes.sizeof(player1_inputs.GameTickPacket)) # copy shared memory into struct
+				ctypes.memmove(ctypes.addressof(player1_inputs.GameTickPacket), shm.read(2044), ctypes.sizeof(player1_inputs.GameTickPacket)) # copy shared memory into struct
 				p1_is_locked.value = 0 # Unlock
 		
 		# Now copy orngInputs
