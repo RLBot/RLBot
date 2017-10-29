@@ -16,8 +16,11 @@ def updateInputs(player1_inputs, player2_inputs, display_inputs, p1_is_locked, p
 
 	REFRESH_IN_PROGRESS = 1
 
+	lock_size = 4
+	packet_size = 2044
+
 	# Open shared memory
-	shm = mmap.mmap(0, 2048, "Local\\RLBot")
+	shm = mmap.mmap(0, lock_size + packet_size, "Local\\RLBot")
 	# This lock ensures that a read cannot start while the dll is writing to shared memory.
 	lock = ctypes.c_long(0)
 	
@@ -25,30 +28,30 @@ def updateInputs(player1_inputs, player2_inputs, display_inputs, p1_is_locked, p
 	
 		# First copy blueInputs
 		shm.seek(0) # Move to beginning of shared memory
-		ctypes.memmove(ctypes.addressof(lock), shm.read(4), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
+		ctypes.memmove(ctypes.addressof(lock), shm.read(lock_size), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
 		
 		if (lock.value != REFRESH_IN_PROGRESS):
 			if (not p1_is_locked.value):
 				p1_is_locked.value = 1 # Lock
-				ctypes.memmove(ctypes.addressof(player1_inputs.GameTickPacket), shm.read(2044), ctypes.sizeof(player1_inputs.GameTickPacket)) # copy shared memory into struct
+				ctypes.memmove(ctypes.addressof(player1_inputs.GameTickPacket), shm.read(packet_size), ctypes.sizeof(player1_inputs.GameTickPacket)) # copy shared memory into struct
 				p1_is_locked.value = 0 # Unlock
 		
 		# Now copy orngInputs
 		shm.seek(0)
-		ctypes.memmove(ctypes.addressof(lock), shm.read(4), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
+		ctypes.memmove(ctypes.addressof(lock), shm.read(lock_size), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
 		
 		if (lock.value != REFRESH_IN_PROGRESS):
 			if (not p2_is_locked.value):
 				p2_is_locked.value = 1 # Lock
-				ctypes.memmove(ctypes.addressof(player2_inputs.GameTickPacket), shm.read(2000), ctypes.sizeof(player2_inputs.GameTickPacket)) # copy shared memory into struct
+				ctypes.memmove(ctypes.addressof(player2_inputs.GameTickPacket), shm.read(packet_size), ctypes.sizeof(player2_inputs.GameTickPacket)) # copy shared memory into struct
 				p2_is_locked.value = 0 # Unlock
 				
 		# Now refresh display
 		shm.seek(0) # Move to beginning of shared memory
-		ctypes.memmove(ctypes.addressof(lock), shm.read(4), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
+		ctypes.memmove(ctypes.addressof(lock), shm.read(lock_size), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
 		
 		if (lock.value != REFRESH_IN_PROGRESS):
-			ctypes.memmove(ctypes.addressof(display_inputs.GameTickPacket), shm.read(2000), ctypes.sizeof(display_inputs.GameTickPacket)) # copy shared memory into struct
+			ctypes.memmove(ctypes.addressof(display_inputs.GameTickPacket), shm.read(packet_size), ctypes.sizeof(display_inputs.GameTickPacket)) # copy shared memory into struct
 		
 		time.sleep(0.005) # Sleep time half of agent sleep time
 		
