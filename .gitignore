@@ -103,9 +103,14 @@ ENV/
 # Intellij IDEA project files
 *.iml
 /.idea
+*.ipr
+*.iws
 
 # Intellij IDEA build output
 /out
 
 # Don't include pyvjoy in repo
 /pyvjoy
+
+# Gradle
+/.gradle

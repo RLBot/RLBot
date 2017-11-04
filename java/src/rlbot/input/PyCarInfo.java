@@ -7,8 +7,11 @@ public class PyCarInfo {
     public PyVector3 AngularVelocity; //  Python type: Vector3
     public PyScoreInfo Score; //  Python type: ScoreInfo
     public boolean bDemolished; //  Python type: ctypes.c_bool
+    public boolean bOnGround;
     public boolean bSuperSonic; //  Python type: ctypes.c_bool
     public boolean bBot; //  Python type: ctypes.c_bool
+    public boolean bJumped;
+    public boolean bDoubleJumped;
     public int PlayerID; //  Python type: ctypes.c_int
     public int Team; //  Python type: ctypes.c_ubyte
     public int Boost; //  Python type: ctypes.c_int
