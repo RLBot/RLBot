@@ -43,7 +43,7 @@ class BotManager:
         agent_module = importlib.import_module(self.module_name)
 
         # Create bot from module
-        agent = agent_module.Agent(self.name, self.team)
+        agent = agent_module.Agent(self.name, self.team) # TODO: inform the agent of what index it is, so that it can support matches bigger than 1v1
 
         # Create Ratelimiter
         r = rate_limiter.RateLimiter(RATE_LIMITED_ACTIONS_PER_SECOND)
