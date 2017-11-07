@@ -63,6 +63,8 @@ if __name__ == '__main__':
     callbacks = []
     name_dict = dict()
 
+    gameInputPacket.iNumPlayers = num_bots
+
     # Set configuration values for bots and store name and team
     for i in range(num_bots):
         bot_config = configparser.RawConfigParser()
