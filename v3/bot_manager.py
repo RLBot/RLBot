@@ -7,8 +7,8 @@ import importlib
 import mmap
 import rate_limiter
 
-OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBOT_OUTPUT'
-INPUT_SHARED_MEMORY_TAG = 'Local\\RLBOT_INPUT'
+OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
+INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 RATE_LIMITED_ACTIONS_PER_SECOND = 60
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
@@ -43,7 +43,7 @@ class BotManager:
         agent_module = importlib.import_module(self.module_name)
 
         # Create bot from module
-        agent = agent_module.Agent(self.name, self.team) # TODO: inform the agent of what index it is, so that it can support matches bigger than 1v1
+        agent = agent_module.Agent(self.name, self.team, self.index)
 
         # Create Ratelimiter
         r = rate_limiter.RateLimiter(RATE_LIMITED_ACTIONS_PER_SECOND)

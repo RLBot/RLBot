@@ -4,7 +4,7 @@ import mmap
 MAX_PLAYERS = 10
 MAX_NAME_LENGTH = 32
 MAX_BOOSTS = 50
-SHARED_MEMORY_TAG = 'Local\\RLBOT_OUTPUT'
+SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 
 
 class Vector3(ctypes.Structure):

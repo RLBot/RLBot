@@ -10,7 +10,7 @@ BOT_CONFIG_KEY_PREFIX = 'bot_config_'
 BOT_TEAM_PREFIX = 'bot_team_'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
-INPUT_SHARED_MEMORY_TAG = 'Local\\RLBOT_INPUT'
+INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_MODULE_HEADER = 'Bot Location'
 
@@ -22,8 +22,21 @@ def get_bot_config_file_list(botCount, config):
     return configFileList
 
 
-def run_agent(terminate_event, callback_event, name, team, offset, module_name):
-    bm = bot_manager.BotManager(terminate_event, callback_event, name, team, offset, module_name)
+# Cut off at 31 characters and handle duplicates
+def get_sanitized_bot_name(dict, name):
+    if name not in dict:
+        new_name = name[:31] # Make sure name does not exceed 31 characters
+        dict[name] = 1
+    else:
+        count = dict[name]
+        new_name = name[:27] + "(" + str(count + 1) + ")" # Truncate at 27 because we can have up to '(10)' appended
+        dict[name] = count + 1
+
+    return new_name
+
+
+def run_agent(terminate_event, callback_event, name, team, index, module_name):
+    bm = bot_manager.BotManager(terminate_event, callback_event, name, team, index, module_name)
     bm.run()
 
 
@@ -48,15 +61,17 @@ if __name__ == '__main__':
     bot_modules = []
     processes = []
     callbacks = []
+    name_dict = dict()
 
     # Set configuration values for bots and store name and team
     for i in range(num_bots):
         bot_config = configparser.RawConfigParser()
         bot_config.read(bot_configs[i])
 
-        gameInputPacket.sPlayerConfiguration[i].ePlayerController = 0
-        gameInputPacket.sPlayerConfiguration[i].wName = bot_config.get(BOT_CONFIG_LOADOUT_HEADER,
-                                                                       'name')  # Should check name is < 32 chars!
+        gameInputPacket.sPlayerConfiguration[i].bBot = True
+        gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
+        gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict, bot_config.get(BOT_CONFIG_LOADOUT_HEADER,
+                                                                       'name'))
         gameInputPacket.sPlayerConfiguration[i].ucTeam = framework_config.getint(BOT_CONFIGURATION_HEADER,
                                                                                  BOT_TEAM_PREFIX + str(i))
         gameInputPacket.sPlayerConfiguration[i].ucTeamColorID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER,

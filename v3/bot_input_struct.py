@@ -3,11 +3,12 @@ import mmap
 
 MAX_PLAYERS = 10
 MAX_NAME_LENGTH = 32
-SHARED_MEMORY_TAG = 'Local\\RLBOT_INPUT'
+SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 
 
 class PlayerConfiguration(ctypes.Structure):
-    _fields_ = [("ePlayerController", ctypes.c_int),
+    _fields_ = [("bBot", ctypes.c_bool),
+                ("iPlayerIndex", ctypes.c_int),
                 ("wName", ctypes.c_wchar * MAX_NAME_LENGTH),
                 ("ucTeam", ctypes.c_ubyte),
                 ("ucTeamColorID", ctypes.c_ubyte),
@@ -41,12 +42,8 @@ class GameInputPacket(ctypes.Structure):
     _fields_ = [("lock", ctypes.c_long),
                 ("bStartMatch", ctypes.c_bool),
                 ("sPlayerConfiguration", PlayerConfiguration * MAX_PLAYERS),
-                ("sPlayerInput", PlayerInput * MAX_PLAYERS)]
-
-class GameInputPacketWithoutPlayerInput(ctypes.Structure):
-    _fields_ = [("lock", ctypes.c_long),
-                ("bStartMatch", ctypes.c_bool),
-                ("sPlayerConfiguration", PlayerConfiguration * MAX_PLAYERS)]
+                ("sPlayerInput", PlayerInput * MAX_PLAYERS),
+                ("iNumPlayers", ctypes.c_int)]
 
 
 def print_game_input_packet(gameInputPacket):
