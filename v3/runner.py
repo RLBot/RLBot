@@ -4,6 +4,7 @@ import configparser
 import ctypes
 import mmap
 import multiprocessing as mp
+import time
 
 BOT_CONFIGURATION_HEADER = 'Bot Configuration'
 BOT_CONFIG_KEY_PREFIX = 'bot_config_'
@@ -38,6 +39,13 @@ def get_sanitized_bot_name(dict, name):
 def run_agent(terminate_event, callback_event, name, team, index, module_name):
     bm = bot_manager.BotManager(terminate_event, callback_event, name, team, index, module_name)
     bm.run()
+
+
+def wait_for_enter_process(quit_event):
+    # https://stackoverflow.com/questions/19416779/input-blocks-other-python-processes-in-windows-8-python-3-3
+    # Calling input from main process blocks all subprocesses of main
+    input("Press enter key to exit\n")
+    quit_event.set()
 
 
 if __name__ == '__main__':
@@ -110,12 +118,12 @@ if __name__ == '__main__':
         process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
-    gameInputPacket.bStartMatch = True
+    # gameInputPacket.bStartMatch = True
 
-    input("Press enter key to exit\n")
-
-    # Send quit event to all processes
-    quit_event.set()
+    # Send quit event to all processes (Can't use input it blocks all processes)
+    while True:
+        time.sleep(1)
+        pass
 
     # Wait for all processes to terminate before terminating main process
     terminated = False

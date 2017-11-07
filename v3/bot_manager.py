@@ -43,7 +43,7 @@ class BotManager:
         agent_module = importlib.import_module(self.module_name)
 
         # Create bot from module
-        agent = agent_module.Agent(self.name, self.team, self.index)
+        agent = agent_module.Agent(self.name, self.team, self.index + 1)
 
         # Create Ratelimiter
         r = rate_limiter.RateLimiter(RATE_LIMITED_ACTIONS_PER_SECOND)
