@@ -4,6 +4,8 @@ import configparser
 import ctypes
 import mmap
 import multiprocessing as mp
+import signal
+import sys
 import time
 
 BOT_CONFIGURATION_HEADER = 'Bot Configuration'
@@ -41,14 +43,8 @@ def run_agent(terminate_event, callback_event, name, team, index, module_name):
     bm.run()
 
 
-def wait_for_enter_process(quit_event):
-    # https://stackoverflow.com/questions/19416779/input-blocks-other-python-processes-in-windows-8-python-3-3
-    # Calling input from main process blocks all subprocesses of main
-    input("Press enter key to exit\n")
-    quit_event.set()
-
-
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal.default_int_handler)
     # Set up RLBot.cfg
     framework_config = configparser.RawConfigParser()
     framework_config.read(RLBOT_CONFIG_FILE)
@@ -79,6 +75,8 @@ if __name__ == '__main__':
         bot_config.read(bot_configs[i])
 
         gameInputPacket.sPlayerConfiguration[i].bBot = True
+        gameInputPacket.sPlayerConfiguration[i].bRLBotControlled = True
+        gameInputPacket.sPlayerConfiguration[i].fBotSkill = 0.0
         gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
         gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict, bot_config.get(BOT_CONFIG_LOADOUT_HEADER,
                                                                        'name'))
@@ -114,21 +112,31 @@ if __name__ == '__main__':
     # Launch processes
     for i in range(num_bots):
         callbacks.append(mp.Event())
-        process = mp.Process(target=run_agent, args=(quit_event, callbacks[i], bot_names[i], bot_teams[i], i, bot_modules[i]))
+        process = mp.Process(target=run_agent, args=(quit_event, callbacks[i], str(gameInputPacket.sPlayerConfiguration[i].wName), bot_teams[i], i, bot_modules[i]))
         process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
     # gameInputPacket.bStartMatch = True
 
+    print("Just press ctrl-c to kill. I haven't figured out graceful termination yet")
+
+    '''
     # Send quit event to all processes (Can't use input it blocks all processes)
     while True:
-        time.sleep(1)
-        pass
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            print("Shutting Down")
+            # Wait for all processes to terminate before terminating main process
+            terminated = False
+            while not terminated:
+                terminated = True
+                for callback in callbacks:
+                    if not callback.is_set():
+                        terminated = False
+            sys.exit(0)
+    '''
 
-    # Wait for all processes to terminate before terminating main process
-    terminated = False
-    while not terminated:
-        terminated = True
-        for callback in callbacks:
-            if not callback.is_set():
-                terminated = False
+
+
+

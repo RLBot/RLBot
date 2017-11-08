@@ -12,6 +12,7 @@ INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 RATE_LIMITED_ACTIONS_PER_SECOND = 60
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
+MAX_CARS = 10
 
 
 class BotManager:
@@ -24,6 +25,7 @@ class BotManager:
         self.index = index
         self.module_name = modulename
 
+
     def run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
         buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
@@ -33,6 +35,7 @@ class BotManager:
 
         # Set up shared memory for game data
         game_data_shared_memory = mmap.mmap(-1, ctypes.sizeof(gd.GameTickPacketWithLock), OUTPUT_SHARED_MEMORY_TAG)
+        bot_output = gd.GameTickPacketWithLock.from_buffer(game_data_shared_memory)
         lock = ctypes.c_long(0)
         game_tick_packet = gd.GameTickPacket() # We want to do a deep copy for game inputs so people don't mess with em
 
@@ -42,11 +45,17 @@ class BotManager:
         # Get bot module
         agent_module = importlib.import_module(self.module_name)
 
-        # Create bot from module
-        agent = agent_module.Agent(self.name, self.team, self.index + 1)
-
         # Create Ratelimiter
         r = rate_limiter.RateLimiter(RATE_LIMITED_ACTIONS_PER_SECOND)
+
+        # Find car with same name and assign index
+        for i in range(MAX_CARS):
+            if str(bot_output.gamecars[i].wName) == self.name:
+                self.index = i
+                continue
+
+        # Create bot from module
+        agent = agent_module.Agent(self.name, self.team, self.index)
 
         # Run until main process tells to stop
         while not self.terminateEvent.is_set():

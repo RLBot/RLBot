@@ -8,6 +8,8 @@ SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 
 class PlayerConfiguration(ctypes.Structure):
     _fields_ = [("bBot", ctypes.c_bool),
+                ("bRLBotControlled", ctypes.c_bool),
+                ("fBotSkill", ctypes.c_float),
                 ("iPlayerIndex", ctypes.c_int),
                 ("wName", ctypes.c_wchar * MAX_NAME_LENGTH),
                 ("ucTeam", ctypes.c_ubyte),
@@ -39,8 +41,7 @@ class PlayerInput(ctypes.Structure):
 
 
 class GameInputPacket(ctypes.Structure):
-    _fields_ = [("lock", ctypes.c_long),
-                ("bStartMatch", ctypes.c_bool),
+    _fields_ = [("bStartMatch", ctypes.c_bool),
                 ("sPlayerConfiguration", PlayerConfiguration * MAX_PLAYERS),
                 ("sPlayerInput", PlayerInput * MAX_PLAYERS),
                 ("iNumPlayers", ctypes.c_int)]
