@@ -120,6 +120,9 @@ if __name__ == '__main__':
 
     print("Just press ctrl-c to kill. I haven't figured out graceful termination yet")
 
+    while(True):
+        time.sleep(10)
+
     '''
     # Send quit event to all processes (Can't use input it blocks all processes)
     while True:

@@ -72,7 +72,7 @@ class BotManager:
             controller_input = agent.get_output_vector(game_tick_packet)
 
             # Lock, Write, Unlock
-            Interlocked.InterlockedExchangeWrapper(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_IN_PROGRESS))
+            #Interlocked.InterlockedExchangeWrapper(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_IN_PROGRESS))
 
             player_input.fThrottle = controller_input[0]
             player_input.fSteer = controller_input[1]
@@ -83,7 +83,7 @@ class BotManager:
             player_input.bBoost = controller_input[6]
             player_input.bHandbrake = controller_input[7]
 
-            Interlocked.InterlockedExchangeWrapper(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_NOT_IN_PROGRESS))
+            #Interlocked.InterlockedExchangeWrapper(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_NOT_IN_PROGRESS))
 
             # Ratelimit here
             after = datetime.now()
