@@ -63,7 +63,7 @@ message BallInfo {
   Vector3 location = 1;
   Rotator rotation = 2;
   Vector3 velocity = 3;
-  Rotator angular_velocity = 4;
+  Vector3 angular_velocity = 4;
   Vector3 acceleration = 5;
 }
 

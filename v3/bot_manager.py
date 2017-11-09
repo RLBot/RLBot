@@ -87,6 +87,8 @@ class BotManager:
 
             # Ratelimit here
             after = datetime.now()
+            #print('Latency of ' + self.name + ': ' + str(after - before))
+
             r.acquire(after-before)
 
         # If terminated, send callback
