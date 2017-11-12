@@ -25,4 +25,4 @@ Inject the dll into RocketLeague first (only need to do this step once each time
 
 #### Tournament History
 Inagural Tournament Video Day 1 (Psyonix Cone gave us a thumbs up!):
-[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/psyonixcone.JPG)](https://youtu.be/SKIw4f0ZBxE)
+[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/psyonixcone.jpg)](https://youtu.be/SKIw4f0ZBxE)
