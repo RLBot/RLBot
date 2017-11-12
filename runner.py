@@ -1,147 +1,145 @@
-from multiprocessing import Process, Queue, Value
-
-import time
-import atexit
-import PlayHelper
+import bot_input_struct as bi
+import bot_manager
 import configparser
-import importlib
-import cStructure
 import ctypes
 import mmap
-import math
+import multiprocessing as mp
+import msvcrt
 
-def updateInputs(player1_inputs, player2_inputs, display_inputs, p1_is_locked, p2_is_locked):
+PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
+PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
+PARTICPANT_RLBOT_KEY_PREFIX = 'participant_is_rlbot_controlled_'
+PARTICPANT_CONFIG_KEY_PREFIX = 'participant_config_'
+PARTICPANT_BOT_SKILL_KEY_PREFIX = 'participant_bot_skill_'
+PARTICPANT_TEAM_PREFIX = 'participant_team_'
+RLBOT_CONFIG_FILE = 'rlbot.cfg'
+RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
+INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
+BOT_CONFIG_LOADOUT_HEADER = 'Participant Loadout'
+BOT_CONFIG_MODULE_HEADER = 'Bot Location'
 
-	# I think performance here is good enough that it would not be improved by running 2 update processes concurrently. So updates for both inputs are done serial in this process.
 
-	REFRESH_IN_PROGRESS = 1
+def get_bot_config_file_list(botCount, config):
+    config_file_list = []
+    for i in range(botCount):
+        config_file_list.append(config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY_PREFIX + str(i)))
+    return config_file_list
 
-	lock_size = 4
-	packet_size = 2044
 
-	# Open shared memory
-	shm = mmap.mmap(0, lock_size + packet_size, "Local\\RLBot")
-	# This lock ensures that a read cannot start while the dll is writing to shared memory.
-	lock = ctypes.c_long(0)
-	
-	while(True):
-	
-		# First copy blueInputs
-		shm.seek(0) # Move to beginning of shared memory
-		ctypes.memmove(ctypes.addressof(lock), shm.read(lock_size), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
-		
-		if (lock.value != REFRESH_IN_PROGRESS):
-			if (not p1_is_locked.value):
-				p1_is_locked.value = 1 # Lock
-				ctypes.memmove(ctypes.addressof(player1_inputs.GameTickPacket), shm.read(packet_size), ctypes.sizeof(player1_inputs.GameTickPacket)) # copy shared memory into struct
-				p1_is_locked.value = 0 # Unlock
-		
-		# Now copy orngInputs
-		shm.seek(0)
-		ctypes.memmove(ctypes.addressof(lock), shm.read(lock_size), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
-		
-		if (lock.value != REFRESH_IN_PROGRESS):
-			if (not p2_is_locked.value):
-				p2_is_locked.value = 1 # Lock
-				ctypes.memmove(ctypes.addressof(player2_inputs.GameTickPacket), shm.read(packet_size), ctypes.sizeof(player2_inputs.GameTickPacket)) # copy shared memory into struct
-				p2_is_locked.value = 0 # Unlock
-				
-		# Now refresh display
-		shm.seek(0) # Move to beginning of shared memory
-		ctypes.memmove(ctypes.addressof(lock), shm.read(lock_size), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
-		
-		if (lock.value != REFRESH_IN_PROGRESS):
-			ctypes.memmove(ctypes.addressof(display_inputs.GameTickPacket), shm.read(packet_size), ctypes.sizeof(display_inputs.GameTickPacket)) # copy shared memory into struct
-		
-		time.sleep(0.005) # Sleep time half of agent sleep time
-		
-def resetInputs():
-	exec(open("resetDevices.py").read())
+# Cut off at 31 characters and handle duplicates
+def get_sanitized_bot_name(dict, name):
+    if name not in dict:
+        new_name = name[:31] # Make sure name does not exceed 31 characters
+        dict[name] = 1
+    else:
+        count = dict[name]
+        new_name = name[:27] + "(" + str(count + 1) + ")" # Truncate at 27 because we can have up to '(10)' appended
+        dict[name] = count + 1
 
-def runAgent(inputs, team, q, is_locked, player_index):
-	config = configparser.RawConfigParser()
-	config.read('rlbot.cfg')
-	config_key = 'p1Agent' if player_index == 0 else 'p2Agent'
-	agent_module = importlib.import_module(config.get('Player Configuration', config_key))
-	agent = agent_module.agent(team)
+    return new_name
 
-	ph = PlayHelper.PlayHelper(player_index)
 
-	while(True):
-		if(not is_locked.value):
-			is_locked.value = 1
-			output = agent.get_output_vector(inputs)
-			ph.update_controller(output)
-			is_locked.value = 0
-			if (not q.full()):
-				q.put(output)  # Put it in the queue so the GUI thread can fetch it
+def run_agent(terminate_event, callback_event, name, team, index, module_name):
+    bm = bot_manager.BotManager(terminate_event, callback_event, name, team, index, module_name)
+    bm.run()
 
-		time.sleep(0.01)
-			
+
 if __name__ == '__main__':
-	# Make sure input devices are reset to neutral whenever the script terminates
-	atexit.register(resetInputs)
+    # Set up RLBot.cfg
+    framework_config = configparser.RawConfigParser()
+    framework_config.read(RLBOT_CONFIG_FILE)
 
-	time.sleep(3) # Sleep 3 second before starting to give me time to set things up
+    # Open anonymous shared memory for entire GameInputPacket and map buffer
+    buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
+    gameInputPacket = bi.GameInputPacket.from_buffer(buff)
 
-	# Read config for agents
-	config = configparser.RawConfigParser()
-	config.read('rlbot.cfg')
-	agent1 = importlib.import_module(config.get('Player Configuration', 'p1Agent'))
-	agent2 = importlib.import_module(config.get('Player Configuration', 'p2Agent'))
-	agent1Color = config.get('Player Configuration', 'p1Color')
-	agent2Color = config.get('Player Configuration', 'p2Color')
-	agent1Enabled = "True" == config.get('Player Configuration', 'p1Enabled')
-	agent2Enabled = "True" == config.get('Player Configuration', 'p2Enabled')
+    # Determine number of participants
+    num_participants = framework_config.getint(RLBOT_CONFIGURATION_HEADER, 'num_participants')
 
-	player1GameTickPacket = cStructure.GameTickPacket()
-	player2GameTickPacket = cStructure.GameTickPacket()
-	displayGameTickPacket = cStructure.GameTickPacket()
+    # Retrieve bot config files
+    participant_configs = get_bot_config_file_list(num_participants, framework_config)
 
-	player1Inputs = Value(cStructure.SharedInputs, player1GameTickPacket)
-	player2Inputs = Value(cStructure.SharedInputs, player2GameTickPacket)
-	displayInputs = Value(cStructure.SharedInputs, displayGameTickPacket)
-	
-	player1IsLocked = Value('i', 0)
-	player2IsLocked = Value('i', 0)
+    # Create empty lists
+    bot_names = []
+    bot_teams = []
+    bot_modules = []
+    processes = []
+    callbacks = []
+    name_dict = dict()
 
-	q1 = Queue(1)
-	q2 = Queue(1)
-	
-	output1 = [16383, 16383, 0, 0, 0, 0, 0]
-	output2 = [16383, 16383, 0, 0, 0, 0, 0]
-	
-	rtd = importlib.import_module("displays." + config.get('RLBot Configuration', 'display')).real_time_display()
-	rtd.build_initial_window(agent1.BOT_NAME if agent1Enabled else '[Disabled]', agent2.BOT_NAME if agent2Enabled else '[Disabled]')
+    gameInputPacket.iNumPlayers = num_participants
 
-	
-	p1 = Process(target=updateInputs, args=(player1Inputs, player2Inputs, displayInputs, player1IsLocked, player2IsLocked))
-	p1.start()
+    # Set configuration values for bots and store name and team
+    for i in range(num_participants):
+        bot_config = configparser.RawConfigParser()
+        bot_config.read(participant_configs[i])
 
-	if (agent1Enabled):
-		p2 = Process(target=runAgent, args=(player1Inputs, agent1Color, q1, player1IsLocked, 0))
-		p2.start()
+        gameInputPacket.sPlayerConfiguration[i].bBot = framework_config.getboolean(PARTICPANT_CONFIGURATION_HEADER,
+                                                                               PARTICPANT_BOT_KEY_PREFIX + str(i))
+        gameInputPacket.sPlayerConfiguration[i].bRLBotControlled = framework_config.getboolean(PARTICPANT_CONFIGURATION_HEADER,
+                                                                                               PARTICPANT_RLBOT_KEY_PREFIX + str(i))
+        gameInputPacket.sPlayerConfiguration[i].fBotSkill = framework_config.getfloat(PARTICPANT_CONFIGURATION_HEADER,
+                                                                                      PARTICPANT_BOT_SKILL_KEY_PREFIX + str(i))
+        gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
+        gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict, bot_config.get(BOT_CONFIG_LOADOUT_HEADER,
+                                                                       'name'))
+        gameInputPacket.sPlayerConfiguration[i].ucTeam = framework_config.getint(PARTICPANT_CONFIGURATION_HEADER,
+                                                                                 PARTICPANT_TEAM_PREFIX + str(i))
+        gameInputPacket.sPlayerConfiguration[i].ucTeamColorID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER,
+                                                                                  'team_color_id')
+        gameInputPacket.sPlayerConfiguration[i].ucCustomColorID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER,
+                                                                                    'custom_color_id')
+        gameInputPacket.sPlayerConfiguration[i].iCarID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER, 'car_id')
+        gameInputPacket.sPlayerConfiguration[i].iDecalID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER, 'decal_id')
+        gameInputPacket.sPlayerConfiguration[i].iWheelsID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER, 'wheels_id')
+        gameInputPacket.sPlayerConfiguration[i].iBoostID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER, 'boost_id')
+        gameInputPacket.sPlayerConfiguration[i].iAntennaID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER, 'antenna_id')
+        gameInputPacket.sPlayerConfiguration[i].iHatID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER, 'hat_id')
+        gameInputPacket.sPlayerConfiguration[i].iPaintFinish1ID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER,
+                                                                                    'paint_finish_1_id')
+        gameInputPacket.sPlayerConfiguration[i].iPaintFinish2ID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER,
+                                                                                    'paint_finish_2_id')
+        gameInputPacket.sPlayerConfiguration[i].iEngineAudioID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER,
+                                                                                   'engine_audio_id')
+        gameInputPacket.sPlayerConfiguration[i].iTrailsID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER, 'trails_id')
+        gameInputPacket.sPlayerConfiguration[i].iGoalExplosionID = bot_config.getint(BOT_CONFIG_LOADOUT_HEADER,
+                                                                                     'goal_explosion_id')
 
-	if (agent2Enabled):
-		p3 = Process(target=runAgent, args=(player2Inputs, agent2Color, q2, player2IsLocked, 1))
-		p3.start()
-	
-	while (True):
-		rtd.UpdateDisplay(displayInputs)
+        bot_names.append(bot_config.get(BOT_CONFIG_LOADOUT_HEADER, 'name'))
+        bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
+        if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
+            bot_modules.append(bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module'))
+        else:
+            bot_modules.append('NO_MODULE_FOR_PARTICIPANT')
 
-		if (agent1Enabled):
-			try:
-				output1 = q1.get()
-				updateFlag = True
-			except Queue.Empty:
-				pass
+    # Create Quit event
+    quit_event = mp.Event()
 
-		if (agent2Enabled):
-			try:
-				output2 = q2.get()
-				updateFlag = True
-			except Queue.Empty:
-				pass
+    # Launch processes
+    for i in range(num_participants):
+        if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
+            callback = mp.Event()
+            callbacks.append(callback)
+            process = mp.Process(target=run_agent, args=(quit_event, callback, str(gameInputPacket.sPlayerConfiguration[i].wName), bot_teams[i], i, bot_modules[i]))
+            process.start()
 
-		rtd.UpdateKeyPresses(output1, output2)
-		time.sleep(0.01)
+    print("Successfully configured bots. Setting flag for injected dll.")
+    gameInputPacket.bStartMatch = True
+
+    print("Press any character to exit")
+    msvcrt.getch()
+
+    print("Shutting Down")
+    quit_event.set()
+    # Wait for all processes to terminate before terminating main process
+    terminated = False
+    while not terminated:
+        terminated = True
+        for callback in callbacks:
+            if not callback.is_set():
+                terminated = False
+
+
+
+
+
