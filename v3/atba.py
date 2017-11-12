@@ -20,12 +20,14 @@ class Agent:
         pitch = float(gameTickPacket.gamecars[self.index].Rotation.Pitch)
         yaw = float(gameTickPacket.gamecars[self.index].Rotation.Yaw)
 
-        turn = 16383
+        turn = 0.0
 
         player_y = gameTickPacket.gamecars[self.index].Location.Y
         player_x = gameTickPacket.gamecars[self.index].Location.X
-        player_rot1 = math.cos(pitch * URotationToRadians) * math.cos(yaw * URotationToRadians)  # Rot 1
-        player_rot4 = math.cos(pitch * URotationToRadians) * math.sin(yaw * URotationToRadians)  # Rot 4
+        # Nose vector x component
+        player_rot1 = math.cos(pitch * URotationToRadians) * math.cos(yaw * URotationToRadians)
+        # Nose vector y component
+        player_rot4 = math.cos(pitch * URotationToRadians) * math.sin(yaw * URotationToRadians)
 
         # Need to handle atan2(0,0) case, aka straight up or down, eventually
         player_front_direction_in_radians = math.atan2(player_rot1, player_rot4)

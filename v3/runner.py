@@ -4,9 +4,7 @@ import configparser
 import ctypes
 import mmap
 import multiprocessing as mp
-import signal
-import sys
-import time
+import msvcrt
 
 BOT_CONFIGURATION_HEADER = 'Bot Configuration'
 BOT_CONFIG_KEY_PREFIX = 'bot_config_'
@@ -19,10 +17,10 @@ BOT_CONFIG_MODULE_HEADER = 'Bot Location'
 
 
 def get_bot_config_file_list(botCount, config):
-    configFileList = []
+    config_file_list = []
     for i in range(botCount):
-        configFileList.append(config.get(BOT_CONFIGURATION_HEADER, BOT_CONFIG_KEY_PREFIX + str(i)))
-    return configFileList
+        config_file_list.append(config.get(BOT_CONFIGURATION_HEADER, BOT_CONFIG_KEY_PREFIX + str(i)))
+    return config_file_list
 
 
 # Cut off at 31 characters and handle duplicates
@@ -44,7 +42,6 @@ def run_agent(terminate_event, callback_event, name, team, index, module_name):
 
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGINT, signal.default_int_handler)
     # Set up RLBot.cfg
     framework_config = configparser.RawConfigParser()
     framework_config.read(RLBOT_CONFIG_FILE)
@@ -76,7 +73,7 @@ if __name__ == '__main__':
 
         gameInputPacket.sPlayerConfiguration[i].bBot = True
         gameInputPacket.sPlayerConfiguration[i].bRLBotControlled = True
-        gameInputPacket.sPlayerConfiguration[i].fBotSkill = 0.0
+        gameInputPacket.sPlayerConfiguration[i].fBotSkill = 0.5
         gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
         gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict, bot_config.get(BOT_CONFIG_LOADOUT_HEADER,
                                                                        'name'))
@@ -116,29 +113,21 @@ if __name__ == '__main__':
         process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
-    # gameInputPacket.bStartMatch = True
+    gameInputPacket.bStartMatch = True
 
-    print("Just press ctrl-c to kill. I haven't figured out graceful termination yet")
+    print("Press any character to exit")
+    msvcrt.getch()
 
-    while(True):
-        time.sleep(10)
+    print("Shutting Down")
+    quit_event.set()
+    # Wait for all processes to terminate before terminating main process
+    terminated = False
+    while not terminated:
+        terminated = True
+        for callback in callbacks:
+            if not callback.is_set():
+                terminated = False
 
-    '''
-    # Send quit event to all processes (Can't use input it blocks all processes)
-    while True:
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            print("Shutting Down")
-            # Wait for all processes to terminate before terminating main process
-            terminated = False
-            while not terminated:
-                terminated = True
-                for callback in callbacks:
-                    if not callback.is_set():
-                        terminated = False
-            sys.exit(0)
-    '''
 
 
 
