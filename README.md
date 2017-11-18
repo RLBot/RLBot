@@ -1,5 +1,9 @@
 # RLBot
 
+<p align="center">
+  <img width="651" height="630" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot_logo.png">
+</p>
+
 ### Short Description
 RLBot is a framework to create bots to play rocket league that reads values from the game and outputs button presses to the game. RLBot works for up to 10 bots.
 
