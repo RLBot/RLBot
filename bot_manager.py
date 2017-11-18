@@ -6,6 +6,7 @@ import game_data_struct as gd
 import importlib
 import mmap
 import rate_limiter
+import sys
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
@@ -24,6 +25,15 @@ class BotManager:
         self.team = team
         self.index = index
         self.module_name = modulename
+        if sys.maxsize > 2**32:
+            # 64 bit
+            self.interlocked_exchange_dll = ctypes.CDLL('InterlockedWrapper', use_last_error=True)
+            self.interlocked_exchange_fn = self.interlocked_exchange_dll.InterlockedExchangeWrapper
+        else:
+            # Assume 32 bit
+            self.interlocked_exchange_dll = windll.kernel32
+            self.interlocked_exchange_fn = self.interlocked_exchange_dll.InterlockedExchange
+
 
 
     def run(self):
@@ -38,9 +48,6 @@ class BotManager:
         bot_output = gd.GameTickPacketWithLock.from_buffer(game_data_shared_memory)
         lock = ctypes.c_long(0)
         game_tick_packet = gd.GameTickPacket() # We want to do a deep copy for game inputs so people don't mess with em
-
-        # Use dll for writing to lock
-        Interlocked = ctypes.CDLL('InterlockedWrapper', use_last_error=True)
 
         # Get bot module
         agent_module = importlib.import_module(self.module_name)
@@ -72,7 +79,7 @@ class BotManager:
             controller_input = agent.get_output_vector(game_tick_packet)
 
             # Lock, Write, Unlock
-            Interlocked.InterlockedExchangeWrapper(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_IN_PROGRESS))
+            self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_IN_PROGRESS))
 
             player_input.fThrottle = controller_input[0]
             player_input.fSteer = controller_input[1]
@@ -83,7 +90,7 @@ class BotManager:
             player_input.bBoost = controller_input[6]
             player_input.bHandbrake = controller_input[7]
 
-            Interlocked.InterlockedExchangeWrapper(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_NOT_IN_PROGRESS))
+            self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_NOT_IN_PROGRESS))
 
             # Ratelimit here
             after = datetime.now()
