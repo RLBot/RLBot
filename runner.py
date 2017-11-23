@@ -5,6 +5,9 @@ import ctypes
 import mmap
 import multiprocessing as mp
 import msvcrt
+import os
+import random
+import time
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
@@ -39,8 +42,8 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
-def run_agent(terminate_event, callback_event, name, team, index, module_name):
-    bm = bot_manager.BotManager(terminate_event, callback_event, name, team, index, module_name)
+def run_agent(terminate_event, callback_event, name, team, index, module_name, game_name, save_data):
+    bm = bot_manager.BotManager(terminate_event, callback_event, name, team, index, module_name, game_name, save_data)
     bm.run()
 
 
@@ -66,6 +69,18 @@ if __name__ == '__main__':
     processes = []
     callbacks = []
     name_dict = dict()
+
+    save_data = True
+    save_path = os.getcwd() + '\\training'
+    game_name = str(int(round(time.time() * 1000))) + '-' + str(random.randint(0, 1000))
+    if save_data:
+        print(save_path)
+        if not os.path.exists(save_path):
+            print(os.path.dirname(save_path) + ' does not exist creating')
+            os.makedirs(save_path)
+        if not os.path.exists(save_path + '\\' + game_name):
+            os.makedirs(save_path + '\\' + game_name)
+        print('gameName: ' + game_name + 'in ' + save_path)
 
     gameInputPacket.iNumPlayers = num_participants
 
@@ -120,7 +135,7 @@ if __name__ == '__main__':
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
             callback = mp.Event()
             callbacks.append(callback)
-            process = mp.Process(target=run_agent, args=(quit_event, callback, str(gameInputPacket.sPlayerConfiguration[i].wName), bot_teams[i], i, bot_modules[i]))
+            process = mp.Process(target=run_agent, args=(quit_event, callback, str(gameInputPacket.sPlayerConfiguration[i].wName), bot_teams[i], i, bot_modules[i], save_path + '\\' + game_name, save_data))
             process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")

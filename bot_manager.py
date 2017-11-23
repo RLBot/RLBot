@@ -18,13 +18,15 @@ MAX_CARS = 10
 
 class BotManager:
 
-    def __init__(self, terminateEvent, callbackEvent, name, team, index, modulename):
+    def __init__(self, terminateEvent, callbackEvent, name, team, index, modulename, gamename, savedata):
         self.terminateEvent = terminateEvent
         self.callbackEvent = callbackEvent
         self.name = name
         self.team = team
         self.index = index
+        self.save_data = savedata
         self.module_name = modulename
+        self.game_name = gamename
         if sys.maxsize > 2**32:
             # 64 bit
             self.interlocked_exchange_dll = ctypes.CDLL('InterlockedWrapper', use_last_error=True)
@@ -64,6 +66,13 @@ class BotManager:
         # Create bot from module
         agent = agent_module.Agent(self.name, self.team, self.index)
 
+        if self.save_data:
+            filename = self.game_name + '\\' + self.name + '.txt'
+            print('creating file ' + filename)
+            self.game_file = open(filename.replace(" ", ""), 'w')
+        old_time = 0
+        current_time = 0
+
         # Run until main process tells to stop
         while not self.terminateEvent.is_set():
             before = datetime.now()
@@ -81,6 +90,8 @@ class BotManager:
             # Lock, Write, Unlock
             self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_IN_PROGRESS))
 
+            current_time = game_tick_packet.gameInfo.GameTimeRemaining
+
             player_input.fThrottle = controller_input[0]
             player_input.fSteer = controller_input[1]
             player_input.fPitch = controller_input[2]
@@ -92,6 +103,12 @@ class BotManager:
 
             self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_NOT_IN_PROGRESS))
 
+            if self.save_data and game_tick_packet.gameInfo.bRoundActive and old_time is not 0 and not old_time == current_time:
+                self.game_file.writelines(str(game_tick_packet) + '\n')
+                self.game_file.writelines(str(controller_input) + '\n')
+
+            old_time = current_time
+
             # Ratelimit here
             after = datetime.now()
             # print('Latency of ' + self.name + ': ' + str(after - before))
@@ -99,6 +116,10 @@ class BotManager:
             r.acquire(after-before)
 
         # If terminated, send callback
+        if self.save_data:
+            print('game data saved')
+            self.game_file.close()
+
         self.callbackEvent.set()
 
 
