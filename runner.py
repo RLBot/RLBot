@@ -2,9 +2,12 @@ import bot_input_struct as bi
 import bot_manager
 import configparser
 import ctypes
+import game_data_struct as gd
 import mmap
 import multiprocessing as mp
 import msvcrt
+import rlbot_exception
+import time
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
@@ -15,6 +18,7 @@ PARTICPANT_TEAM_PREFIX = 'participant_team_'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
+OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 BOT_CONFIG_LOADOUT_HEADER = 'Participant Loadout'
 BOT_CONFIG_MODULE_HEADER = 'Bot Location'
 
@@ -125,6 +129,21 @@ if __name__ == '__main__':
 
     print("Successfully configured bots. Setting flag for injected dll.")
     gameInputPacket.bStartMatch = True
+
+    # Wait 100 milliseconds then check for an error code
+    time.sleep(0.1)
+    game_data_shared_memory = mmap.mmap(-1, ctypes.sizeof(gd.GameTickPacketWithLock), OUTPUT_SHARED_MEMORY_TAG)
+    bot_output = gd.GameTickPacketWithLock.from_buffer(game_data_shared_memory)
+    if not bot_output.iLastError == 0:
+        # Terminate all process and then raise an exception
+        quit_event.set()
+        terminated = False
+        while not terminated:
+            terminated = True
+            for callback in callbacks:
+                if not callback.is_set():
+                    terminated = False
+        raise rlbot_exception.RLBotException().raise_exception_from_error_code(bot_output.iLastError)
 
     print("Press any character to exit")
     msvcrt.getch()

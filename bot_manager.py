@@ -5,8 +5,8 @@ from datetime import datetime
 import game_data_struct as gd
 import importlib
 import mmap
+import os
 import rate_limiter
-import sys
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
@@ -25,15 +25,6 @@ class BotManager:
         self.team = team
         self.index = index
         self.module_name = modulename
-        if sys.maxsize > 2**32:
-            # 64 bit
-            self.interlocked_exchange_dll = ctypes.CDLL('InterlockedWrapper', use_last_error=True)
-            self.interlocked_exchange_fn = self.interlocked_exchange_dll.InterlockedExchangeWrapper
-        else:
-            # Assume 32 bit
-            self.interlocked_exchange_dll = windll.kernel32
-            self.interlocked_exchange_fn = self.interlocked_exchange_dll.InterlockedExchange
-
 
 
     def run(self):
@@ -73,14 +64,13 @@ class BotManager:
             ctypes.memmove(ctypes.addressof(lock), game_data_shared_memory.read(ctypes.sizeof(lock)), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
 
             if lock.value != REFRESH_IN_PROGRESS:
+                game_data_shared_memory.seek(4, os.SEEK_CUR) # Move 4 bytes past error code
                 ctypes.memmove(ctypes.addressof(game_tick_packet), game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
 
             # Call agent
             controller_input = agent.get_output_vector(game_tick_packet)
 
-            # Lock, Write, Unlock
-            self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_IN_PROGRESS))
-
+            # Write all player inputs
             player_input.fThrottle = controller_input[0]
             player_input.fSteer = controller_input[1]
             player_input.fPitch = controller_input[2]
@@ -89,8 +79,6 @@ class BotManager:
             player_input.bJump = controller_input[5]
             player_input.bBoost = controller_input[6]
             player_input.bHandbrake = controller_input[7]
-
-            self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_NOT_IN_PROGRESS))
 
             # Ratelimit here
             after = datetime.now()
