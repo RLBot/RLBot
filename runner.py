@@ -6,7 +6,6 @@ import mmap
 import multiprocessing as mp
 import msvcrt
 import os
-import random
 import time
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
@@ -72,7 +71,7 @@ if __name__ == '__main__':
 
     save_data = True
     save_path = os.getcwd() + '\\training'
-    game_name = str(int(round(time.time() * 1000))) + '-' + str(random.randint(0, 1000))
+    game_name = str(int(round(time.time() * 1000)))
     if save_data:
         print(save_path)
         if not os.path.exists(save_path):
