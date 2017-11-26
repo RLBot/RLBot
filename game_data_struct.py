@@ -93,6 +93,7 @@ class GameTickPacket(ctypes.Structure):
 # Fully matching c++ struct
 class GameTickPacketWithLock(ctypes.Structure):
     _fields_ = [("lock", ctypes.c_long),
+                ("iLastError", ctypes.c_int),
                 ("gamecars", PlayerInfo * MAX_PLAYERS),
                 ("numCars", ctypes.c_int),
                 ("gameBoosts", BoostInfo * MAX_BOOSTS),
@@ -168,6 +169,7 @@ def print_game_info(gameInfo):
 
 def print_game_tick_packet_with_lock(gameTickPacket):
     print("Lock: " + str(gameTickPacket.lock))
+    print("Last Error: " + str(gameTickPacket.iLastError))
     print("NumCars: " + str(gameTickPacket.numCars))
     print("NumBoosts: " + str(gameTickPacket.numBoosts))
     print()

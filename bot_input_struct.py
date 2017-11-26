@@ -29,8 +29,7 @@ class PlayerConfiguration(ctypes.Structure):
 
 
 class PlayerInput(ctypes.Structure):
-    _fields_ = [("lock", ctypes.c_long),
-                ("fThrottle", ctypes.c_float),
+    _fields_ = [("fThrottle", ctypes.c_float),
                 ("fSteer", ctypes.c_float),
                 ("fPitch", ctypes.c_float),
                 ("fYaw", ctypes.c_float),
