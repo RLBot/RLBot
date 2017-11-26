@@ -1,12 +1,18 @@
 import bot_input_struct as bi
+import binary_converter as compressor
 import ctypes
 from ctypes import *
 from datetime import datetime
 import game_data_struct as gd
 import importlib
+import input_formatter
 import mmap
-import os
+import numpy as np
 import rate_limiter
+import struct
+import sys
+import os
+
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
@@ -36,6 +42,7 @@ class BotManager:
             self.interlocked_exchange_dll = windll.kernel32
             self.interlocked_exchange_fn = self.interlocked_exchange_dll.InterlockedExchange
 
+        self.input_converter = input_formatter.InputFormatter(team, index)
 
 
     def run(self):
@@ -69,9 +76,9 @@ class BotManager:
         if self.save_data:
             filename = self.game_name + '\\' + self.name + '.txt'
             print('creating file ' + filename)
-            self.game_file = open(filename.replace(" ", ""), 'w')
+            self.game_file = open(filename.replace(" ", ""), 'wb')
         old_time = 0
-        current_time = 0
+        current_time = -10
 
         # Run until main process tells to stop
         while not self.terminateEvent.is_set():
@@ -88,12 +95,6 @@ class BotManager:
             # Call agent
             controller_input = agent.get_output_vector(game_tick_packet)
 
-
-            # Lock, Write, Unlock
-            self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_IN_PROGRESS))
-
-            current_time = game_tick_packet.gameInfo.GameTimeRemaining
-
             # Write all player inputs
             player_input.fThrottle = controller_input[0]
             player_input.fSteer = controller_input[1]
@@ -104,26 +105,31 @@ class BotManager:
             player_input.bBoost = controller_input[6]
             player_input.bHandbrake = controller_input[7]
 
-            self.interlocked_exchange_fn(ctypes.byref(player_input_lock), ctypes.c_long(REFRESH_NOT_IN_PROGRESS))
+            current_time = game_tick_packet.gameInfo.TimeSeconds
 
-            if self.save_data and game_tick_packet.gameInfo.bRoundActive and old_time is not 0 and not old_time == current_time:
-                self.game_file.writelines(str(game_tick_packet) + '\n')
-                self.game_file.writelines(str(controller_input) + '\n')
+            if self.save_data and game_tick_packet.gameInfo.bRoundActive and not old_time == current_time and not current_time == -10:
+                np_input = self.input_converter.create_input_array(game_tick_packet)
+                np_output = np.array(controller_input, dtype=np.float32)
+                self.write_array_to_file(np_input)
+                self.write_array_to_file(np_output)
 
             old_time = current_time
 
             # Ratelimit here
             after = datetime.now()
-            # print('Latency of ' + self.name + ': ' + str(after - before))
+            #print('Latency of ' + self.name + ': ' + str(after - before))
 
             r.acquire(after-before)
 
         # If terminated, send callback
-        if self.save_data:
-            print('game data saved')
-            self.game_file.close()
-
+        print("something ended closing file")
         self.callbackEvent.set()
 
+    def write_array_to_file(self, array):
+        bytes = compressor.convert_numpy_array(array)
+        size_of_bytes = len(bytes.getvalue())
+        print(bytes.getbuffer().nbytes)
+        self.game_file.write(struct.pack('i', size_of_bytes))
+        self.game_file.write(bytes.getvalue())
 
 
