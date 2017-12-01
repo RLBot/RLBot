@@ -16,6 +16,9 @@
 *.dylib
 *.dll
 
+# Preprocessed files
+*.i
+
 # Fortran module files
 *.mod
 *.smod
@@ -30,3 +33,10 @@
 *.exe
 *.out
 *.app
+
+# IDE
+.idea
+*.iml
+
+# test files
+test.cpp
