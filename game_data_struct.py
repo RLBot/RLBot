@@ -225,6 +225,12 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
     game_tick_packet.gameball.AngularVelocity.Y = -1 * game_tick_packet.gameball.AngularVelocity.Y
     game_tick_packet.gameball.Acceleration.X = -1 * game_tick_packet.gameball.Acceleration.X
     game_tick_packet.gameball.Acceleration.Y = -1 * game_tick_packet.gameball.Acceleration.Y
+    
+    # ball touch data
+    game_tick_packet.gameball.Touch.sHitLocation.X = -1 * game_tick_packet.gameball.Touch.sHitLocation.X
+    game_tick_packet.gameball.Touch.sHitLocation.Y = -1 * game_tick_packet.gameball.Touch.sHitLocation.Y
+    game_tick_packet.gameball.Touch.sHitNormal.X = -1 * game_tick_packet.gameball.Touch.sHitNormal.X
+    game_tick_packet.gameball.Touch.sHitNormal.Y = -1 * game_tick_packet.gameball.Touch.sHitNormal.Y
 
     # Rotate Yaw 180 degrees is all that is necessary.
     ball_yaw = game_tick_packet.gameball.Rotation.Yaw
