@@ -18,6 +18,11 @@ class Rotator(ctypes.Structure):
                 ("Yaw", ctypes.c_int),
                 ("Roll", ctypes.c_int)]
 
+class Touch(ctypes.Structure):
+    _fields_ = [("wPlayerName", ctypes.c_wchar * MAX_NAME_LENGTH),
+                ("fTimeSeconds", ctypes.c_float),
+                ("sHitLocation", Vector3),
+                ("sHitNormal", Vector3)]
 
 class ScoreInfo(ctypes.Structure):
     _fields_ = [("Score", ctypes.c_int),
@@ -55,7 +60,8 @@ class BallInfo(ctypes.Structure):
                 ("Rotation", Rotator),
                 ("Velocity", Vector3),
                 ("AngularVelocity", Vector3),
-                ("Acceleration", Vector3)]
+                ("Acceleration", Vector3),
+                ("LatestTouch", Touch)]
 
 
 class BoostInfo(ctypes.Structure):
@@ -151,6 +157,8 @@ def print_ball_info(ballInfo):
     print_vector_3(ballInfo.AngularVelocity)
     print("Acceleration:")
     print_vector_3(ballInfo.Acceleration)
+    print("LatestHit:")
+    print_vector_3(ballInfo.LatestTouch.sHitLocation)
 
 
 def print_boost_info(index, boostInfo):

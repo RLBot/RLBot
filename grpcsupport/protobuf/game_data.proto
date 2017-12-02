@@ -32,6 +32,13 @@ message Rotator {
   float roll = 3;
 }
 
+message Touch {
+  string player_name = 1;
+  float game_seconds = 2;  // Seconds elapsed since the beginning of the game at the time of the touch
+  Vector3 location = 3;
+  Vector3 normal = 4;
+}
+
 message ScoreInfo {
   int32 score = 1;
   int32 goals = 2;
@@ -65,6 +72,7 @@ message BallInfo {
   Vector3 velocity = 3;
   Vector3 angular_velocity = 4;
   Vector3 acceleration = 5;
+  Touch latest_touch = 6;
 }
 
 message BoostInfo {
