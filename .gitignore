@@ -37,6 +37,12 @@
 # IDE
 .idea
 *.iml
+.vs/
+RLBot Core/Bin/
+RLBot Core/Obj/
+*.vcxproj.user
+*.VC.VC.opendb
+*.VC.db
 
 # test files
 test.cpp
