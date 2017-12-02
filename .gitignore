@@ -43,6 +43,7 @@ RLBot Core/Obj/
 *.vcxproj.user
 *.VC.VC.opendb
 *.VC.db
+*.vcxproj
 
 # test files
 test.cpp
