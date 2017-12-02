@@ -31,6 +31,7 @@ def convert_ball(ball, proto_ball):
     convert_vector3(ball.Velocity, proto_ball.velocity)
     convert_vector3(ball.AngularVelocity, proto_ball.angular_velocity)
     convert_vector3(ball.Acceleration, proto_ball.acceleration)
+    convert_touch(ball.LatestTouch, proto_ball.latest_touch)
 
 def convert_game_info(gameInfo, proto_info):
     proto_info.seconds_elapsed = gameInfo.TimeSeconds
@@ -50,6 +51,12 @@ def convert_rotator(rotator, proto_rot):
     proto_rot.pitch = rotator.Pitch * to_radians_conversion
     proto_rot.yaw = rotator.Yaw * to_radians_conversion
     proto_rot.roll = rotator.Roll * to_radians_conversion
+
+def convert_touch(touch, proto_touch):
+    proto_touch.player_name = touch.wPlayerName
+    proto_touch.game_seconds = touch.fTimeSeconds
+    convert_vector3(touch.sHitLocation, proto_touch.location)
+    convert_vector3(touch.sHitNormal, proto_touch.normal)
 
 def convert_score_info(info, proto_score):
     proto_score.score = info.Score

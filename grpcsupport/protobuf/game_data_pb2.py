@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='grpcsupport/protobuf/game_data.proto',
   package='rlbot.api',
   syntax='proto3',
-  serialized_pb=_b('\n$grpcsupport/protobuf/game_data.proto\x12\trlbot.api\"\x8c\x01\n\x0f\x43ontrollerState\x12\x10\n\x08throttle\x18\x01 \x01(\x02\x12\r\n\x05steer\x18\x02 \x01(\x02\x12\r\n\x05pitch\x18\x03 \x01(\x02\x12\x0b\n\x03yaw\x18\x04 \x01(\x02\x12\x0c\n\x04roll\x18\x05 \x01(\x02\x12\x0c\n\x04jump\x18\x06 \x01(\x08\x12\r\n\x05\x62oost\x18\x07 \x01(\x08\x12\x11\n\thandbrake\x18\x08 \x01(\x08\"*\n\x07Vector3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"3\n\x07Rotator\x12\r\n\x05pitch\x18\x01 \x01(\x02\x12\x0b\n\x03yaw\x18\x02 \x01(\x02\x12\x0c\n\x04roll\x18\x03 \x01(\x02\"\x80\x01\n\tScoreInfo\x12\r\n\x05score\x18\x01 \x01(\x05\x12\r\n\x05goals\x18\x02 \x01(\x05\x12\x11\n\town_goals\x18\x03 \x01(\x05\x12\x0f\n\x07\x61ssists\x18\x04 \x01(\x05\x12\r\n\x05saves\x18\x05 \x01(\x05\x12\r\n\x05shots\x18\x06 \x01(\x05\x12\x13\n\x0b\x64\x65molitions\x18\x07 \x01(\x05\"\xf9\x02\n\nPlayerInfo\x12$\n\x08location\x18\x01 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12$\n\x08rotation\x18\x02 \x01(\x0b\x32\x12.rlbot.api.Rotator\x12$\n\x08velocity\x18\x03 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12,\n\x10\x61ngular_velocity\x18\x04 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12(\n\nscore_info\x18\x05 \x01(\x0b\x32\x14.rlbot.api.ScoreInfo\x12\x15\n\ris_demolished\x18\x06 \x01(\x08\x12\x11\n\tis_midair\x18\x07 \x01(\x08\x12\x15\n\ris_supersonic\x18\x08 \x01(\x08\x12\x0e\n\x06is_bot\x18\t \x01(\x08\x12\x0e\n\x06jumped\x18\n \x01(\x08\x12\x15\n\rdouble_jumped\x18\x0b \x01(\x08\x12\x0c\n\x04name\x18\x0c \x01(\t\x12\x0c\n\x04team\x18\r \x01(\x05\x12\r\n\x05\x62oost\x18\x0e \x01(\x05\"\xd4\x01\n\x08\x42\x61llInfo\x12$\n\x08location\x18\x01 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12$\n\x08rotation\x18\x02 \x01(\x0b\x32\x12.rlbot.api.Rotator\x12$\n\x08velocity\x18\x03 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12,\n\x10\x61ngular_velocity\x18\x04 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12(\n\x0c\x61\x63\x63\x65leration\x18\x05 \x01(\x0b\x32\x12.rlbot.api.Vector3\"S\n\tBoostInfo\x12$\n\x08location\x18\x01 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12\x11\n\tis_active\x18\x02 \x01(\x08\x12\r\n\x05timer\x18\x03 \x01(\x05\"\xbb\x01\n\x08GameInfo\x12\x17\n\x0fseconds_elapsed\x18\x01 \x01(\x02\x12\x1b\n\x13game_time_remaining\x18\x02 \x01(\x02\x12\x13\n\x0bis_overtime\x18\x03 \x01(\x08\x12\x19\n\x11is_unlimited_time\x18\x04 \x01(\x08\x12\x17\n\x0fis_round_active\x18\x05 \x01(\x08\x12\x18\n\x10is_kickoff_pause\x18\x06 \x01(\x08\x12\x16\n\x0eis_match_ended\x18\x07 \x01(\x08\"\xc3\x01\n\x0eGameTickPacket\x12&\n\x07players\x18\x01 \x03(\x0b\x32\x15.rlbot.api.PlayerInfo\x12\x14\n\x0cplayer_index\x18\x02 \x01(\x05\x12(\n\nboost_pads\x18\x03 \x03(\x0b\x32\x14.rlbot.api.BoostInfo\x12!\n\x04\x62\x61ll\x18\x04 \x01(\x0b\x32\x13.rlbot.api.BallInfo\x12&\n\tgame_info\x18\x05 \x01(\x0b\x32\x13.rlbot.api.GameInfo2T\n\x03\x42ot\x12M\n\x12GetControllerState\x12\x19.rlbot.api.GameTickPacket\x1a\x1a.rlbot.api.ControllerState\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n$grpcsupport/protobuf/game_data.proto\x12\trlbot.api\"\x8c\x01\n\x0f\x43ontrollerState\x12\x10\n\x08throttle\x18\x01 \x01(\x02\x12\r\n\x05steer\x18\x02 \x01(\x02\x12\r\n\x05pitch\x18\x03 \x01(\x02\x12\x0b\n\x03yaw\x18\x04 \x01(\x02\x12\x0c\n\x04roll\x18\x05 \x01(\x02\x12\x0c\n\x04jump\x18\x06 \x01(\x08\x12\r\n\x05\x62oost\x18\x07 \x01(\x08\x12\x11\n\thandbrake\x18\x08 \x01(\x08\"*\n\x07Vector3\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\"3\n\x07Rotator\x12\r\n\x05pitch\x18\x01 \x01(\x02\x12\x0b\n\x03yaw\x18\x02 \x01(\x02\x12\x0c\n\x04roll\x18\x03 \x01(\x02\"|\n\x05Touch\x12\x13\n\x0bplayer_name\x18\x01 \x01(\t\x12\x14\n\x0cgame_seconds\x18\x02 \x01(\x02\x12$\n\x08location\x18\x03 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12\"\n\x06normal\x18\x04 \x01(\x0b\x32\x12.rlbot.api.Vector3\"\x80\x01\n\tScoreInfo\x12\r\n\x05score\x18\x01 \x01(\x05\x12\r\n\x05goals\x18\x02 \x01(\x05\x12\x11\n\town_goals\x18\x03 \x01(\x05\x12\x0f\n\x07\x61ssists\x18\x04 \x01(\x05\x12\r\n\x05saves\x18\x05 \x01(\x05\x12\r\n\x05shots\x18\x06 \x01(\x05\x12\x13\n\x0b\x64\x65molitions\x18\x07 \x01(\x05\"\xf9\x02\n\nPlayerInfo\x12$\n\x08location\x18\x01 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12$\n\x08rotation\x18\x02 \x01(\x0b\x32\x12.rlbot.api.Rotator\x12$\n\x08velocity\x18\x03 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12,\n\x10\x61ngular_velocity\x18\x04 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12(\n\nscore_info\x18\x05 \x01(\x0b\x32\x14.rlbot.api.ScoreInfo\x12\x15\n\ris_demolished\x18\x06 \x01(\x08\x12\x11\n\tis_midair\x18\x07 \x01(\x08\x12\x15\n\ris_supersonic\x18\x08 \x01(\x08\x12\x0e\n\x06is_bot\x18\t \x01(\x08\x12\x0e\n\x06jumped\x18\n \x01(\x08\x12\x15\n\rdouble_jumped\x18\x0b \x01(\x08\x12\x0c\n\x04name\x18\x0c \x01(\t\x12\x0c\n\x04team\x18\r \x01(\x05\x12\r\n\x05\x62oost\x18\x0e \x01(\x05\"\xfc\x01\n\x08\x42\x61llInfo\x12$\n\x08location\x18\x01 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12$\n\x08rotation\x18\x02 \x01(\x0b\x32\x12.rlbot.api.Rotator\x12$\n\x08velocity\x18\x03 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12,\n\x10\x61ngular_velocity\x18\x04 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12(\n\x0c\x61\x63\x63\x65leration\x18\x05 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12&\n\x0clatest_touch\x18\x06 \x01(\x0b\x32\x10.rlbot.api.Touch\"S\n\tBoostInfo\x12$\n\x08location\x18\x01 \x01(\x0b\x32\x12.rlbot.api.Vector3\x12\x11\n\tis_active\x18\x02 \x01(\x08\x12\r\n\x05timer\x18\x03 \x01(\x05\"\xbb\x01\n\x08GameInfo\x12\x17\n\x0fseconds_elapsed\x18\x01 \x01(\x02\x12\x1b\n\x13game_time_remaining\x18\x02 \x01(\x02\x12\x13\n\x0bis_overtime\x18\x03 \x01(\x08\x12\x19\n\x11is_unlimited_time\x18\x04 \x01(\x08\x12\x17\n\x0fis_round_active\x18\x05 \x01(\x08\x12\x18\n\x10is_kickoff_pause\x18\x06 \x01(\x08\x12\x16\n\x0eis_match_ended\x18\x07 \x01(\x08\"\xc3\x01\n\x0eGameTickPacket\x12&\n\x07players\x18\x01 \x03(\x0b\x32\x15.rlbot.api.PlayerInfo\x12\x14\n\x0cplayer_index\x18\x02 \x01(\x05\x12(\n\nboost_pads\x18\x03 \x03(\x0b\x32\x14.rlbot.api.BoostInfo\x12!\n\x04\x62\x61ll\x18\x04 \x01(\x0b\x32\x13.rlbot.api.BallInfo\x12&\n\tgame_info\x18\x05 \x01(\x0b\x32\x13.rlbot.api.GameInfo2T\n\x03\x42ot\x12M\n\x12GetControllerState\x12\x19.rlbot.api.GameTickPacket\x1a\x1a.rlbot.api.ControllerState\"\x00\x62\x06proto3')
 )
 
 
@@ -195,6 +195,58 @@ _ROTATOR = _descriptor.Descriptor(
 )
 
 
+_TOUCH = _descriptor.Descriptor(
+  name='Touch',
+  full_name='rlbot.api.Touch',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='player_name', full_name='rlbot.api.Touch.player_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='game_seconds', full_name='rlbot.api.Touch.game_seconds', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='location', full_name='rlbot.api.Touch.location', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='normal', full_name='rlbot.api.Touch.normal', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=291,
+  serialized_end=415,
+)
+
+
 _SCOREINFO = _descriptor.Descriptor(
   name='ScoreInfo',
   full_name='rlbot.api.ScoreInfo',
@@ -263,8 +315,8 @@ _SCOREINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=292,
-  serialized_end=420,
+  serialized_start=418,
+  serialized_end=546,
 )
 
 
@@ -385,8 +437,8 @@ _PLAYERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=423,
-  serialized_end=800,
+  serialized_start=549,
+  serialized_end=926,
 )
 
 
@@ -432,6 +484,13 @@ _BALLINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='latest_touch', full_name='rlbot.api.BallInfo.latest_touch', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -444,8 +503,8 @@ _BALLINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=803,
-  serialized_end=1015,
+  serialized_start=929,
+  serialized_end=1181,
 )
 
 
@@ -489,8 +548,8 @@ _BOOSTINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1017,
-  serialized_end=1100,
+  serialized_start=1183,
+  serialized_end=1266,
 )
 
 
@@ -562,8 +621,8 @@ _GAMEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1103,
-  serialized_end=1290,
+  serialized_start=1269,
+  serialized_end=1456,
 )
 
 
@@ -621,10 +680,12 @@ _GAMETICKPACKET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1293,
-  serialized_end=1488,
+  serialized_start=1459,
+  serialized_end=1654,
 )
 
+_TOUCH.fields_by_name['location'].message_type = _VECTOR3
+_TOUCH.fields_by_name['normal'].message_type = _VECTOR3
 _PLAYERINFO.fields_by_name['location'].message_type = _VECTOR3
 _PLAYERINFO.fields_by_name['rotation'].message_type = _ROTATOR
 _PLAYERINFO.fields_by_name['velocity'].message_type = _VECTOR3
@@ -635,6 +696,7 @@ _BALLINFO.fields_by_name['rotation'].message_type = _ROTATOR
 _BALLINFO.fields_by_name['velocity'].message_type = _VECTOR3
 _BALLINFO.fields_by_name['angular_velocity'].message_type = _VECTOR3
 _BALLINFO.fields_by_name['acceleration'].message_type = _VECTOR3
+_BALLINFO.fields_by_name['latest_touch'].message_type = _TOUCH
 _BOOSTINFO.fields_by_name['location'].message_type = _VECTOR3
 _GAMETICKPACKET.fields_by_name['players'].message_type = _PLAYERINFO
 _GAMETICKPACKET.fields_by_name['boost_pads'].message_type = _BOOSTINFO
@@ -643,6 +705,7 @@ _GAMETICKPACKET.fields_by_name['game_info'].message_type = _GAMEINFO
 DESCRIPTOR.message_types_by_name['ControllerState'] = _CONTROLLERSTATE
 DESCRIPTOR.message_types_by_name['Vector3'] = _VECTOR3
 DESCRIPTOR.message_types_by_name['Rotator'] = _ROTATOR
+DESCRIPTOR.message_types_by_name['Touch'] = _TOUCH
 DESCRIPTOR.message_types_by_name['ScoreInfo'] = _SCOREINFO
 DESCRIPTOR.message_types_by_name['PlayerInfo'] = _PLAYERINFO
 DESCRIPTOR.message_types_by_name['BallInfo'] = _BALLINFO
@@ -671,6 +734,13 @@ Rotator = _reflection.GeneratedProtocolMessageType('Rotator', (_message.Message,
   # @@protoc_insertion_point(class_scope:rlbot.api.Rotator)
   ))
 _sym_db.RegisterMessage(Rotator)
+
+Touch = _reflection.GeneratedProtocolMessageType('Touch', (_message.Message,), dict(
+  DESCRIPTOR = _TOUCH,
+  __module__ = 'grpcsupport.protobuf.game_data_pb2'
+  # @@protoc_insertion_point(class_scope:rlbot.api.Touch)
+  ))
+_sym_db.RegisterMessage(Touch)
 
 ScoreInfo = _reflection.GeneratedProtocolMessageType('ScoreInfo', (_message.Message,), dict(
   DESCRIPTOR = _SCOREINFO,
@@ -722,8 +792,8 @@ _BOT = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=1490,
-  serialized_end=1574,
+  serialized_start=1656,
+  serialized_end=1740,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetControllerState',
