@@ -1,7 +1,7 @@
 # RLBot
 
 <p align="center">
-  <img width="651" height="630" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot_logo.png">
+  <img width="1025" height="315" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot.png">
 </p>
 
 ### Short Description
