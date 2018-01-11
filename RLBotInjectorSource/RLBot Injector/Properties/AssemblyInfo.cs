@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ccman32")]
 [assembly: AssemblyProduct("RLBot Injector")]
-[assembly: AssemblyCopyright("Copyright © 2017 ccman32")]
+[assembly: AssemblyCopyright("Copyright © 2018 ccman32")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

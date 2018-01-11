@@ -29,7 +29,7 @@ namespace RLBot_Injector
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            string[] dllPaths = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "RLBot*.dll");
+            string[] dllPaths = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "RLBot*Core.dll");
 
             if (dllPaths.Length == 0)
             {
@@ -69,7 +69,7 @@ namespace RLBot_Injector
 
                 foreach (ProcessModule module in rlProcess.Modules)
                 {
-                    if (Regex.IsMatch(module.ModuleName, "RLBot.*.dll"))
+                    if (Regex.IsMatch(module.ModuleName, "RLBot.*Core.dll"))
                     {
                         MessageBox.Show("The RLBot Dll has already been injected into Rocket League!\n" +
                             "Injecting it more than once is not possible.",
@@ -81,7 +81,9 @@ namespace RLBot_Injector
                     }
                 }
 
-                if (Injector.Inject(rlProcess.Id, dllPath))
+                string error = string.Empty;
+
+                if (Injector.Inject(rlProcess.Id, dllPath, ref error))
                 {
                     statusLabel.Text = "Injection successful!";
                     statusLabel.Update();
@@ -92,7 +94,8 @@ namespace RLBot_Injector
                 {
                     statusLabel.Text = "Injection failed!";
                     statusLabel.Update();
-                    (new SoundPlayer(Properties.Resources.FailedToInjectTheDll)).PlaySync();
+                    (new SoundPlayer(Properties.Resources.FailedToInjectTheDll)).Play();
+                    MessageBox.Show(string.Format("Failed to inject the RLBot Dll: {0}.", error), "Injection failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit((int)ExitCodes.INJECTION_FAILED);
                 }
             }
