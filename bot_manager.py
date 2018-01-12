@@ -75,7 +75,7 @@ class BotManager:
             new_module_modification_time = os.stat(agent_module.__file__).st_mtime
             if new_module_modification_time != last_module_modification_time:
                 last_module_modification_time = new_module_modification_time
-                print ("Reloading Agent.")
+                print ("Reloading Agent: " + agent_module.__file__)
                 imp.reload(agent_module)
                 agent = agent_module.Agent(self.name, self.team, self.index)
 
