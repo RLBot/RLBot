@@ -48,7 +48,7 @@ def run_agent(terminate_event, callback_event, name, team, index, module_name):
     bm.run()
 
 
-def main():
+if __name__ == '__main__':
     # Set up RLBot.cfg
     framework_config = configparser.RawConfigParser()
     framework_config.read(RLBOT_CONFIG_FILE)
@@ -159,5 +159,6 @@ def main():
                 terminated = False
 
 
-if __name__ == '__main__':
-    main()
+
+
+
