@@ -63,38 +63,42 @@ class BotManager:
         while not self.terminateEvent.is_set():
             before = datetime.now()
 
-            # Read from game data shared memory
-            game_data_shared_memory.seek(0)  # Move to beginning of shared memory
-            ctypes.memmove(ctypes.addressof(lock), game_data_shared_memory.read(ctypes.sizeof(lock)), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
+            try:
+                # Read from game data shared memory
+                game_data_shared_memory.seek(0)  # Move to beginning of shared memory
+                ctypes.memmove(ctypes.addressof(lock), game_data_shared_memory.read(ctypes.sizeof(lock)), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
 
-            if lock.value != REFRESH_IN_PROGRESS:
-                game_data_shared_memory.seek(4, os.SEEK_CUR) # Move 4 bytes past error code
-                ctypes.memmove(ctypes.addressof(game_tick_packet), game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
+                if lock.value != REFRESH_IN_PROGRESS:
+                    game_data_shared_memory.seek(4, os.SEEK_CUR) # Move 4 bytes past error code
+                    ctypes.memmove(ctypes.addressof(game_tick_packet), game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
 
-            # Reload the Agent if it has been modified.
-            new_module_modification_time = os.stat(agent_module.__file__).st_mtime
-            if new_module_modification_time != last_module_modification_time:
-                last_module_modification_time = new_module_modification_time
-                print ("Reloading Agent: " + agent_module.__file__)
-                imp.reload(agent_module)
-                agent = agent_module.Agent(self.name, self.team, self.index)
+                # Reload the Agent if it has been modified.
+                new_module_modification_time = os.stat(agent_module.__file__).st_mtime
+                if new_module_modification_time != last_module_modification_time:
+                    last_module_modification_time = new_module_modification_time
+                    print ("Reloading Agent: " + agent_module.__file__)
+                    imp.reload(agent_module)
+                    agent = agent_module.Agent(self.name, self.team, self.index)
 
-            # Call agent
-            controller_input = agent.get_output_vector(game_tick_packet)
+                # Call agent
+                controller_input = agent.get_output_vector(game_tick_packet)
 
-            # Write all player inputs
-            player_input.fThrottle = controller_input[0]
-            player_input.fSteer = controller_input[1]
-            player_input.fPitch = controller_input[2]
-            player_input.fYaw = controller_input[3]
-            player_input.fRoll = controller_input[4]
-            player_input.bJump = controller_input[5]
-            player_input.bBoost = controller_input[6]
-            player_input.bHandbrake = controller_input[7]
+                # Write all player inputs
+                player_input.fThrottle = controller_input[0]
+                player_input.fSteer = controller_input[1]
+                player_input.fPitch = controller_input[2]
+                player_input.fYaw = controller_input[3]
+                player_input.fRoll = controller_input[4]
+                player_input.bJump = controller_input[5]
+                player_input.bBoost = controller_input[6]
+                player_input.bHandbrake = controller_input[7]
 
-            # Workaround for windows streams behaving weirdly when not in command prompt
-            sys.stdout.flush()
-            sys.stderr.flush()
+                # Workaround for windows streams behaving weirdly when not in command prompt
+                sys.stdout.flush()
+                sys.stderr.flush()
+
+            except Exception as e:
+                print(e)
 
             # Ratelimit here
             after = datetime.now()
