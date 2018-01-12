@@ -80,6 +80,10 @@ class BotManager:
             player_input.bBoost = controller_input[6]
             player_input.bHandbrake = controller_input[7]
 
+            # Workaround for windows streams behaving weirdly when not in command prompt
+            sys.stdout.flush()
+            sys.stderr.flush()
+
             # Ratelimit here
             after = datetime.now()
             # print('Latency of ' + self.name + ': ' + str(after - before))
