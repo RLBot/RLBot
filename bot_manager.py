@@ -7,6 +7,8 @@ import importlib
 import mmap
 import os
 import rate_limiter
+import sys
+import imp
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
@@ -40,8 +42,6 @@ class BotManager:
         lock = ctypes.c_long(0)
         game_tick_packet = gd.GameTickPacket() # We want to do a deep copy for game inputs so people don't mess with em
 
-        # Get bot module
-        agent_module = importlib.import_module(self.module_name)
 
         # Create Ratelimiter
         r = rate_limiter.RateLimiter(RATE_LIMITED_ACTIONS_PER_SECOND)
@@ -52,8 +52,12 @@ class BotManager:
                 self.index = i
                 continue
 
+        # Get bot module
+        agent_module = importlib.import_module(self.module_name)
         # Create bot from module
         agent = agent_module.Agent(self.name, self.team, self.index)
+        last_module_modification_time = os.stat(agent_module.__file__).st_mtime
+
 
         # Run until main process tells to stop
         while not self.terminateEvent.is_set():
@@ -67,6 +71,14 @@ class BotManager:
                 game_data_shared_memory.seek(4, os.SEEK_CUR) # Move 4 bytes past error code
                 ctypes.memmove(ctypes.addressof(game_tick_packet), game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
 
+            # Reload the Agent if it has been modified.
+            new_module_modification_time = os.stat(agent_module.__file__).st_mtime
+            if new_module_modification_time != last_module_modification_time:
+                last_module_modification_time = new_module_modification_time
+                print ("Reloading Agent: " + agent_module.__file__)
+                imp.reload(agent_module)
+                agent = agent_module.Agent(self.name, self.team, self.index)
+
             # Call agent
             controller_input = agent.get_output_vector(game_tick_packet)
 
@@ -79,6 +91,10 @@ class BotManager:
             player_input.bJump = controller_input[5]
             player_input.bBoost = controller_input[6]
             player_input.bHandbrake = controller_input[7]
+
+            # Workaround for windows streams behaving weirdly when not in command prompt
+            sys.stdout.flush()
+            sys.stderr.flush()
 
             # Ratelimit here
             after = datetime.now()
