@@ -72,15 +72,17 @@ class BotManager:
                 game_data_shared_memory.seek(4, os.SEEK_CUR) # Move 4 bytes past error code
                 ctypes.memmove(ctypes.addressof(game_tick_packet), game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
 
-            # Run the Agent only if the gameInfo has updated.
+            new_module_modification_time = os.stat(agent_module.__file__).st_mtime
+            module_has_changed = new_module_modification_time != last_module_modification_time
+
+            # Run the Agent only if things have updated.
             tick_time = game_tick_packet.gameInfo.TimeSeconds
-            if tick_time != last_tick_time:
+            if tick_time != last_tick_time or module_has_changed:
                 last_tick_time = tick_time
 
                 try:
                     # Reload the Agent if it has been modified.
-                    new_module_modification_time = os.stat(agent_module.__file__).st_mtime
-                    if new_module_modification_time != last_module_modification_time:
+                    if module_has_changed:
                         last_module_modification_time = new_module_modification_time
                         print('Reloading Agent: ' + agent_module.__file__)
                         imp.reload(agent_module)
