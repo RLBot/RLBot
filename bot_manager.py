@@ -1,7 +1,7 @@
 import bot_input_struct as bi
 import ctypes
 from ctypes import *
-from datetime import datetime
+from datetime import datetime, timedelta
 import game_data_struct as gd
 import importlib
 import mmap
@@ -14,6 +14,7 @@ import traceback
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
+MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0/30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
 MAX_CARS = 10
@@ -46,7 +47,8 @@ class BotManager:
 
         # Create Ratelimiter
         r = rate_limiter.RateLimiter(GAME_TICK_PACKET_REFRESHES_PER_SECOND)
-        last_tick_time = None
+        last_tick_game_time = None  # What the tick time of the last observed tick was
+        last_call_real_time = datetime.now()  # When we last called the Agent
 
         # Find car with same name and assign index
         for i in range(MAX_CARS):
@@ -73,9 +75,11 @@ class BotManager:
                 ctypes.memmove(ctypes.addressof(game_tick_packet), game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
 
             # Run the Agent only if the gameInfo has updated.
-            tick_time = game_tick_packet.gameInfo.TimeSeconds
-            if tick_time != last_tick_time:
-                last_tick_time = tick_time
+            tick_game_time = game_tick_packet.gameInfo.TimeSeconds
+            should_call_while_paused = datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
+            if tick_game_time != last_tick_game_time or should_call_while_paused:
+                last_tick_game_time = tick_game_time
+                last_call_real_time = datetime.now()
 
                 try:
                     # Reload the Agent if it has been modified.
