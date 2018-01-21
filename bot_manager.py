@@ -88,7 +88,11 @@ class BotManager:
                         last_module_modification_time = new_module_modification_time
                         print('Reloading Agent: ' + agent_module.__file__)
                         imp.reload(agent_module)
+                        old_agent = agent
                         agent = agent_module.Agent(self.name, self.team, self.index)
+                        # Retire after the replacement initialized properly.
+                        if hasattr(old_agent, 'retire'):
+                            old_agent.retire()
 
 
                     # Call agent
@@ -119,5 +123,7 @@ class BotManager:
             # print('Latency of ' + self.name + ': ' + str(after - before))
             r.acquire(after-before)
 
+        if hasattr(agent, 'retire'):
+            agent.retire()
         # If terminated, send callback
         self.callbackEvent.set()
