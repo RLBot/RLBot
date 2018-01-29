@@ -1,5 +1,6 @@
 import math
 
+URotationToRadians = math.pi / float(32768)
 
 class Agent:
     def __init__(self, name, team, index):
@@ -9,41 +10,67 @@ class Agent:
 
     def get_output_vector(self, game_tick_packet):
 
-        UCONST_Pi = 3.1415926
-        URotation180 = float(32768)
-        URotationToRadians = UCONST_Pi / URotation180
+        ball_location = Vector2(game_tick_packet.gameball.Location.X, game_tick_packet.gameball.Location.Y)
 
-        gameTickPacket = game_tick_packet
+        my_car = game_tick_packet.gamecars[self.index]
+        car_location = Vector2(my_car.Location.X, my_car.Location.Y)
+        car_direction = get_car_facing_vector(my_car)
+        car_to_ball = ball_location - car_location
 
-        ball_y = gameTickPacket.gameball.Location.Y
-        ball_x = gameTickPacket.gameball.Location.X
-        pitch = float(gameTickPacket.gamecars[self.index].Rotation.Pitch)
-        yaw = float(gameTickPacket.gamecars[self.index].Rotation.Yaw)
+        steer_correction_radians = car_direction.correction_to(car_to_ball)
 
-        turn = 0.0
-
-        player_y = gameTickPacket.gamecars[self.index].Location.Y
-        player_x = gameTickPacket.gamecars[self.index].Location.X
-        # Nose vector x component
-        player_rot1 = math.cos(pitch * URotationToRadians) * math.cos(yaw * URotationToRadians)
-        # Nose vector y component
-        player_rot4 = math.cos(pitch * URotationToRadians) * math.sin(yaw * URotationToRadians)
-
-        # Need to handle atan2(0,0) case, aka straight up or down, eventually
-        player_front_direction_in_radians = math.atan2(player_rot1, player_rot4)
-        relative_angle_to_ball_in_radians = math.atan2((ball_x - player_x), (ball_y - player_y))
-
-        if (not (abs(player_front_direction_in_radians - relative_angle_to_ball_in_radians) < math.pi)):
-            # Add 2pi to negative values
-            if (player_front_direction_in_radians < 0):
-                player_front_direction_in_radians += 2 * math.pi
-            if (relative_angle_to_ball_in_radians < 0):
-                relative_angle_to_ball_in_radians += 2 * math.pi
-
-        if (relative_angle_to_ball_in_radians > player_front_direction_in_radians):
-            turn = -1.0
+        if steer_correction_radians > 0:
+            # Positive radians in the unit circle is a turn to the left.
+            turn = -1.0 # Negative value for a turn to the left.
         else:
             turn = 1.0
 
-        return [1.0, turn, 0.0, 0.0, 0.0, 0, 0, 0]
+        return [
+            1.0, # throttle
+            turn, #steer
+            0.0, # pitch
+            0.0, # yaw
+            0.0, # roll
+            0, # jump
+            0, # boost
+            0  # handbrake
+        ]
 
+
+class Vector2:
+    def __init__(self, x = 0, y = 0):
+        self.x = float(x)
+        self.y = float(y)
+
+    def __add__(self, val):
+        return Vector2( self.x + val.x, self.y + val.y)
+
+    def __sub__(self,val):
+        return Vector2( self.x - val.x, self.y - val.y)
+
+    def correction_to(self, ideal):
+        # The in-game axes are left handed, so use -x
+        current_in_radians = math.atan2(self.y, -self.x)
+        ideal_in_radians = math.atan2(ideal.y, -ideal.x)
+
+        correction = ideal_in_radians - current_in_radians
+
+        # Make sure we go the 'short way'
+        if abs(correction) > math.pi:
+            if correction < 0:
+                correction += 2 * math.pi
+            else:
+                correction -= 2 * math.pi
+
+        return correction
+
+
+def get_car_facing_vector(car):
+
+    pitch = float(car.Rotation.Pitch)
+    yaw = float(car.Rotation.Yaw)
+
+    facing_x = math.cos(pitch * URotationToRadians) * math.cos(yaw * URotationToRadians)
+    facing_y = math.cos(pitch * URotationToRadians) * math.sin(yaw * URotationToRadians)
+
+    return Vector2(facing_x, facing_y)
