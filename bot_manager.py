@@ -8,7 +8,6 @@ import mmap
 import os
 import rate_limiter
 import sys
-import imp
 import traceback
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
@@ -87,7 +86,7 @@ class BotManager:
                     if new_module_modification_time != last_module_modification_time:
                         last_module_modification_time = new_module_modification_time
                         print('Reloading Agent: ' + agent_module.__file__)
-                        imp.reload(agent_module)
+                        importlib.reload(agent_module)
                         old_agent = agent
                         agent = agent_module.Agent(self.name, self.team, self.index)
                         # Retire after the replacement initialized properly.
