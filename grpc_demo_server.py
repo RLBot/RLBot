@@ -8,12 +8,23 @@ from grpcsupport.protobuf import game_data_pb2_grpc
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
+def serve():
+	server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+	game_data_pb2_grpc.add_BotServicer_to_server(AlwaysTowardsBallBot(), server)
+	server.add_insecure_port('[::]:34865')
+	server.start()
+	print('Grpc server listening on port 34865!')
+	try:
+		while True:
+			time.sleep(_ONE_DAY_IN_SECONDS)
+	except KeyboardInterrupt:
+		server.stop(0)
 
 class AlwaysTowardsBallBot(game_data_pb2_grpc.BotServicer):
 
 	def GetControllerState(self, request, context):
 		try:
-			if (request.player_index < len(request.players)):
+			if request.player_index < len(request.players):
 				return self.calculate_controller_state(request)
 
 		except Exception as e:
@@ -24,51 +35,73 @@ class AlwaysTowardsBallBot(game_data_pb2_grpc.BotServicer):
 
 
 	def calculate_controller_state(self, request):
-		controller_state = game_data_pb2.ControllerState()
 
-		player = request.players[request.player_index]
+		ball_location = Vector2(request.ball.location.x, request.ball.location.y)
 
-		ball_x = request.ball.location.x
-		ball_y = request.ball.location.y
+		my_car = request.players[request.player_index]
+		car_location = Vector2(my_car.location.x, my_car.location.y)
+		car_direction = get_car_facing_vector(my_car)
+		car_to_ball = ball_location - car_location
 
-		player_y = player.location.y
-		player_x = player.location.x
+		steer_correction_radians = car_direction.correction_to(car_to_ball)
+		steer_magnitude = abs(steer_correction_radians)
 
-		player_nose_y = math.cos(player.rotation.pitch) * math.cos(player.rotation.yaw)
-		player_nose_x = math.cos(player.rotation.pitch) * math.sin(player.rotation.yaw)
-
-		# Need to handle atan2(0,0) case, aka straight up or down, eventually
-		player_front_direction_in_radians = math.atan2(player_nose_y, player_nose_x)
-		relative_angle_to_ball_in_radians = math.atan2((ball_x - player_x), (ball_y - player_y))
-
-		if (not (abs(player_front_direction_in_radians - relative_angle_to_ball_in_radians) < math.pi)):
-			# Add 2pi to negative values
-			if (player_front_direction_in_radians < 0):
-				player_front_direction_in_radians += 2 * math.pi
-			if (relative_angle_to_ball_in_radians < 0):
-				relative_angle_to_ball_in_radians += 2 * math.pi
-
-		if (relative_angle_to_ball_in_radians > player_front_direction_in_radians):
-			controller_state.steer = -1
+		if steer_correction_radians > 0:
+			# Positive radians in the unit circle is a turn to the left.
+			turn = -1.0 # Negative value for a turn to the left.
 		else:
-			controller_state.steer = 1
+			turn = 1.0
 
-		controller_state.throttle = 1
+		controls = game_data_pb2.ControllerState()
+		controls.throttle = 1
+		controls.steer = turn if steer_magnitude > math.pi / 12 else turn * .2
+		controls.boost = 1 if steer_magnitude < math.pi / 12 else 0
+		controls.handbrake = 1 if steer_magnitude > math.pi / 2 else 0
 
-		return controller_state
+		return controls
 
 
-def serve():
-	server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-	game_data_pb2_grpc.add_BotServicer_to_server(AlwaysTowardsBallBot(), server)
-	server.add_insecure_port('[::]:34865')
-	server.start()
-	print('Protobuf server listening on port 34865!')
-	try:
-		while True:
-			time.sleep(_ONE_DAY_IN_SECONDS)
-	except KeyboardInterrupt:
-		server.stop(0)
+def get_car_facing_vector(car):
+
+	pitch = float(car.rotation.pitch)
+	yaw = float(car.rotation.yaw)
+
+	facing_x = math.cos(pitch) * math.cos(yaw)
+	facing_y = math.cos(pitch) * math.sin(yaw)
+
+	return Vector2(facing_x, facing_y)
+
+
+class Vector2:
+	def __init__(self, x = 0, y = 0):
+		self.x = float(x)
+		self.y = float(y)
+
+	def __add__(self, val):
+		return Vector2( self.x + val.x, self.y + val.y)
+
+	def __sub__(self,val):
+		return Vector2( self.x - val.x, self.y - val.y)
+
+	def __str__(self):
+		return "(" + str(self.x) + ", " + str(self.y) + ")"
+
+	def correction_to(self, ideal):
+		current_in_radians = math.atan2(self.y, -self.x)
+		ideal_in_radians = math.atan2(ideal.y, -ideal.x)
+
+		correction = ideal_in_radians - current_in_radians
+
+		# Make sure we go the 'short way'
+		# The in-game axes are left handed, so use -x
+		if not abs(correction) < math.pi:
+			if correction < 0:
+				correction += 2 * math.pi
+			else:
+				correction -= 2 * math.pi
+
+		return correction
+
 
 if __name__ == '__main__':
 	serve()
