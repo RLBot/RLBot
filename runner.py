@@ -34,18 +34,19 @@ def get_bot_config_file_list(botCount, config):
 # Cut off at 31 characters and handle duplicates
 def get_sanitized_bot_name(dict, name):
     if name not in dict:
-        new_name = name[:31] # Make sure name does not exceed 31 characters
+        new_name = name[:31]  # Make sure name does not exceed 31 characters
         dict[name] = 1
     else:
         count = dict[name]
-        new_name = name[:27] + "(" + str(count + 1) + ")" # Truncate at 27 because we can have up to '(10)' appended
+        new_name = name[:27] + "(" + str(count + 1) + ")"  # Truncate at 27 because we can have up to '(10)' appended
         dict[name] = count + 1
 
     return new_name
 
 
-def run_agent(terminate_event, callback_event, name, team, index, module_name):
-    bm = bot_manager.BotManager(terminate_event, callback_event, name, team, index, module_name)
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name):
+    bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
+                                index, module_name)
     bm.run()
 
 
@@ -70,6 +71,7 @@ def main():
     bot_modules = []
     processes = []
     callbacks = []
+    config_files = []
     name_dict = dict()
 
     gameInputPacket.iNumPlayers = num_participants
@@ -80,21 +82,24 @@ def main():
         bot_config.read(participant_configs[i])
 
         team_num = framework_config.getint(PARTICPANT_CONFIGURATION_HEADER,
-                                PARTICPANT_TEAM_PREFIX + str(i))
+                                           PARTICPANT_TEAM_PREFIX + str(i))
 
         loadout_header = BOT_CONFIG_LOADOUT_HEADER
         if (team_num == 1 and bot_config.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER)):
             loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
         gameInputPacket.sPlayerConfiguration[i].bBot = framework_config.getboolean(PARTICPANT_CONFIGURATION_HEADER,
-                                                                               PARTICPANT_BOT_KEY_PREFIX + str(i))
-        gameInputPacket.sPlayerConfiguration[i].bRLBotControlled = framework_config.getboolean(PARTICPANT_CONFIGURATION_HEADER,
-                                                                                               PARTICPANT_RLBOT_KEY_PREFIX + str(i))
+                                                                                   PARTICPANT_BOT_KEY_PREFIX + str(i))
+        gameInputPacket.sPlayerConfiguration[i].bRLBotControlled = framework_config.getboolean(
+            PARTICPANT_CONFIGURATION_HEADER,
+            PARTICPANT_RLBOT_KEY_PREFIX + str(i))
         gameInputPacket.sPlayerConfiguration[i].fBotSkill = framework_config.getfloat(PARTICPANT_CONFIGURATION_HEADER,
-                                                                                      PARTICPANT_BOT_SKILL_KEY_PREFIX + str(i))
+                                                                                      PARTICPANT_BOT_SKILL_KEY_PREFIX
+                                                                                      + str(i))
         gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
-        gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict, bot_config.get(loadout_header,
-                                                                       'name'))
+
+        gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict,
+                                                                               bot_config.get(loadout_header, 'name'))
         gameInputPacket.sPlayerConfiguration[i].ucTeam = team_num
         gameInputPacket.sPlayerConfiguration[i].ucTeamColorID = bot_config.getint(loadout_header,
                                                                                   'team_color_id')
@@ -115,6 +120,7 @@ def main():
         gameInputPacket.sPlayerConfiguration[i].iTrailsID = bot_config.getint(loadout_header, 'trails_id')
         gameInputPacket.sPlayerConfiguration[i].iGoalExplosionID = bot_config.getint(loadout_header,
                                                                                      'goal_explosion_id')
+        config_files.append(bot_config)
 
         bot_names.append(bot_config.get(loadout_header, 'name'))
         bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
@@ -131,7 +137,10 @@ def main():
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
             callback = mp.Event()
             callbacks.append(callback)
-            process = mp.Process(target=run_agent, args=(quit_event, callback, str(gameInputPacket.sPlayerConfiguration[i].wName), bot_teams[i], i, bot_modules[i]))
+            process = mp.Process(target=run_agent,
+                                 args=(quit_event, callback, config_files[i],
+                                       str(gameInputPacket.sPlayerConfiguration[i].wName),
+                                       bot_teams[i], i, bot_modules[i]))
             process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
