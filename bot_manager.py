@@ -21,14 +21,21 @@ MAX_CARS = 10
 
 class BotManager:
 
-    def __init__(self, terminateEvent, callbackEvent, name, team, index, modulename):
+    def __init__(self, terminateEvent, callbackEvent, bot_parameters, name, team, index, modulename):
         self.terminateEvent = terminateEvent
         self.callbackEvent = callbackEvent
+        self.bot_parameters = bot_parameters
         self.name = name
         self.team = team
         self.index = index
         self.module_name = modulename
 
+    def load_agent(self, agent_module):
+        try:
+            agent = agent_module.Agent(self.name, self.team, self.index, bot_parameters=self.bot_parameters)
+        except TypeError as e:
+            agent = agent_module.Agent(self.name, self.team, self.index)
+        return agent
 
     def run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
@@ -57,8 +64,7 @@ class BotManager:
 
         # Get bot module
         agent_module = importlib.import_module(self.module_name)
-        # Create bot from module
-        agent = agent_module.Agent(self.name, self.team, self.index)
+        agent = self.load_agent(agent_module)
         last_module_modification_time = os.stat(agent_module.__file__).st_mtime
 
 
@@ -88,7 +94,7 @@ class BotManager:
                         print('Reloading Agent: ' + agent_module.__file__)
                         importlib.reload(agent_module)
                         old_agent = agent
-                        agent = agent_module.Agent(self.name, self.team, self.index)
+                        agent = self.load_agent(agent_module)
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
