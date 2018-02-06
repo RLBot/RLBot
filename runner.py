@@ -121,7 +121,10 @@ def main():
         gameInputPacket.sPlayerConfiguration[i].iTrailsID = bot_config.getint(loadout_header, 'trails_id')
         gameInputPacket.sPlayerConfiguration[i].iGoalExplosionID = bot_config.getint(loadout_header,
                                                                                      'goal_explosion_id')
-        config_files.append(bot_config[BOT_HEADER])
+        if bot_config.has_section(BOT_CONFIG_AGENT_HEADER):
+            config_files.append(bot_config[BOT_CONFIG_AGENT_HEADER])
+        else:
+            config_files.append(None)
 
         bot_names.append(bot_config.get(loadout_header, 'name'))
         bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
