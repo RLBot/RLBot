@@ -8,6 +8,8 @@ import multiprocessing as mp
 import msvcrt
 import rlbot_exception
 import time
+import os
+import sys
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
@@ -79,8 +81,10 @@ def main():
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
+        bot_config_path = participant_configs[i]
+        sys.path.append(os.path.dirname(bot_config_path))
         bot_config = configparser.RawConfigParser()
-        bot_config.read(participant_configs[i])
+        bot_config.read(bot_config_path)
 
         team_num = framework_config.getint(PARTICPANT_CONFIGURATION_HEADER,
                                            PARTICPANT_TEAM_PREFIX + str(i))
