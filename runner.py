@@ -22,7 +22,7 @@ OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 BOT_CONFIG_LOADOUT_HEADER = 'Participant Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Participant Loadout Orange'
 BOT_CONFIG_MODULE_HEADER = 'Bot Location'
-BOT_CONFIG_AGENT_HEADER = 'Agent Configuration'
+BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 
 
 def get_bot_config_file_list(botCount, config):
@@ -72,7 +72,7 @@ def main():
     bot_modules = []
     processes = []
     callbacks = []
-    config_files = []
+    bot_parameter_list = []
     name_dict = dict()
 
     gameInputPacket.iNumPlayers = num_participants
@@ -122,9 +122,9 @@ def main():
         gameInputPacket.sPlayerConfiguration[i].iGoalExplosionID = bot_config.getint(loadout_header,
                                                                                      'goal_explosion_id')
         if bot_config.has_section(BOT_CONFIG_AGENT_HEADER):
-            config_files.append(bot_config[BOT_CONFIG_AGENT_HEADER])
+            bot_parameter_list.append(bot_config[BOT_CONFIG_AGENT_HEADER])
         else:
-            config_files.append(None)
+            bot_parameter_list.append(None)
 
         bot_names.append(bot_config.get(loadout_header, 'name'))
         bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
@@ -142,7 +142,7 @@ def main():
             callback = mp.Event()
             callbacks.append(callback)
             process = mp.Process(target=run_agent,
-                                 args=(quit_event, callback, config_files[i],
+                                 args=(quit_event, callback, bot_parameter_list[i],
                                        str(gameInputPacket.sPlayerConfiguration[i].wName),
                                        bot_teams[i], i, bot_modules[i]))
             process.start()

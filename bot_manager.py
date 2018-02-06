@@ -21,10 +21,10 @@ MAX_CARS = 10
 
 class BotManager:
 
-    def __init__(self, terminateEvent, callbackEvent, config_file, name, team, index, modulename):
+    def __init__(self, terminateEvent, callbackEvent, bot_parameters, name, team, index, modulename):
         self.terminateEvent = terminateEvent
         self.callbackEvent = callbackEvent
-        self.config_file = config_file
+        self.bot_parameters = bot_parameters
         self.name = name
         self.team = team
         self.index = index
@@ -32,7 +32,7 @@ class BotManager:
 
     def load_agent(self, agent_module):
         try:
-            agent = agent_module.Agent(self.name, self.team, self.index, config_file=self.config_file)
+            agent = agent_module.Agent(self.name, self.team, self.index, bot_parameters=self.bot_parameters)
         except TypeError as e:
             agent = agent_module.Agent(self.name, self.team, self.index)
         return agent
