@@ -1,10 +1,27 @@
+####################################################################################################
+# This RPC server responds to GetControllerState reqeusts by applying the
+# "always steer for the ball" strategy. It also boosts because that's what the cool kids do.
+#
+# To run this agent successfully, you need to:
+# - Install the python package "grpcio", e.g. pip install grpcio
+# - Get RLBot to run the grpc_demo_agent.
+# - Run this server at the same time as RLBot.
+####################################################################################################
+
 from concurrent import futures
 import time
 import math
 import grpc
 
+# Import the RPC protocol buffers. (needs a little bit of path hacking)
+import os
+import sys
+from os.path import realpath, dirname
+rlbot_directory = dirname(dirname(dirname(realpath(__file__))))
+sys.path.append(rlbot_directory)
 from grpcsupport.protobuf import game_data_pb2
 from grpcsupport.protobuf import game_data_pb2_grpc
+
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
