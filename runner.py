@@ -22,6 +22,7 @@ OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 BOT_CONFIG_LOADOUT_HEADER = 'Participant Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Participant Loadout Orange'
 BOT_CONFIG_MODULE_HEADER = 'Bot Location'
+BOT_CONFIG_AGENT_HEADER = 'Agent Configuration'
 
 
 def get_bot_config_file_list(botCount, config):
@@ -120,7 +121,7 @@ def main():
         gameInputPacket.sPlayerConfiguration[i].iTrailsID = bot_config.getint(loadout_header, 'trails_id')
         gameInputPacket.sPlayerConfiguration[i].iGoalExplosionID = bot_config.getint(loadout_header,
                                                                                      'goal_explosion_id')
-        config_files.append(bot_config)
+        config_files.append(bot_config[BOT_HEADER])
 
         bot_names.append(bot_config.get(loadout_header, 'name'))
         bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
