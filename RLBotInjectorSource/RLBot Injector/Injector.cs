@@ -79,7 +79,7 @@ namespace RLBot_Injector
 
         public static bool Inject(int pID, string dllLocation, ref string error)
         {
-            if (!File.Exists(dllLocation))
+            if (File.Exists(dllLocation) == false)
             {
                 error = "The RLBot Dll file could not be found";
                 return false;
