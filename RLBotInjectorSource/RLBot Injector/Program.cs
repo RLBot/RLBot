@@ -12,11 +12,11 @@ namespace RLBot_Injector
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            Application.Run(new MainForm(args.Length == 1 && args[0].ToLower() == "hidden"));
         }
     }
 }
