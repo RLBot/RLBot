@@ -5,6 +5,7 @@ import sys
 
 from agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
     BOT_CONFIG_MODULE_HEADER
+from utils.agent_creator import import_agent
 from utils.custom_config import ConfigObject
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
@@ -126,13 +127,18 @@ def parse_configurations(gameInputPacket, config_parser):
 
         BaseAgent.parse_bot_loadout(gameInputPacket.sPlayerConfiguration[i], bot_config_object, loadout_header)
 
-        bot_parameter_list.append(raw_bot_config)
-
         bot_names.append(raw_bot_config.get(loadout_header, 'name'))
         bot_teams.append(config_parser.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM, i))
+
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
-            bot_modules.append(raw_bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module'))
+            agent_module = raw_bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
+            bot_modules.append(agent_module)
+            agent = import_agent(agent_module)
+            agent_configuration = agent.create_agent_configurations()
+            agent_configuration.parse_file(raw_bot_config)
+            bot_parameter_list.append(agent_configuration)
         else:
             bot_modules.append('NO_MODULE_FOR_PARTICIPANT')
+            bot_parameter_list.append(None)
 
     return num_participants, bot_names, bot_teams, bot_modules, bot_parameter_list
