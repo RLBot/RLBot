@@ -37,7 +37,7 @@ def get_bot_config_file_list(botCount, config):
     return config_file_list
 
 
-def create_bot_config_parser():
+def create_bot_config_layout():
     config_object = ConfigObject()
     rlbot_header = config_object.add_header_name(RLBOT_CONFIGURATION_HEADER)
     rlbot_header.add_value('num_participants', int, default=2, description='The number of players on the field')
@@ -98,17 +98,17 @@ def parse_configurations(gameInputPacket, config_parser):
     for i in range(num_participants):
         bot_config_path = participant_configs[i]
         sys.path.append(os.path.dirname(bot_config_path))
-        bot_config = configparser.RawConfigParser()
-        bot_config.read(bot_config_path)
+        raw_bot_config = configparser.RawConfigParser()
+        raw_bot_config.read(bot_config_path)
 
         bot_config_object.reset()
-        bot_config_object.parse_file(bot_config)
+        bot_config_object.parse_file(raw_bot_config)
 
         team_num = config_parser.getint(PARTICPANT_CONFIGURATION_HEADER,
                                         PARTICPANT_TEAM, i)
 
         loadout_header = BOT_CONFIG_LOADOUT_HEADER
-        if (team_num == 1 and bot_config.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER)):
+        if (team_num == 1 and raw_bot_config.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER)):
             loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
         gameInputPacket.sPlayerConfiguration[i].bBot = config_parser.getboolean(PARTICPANT_CONFIGURATION_HEADER,
@@ -121,17 +121,17 @@ def parse_configurations(gameInputPacket, config_parser):
         gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
 
         gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict,
-                                                                               bot_config.get(loadout_header, 'name'))
+                                                                               raw_bot_config.get(loadout_header, 'name'))
         gameInputPacket.sPlayerConfiguration[i].ucTeam = team_num
 
         BaseAgent.parse_bot_loadout(gameInputPacket.sPlayerConfiguration[i], bot_config_object, loadout_header)
 
-        bot_parameter_list.append(bot_config)
+        bot_parameter_list.append(raw_bot_config)
 
-        bot_names.append(bot_config.get(loadout_header, 'name'))
+        bot_names.append(raw_bot_config.get(loadout_header, 'name'))
         bot_teams.append(config_parser.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM, i))
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
-            bot_modules.append(bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module'))
+            bot_modules.append(raw_bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module'))
         else:
             bot_modules.append('NO_MODULE_FOR_PARTICIPANT')
 
