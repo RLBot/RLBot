@@ -51,7 +51,10 @@ class ConfigObject:
         """
         for header_name in self.headers:
             header = self.headers[header_name]
-            header.parse_file(config_parser[header_name], max_index=max_index)
+            try:
+                header.parse_file(config_parser[header_name], max_index=max_index)
+            except KeyError:
+                pass  # skip this header as it does not exist
 
     def reset(self):
         for header_name in self.headers:
