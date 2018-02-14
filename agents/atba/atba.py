@@ -1,12 +1,12 @@
 import math
 
+from agents.base_agent import BaseAgent
+
 URotationToRadians = math.pi / float(32768)
 
-class Agent:
-    def __init__(self, name, team, index):
-        self.name = name
-        self.team = team  # 0 towards positive goal, 1 towards negative goal.
-        self.index = index
+
+class Atba(BaseAgent):
+    flip_turning = False
 
     def get_output_vector(self, game_tick_packet):
 
@@ -25,6 +25,9 @@ class Agent:
         else:
             turn = 1.0
 
+        if self.flip_turning:
+            turn *= -1.0
+
         return [
             1.0, # throttle
             turn, #steer
@@ -36,6 +39,15 @@ class Agent:
             0  # handbrake
         ]
 
+    def load_config(self, config_object):
+        self.flip_turning = config_object.getbool('atba', 'flip_turning')
+
+    @staticmethod
+    def create_agent_configurations():
+        config = super().create_agent_configurations()
+        config.add_header_name('atba').add_value('flip_turning', bool, default=False,
+                                                 description='if true bot will turn opposite way')
+        return config
 
 class Vector2:
     def __init__(self, x = 0, y = 0):
