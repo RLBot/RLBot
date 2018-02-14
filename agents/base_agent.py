@@ -57,6 +57,7 @@ class BaseAgent:
 
         config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
         config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
+        return config
 
     @staticmethod
     def _create_loadout():

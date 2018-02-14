@@ -109,6 +109,9 @@ class ConfigHeader:
         if self.is_indexed and max_index is None:
             return  # if we do not know the index lets skip instead of crashing
 
+        if not self.is_indexed:
+            max_index = None
+
         for value_name in self.values:
             self.values[value_name].parse_file(config_parser, value_name, max_index=max_index)
 
@@ -155,11 +158,20 @@ class ConfigValue:
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if max_index is None:
-            self.value = config_parser[value_name]
+            self.value = self.get_parser_value(config_parser, value_name)
         else:
             self.value = []
             for i in range(max_index):
-                self.value.append(config_parser[value_name + '_' + str(i)])
+                self.value.append(self.get_parser_value(config_parser, value_name + '_' + str(i)))
+
+    def get_parser_value(self, config_parser, value_name):
+        if self.type == bool:
+            return config_parser.getboolean(value_name)
+        if self.type == int:
+            return config_parser.getint(value_name)
+        if self.type == float:
+            return config_parser.getfloat(value_name)
+        return config_parser.get(value_name)
 
     def reset(self):
         self.value = None

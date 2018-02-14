@@ -33,7 +33,7 @@ def get_sanitized_bot_name(dict, name):
 def get_bot_config_file_list(botCount, config):
     config_file_list = []
     for i in range(botCount):
-        config_file_list.append(config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY, str(i)))
+        config_file_list.append(config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY, i))
     return config_file_list
 
 
@@ -69,6 +69,7 @@ def create_bot_config_parser():
                                              ' this value will be used to set bot skill.\n' +
                                              '0.0 is Rookie, 0.5 is pro, 1.0 is all-star. ' +
                                              ' You can set values in-between as well.')
+    return config_object
 
 
 def parse_configurations(gameInputPacket, config_parser):
@@ -104,7 +105,7 @@ def parse_configurations(gameInputPacket, config_parser):
         bot_config_object.parse_file(bot_config)
 
         team_num = config_parser.getint(PARTICPANT_CONFIGURATION_HEADER,
-                                        PARTICPANT_TEAM, str(i))
+                                        PARTICPANT_TEAM, i)
 
         loadout_header = BOT_CONFIG_LOADOUT_HEADER
         if (team_num == 1 and bot_config.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER)):
@@ -133,3 +134,5 @@ def parse_configurations(gameInputPacket, config_parser):
             bot_modules.append(bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module'))
         else:
             bot_modules.append('NO_MODULE_FOR_PARTICIPANT')
+
+    return num_participants, bot_names, bot_teams, bot_modules, bot_parameter_list
