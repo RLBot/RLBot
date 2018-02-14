@@ -8,7 +8,7 @@ import multiprocessing as mp
 import msvcrt
 import rlbot_exception
 import time
-from utils.rlbot_config_parser import create_bot_config_parser, parse_configurations
+from utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
 
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
@@ -24,11 +24,11 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
 def main():
     callbacks = []
     # Set up RLBot.cfg
-    framework_config = configparser.RawConfigParser()
-    framework_config.read(RLBOT_CONFIG_FILE)
+    raw_config_parser = configparser.RawConfigParser()
+    raw_config_parser.read(RLBOT_CONFIG_FILE)
 
-    config_parser = create_bot_config_parser()
-    config_parser.parse_file(framework_config, max_index=10)
+    config_parser = create_bot_config_layout()
+    config_parser.parse_file(raw_config_parser, max_index=10)
 
     # Open anonymous shared memory for entire GameInputPacket and map buffer
     buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
