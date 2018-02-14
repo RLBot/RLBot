@@ -5,7 +5,7 @@ from agents.base_agent import BaseAgent
 URotationToRadians = math.pi / float(32768)
 
 
-class Atba(BaseAgent):
+class Agent(BaseAgent):
     flip_turning = False
 
     def get_output_vector(self, game_tick_packet):
