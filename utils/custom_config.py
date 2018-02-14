@@ -62,13 +62,19 @@ class ConfigObject:
             header.reset()
 
     def __str__(self):
+        string = ''
         for header_name in self.headers:
-            return header_name + ':\n' + str(self.headers[header_name]) + '\n'
+            string += '[' + header_name + ']\n' + str(self.headers[header_name]) + '\n'
+        return string
+
+    def has_section(self, header_name):
+        return header_name in self.headers and self.headers[header_name].has_values
 
 
 class ConfigHeader:
     values = None
-    is_indexed = False  # if true then indexes will be applied to all values otherwise they will not be
+    is_indexed = False  # if True then indexes will be applied to all values otherwise they will not be
+    has_values = False  # False if no values have been set on this header object.
     max_index = -1
 
     def __init__(self):
@@ -83,6 +89,7 @@ class ConfigHeader:
         self.values[name] = ConfigValue(value_type, default=default, description=description, value=value)
 
     def set_value(self, option, value):
+        self.has_values = True
         self.values[option].value = value
 
     def get(self, option, index=None):
@@ -112,6 +119,8 @@ class ConfigHeader:
         if self.is_indexed and max_index is None:
             return  # if we do not know the index lets skip instead of crashing
 
+        self.has_values = True
+
         if not self.is_indexed:
             max_index = None
 
@@ -121,11 +130,12 @@ class ConfigHeader:
     def reset(self):
         for value_name in self.values:
             self.values[value_name].reset()
+        self.has_values = False
 
     def __str__(self):
         string = ''
         for value_name in self.values:
-            string += '\t' + value_name + ':\n\t\t' + str(self.values[value_name]) + '\n'
+            string += '\t' + value_name + ' = ' + str(self.values[value_name]) + '\n'
         return string
 
 
@@ -156,8 +166,7 @@ class ConfigValue:
             else value
 
     def __str__(self):
-        return 'type: ' + str(type) + ' value: ' + str(self.get_value()) +\
-               ' description: ' + str(self.description).replace('\n', '\n\t\t\t')
+        return str(self.get_value()) + '  # ' + str(self.description).replace('\n', '\n\t\t#')
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if max_index is None:
