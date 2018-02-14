@@ -40,11 +40,11 @@ class Agent(BaseAgent):
         ]
 
     def load_config(self, config_object):
-        self.flip_turning = config_object.getbool('atba', 'flip_turning')
+        self.flip_turning = config_object.getboolean('atba', 'flip_turning')
 
     @staticmethod
     def create_agent_configurations():
-        config = super().create_agent_configurations()
+        config = super(Agent, Agent).create_agent_configurations()
         config.add_header_name('atba').add_value('flip_turning', bool, default=False,
                                                  description='if true bot will turn opposite way')
         return config
