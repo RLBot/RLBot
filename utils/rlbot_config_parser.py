@@ -139,11 +139,11 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
         BaseAgent.parse_bot_loadout(gameInputPacket.sPlayerConfiguration[i], bot_config_object, loadout_header)
 
-        bot_names.append(raw_bot_config.get(loadout_header, 'name'))
+        bot_names.append(bot_config_object.get(loadout_header, 'name'))
         bot_teams.append(config_parser.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM, i))
 
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
-            agent_module = raw_bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
+            agent_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
             bot_modules.append(agent_module)
             agent = import_agent(agent_module)
             agent_configuration = agent.create_agent_configurations()
