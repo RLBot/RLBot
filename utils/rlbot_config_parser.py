@@ -31,10 +31,24 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
-def get_bot_config_file_list(botCount, config):
+    """
+    Adds all the config files or config objects.
+    :param botCount:
+    :param config:
+    :param bot_configs: These are configs that have been loaded from the gui, they get assigned a bot index.
+    :return:
+    """
     config_file_list = []
     for i in range(botCount):
-        config_file_list.append(config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY, i))
+        if bot_configs[i] is None:
+            bot_config = config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY, i)
+            bot_config_path = bot_config
+            sys.path.append(os.path.dirname(bot_config_path))
+            raw_bot_config = configparser.RawConfigParser()
+            raw_bot_config.read(bot_config_path)
+        else:
+            config_file_list.append(bot_configs[i])
+
     return config_file_list
 
 
@@ -73,7 +87,6 @@ def create_bot_config_layout():
     return config_object
 
 
-def parse_configurations(gameInputPacket, config_parser):
     bot_names = []
     bot_teams = []
     bot_modules = []
@@ -83,7 +96,7 @@ def parse_configurations(gameInputPacket, config_parser):
     num_participants = config_parser.getint(RLBOT_CONFIGURATION_HEADER, 'num_participants')
 
     # Retrieve bot config files
-    participant_configs = get_bot_config_file_list(num_participants, config_parser)
+    participant_configs = get_bot_config_file_list(num_participants, config_parser, bot_configs)
 
     # Create empty lists
 
@@ -97,13 +110,8 @@ def parse_configurations(gameInputPacket, config_parser):
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
-        bot_config_path = participant_configs[i]
-        sys.path.append(os.path.dirname(bot_config_path))
-        raw_bot_config = configparser.RawConfigParser()
-        raw_bot_config.read(bot_config_path)
-
         bot_config_object.reset()
-        bot_config_object.parse_file(raw_bot_config)
+        bot_config_object.parse(participant_configs[i])
 
         team_num = config_parser.getint(PARTICPANT_CONFIGURATION_HEADER,
                                         PARTICPANT_TEAM, i)
