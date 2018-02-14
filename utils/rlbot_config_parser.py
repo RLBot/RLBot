@@ -41,14 +41,15 @@ def get_bot_config_file_list(botCount, config, bot_configs):
     """
     config_file_list = []
     for i in range(botCount):
-        if bot_configs[i] is None:
+        if i in bot_configs:
+            config_file_list.append(bot_configs[i])
+        else:
             bot_config = config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY, i)
             bot_config_path = bot_config
             sys.path.append(os.path.dirname(bot_config_path))
             raw_bot_config = configparser.RawConfigParser()
             raw_bot_config.read(bot_config_path)
-        else:
-            config_file_list.append(bot_configs[i])
+            config_file_list.append(raw_bot_config)
 
     return config_file_list
 
@@ -112,14 +113,15 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
+        raw_bot_config = participant_configs[i]
         bot_config_object.reset()
-        bot_config_object.parse(participant_configs[i])
+        bot_config_object.parse_file(participant_configs[i])
 
         team_num = config_parser.getint(PARTICPANT_CONFIGURATION_HEADER,
                                         PARTICPANT_TEAM, i)
 
         loadout_header = BOT_CONFIG_LOADOUT_HEADER
-        if (team_num == 1 and raw_bot_config.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER)):
+        if (team_num == 1 and bot_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER)):
             loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
         gameInputPacket.sPlayerConfiguration[i].bBot = config_parser.getboolean(PARTICPANT_CONFIGURATION_HEADER,
@@ -132,7 +134,7 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
         gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
 
         gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict,
-                                                                               raw_bot_config.get(loadout_header, 'name'))
+                                                                               bot_config_object.get(loadout_header, 'name'))
         gameInputPacket.sPlayerConfiguration[i].ucTeam = team_num
 
         BaseAgent.parse_bot_loadout(gameInputPacket.sPlayerConfiguration[i], bot_config_object, loadout_header)
