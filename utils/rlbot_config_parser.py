@@ -31,6 +31,7 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
+def get_bot_config_file_list(botCount, config, bot_configs):
     """
     Adds all the config files or config objects.
     :param botCount:
@@ -87,6 +88,7 @@ def create_bot_config_layout():
     return config_object
 
 
+def parse_configurations(gameInputPacket, config_parser, bot_configs):
     bot_names = []
     bot_teams = []
     bot_modules = []
