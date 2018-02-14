@@ -21,20 +21,22 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
     bm.run()
 
 
-def main():
+def main(framework_config=None, bot_configs={}):
     callbacks = []
     # Set up RLBot.cfg
-    raw_config_parser = configparser.RawConfigParser()
-    raw_config_parser.read(RLBOT_CONFIG_FILE)
+    if framework_config is None:
+        raw_config_parser = configparser.RawConfigParser()
+        raw_config_parser.read(RLBOT_CONFIG_FILE)
 
-    config_parser = create_bot_config_layout()
-    config_parser.parse_file(raw_config_parser, max_index=10)
+        framework_config = create_bot_config_layout()
+        framework_config.parse_file(raw_config_parser, max_index=10)
 
     # Open anonymous shared memory for entire GameInputPacket and map buffer
     buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
     gameInputPacket = bi.GameInputPacket.from_buffer(buff)
 
-    num_participants, names, teams, modules, parameters = parse_configurations(gameInputPacket, config_parser)
+    num_participants, names, teams, modules, parameters = parse_configurations(gameInputPacket,
+                                                                               framework_config, bot_configs)
 
     # Create Quit event
     quit_event = mp.Event()
