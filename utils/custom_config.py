@@ -6,6 +6,7 @@ class ConfigObject:
 
     """
     headers = None
+    raw_config_parser = None  # set by calling parse_file
 
     def __init__(self):
         self.headers = {}
@@ -59,6 +60,7 @@ class ConfigObject:
         :param config_parser: an instance of configparser
         :return: None
         """
+        self.raw_config_parser = config_parser
         for header_name in self.headers:
             header = self.headers[header_name]
             try:
@@ -80,6 +82,10 @@ class ConfigObject:
     def has_section(self, header_name):
         """Returns true if the header exist and has had at least one value set on it."""
         return header_name in self.headers and self.headers[header_name].has_values
+
+    def get_raw_file(self):
+        """Returns the raw file from the parser so it can be used to be parsed by other config objects."""
+        return self.raw_config_parser
 
 
 class ConfigHeader:
