@@ -16,6 +16,7 @@ BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICPANT_TEAM = 'participant_team'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
+PARTICPANT_COUNT_KEY = 'num_participants'
 
 
 # Cut off at 31 characters and handle duplicates
@@ -89,6 +90,21 @@ def create_bot_config_layout():
     return config_object
 
 
+def get_team(config, index):
+    """
+    Returns which team the bot is on (represented by an integer)
+    """
+    return config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM, index)
+
+
+
+def get_num_players(config):
+    """
+    Returns the number of players specified by the config parser
+    """
+    return config.getint(RLBOT_CONFIGURATION_HEADER, PARTICPANT_COUNT_KEY)
+
+
 def parse_configurations(gameInputPacket, config_parser, bot_configs):
     bot_names = []
     bot_teams = []
@@ -96,7 +112,7 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
 
     # Determine number of participants
-    num_participants = config_parser.getint(RLBOT_CONFIGURATION_HEADER, 'num_participants')
+    num_participants = get_num_players(config_parser)
 
     # Retrieve bot config files
     participant_configs = get_bot_config_file_list(num_participants, config_parser, bot_configs)
@@ -137,8 +153,7 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
     :param name_dict: A mapping of used names so we can make sure to not reuse bot names.
     :return:
     """
-    team_num = overall_config.getint(PARTICPANT_CONFIGURATION_HEADER,
-                                    PARTICPANT_TEAM, index)
+    team_num = get_team(overall_config, index)
 
     bot_configuration.ucTeam = team_num
 
