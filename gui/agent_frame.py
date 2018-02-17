@@ -247,3 +247,6 @@ class AgentFrame(tk.Frame):
             for column, widget in enumerate(widget_list):
                 column += start_index
                 widget.grid(row=row, column=column, sticky="nsew")
+
+    def load_config(self, config_file, overall_index):
+        pass
