@@ -10,9 +10,9 @@ from utils.custom_config import ConfigObject
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY = 'participant_is_bot'
-PARTICPANT_RLBOT_KEY = 'participant_is_rlbot_controlled'
+RLBOT_KEY = 'participant_is_rlbot_controlled'
 PARTICPANT_CONFIG_KEY = 'participant_config'
-PARTICPANT_BOT_SKILL_KEY = 'participant_bot_skill'
+BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICPANT_TEAM = 'participant_team'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
@@ -75,13 +75,13 @@ def create_bot_config_layout():
                                              'be activated in game or it will crash.\n' +
                                              'If no player is specified you will be spawned in as spectator!')
 
-    participant_header.add_value(PARTICPANT_RLBOT_KEY, bool, default='yes',
+    participant_header.add_value(RLBOT_KEY, bool, default='yes',
                                  description='Accepted values are "1", "yes", "true", and "on", for True,' +
                                              ' and "0", "no", "false", and "off", for False\n' +
                                              'By specifying \'no\' here you can use default bots ' +
                                              'like the rookie, all-star, etc.')
 
-    participant_header.add_value(PARTICPANT_BOT_SKILL_KEY, float, default=1.0,
+    participant_header.add_value(BOT_SKILL_KEY, float, default=1.0,
                                  description='If participant is a bot and not RLBot controlled,' +
                                              ' this value will be used to set bot skill.\n' +
                                              '0.0 is Rookie, 0.5 is pro, 1.0 is all-star. ' +
@@ -113,44 +113,58 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
-        raw_bot_config = participant_configs[i]
         bot_config_object.reset()
         bot_config_object.parse_file(participant_configs[i])
 
-        team_num = config_parser.getint(PARTICPANT_CONFIGURATION_HEADER,
-                                        PARTICPANT_TEAM, i)
+        bot_name, team_number, bot_module, bot_parameters = load_bot_config(i, gameInputPacket.sPlayerConfiguration[i],
+                                                                            bot_config_object, config_parser, name_dict)
 
-        loadout_header = BOT_CONFIG_LOADOUT_HEADER
-        if (team_num == 1 and bot_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER)):
-            loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
-
-        gameInputPacket.sPlayerConfiguration[i].bBot = config_parser.getboolean(PARTICPANT_CONFIGURATION_HEADER,
-                                                                                PARTICPANT_BOT_KEY, i)
-        gameInputPacket.sPlayerConfiguration[i].bRLBotControlled = config_parser.getboolean(
-            PARTICPANT_CONFIGURATION_HEADER,
-            PARTICPANT_RLBOT_KEY, i)
-        gameInputPacket.sPlayerConfiguration[i].fBotSkill = config_parser.getfloat(PARTICPANT_CONFIGURATION_HEADER,
-                                                                                   PARTICPANT_BOT_SKILL_KEY, i)
-        gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
-
-        gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict,
-                                                                               bot_config_object.get(loadout_header, 'name'))
-        gameInputPacket.sPlayerConfiguration[i].ucTeam = team_num
-
-        BaseAgent.parse_bot_loadout(gameInputPacket.sPlayerConfiguration[i], bot_config_object, loadout_header)
-
-        bot_names.append(bot_config_object.get(loadout_header, 'name'))
-        bot_teams.append(config_parser.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM, i))
-
-        if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
-            agent_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
-            bot_modules.append(agent_module)
-            agent = import_agent(agent_module)
-            agent_configuration = agent.create_agent_configurations()
-            agent_configuration.parse_file(raw_bot_config)
-            bot_parameter_list.append(agent_configuration)
-        else:
-            bot_modules.append('NO_MODULE_FOR_PARTICIPANT')
-            bot_parameter_list.append(None)
+        bot_names.append(bot_name)
+        bot_teams.append(team_number)
+        bot_modules.append(bot_module)
+        bot_parameter_list.append(bot_parameters)
 
     return num_participants, bot_names, bot_teams, bot_modules, bot_parameter_list
+
+
+def load_bot_config(index, bot_configuration, bot_config_object, overall_config, name_dict):
+    """
+    Loads the config data of a single bot
+    :param index: This is the bot index (where it appears in game_cars)
+    :param bot_configuration: This is the game_tick_packet configuration that is sent back to the game
+    :param bot_config_object: A config object for a single bot
+    :param overall_config: This is the config for the entire session not one particular bot
+    :param name_dict: A mapping of used names so we can make sure to not reuse bot names.
+    :return:
+    """
+    team_num = overall_config.getint(PARTICPANT_CONFIGURATION_HEADER,
+                                    PARTICPANT_TEAM, index)
+
+    bot_configuration.ucTeam = team_num
+
+    # Setting up data about what type of bot it is
+    bot_configuration.bBot = overall_config.getboolean(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_BOT_KEY, index)
+    bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICPANT_CONFIGURATION_HEADER, RLBOT_KEY, index)
+    bot_configuration.fBotSkill = overall_config.getfloat(PARTICPANT_CONFIGURATION_HEADER, BOT_SKILL_KEY, index)
+    bot_configuration.iPlayerIndex = index
+
+    loadout_header = BOT_CONFIG_LOADOUT_HEADER
+    if team_num == 1 and bot_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
+        loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
+
+    # Setting up the bots name
+    bot_name = bot_config_object.get(loadout_header, 'name')
+    bot_configuration.wName = get_sanitized_bot_name(name_dict, bot_name)
+
+    BaseAgent.parse_bot_loadout(bot_configuration, bot_config_object, loadout_header)
+
+    bot_module = 'NO_MODULE_FOR_PARTICIPANT'
+    bot_parameters = None
+
+    if bot_configuration.bRLBotControlled:
+        bot_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
+        agent = import_agent(bot_module)
+        bot_parameters = agent.create_agent_configurations()
+        bot_parameters.parse_file(bot_config_object.get_raw_file())
+
+    return bot_name, team_num, bot_module, bot_parameters
