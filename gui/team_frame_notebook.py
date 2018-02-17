@@ -51,6 +51,7 @@ class TeamFrame(tk.Frame):
         self.update_tabs()
 
     def load_agents(self, config_file):
+        pass
 
 if __name__ == '__main__':
     root = tk.Tk()

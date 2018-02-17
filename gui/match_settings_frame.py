@@ -8,3 +8,4 @@ class SettingsFrame(tk.Frame):
         ttk.Label(self, text="Match settings").pack()
 
     def load_match_settings(self, config_file):
+        pass
