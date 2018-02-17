@@ -14,10 +14,17 @@ class ConfigObject:
         return self.get_header(x)
 
     def add_header(self, header_name, header):
+        """Adds the given header into this object with the name `header_name`"""
         self.headers[header_name] = header
         return header
 
     def add_header_name(self, header_name, is_indexed=False):
+        """
+        Adds a new header with the name header_name
+        :param header_name: The name of the header as it would appear in the config
+        :param is_indexed: If true that means that the same value is spread across an indexed list.
+        :return: The newly created header.
+        """
         header = ConfigHeader()
         header.is_indexed = is_indexed
         self.headers[header_name] = header
@@ -27,6 +34,9 @@ class ConfigObject:
         self.get_header(header_name).set_value(option, value)
 
     def get_header(self, header_name):
+        """
+        Returns a header with that name, creates it if it does not exist.
+        """
         if header_name in self.headers:
             return self.headers[header_name]
         return self.add_header_name(header_name)
@@ -68,6 +78,7 @@ class ConfigObject:
         return string
 
     def has_section(self, header_name):
+        """Returns true if the header exist and has had at least one value set on it."""
         return header_name in self.headers and self.headers[header_name].has_values
 
 
@@ -84,13 +95,36 @@ class ConfigHeader:
         return self.values[x]
 
     def add_value(self, name, value_type, default=None, description=None, value=None):
+        """
+        Adds a new value to this config header
+        :param name: The name of the value as it would appear in a config file
+        :param value_type:  The type of value: bool, str, int, float
+        :param default: The value used when the config does not set any value.
+        :param description: The human readable description of the value
+        :param value: An optional value, if this header is indexed then the value needs to be a list.
+        :return: an instance of itself so that you can chain adding values together.
+        """
         if description is None:
             description = name
+        if value is not None and self.is_indexed and not isinstance(value, list):
+            raise Exception('Indexed values must be a list')
+        if value is not None:
+            self.has_values = True
         self.values[name] = ConfigValue(value_type, default=default, description=description, value=value)
+        return self
 
     def set_value(self, option, value):
+        """
+        Sets the value on the given option.
+        :param option: The name of the option as it appears in the config file
+        :param value: The value that is being applied, if this section is indexed value must be a list
+        :return: an instance of itself so that you can chain setting values together.
+        """
+        if value is not None and self.is_indexed and not isinstance(value, list):
+            raise Exception('Indexed values must be a list')
         self.has_values = True
         self.values[option].value = value
+        return self
 
     def get(self, option, index=None):
         return self.get_with_type(option, tk_type=tk.StringVar, index=index)
