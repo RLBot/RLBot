@@ -4,7 +4,9 @@ import inspect
 import tkinter as tk
 from tkinter import ttk
 
-from gui.utils import get_file
+from agents.base_agent import BaseAgent
+from gui.custom_agent_frame import CustomAgentFrame
+from gui.utils import get_file, get_base_repo_path
 
 
 class AgentFrame(tk.Frame):
@@ -19,6 +21,8 @@ class AgentFrame(tk.Frame):
     agent_path_widgets = None
     agent_config_widgets = None
     custom_agent_options = None
+    custom_agent_frame = None
+    config_object = None
 
     def __init__(self, parent, is_blue_team, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, *kwargs)
@@ -75,55 +79,17 @@ class AgentFrame(tk.Frame):
 
         self.custom_agent_options = tk.Frame(self, borderwidth=2, relief=tk.SUNKEN)  # row 7
         ttk.Button(self, text="Remove", command=lambda: self.parent.master.remove_agent(self)).grid(row=8, column=2)
+        ttk.Button(self, text="Edit Config", command=self.popup_custom_config).grid(row=8, column=0)
 
         self.grid_items(0, 0, self.looks_widgets, self.is_bot_widgets)
         self.change_is_bot()
         self.change_rlbot_controlled()
 
-    def initialise_custom_config(self):
-        """Create the Custom Config Frame containing all widgets for editing the parameters."""
-        for widget in self.custom_agent_options.grid_slaves():
-            widget.grid_forget()
-        try:
-            self.bot_config = self.agent_class[1].get_parameters_header()
-        except AttributeError:
-            error = "This class does not contain a config method, unable to create custom config"
-            ttk.Label(self.custom_agent_options, text=error).grid()
-            return
-
-        if not self.bot_config.values:
-            ttk.Label(self.custom_agent_options, text="No Bot Parameters for this agent").grid()
-            return
-
-        ttk.Label(self.custom_agent_options, text="Bot Parameters", anchor="center").grid(row=0, column=0,
-                                                                                          columnspan=2)
-        for parameter_index, (parameter_name, parameter) in enumerate(self.bot_config.values.items()):
-            ttk.Label(self.custom_agent_options, text=parameter_name + ":", anchor='e').grid(
-                row=parameter_index + 1, column=0, sticky="ew")
-            big = 20000000
-            if parameter.type == int:
-                parameter.value = tk.IntVar()
-                widget = tk.Spinbox(self.custom_agent_options, textvariable=parameter.value, from_=0, to=big)
-            elif parameter.type == float:
-                parameter.value = tk.DoubleVar()
-                widget = tk.Spinbox(self.custom_agent_options, textvariable=parameter.value, from_=0, to=big,
-                                    increment=.01)
-            elif parameter.type == bool:
-                parameter.value = tk.BooleanVar()
-                widget = ttk.Combobox(self.custom_agent_options, textvariable=parameter.value, values=(True, False),
-                                      state="readonly")
-                widget.current(0) if not parameter.default else widget.current(1)
-            elif parameter.type == str:
-                parameter.value = tk.StringVar()
-                widget = ttk.Entry(self.custom_agent_options, textvariable=parameter.value)
-            else:
-                widget = ttk.Label("Unknown type")
-
-            widget.grid(row=parameter_index + 1, column=1, sticky="ew")
-
-            if parameter.default is not None and parameter.type is not bool:
-                parameter.value.set(parameter.default)
-        self.custom_agent_options.grid_columnconfigure(1, weight=1)
+    def popup_custom_config(self):
+        """Popups a window to edit all config options of the bot"""
+        new_window = tk.Toplevel()
+        custom_agent_frame = CustomAgentFrame(new_window, self.agent_class, self.config_object)
+        self.config_object = custom_agent_frame.initialise_custom_config()
 
     def add_config_option(self):
         """Popup, ask for an extra config option and add it to the combobox"""
@@ -171,12 +137,16 @@ class AgentFrame(tk.Frame):
             self.agent_config_widgets[2]["state"] = "normal"
             self.agent_config_widgets[1]['values'] = ("custom",)
             self.agent_config_widgets[1].set("custom")
-            module = self.agent_path.get().replace(os.path.dirname(os.path.realpath(__file__)).replace(os.sep, "/"),
-                                                   "", 1).replace("/", ".")[1:-3]
-            trainer_package = importlib.import_module(module)
-            trainer_classes = [m for m in inspect.getmembers(trainer_package, inspect.isclass) if
+            agent_path = self.agent_path.get()
+            original_path = get_base_repo_path().replace(os.sep, "/")
+            print(agent_path)
+            print(original_path)
+            module = self.agent_path.get().replace(original_path, "", 1).replace("/", ".")[1:-3]
+            print('module', module)
+            agent_package = importlib.import_module(module)
+            agent_class = [m for m in inspect.getmembers(agent_package, inspect.isclass) if
                                m[1].__module__ == module]
-            if len(trainer_classes) > 1:
+            if len(agent_class) > 1:
                 popup = tk.Toplevel()
                 popup.title("Choose agent class")
                 popup.transient(self)
@@ -185,21 +155,20 @@ class AgentFrame(tk.Frame):
                 selected = tk.IntVar()
                 tk.Label(popup, text="Select the class and press continue").grid(row=0, column=0, columnspan=2,
                                                                                  padx=(10, 10), pady=(10, 5))
-                for i in range(len(trainer_classes)):
-                    ttk.Radiobutton(popup, text=trainer_classes[i][0], value=i, variable=selected).grid(
+                for i in range(len(agent_class)):
+                    ttk.Radiobutton(popup, text=agent_class[i][0], value=i, variable=selected).grid(
                         row=i + 1, column=0, sticky="nsew", padx=(10, 0))
                 selected.set(0)
 
                 def chosen_class():
-                    self.agent_class = trainer_classes[selected.get()]
+                    self.agent_class = agent_class[selected.get()]
                     popup.destroy()
 
-                ttk.Button(popup, text="Continue", command=chosen_class).grid(row=len(trainer_classes), column=1,
+                ttk.Button(popup, text="Continue", command=chosen_class).grid(row=len(agent_class), column=1,
                                                                               padx=(0, 10), pady=(0, 10))
                 self.wait_window(popup)
             else:
-                self.agent_class = trainer_classes[0]
-            self.initialise_custom_config()
+                self.agent_class = agent_class[0]
             self.change_config()
 
     def change_looks_path(self):
