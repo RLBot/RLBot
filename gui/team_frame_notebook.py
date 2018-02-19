@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from gui.agent_frame import AgentFrame
-from utils.rlbot_config_parser import get_num_players, get_team
+from utils.rlbot_config_parser import get_num_players, get_team, create_bot_config_layout
 
 
 class TeamFrame(tk.Frame):
@@ -58,6 +58,8 @@ class TeamFrame(tk.Frame):
         agent = AgentFrame(self.agents_book, self.team_index)
         if config_file is not None:
             agent.load_config(config_file, overall_index)
+        else:
+            agent.load_config(create_bot_config_layout(), 0)
         return agent
 
     def load_agents(self, config_file):
