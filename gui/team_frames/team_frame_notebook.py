@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from gui.agent_frame import AgentFrame
+from gui.agent_frames.agent_frame import AgentFrame
 from utils.rlbot_config_parser import get_num_players, get_team
 
 
