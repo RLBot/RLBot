@@ -11,45 +11,45 @@ class TeamFrame(tk.Frame):
         tk.Frame.__init__(self, parent, *args, *kwargs)
         self.is_blue = is_blue_team
 
-        self.agents_book = ttk.Notebook(self)
-        self.agents_book.bind("<<NotebookTabChanged>>", lambda event: self.switch_tab())
-        self.add_agent_frame = tk.Frame(self.agents_book)
-        self.agents_book.add(self.add_agent_frame, text="  +  ")
+        self.agents_frame = ttk.Notebook(self)
+        self.agents_frame.bind("<<NotebookTabChanged>>", lambda event: self.switch_tab())
+        self.add_agent_frame = tk.Frame(self.agents_frame)
+        self.agents_frame.add(self.add_agent_frame, text="  +  ")
 
         self.agents = list()
         self.add_agent(0)
 
-        self.agents_book.pack(side="top", fill="both")
+        self.agents_frame.pack(side="top", fill="both")
 
     def switch_tab(self):
         """Handle tab switch to add an agent if switched to Add Agent tab"""
-        if self.agents_book.tab(self.agents_book.index("current"), option="text") == "  +  ":
-            self.add_agent(self.agents_book.index("current"))
+        if self.agents_frame.tab(self.agents_frame.index("current"), option="text") == "  +  ":
+            self.add_agent(self.agents_frame.index("current"))
 
     def update_tabs(self):
         color = "Blue" if self.is_blue else "Orange"
-        for i, widget in reversed(list(enumerate(self.agents_book.tabs()))):
-            label = self.agents_book.tab(widget, option="text")
+        for i, widget in reversed(list(enumerate(self.agents_frame.tabs()))):
+            label = self.agents_frame.tab(widget, option="text")
             if not label.endswith(str(i + 1)) and label != "  +  ":
-                self.agents_book.tab(widget, text=color + " Bot " + str(i + 1))
+                self.agents_frame.tab(widget, text=color + " Bot " + str(i + 1))
 
     def add_agent(self, index):
         """Add an agent to the according team."""
         color = "Blue" if self.is_blue else "Orange"
-        self.agents.append(self.AgentFrame(self.agents_book, self.is_blue))
-        self.agents_book.insert(index, self.agents[index], text=color + " Bot " + str(index + 1))
+        self.agents.append(self.AgentFrame(self.agents_frame, self.is_blue))
+        self.agents_frame.insert(index, self.agents[index], text=color + " Bot " + str(index + 1))
         if len(self.agents) > 4:
-            self.agents_book.hide(self.add_agent_frame)
-        self.agents_book.select(index)
+            self.agents_frame.hide(self.add_agent_frame)
+        self.agents_frame.select(index)
 
     def remove_agent(self, agent):
         """Remove agent AGENT from the list and Notebook"""
-        self.agents_book.hide(self.add_agent_frame)
+        self.agents_frame.hide(self.add_agent_frame)
         agent.destroy()
         self.agents.remove(agent)
         if len(self.agents) == 0:
             self.add_agent(0)
-        self.agents_book.add(self.add_agent_frame)
+        self.agents_frame.add(self.add_agent_frame)
         self.update_tabs()
 
     class AgentFrame(tk.Frame):
