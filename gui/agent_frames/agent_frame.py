@@ -5,11 +5,12 @@ import tkinter as tk
 from tkinter import ttk
 
 from agents.base_agent import BaseAgent
+from gui.agent_frames.base_agent_frame import BaseAgentFrame
 from gui.custom_agent_frame import CustomAgentFrame
 from gui.utils import get_file, get_base_repo_path
 
 
-class AgentFrame(tk.Frame):
+class AgentFrame(BaseAgentFrame):
     bot_config = None
     agent_class = None
     config_options_path = {}
@@ -22,21 +23,15 @@ class AgentFrame(tk.Frame):
     agent_config_widgets = None
     custom_agent_options = None
     custom_agent_frame = None
-    config_object = None
-    overall_config = None
-    overall_index = -1
 
-    def __init__(self, parent, is_blue_team, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, *kwargs)
+    def __init__(self, parent, team_index, *args, **kwargs):
+        super().__init__(parent, team_index, *args, **kwargs)
         self.agent_path = tk.StringVar()
         self.looks_path = tk.StringVar()
         self.is_bot = tk.BooleanVar()
         self.rlbot_controlled = tk.BooleanVar()
         self.bot_level = tk.StringVar(value="All-Star")
 
-        self.is_blue = is_blue_team
-        self.parent = parent
-        self.initialise_widgets()
 
     def initialise_widgets(self):
         self.looks_widgets = list()  # row 0
