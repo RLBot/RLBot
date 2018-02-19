@@ -23,6 +23,8 @@ class AgentFrame(tk.Frame):
     custom_agent_options = None
     custom_agent_frame = None
     config_object = None
+    overall_config = None
+    overall_index = -1
 
     def __init__(self, parent, is_blue_team, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, *kwargs)
@@ -220,4 +222,6 @@ class AgentFrame(tk.Frame):
                 widget.grid(row=row, column=column, sticky="nsew")
 
     def load_config(self, config_file, overall_index):
+        self.overall_config = config_file
+        self.overall_index = overall_index
         pass
