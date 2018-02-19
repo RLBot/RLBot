@@ -60,6 +60,7 @@ class TeamFrame(tk.Frame):
             agent.load_config(config_file, overall_index)
         else:
             agent.load_config(create_bot_config_layout(), 0)
+        agent.initialise_widgets()
         return agent
 
     def load_agents(self, config_file):
