@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from gui import match_settings_frame
-import gui.team_frame_notebook as team_frame
+import gui.team_frames.team_frame_notebook as team_frame
 from gui.utils import get_file
 
 
