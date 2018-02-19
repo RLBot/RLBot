@@ -32,7 +32,6 @@ class AgentFrame(BaseAgentFrame):
         self.rlbot_controlled = tk.BooleanVar()
         self.bot_level = tk.StringVar(value="All-Star")
 
-
     def initialise_widgets(self):
         self.looks_widgets = list()  # row 0
         self.looks_widgets.append(ttk.Label(self, text="Loadout path:", anchor="e"))
