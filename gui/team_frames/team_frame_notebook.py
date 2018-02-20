@@ -1,27 +1,26 @@
 import tkinter as tk
 from tkinter import ttk
 
-from gui.agent_frames.agent_frame import AgentFrame
-from utils.rlbot_config_parser import get_num_players, get_team, create_bot_config_layout
+from gui.team_frames.base_team_frame import BaseTeamFrame
 
 
-class TeamFrame(tk.Frame):
-    def __init__(self, parent, team_index, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, *kwargs)
-        self.team_index = team_index
+class TeamFrame(BaseTeamFrame):
+    add_agent_frame = None
+
+    def __init__(self, parent, overall_config, team_index, agent_frame_class, *args, **kwargs):
+        super().__init__(parent, overall_config, team_index, agent_frame_class, *args, *kwargs)
 
         self.agents_frame = ttk.Notebook(self)
         self.agents_frame.bind("<<NotebookTabChanged>>", lambda event: self.switch_tab())
-        self.add_agent_frame = tk.Frame(self.agents_frame)
-        self.agents_frame.add(self.add_agent_frame, text="  +  ")
-
-        self.agents = list()
-        self.add_agent(0)
 
         self.agents_frame.pack(side="top", fill="both")
 
-    def is_blue_team(self):
-        return self.team_index == 0
+    def get_agents_frame(self):
+        return self.agents_frame
+
+    def initialise_add_agent(self):
+        self.add_agent_frame = tk.Frame(self.agents_frame)
+        self.agents_frame.add(self.add_agent_frame, text="  +  ")
 
     def switch_tab(self):
         """Handle tab switch to add an agent if switched to Add Agent tab"""
@@ -35,10 +34,11 @@ class TeamFrame(tk.Frame):
             if not label.endswith(str(i + 1)) and label != "  +  ":
                 self.agents_frame.tab(widget, text=team_name + " Bot " + str(i + 1))
 
-    def add_agent(self, index, config_file=None, overall_index=-1):
+    def add_agent(self, config_file=None, overall_index=-1):
         """Add an agent to the according team."""
         color = "Blue" if self.is_blue_team() else "Orange"
-        self.agents.append(self.create_agent(self.agents_frame, self.is_blue_team()))
+        self.agents.append(self.create_agent())
+        index = len(self.agents) + 1
         self.agents_frame.insert(index, self.agents[index], text=color + " Bot " + str(index + 1))
         if len(self.agents) > 4:
             self.agents_frame.hide(self.add_agent_frame)
@@ -47,34 +47,14 @@ class TeamFrame(tk.Frame):
     def remove_agent(self, agent):
         """Remove agent AGENT from the list and Notebook"""
         self.agents_frame.hide(self.add_agent_frame)
-        agent.destroy()
-        self.agents.remove(agent)
-        if len(self.agents) == 0:
-            self.add_agent(0)
+        super().remove_agent(agent)
         self.agents_frame.add(self.add_agent_frame)
         self.update_tabs()
 
-    def create_agent(self, config_file=None, overall_index=-1):
-        agent = AgentFrame(self.agents_frame, self.team_index)
-        if config_file is not None:
-            agent.load_config(config_file, overall_index)
-        else:
-            agent.load_config(create_bot_config_layout(), 0)
-        agent.initialise_widgets()
-        return agent
-
-    def load_agents(self, config_file):
-        num_participants = get_num_players(config_file)
-        agent_count = 0
-        for i in range(num_participants):
-            team_index = get_team(config_file, i)
-            if team_index == self.team_index:
-                self.add_agent(agent_count, config_file=config_file, overall_index=i)
-                agent_count += 1
-
 
 if __name__ == '__main__':
+    from gui.agent_frames.agent_frame import AgentFrame
     root = tk.Tk()
-    runner = TeamFrame(root, True)
-    runner.pack(side="top", fill="both", expand=True)
+    team_frame = TeamFrame(root, 0, AgentFrame)
+    team_frame.pack(side="top", fill="both", expand=True)
     root.mainloop()

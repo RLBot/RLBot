@@ -97,7 +97,6 @@ def get_team(config, index):
     return config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM, index)
 
 
-
 def get_num_players(config):
     """
     Returns the number of players specified by the config parser
@@ -110,7 +109,6 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
     bot_teams = []
     bot_modules = []
 
-
     # Determine number of participants
     num_participants = get_num_players(config_parser)
 
@@ -119,9 +117,8 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
     # Create empty lists
 
-
     bot_parameter_list = []
-    name_dict = dict()
+    name_dict = {}
 
     gameInputPacket.iNumPlayers = num_participants
 
