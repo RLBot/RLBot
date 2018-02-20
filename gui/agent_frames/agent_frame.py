@@ -4,7 +4,6 @@ import inspect
 import tkinter as tk
 from tkinter import ttk
 
-from agents.base_agent import BaseAgent
 from gui.agent_frames.base_agent_frame import BaseAgentFrame
 from gui.custom_agent_frame import CustomAgentFrame
 from gui.utils import get_file, get_base_repo_path

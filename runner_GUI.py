@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
+from configparser import RawConfigParser
 
 from gui import match_settings_frame
-import gui.team_frames.team_frame_notebook as team_frame
 from gui.utils import get_file
+from utils.rlbot_config_parser import create_bot_config_layout, get_num_players
 
 
 def create_load_cfg(team1, team2, match_settings):
@@ -32,13 +33,20 @@ def start_running():
 
 
 def main():
+    from gui.agent_frames.agent_frame import AgentFrame
+    from gui.team_frames.base_team_frame import BaseTeamFrame
     root = tk.Tk()
     match_settings = match_settings_frame.SettingsFrame(root)
-    team1 = team_frame.TeamFrame(root, True)
-    team2 = team_frame.TeamFrame(root, False)
+    raw_config = RawConfigParser()
+    raw_config.read("rlbot.cfg")
+    team_size = get_num_players(raw_config)
+    overall_config = create_bot_config_layout()
+    overall_config.parse_file(raw_config, team_size)
+    team1 = BaseTeamFrame(root, overall_config, True, AgentFrame)
+    team2 = BaseTeamFrame(root, overall_config, False, AgentFrame)
     match_settings.grid(row=0, column=0, columnspan=2)
-    team1.grid(row=1, column=0)
-    team2.grid(row=1, column=1)
+    team1.grid(row=1, column=0, sticky="nsew")
+    team2.grid(row=1, column=1, sticky="nsew")
     buttons_frame = ttk.Frame(root)
     ttk.Button(buttons_frame, text="Load", command=create_load_cfg(team1, team2, match_settings)).grid(row=0, column=0)
     ttk.Button(buttons_frame, text="Save", command=create_save_cfg(team1, team2, match_settings)).grid(row=0, column=1)

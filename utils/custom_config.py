@@ -1,4 +1,5 @@
 import tkinter as tk
+from configparser import RawConfigParser
 
 
 class ConfigObject:
@@ -54,17 +55,23 @@ class ConfigObject:
     def getfloat(self, section, option, index=None):
         return self.get_header(section).getfloat(option, index=index)
 
-    def parse_file(self, config_parser, max_index=None):
+    def parse_file(self, config, max_index=None):
         """
         Parses the file internally setting values
-        :param config_parser: an instance of configparser
+        :param config: an instance of RawConfigParser or a string to a .cfg file
         :return: None
         """
-        self.raw_config_parser = config_parser
+        if isinstance(config, str):
+            self.raw_config_parser = RawConfigParser()
+            self.raw_config_parser.read(config)
+        elif isinstance(config, RawConfigParser):
+            self.raw_config_parser = config
+        else:
+            raise TypeError("The config wat neither a string nor a RawConfigParser instance")
         for header_name in self.headers:
             header = self.headers[header_name]
             try:
-                header.parse_file(config_parser[header_name], max_index=max_index)
+                header.parse_file(self.raw_config_parser[header_name], max_index=max_index)
             except KeyError:
                 pass  # skip this header as it does not exist
 
