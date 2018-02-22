@@ -41,16 +41,16 @@ class AgentFrame(BaseAgentFrame):
         self.is_bot_widgets = list()  # row 1
         self.is_bot_widgets.append(ttk.Label(self, text="Is bot: ", anchor="e"))
         self.is_bot_widgets.append(
-            ttk.Combobox(self, textvariable=self.is_bot, values=(True, False), state="readonly"))
+            ttk.Combobox(self, textvariable=self.is_bot, values=(False, True), state="readonly"))
         self.is_bot_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_is_bot())
-        self.is_bot_widgets[1].current(0)
+        self.is_bot_widgets[1].current(1)
 
         self.rlbot_controlled_widgets = list()  # row 2
         self.rlbot_controlled_widgets.append(ttk.Label(self, text="RLBot controlled: ", anchor="e"))
         self.rlbot_controlled_widgets.append(
-            ttk.Combobox(self, textvariable=self.rlbot_controlled, values=(True, False), state="readonly"))
+            ttk.Combobox(self, textvariable=self.rlbot_controlled, values=(False, True), state="readonly"))
         self.rlbot_controlled_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_rlbot_controlled())
-        self.rlbot_controlled_widgets[1].current(1)
+        self.rlbot_controlled_widgets[1].current(0)
 
         self.bot_level_widgets = list()
         self.bot_level_widgets.append(ttk.Label(self, text="Bot level: ", anchor="e"))
@@ -184,9 +184,8 @@ class AgentFrame(BaseAgentFrame):
                     widget.grid_forget()
             return
         if self.rlbot_controlled.get():
-            if self.rlbot_controlled_widgets[0].winfo_ismapped():
-                for widget in self.grid_slaves(row=3):
-                    widget.grid_forget()
+            for widget in self.grid_slaves(row=3):
+                widget.grid_forget()
             self.grid_items(4, 0, self.agent_path_widgets, self.agent_config_widgets)
             self.custom_agent_options.grid(row=6, column=0, columnspan=3, sticky="nsew")
         else:
@@ -217,4 +216,13 @@ class AgentFrame(BaseAgentFrame):
     def load_config(self, config_file, overall_index):
         self.overall_config = config_file
         self.overall_index = overall_index
-        pass
+        participant_header = 'Participant Configuration'
+        self.looks_path.set(os.path.realpath(config_file.get(participant_header, "participant_config", overall_index)))
+        self.is_bot_widgets[1].current(config_file.getboolean(participant_header, "participant_is_bot", overall_index))
+        self.rlbot_controlled_widgets[1].current(
+            config_file.getboolean(participant_header, "participant_is_rlbot_controlled", overall_index))
+        level = config_file.getfloat(participant_header, "participant_bot_skill", overall_index)
+        bot_level = 0 if level <= .25 else 1 if level <= .75 else 2
+        self.bot_level_widgets[1].current(bot_level)
+        self.change_is_bot()
+        self.change_rlbot_controlled()

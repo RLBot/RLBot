@@ -8,15 +8,15 @@ from agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_L
 from utils.agent_creator import import_agent
 from utils.custom_config import ConfigObject
 
-PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
-PARTICPANT_BOT_KEY = 'participant_is_bot'
-RLBOT_KEY = 'participant_is_rlbot_controlled'
-PARTICPANT_CONFIG_KEY = 'participant_config'
-BOT_SKILL_KEY = 'participant_bot_skill'
-PARTICPANT_TEAM = 'participant_team'
+PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
+PARTICIPANT_BOT_KEY = 'participant_is_bot'
+PARTICIPANT__RLBOT_KEY = 'participant_is_rlbot_controlled'
+PARTICIPANT_CONFIG_KEY = 'participant_config'
+PARTICIPANT_BOT_SKILL_KEY = 'participant_bot_skill'
+PARTICIPANT_TEAM = 'participant_team'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
-PARTICPANT_COUNT_KEY = 'num_participants'
+PARTICIPANT_COUNT_KEY = 'num_participants'
 
 
 # Cut off at 31 characters and handle duplicates
@@ -45,7 +45,7 @@ def get_bot_config_file_list(botCount, config, bot_configs):
         if i in bot_configs:
             config_file_list.append(bot_configs[i])
         else:
-            bot_config = config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY, i)
+            bot_config = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
             bot_config_path = bot_config
             sys.path.append(os.path.dirname(bot_config_path))
             raw_bot_config = configparser.RawConfigParser()
@@ -60,29 +60,29 @@ def create_bot_config_layout():
     rlbot_header = config_object.add_header_name(RLBOT_CONFIGURATION_HEADER)
     rlbot_header.add_value('num_participants', int, default=2, description='The number of players on the field')
 
-    participant_header = config_object.add_header_name(PARTICPANT_CONFIGURATION_HEADER, is_indexed=True)
-    participant_header.add_value(PARTICPANT_TEAM, int, default=0,
+    participant_header = config_object.add_header_name(PARTICIPANT_CONFIGURATION_HEADER, is_indexed=True)
+    participant_header.add_value(PARTICIPANT_TEAM, int, default=0,
                                  description="Which team the player should be on:" +
                                              "\nteam 0 (blue) shoots on positive goal, " +
                                              "team 1 (orange) shoots on negative goal")
 
-    participant_header.add_value(PARTICPANT_CONFIG_KEY, str, default='./agents/atba/atba.cfg',
+    participant_header.add_value(PARTICIPANT_CONFIG_KEY, str, default='./agents/atba/atba.cfg',
                                  description="The location of the configuration file for a specific agent")
 
-    participant_header.add_value(PARTICPANT_BOT_KEY, bool, default='yes',
+    participant_header.add_value(PARTICIPANT_BOT_KEY, bool, default='yes',
                                  description='Accepted values are "1", "yes", "true", and "on", for True,' +
                                              ' and "0", "no", "false", and "off", for False\n' +
                                              'You can have up to 4 local players and they must ' +
                                              'be activated in game or it will crash.\n' +
                                              'If no player is specified you will be spawned in as spectator!')
 
-    participant_header.add_value(RLBOT_KEY, bool, default='yes',
+    participant_header.add_value(PARTICIPANT__RLBOT_KEY, bool, default='yes',
                                  description='Accepted values are "1", "yes", "true", and "on", for True,' +
                                              ' and "0", "no", "false", and "off", for False\n' +
                                              'By specifying \'no\' here you can use default bots ' +
                                              'like the rookie, all-star, etc.')
 
-    participant_header.add_value(BOT_SKILL_KEY, float, default=1.0,
+    participant_header.add_value(PARTICIPANT_BOT_SKILL_KEY, float, default=1.0,
                                  description='If participant is a bot and not RLBot controlled,' +
                                              ' this value will be used to set bot skill.\n' +
                                              '0.0 is Rookie, 0.5 is pro, 1.0 is all-star. ' +
@@ -94,14 +94,14 @@ def get_team(config, index):
     """
     Returns which team the bot is on (represented by an integer)
     """
-    return config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM, index)
+    return config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, index)
 
 
 def get_num_players(config):
     """
     Returns the number of players specified by the config parser
     """
-    return config.getint(RLBOT_CONFIGURATION_HEADER, PARTICPANT_COUNT_KEY)
+    return config.getint(RLBOT_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
 def parse_configurations(gameInputPacket, config_parser, bot_configs):
@@ -155,9 +155,9 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
     bot_configuration.ucTeam = team_num
 
     # Setting up data about what type of bot it is
-    bot_configuration.bBot = overall_config.getboolean(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_BOT_KEY, index)
-    bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICPANT_CONFIGURATION_HEADER, RLBOT_KEY, index)
-    bot_configuration.fBotSkill = overall_config.getfloat(PARTICPANT_CONFIGURATION_HEADER, BOT_SKILL_KEY, index)
+    bot_configuration.bBot = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, index)
+    bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT__RLBOT_KEY, index)
+    bot_configuration.fBotSkill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
     bot_configuration.iPlayerIndex = index
 
     loadout_header = BOT_CONFIG_LOADOUT_HEADER
