@@ -21,7 +21,9 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
     bm.run()
 
 
-def main(framework_config=None, bot_configs={}):
+def main(framework_config=None, bot_configs=None):
+    if bot_configs is None:
+        bot_configs = {}
     callbacks = []
     # Set up RLBot.cfg
     if framework_config is None:

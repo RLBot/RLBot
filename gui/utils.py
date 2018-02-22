@@ -1,5 +1,6 @@
 from tkinter.filedialog import askopenfilename
 
+from itertools import count, filterfalse
 import os
 
 
@@ -17,16 +18,24 @@ def get_base_repo_path():
 
 
 class IndexManager:
+    def __init__(self):
+        self.numbers = set()
+
     def get_new_index(self):
         """
         Gets the next available index and marks it as in use.
         :return:  An index that is not currently in use
         """
-        return -1
+        free_index = next(filterfalse(self.numbers.__contains__, count(1)))
+        self.numbers.add(free_index)
+        return free_index
+
+    def mark_used(self, index):
+        self.numbers.add(index)
 
     def free_index(self, index):
         """
         Tells this manager that the passed in index is now free to reuse.
         :param index: The index that is now free to reuse.
         """
-        pass
+        self.numbers.remove(index)
