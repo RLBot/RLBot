@@ -3,6 +3,7 @@ import time
 from . import proto_converter
 from .protobuf import game_data_pb2_grpc
 
+
 def make_grpc_agent(server_address):
     '''
         parameters:
@@ -11,7 +12,7 @@ def make_grpc_agent(server_address):
             A RLBot Agent class which forwards the game_tick_packet to the
             grpc server and returns its response.
 
-        For an example use of this, see: example_bots/grpc_demo_agent
+        For an example use of this, see: agents/java_demo
     '''
 
     class GrpcForwardingAgent:
@@ -32,17 +33,15 @@ def make_grpc_agent(server_address):
             print("Connecting to grpc server: " + server_address)
             channel = grpc.insecure_channel(server_address)
             self.stub = game_data_pb2_grpc.BotStub(channel)
-            # grpc.channel_ready_future(channel).result()
-            # print("Connection to server successful!")
 
         def get_output_vector(self, game_tick_packet):
 
             proto = proto_converter.convert_game_tick(game_tick_packet, self.index)
 
             try:
-                controller_state = self.stub.GetControllerState(proto)
+                controller_state = self.stub.GetControllerState(proto, timeout=1)
 
-                if (not self.connected):
+                if not self.connected:
                     print("Connected to grpc server successfully!")
                     self.connected = True
 
@@ -63,4 +62,5 @@ def make_grpc_agent(server_address):
                 time.sleep(4)
 
                 return [0, 0, 0, 0, 0, 0, 0, 0]  # No motion
+
     return GrpcForwardingAgent
