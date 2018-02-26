@@ -90,29 +90,4 @@ class BaseAgentFrame(tk.Frame):
 
     def load_agent_from_path(self, agent_file_path):
         module = get_base_import_package(agent_file_path)
-        agent_package = importlib.import_module(module)
-        agent_class = [m for m in inspect.getmembers(agent_package, inspect.isclass) if
-                       m[1].__module__ == module]
-        if len(agent_class) > 1:
-            popup = tk.Toplevel()
-            popup.title("Choose agent class")
-            popup.transient(self)
-            popup.grab_set()
-            popup.protocol("WM_DELETE_WINDOW", lambda: None)
-            selected = tk.IntVar()
-            tk.Label(popup, text="Select the class and press continue").grid(row=0, column=0, columnspan=2,
-                                                                             padx=(10, 10), pady=(10, 5))
-            for i in range(len(agent_class)):
-                ttk.Radiobutton(popup, text=agent_class[i][0], value=i, variable=selected).grid(
-                    row=i + 1, column=0, sticky="nsew", padx=(10, 0))
-            selected.set(0)
-
-            def chosen_class():
-                self.agent_class = agent_class[selected.get()]
-                popup.destroy()
-
-            ttk.Button(popup, text="Continue", command=chosen_class).grid(row=len(agent_class), column=1,
-                                                                          padx=(0, 10), pady=(0, 10))
-            self.wait_window(popup)
-        else:
-            self.agent_class = agent_class[0]
+        self.agent_class = import_agent(module)

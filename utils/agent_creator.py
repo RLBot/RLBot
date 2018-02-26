@@ -40,6 +40,7 @@ def get_base_import_package(config_file_path):
     :return:
     """
     original_path = get_base_repo_path()
+    config_file_path = os.path.realpath(config_file_path)
     module = config_file_path.replace(original_path, "", 1).replace(os.sep, ".")
     remove_ending = '.' in config_file_path
     if remove_ending:
