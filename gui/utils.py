@@ -12,10 +12,6 @@ def get_file(filetypes=None, title=None):
         title=title)
 
 
-def get_base_repo_path():
-    """Gets the path of the RLBot directory"""
-    return os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
 
 class IndexManager:
     def __init__(self):
