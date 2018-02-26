@@ -31,12 +31,21 @@ class BaseTeamFrame(tk.Frame):
             row=5, column=0, sticky="se")
 
     def add_agent(self, overall_index=-1):
+        """
+        Adds an agent to this frame, creates it too.
+        :param overall_index: The index of the bot in the config file if it already exists.
+        """
         self.agents.append(self.create_agent(overall_index))
         index = len(self.agents) - 1
         self.agents[index].grid(row=index, column=0)
 
     def remove_agent(self, agent):
+        """
+        Removes the given agent from this team frame.
+        :param agent: An instance of BaseAgentFrame
+        """
         agent.destroy()
+        self.index_manager.free_index(agent.overall_index)
         self.agents.remove(agent)
         if len(self.agents) == 0:
             self.add_agent(0)
@@ -45,16 +54,26 @@ class BaseTeamFrame(tk.Frame):
         return self.agents_frame
 
     def create_agent(self, overall_index=-1):
+        """
+        Creates a new agent frame, loads config data if needed.
+        :param overall_index: An optional value if the overall index of this agent is already specified.
+        :return: an instance of BaseAgentFrame
+        """
         agent = self.agent_frame_class(self.get_agents_frame(), self.team_index)
         if overall_index == -1:
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.mark_used(overall_index)
+        agent.overall_index = overall_index
         agent.initialise_widgets()
         agent.load_config(self.overall_config, overall_index)
         return agent
 
     def load_agents(self, config_file=None):
+        """
+        Loads all agents for this team from the rlbot.cfg
+        :param config_file:  A config file that is similar to rlbot.cfg
+        """
         if config_file is not None:
             self.overall_config = config_file
         num_participants = get_num_players(self.overall_config)
