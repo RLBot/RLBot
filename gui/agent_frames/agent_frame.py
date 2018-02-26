@@ -72,13 +72,14 @@ class AgentFrame(BaseAgentFrame):
     def popup_custom_config(self):
         """Popups a window to edit all config options of the bot"""
         new_window = tk.Toplevel()
-        new_window.title(self.agent_class[0] if self.agent_class is not None else 'BaseAgent')
-        custom_agent_frame = CustomAgentFrame(new_window, self.agent_class, self.config_object)
-        self.config_object = custom_agent_frame.initialise_custom_config()
+        new_window.title(self.agent_class if self.agent_class is not None else 'BaseAgent')
+        custom_agent_frame = CustomAgentFrame(new_window, self.agent_class, self.agent_config)
+        self.agent_config = custom_agent_frame.initialise_custom_config()
         custom_agent_frame.pack()
 
     def change_is_bot(self, hide=False):
         """Hide or show the widgets which have to do with the is_bot value."""
+        self.set_is_participant_bot(self.is_bot.get())
         if self.is_bot.get() and not hide:
             if self.rlbot_controlled_widgets[0].winfo_ismapped():
                 return
@@ -113,6 +114,7 @@ class AgentFrame(BaseAgentFrame):
 
     def change_rlbot_controlled(self, hide=False):
         """Hide or show the widgets which have to do with the rlbot_controlled value."""
+        self.set_is_participant_custom_bot(self.rlbot_controlled.get())
         if hide:
             for i in [3, 4, 5, 6]:
                 for widget in self.grid_slaves(row=i):
