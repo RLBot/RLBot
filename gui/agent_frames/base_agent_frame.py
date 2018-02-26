@@ -76,15 +76,15 @@ class BaseAgentFrame(tk.Frame):
                 if agent_class is not None:
                     self.agent_class = agent_class
                     self.agent_config = self.agent_class.create_agent_configurations()
-                self.agent_config = base_agent_config
-                return
-
-            base_agent_config.parse_file(agent_config_path)
-            bot_module = base_agent_config.get(BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY)
-            base_import = get_base_import_package(os.path.dirname(agent_config_path))
-            self.agent_class = import_agent(base_import + '.' + bot_module)
-            self.agent_config = self.agent_class.create_agent_configurations()
-            self.agent_config.parse_file(agent_config_path)
+                else:
+                    self.agent_config = base_agent_config
+            else:
+                base_agent_config.parse_file(agent_config_path)
+                bot_module = base_agent_config.get(BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY)
+                base_import = get_base_import_package(os.path.dirname(agent_config_path))
+                self.agent_class = import_agent(base_import + '.' + bot_module)
+                self.agent_config = self.agent_class.create_agent_configurations()
+                self.agent_config.parse_file(agent_config_path)
 
     def load_config(self, overall_config_file, overall_index):
         self.overall_config = overall_config_file
