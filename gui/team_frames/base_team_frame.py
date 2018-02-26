@@ -17,16 +17,18 @@ class BaseTeamFrame(tk.Frame):
         self.agents_frame = tk.Frame(self)
         self.agents_frame.pack(side="top", fill="both")
         self.agents = list()
-        self.initialise_add_agent()
-        if overall_config is not None:
-            self.load_agents()
-        else:
-            self.add_agent(0)
 
     def is_blue_team(self):
         return self.team_index == 0
 
-    def initialise_add_agent(self):
+    def initialize_team_frame(self):
+        self.initialize_add_agent()
+        if self.overall_config is not None:
+            self.load_agents()
+        else:
+            self.add_agent()
+
+    def initialize_add_agent(self):
         ttk.Button(self.get_agents_frame(), text="Add bot", command=lambda: self.add_agent()).grid(
             row=5, column=0, sticky="se")
 
@@ -37,6 +39,13 @@ class BaseTeamFrame(tk.Frame):
         """
         self.agents.append(self.create_agent(overall_index))
         index = len(self.agents) - 1
+        self._place_agent(index)
+
+    def _place_agent(self, index):
+        """
+        Visually places the latest agent in the frame.
+        :param index: The index of the agent added.
+        """
         self.agents[index].grid(row=index, column=0)
 
     def remove_agent(self, agent):
