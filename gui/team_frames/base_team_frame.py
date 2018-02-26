@@ -5,6 +5,7 @@ from utils.rlbot_config_parser import get_num_players, get_team
 
 class BaseTeamFrame(tk.Frame):
     overall_config = None
+    agents_frame = None
 
     def __init__(self, parent, team_index, agent_index_manager, agent_frame_class,
                  overall_config=None, *args, **kwargs):
@@ -14,14 +15,14 @@ class BaseTeamFrame(tk.Frame):
         self.agent_frame_class = agent_frame_class
         self.index_manager = agent_index_manager
 
-        self.agents_frame = tk.Frame(self)
-        self.agents_frame.pack(side="top", fill="both")
         self.agents = list()
 
     def is_blue_team(self):
         return self.team_index == 0
 
     def initialize_team_frame(self):
+        self.agents_frame = tk.Frame(self)
+        self.agents_frame.grid()
         self.initialize_add_agent()
         if self.overall_config is not None:
             self.load_agents()
@@ -46,7 +47,7 @@ class BaseTeamFrame(tk.Frame):
         Visually places the latest agent in the frame.
         :param index: The index of the agent added.
         """
-        self.agents[index].grid(row=index, column=0)
+        self.agents[index].grid(row=index, column=0, sticky="e")
 
     def remove_agent(self, agent):
         """
@@ -57,7 +58,7 @@ class BaseTeamFrame(tk.Frame):
         self.index_manager.free_index(agent.overall_index)
         self.agents.remove(agent)
         if len(self.agents) == 0:
-            self.add_agent(0)
+            self.add_agent()
 
     def get_agents_frame(self):
         return self.agents_frame
