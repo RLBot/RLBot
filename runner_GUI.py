@@ -28,8 +28,9 @@ def load_cfg(team1=None, team2=None, match_settings=None, config_path=None):
         match_settings.load_match_settings(overall_config)
     return overall_config
 
-def save_cfg(team1, team2, match_settings):
-    print("Need to save cfg")
+def save_cfg(overall_config, team1, team2, match_settings):
+    with open("rlbot.cfg", "w") as f:
+        f.write(str(overall_config))
 
 def start_running():
     print("Need to start now")
@@ -55,7 +56,7 @@ def main():
     # Add buttons
     buttons_frame = ttk.Frame(root)
     ttk.Button(buttons_frame, text="Load", command=lambda: load_cfg(team1, team2, match_settings)).grid(row=0, column=0)
-    ttk.Button(buttons_frame, text="Save", command=lambda: save_cfg(team1, team2, match_settings)).grid(row=0, column=1)
+    ttk.Button(buttons_frame, text="Save", command=lambda: save_cfg(overall_config, team1, team2, match_settings)).grid(row=0, column=1)
     ttk.Button(buttons_frame, text="Start", command=start_running).grid(row=0, column=2)
     for i in range(3):
         buttons_frame.grid_columnconfigure(i, weight=1)
