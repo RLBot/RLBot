@@ -24,7 +24,8 @@ class AgentFrame(BaseAgentFrame):
         self.agent_config_path = tk.StringVar()
         self.is_bot = tk.BooleanVar()
         self.rlbot_controlled = tk.BooleanVar()
-        self.bot_level = tk.StringVar(value="All-Star")
+        self.bot_level_str = tk.StringVar(value="All-Star")
+        self.bot_level = tk.DoubleVar(value=1)
 
     def initialize_widgets(self):
         # Agent config
@@ -51,8 +52,10 @@ class AgentFrame(BaseAgentFrame):
 
         self.bot_level_widgets = list()
         self.bot_level_widgets.append(ttk.Label(self, text="Bot level: ", anchor="e"))
-        self.bot_level_widgets.append(ttk.Combobox(self, textvariable=self.bot_level, state="readonly",
+        self.bot_level_widgets.append(ttk.Combobox(self, textvariable=self.bot_level_str, state="readonly",
                                                    values=("Rookie", "Pro", "All-Star")))
+        self.bot_level_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_rlbot_controlled())
+
         # Agent path
         self.agent_path_widgets = list()  # row 4
         self.agent_path_widgets.append(ttk.Label(self, text="Agent path: ", anchor="e"))
@@ -133,6 +136,11 @@ class AgentFrame(BaseAgentFrame):
                     widget.grid_forget()
             self.grid_items(3, 0, self.bot_level_widgets)
 
+    def change_bot_level(self):
+        string = self.bot_level_str
+        number = 0 if string == "Rookie" else .5 if string == "Pro" else 1
+        self.bot_level.set(number)
+
     def check_for_settings(self):
         """Return list with items missing, if nothing an empty list."""
         missing = list()
@@ -162,4 +170,10 @@ class AgentFrame(BaseAgentFrame):
         self.bot_level_widgets[1].current(bot_level)
         self.change_is_bot()
         self.change_rlbot_controlled()
-        self.agent_path.set(self.agent_class.__name__)
+        # self.agent_path.set(self.agent_class.__name__)
+
+    def link_variables(self):
+        header = self.overall_config["Participant Configuration"]
+        header["participant_is_bot"].set_value(self.is_bot, self.overall_index)
+        header["participant_is_rlbot_controlled"].set_value(self.rlbot_controlled, self.overall_index)
+        header["participant_bot_skill"].set_value(self.bot_level, self.overall_index)

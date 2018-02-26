@@ -141,27 +141,16 @@ class ConfigHeader:
         return self
 
     def get(self, option, index=None):
-        return self.get_with_type(option, tk_type=tk.StringVar, index=index)
+        return self.values[option].get_value(index=index)
 
     def getint(self, option, index=None):
-        return int(self.get_with_type(option, tk_type=tk.IntVar, index=index))
+        return int(self.values[option].get_value(index=index))
 
     def getboolean(self, option, index=None):
-        return bool(self.get_with_type(option, tk_type=tk.BooleanVar, index=index))
+        return bool(self.values[option].get_value(index=index))
 
     def getfloat(self, option, index=None):
-        return float(self.get_with_type(option, tk_type=tk.DoubleVar, index=index))
-
-    def get_with_type(self, option, tk_type, index=None):
-        """
-        Returns the default if value is none.  Grabs tk version if value is a tk value
-        :param option: The string option that is being grabbed.
-        :param tk_type:
-        :param index: If this is an indexed option this will add the index to the end.
-        :return:
-        """
-
-        return self.values[option].get_value(tk_type=tk_type, index=index)
+        return float(self.values[option].get_value(index=index))
 
     def parse_file(self, config_parser, max_index=None):
         if self.is_indexed and max_index is None:
@@ -213,7 +202,7 @@ class ConfigValue:
         self.default = default
         self.description = description
 
-    def get_value(self, tk_type=tk.StringVar, index=None):
+    def get_value(self, index=None):
         """
         Returns the default if value is none.
         Grabs tk version if value is a tk value.
@@ -229,8 +218,7 @@ class ConfigValue:
         if value is None:
             return self.default
 
-        return value.get() if isinstance(value, tk_type) \
-            else value
+        return value.get() if isinstance(value, tk.Variable) else value
 
     def comment_description(self):
         return '# ' + re.sub(r'\n\s*', '\n# ', str(self.description))

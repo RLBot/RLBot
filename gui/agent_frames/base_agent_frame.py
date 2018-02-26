@@ -97,7 +97,11 @@ class BaseAgentFrame(tk.Frame):
         self.overall_config = overall_config_file
         self.overall_index = overall_index
         self.load_agent_config()
+        self.link_variables()
 
     def load_agent_from_path(self, agent_file_path):
         module = get_base_import_package(agent_file_path)
         self.agent_class = import_agent(module)
+
+    def link_variables(self):
+        pass
