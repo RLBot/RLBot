@@ -1,41 +1,38 @@
-import os
-import importlib
-import inspect
 import tkinter as tk
 from tkinter import ttk
 
 from gui.agent_frames.base_agent_frame import BaseAgentFrame
 from gui.custom_agent_frame import CustomAgentFrame
-from gui.utils import get_file, get_base_repo_path
+from gui.utils import get_file
 
 
 class AgentFrame(BaseAgentFrame):
     bot_config = None
-    agent_class = None
     config_options_path = {}
 
-    looks_widgets = None
+    agent_config_path_widgets = None
     is_bot_widgets = None
     rlbot_controlled_widgets = None
     bot_level_widgets = None
     agent_path_widgets = None
-    agent_config_widgets = None
     custom_agent_options = None
     custom_agent_frame = None
 
     def __init__(self, parent, team_index, *args, **kwargs):
         super().__init__(parent, team_index, *args, **kwargs)
         self.agent_path = tk.StringVar()
-        self.looks_path = tk.StringVar()
+        self.agent_config_path = tk.StringVar()
         self.is_bot = tk.BooleanVar()
         self.rlbot_controlled = tk.BooleanVar()
         self.bot_level = tk.StringVar(value="All-Star")
 
     def initialise_widgets(self):
-        self.looks_widgets = list()  # row 0
-        self.looks_widgets.append(ttk.Label(self, text="Loadout path:", anchor="e"))
-        self.looks_widgets.append(ttk.Entry(self, textvariable=self.looks_path, state="readonly", takefocus=False))
-        self.looks_widgets.append(ttk.Button(self, text="Select file", command=self.change_looks_path))
+        # Agent config
+        self.agent_config_path_widgets = list()  # row 0
+        self.agent_config_path_widgets.append(ttk.Label(self, text="Config path:", anchor="e"))
+        self.agent_config_path_widgets.append(ttk.Entry(self, textvariable=self.agent_config_path, state="readonly", takefocus=False))
+        self.agent_config_path_widgets.append(ttk.Button(self, text="Select file",
+                                                         command=self.change_agent_config_path))
 
         # rlbot.cfg options
         self.is_bot_widgets = list()  # row 1
@@ -64,19 +61,11 @@ class AgentFrame(BaseAgentFrame):
         self.agent_path_widgets.append(
             ttk.Button(self, text="Select file", command=self.change_bot_path))
 
-        # Agent config
-        self.agent_config_widgets = list()  # row 5
-        self.agent_config_widgets.append(ttk.Label(self, text="Bot Parameters: ", anchor="e"))
-        self.agent_config_widgets.append(ttk.Combobox(self, state="readonly"))
-        self.agent_config_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_config())
-        self.agent_config_widgets.append(
-            ttk.Button(self, text="Add config", command=self.add_config_option, state="disabled"))
-
         self.custom_agent_options = tk.Frame(self, borderwidth=2, relief=tk.SUNKEN)  # row 7
         ttk.Button(self, text="Remove", command=lambda: self.parent.master.remove_agent(self)).grid(row=8, column=2)
         ttk.Button(self, text="Edit Config", command=self.popup_custom_config).grid(row=8, column=0)
 
-        self.grid_items(0, 0, self.looks_widgets, self.is_bot_widgets)
+        self.grid_items(0, 0, self.agent_config_path_widgets, self.is_bot_widgets)
         self.change_is_bot()
         self.change_rlbot_controlled()
 
@@ -87,28 +76,6 @@ class AgentFrame(BaseAgentFrame):
         custom_agent_frame = CustomAgentFrame(new_window, self.agent_class, self.config_object)
         self.config_object = custom_agent_frame.initialise_custom_config()
         custom_agent_frame.pack()
-
-    def add_config_option(self):
-        """Popup, ask for an extra config option and add it to the combobox"""
-        config_path = get_file(
-            filetypes=[("Config File", "*.cfg")],
-            title="Choose a file.")
-        if config_path:
-            config_name = os.path.splitext(os.path.basename(os.path.realpath(config_path)))[0]
-            self.config_options_path[config_name] = config_path
-            self.agent_config_widgets[1]['values'] += (config_name,)
-            self.agent_config_widgets[1].set(config_name)
-            self.change_config()
-
-    def change_config(self):
-        """Handle ComboboxSelected Event and show/hide the Custom Frame."""
-        config_name = self.agent_config_widgets[1].get()
-        if config_name == "custom":
-            if not self.custom_agent_options.winfo_ismapped():
-                self.custom_agent_options.grid(row=6, column=0, columnspan=3, sticky="nsew")
-        else:
-            if self.custom_agent_options.winfo_ismapped():
-                self.custom_agent_options.grid_forget()
 
     def change_is_bot(self, hide=False):
         """Hide or show the widgets which have to do with the is_bot value."""
@@ -131,50 +98,18 @@ class AgentFrame(BaseAgentFrame):
             title="Choose a file")
         if agent_file_path:
             self.agent_path.set(agent_file_path)
-            self.agent_config_widgets[2]["state"] = "normal"
-            self.agent_config_widgets[1]['values'] = ("custom",)
-            self.agent_config_widgets[1].set("custom")
-            agent_path = self.agent_path.get()
-            original_path = get_base_repo_path().replace(os.sep, "/")
-            print(agent_path)
-            print(original_path)
-            module = self.agent_path.get().replace(original_path, "", 1).replace("/", ".")[1:-3]
-            print('module', module)
-            agent_package = importlib.import_module(module)
-            agent_class = [m for m in inspect.getmembers(agent_package, inspect.isclass) if
-                               m[1].__module__ == module]
-            if len(agent_class) > 1:
-                popup = tk.Toplevel()
-                popup.title("Choose agent class")
-                popup.transient(self)
-                popup.grab_set()
-                popup.protocol("WM_DELETE_WINDOW", lambda: None)
-                selected = tk.IntVar()
-                tk.Label(popup, text="Select the class and press continue").grid(row=0, column=0, columnspan=2,
-                                                                                 padx=(10, 10), pady=(10, 5))
-                for i in range(len(agent_class)):
-                    ttk.Radiobutton(popup, text=agent_class[i][0], value=i, variable=selected).grid(
-                        row=i + 1, column=0, sticky="nsew", padx=(10, 0))
-                selected.set(0)
+            self.load_agent_from_path(agent_file_path)
+            self.load_agent_config()
 
-                def chosen_class():
-                    self.agent_class = agent_class[selected.get()]
-                    popup.destroy()
-
-                ttk.Button(popup, text="Continue", command=chosen_class).grid(row=len(agent_class), column=1,
-                                                                              padx=(0, 10), pady=(0, 10))
-                self.wait_window(popup)
-            else:
-                self.agent_class = agent_class[0]
-            self.change_config()
-
-    def change_looks_path(self):
+    def change_agent_config_path(self):
         """Popup, ask for the loadout config and apply that path."""
         config_path = get_file(
             filetypes=[("Config File", "*.cfg")],
             title="Choose a file")
         if config_path:
-            self.looks_path.set(config_path)
+            self.agent_config_path.set(config_path)
+            self.set_agent_config_path(config_path)
+            self.load_agent_config()
 
     def change_rlbot_controlled(self, hide=False):
         """Hide or show the widgets which have to do with the rlbot_controlled value."""
@@ -186,7 +121,7 @@ class AgentFrame(BaseAgentFrame):
         if self.rlbot_controlled.get():
             for widget in self.grid_slaves(row=3):
                 widget.grid_forget()
-            self.grid_items(4, 0, self.agent_path_widgets, self.agent_config_widgets)
+            self.grid_items(4, 0, self.agent_path_widgets)
             self.custom_agent_options.grid(row=6, column=0, columnspan=3, sticky="nsew")
         else:
             for i in [4, 5, 6]:
@@ -197,7 +132,7 @@ class AgentFrame(BaseAgentFrame):
     def check_for_settings(self):
         """Return list with items missing, if nothing an empty list."""
         missing = list()
-        if not self.looks_path.get():
+        if not self.agent_config_path.get():
             missing.append("Loadout Path")
         if self.rlbot_controlled.get():
             if not self.agent_path.get():
@@ -214,15 +149,13 @@ class AgentFrame(BaseAgentFrame):
                 widget.grid(row=row, column=column, sticky="nsew")
 
     def load_config(self, config_file, overall_index):
-        self.overall_config = config_file
-        self.overall_index = overall_index
-        participant_header = 'Participant Configuration'
-        self.looks_path.set(os.path.realpath(config_file.get(participant_header, "participant_config", overall_index)))
-        self.is_bot_widgets[1].current(config_file.getboolean(participant_header, "participant_is_bot", overall_index))
-        self.rlbot_controlled_widgets[1].current(
-            config_file.getboolean(participant_header, "participant_is_rlbot_controlled", overall_index))
-        level = config_file.getfloat(participant_header, "participant_bot_skill", overall_index)
+        super().load_config(config_file, overall_index)
+        self.agent_config_path.set(self.get_agent_config_path())
+        self.is_bot_widgets[1].current(self.is_participant_bot())
+        self.rlbot_controlled_widgets[1].current(self.is_participant_custom_bot())
+        level = self.get_bot_skill()
         bot_level = 0 if level <= .25 else 1 if level <= .75 else 2
         self.bot_level_widgets[1].current(bot_level)
         self.change_is_bot()
         self.change_rlbot_controlled()
+        self.agent_path.set(self.agent_class.__name__)
