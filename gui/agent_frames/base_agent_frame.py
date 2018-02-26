@@ -68,11 +68,14 @@ class BaseAgentFrame(tk.Frame):
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
                                              bot_skill, self.overall_index)
 
-    def load_agent_config(self):
+    def load_agent_config(self, agent_class=None):
         if self.is_participant_bot() and self.is_participant_custom_bot():
             agent_config_path = self.get_agent_config_path()
             base_agent_config = BaseAgent.create_agent_configurations()
             if agent_config_path is None:
+                if agent_class is not None:
+                    self.agent_class = agent_class
+                    self.agent_config = self.agent_class.create_agent_configurations()
                 self.agent_config = base_agent_config
                 return
 

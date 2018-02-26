@@ -99,10 +99,10 @@ class AgentFrame(BaseAgentFrame):
         if agent_file_path:
             self.agent_path.set(agent_file_path)
             self.load_agent_from_path(agent_file_path)
-            self.load_agent_config()
+            self.load_agent_config(self.agent_class)
 
     def change_agent_config_path(self):
-        """Popup, ask for the loadout config and apply that path."""
+        """Popup, ask for the config and apply that path."""
         config_path = get_file(
             filetypes=[("Config File", "*.cfg")],
             title="Choose a file")
