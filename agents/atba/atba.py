@@ -5,7 +5,7 @@ from agents.base_agent import BaseAgent
 URotationToRadians = math.pi / float(32768)
 
 
-class Agent(BaseAgent):
+class Atba(BaseAgent):
     flip_turning = False
 
     def get_output_vector(self, game_tick_packet):
@@ -44,7 +44,7 @@ class Agent(BaseAgent):
 
     @staticmethod
     def create_agent_configurations():
-        config = super(Agent, Agent).create_agent_configurations()
+        config = super(Atba, Atba).create_agent_configurations()
         config.add_header_name('atba').add_value('flip_turning', bool, default=False,
                                                  description='if true bot will turn opposite way')
         return config
