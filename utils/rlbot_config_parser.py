@@ -58,16 +58,20 @@ def get_bot_config_file_list(botCount, config, bot_configs):
 def create_bot_config_layout():
     config_object = ConfigObject()
     rlbot_header = config_object.add_header_name(RLBOT_CONFIGURATION_HEADER)
-    rlbot_header.add_value('num_participants', int, default=2, description='The number of players on the field')
+    rlbot_header.add_value('num_participants', int, default=2,
+                           description='Number of bots/players which will be spawned.  We support up to max 10.')
 
     participant_header = config_object.add_header_name(PARTICIPANT_CONFIGURATION_HEADER, is_indexed=True)
+    participant_header.add_value(PARTICIPANT_CONFIG_KEY, str, default='./agents/atba/atba.cfg',
+                                 description="""The location of the configuration file for your agent here.
+                                             Only total_num_participants config files will be read!
+                                             Everything needs a config, even players and default bots.
+                                             We still set loadouts and names from config!""")
+
     participant_header.add_value(PARTICIPANT_TEAM, int, default=0,
                                  description="Which team the player should be on:" +
                                              "\nteam 0 (blue) shoots on positive goal, " +
                                              "team 1 (orange) shoots on negative goal")
-
-    participant_header.add_value(PARTICIPANT_CONFIG_KEY, str, default='./agents/atba/atba.cfg',
-                                 description="The location of the configuration file for a specific agent")
 
     participant_header.add_value(PARTICIPANT_BOT_KEY, bool, default='yes',
                                  description='Accepted values are "1", "yes", "true", and "on", for True,' +

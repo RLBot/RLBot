@@ -1,6 +1,8 @@
 import tkinter as tk
 from configparser import RawConfigParser
 
+import re
+
 
 class ConfigObject:
     """
@@ -169,6 +171,8 @@ class ConfigHeader:
 
         if not self.is_indexed:
             max_index = None
+        else:
+            self.max_index = max_index
 
         for value_name in self.values:
             self.values[value_name].parse_file(config_parser, value_name, max_index=max_index)
@@ -181,7 +185,24 @@ class ConfigHeader:
     def __str__(self):
         string = ''
         for value_name in self.values:
-            string += '\t' + value_name + ' = ' + str(self.values[value_name]) + '\n'
+            if self.is_indexed:
+                string += self.get_indexed_string(value_name)
+            else:
+                string += self.get_string(value_name)
+            string += '\n'
+        return string
+
+    def get_indexed_string(self, value_name):
+        value = self.values[value_name]
+        string = value.comment_description() + '\n'
+        for i in range(self.max_index):
+            string += value_name + '_' + str(i) + ' = ' + str(value.get_value(index=i)) + '\n'
+        return string
+
+    def get_string(self, value_name):
+        value = self.values[value_name]
+        string = value.comment_description() + '\n'
+        string += value_name + ' = ' + str(value.get_value()) + '\n'
         return string
 
 
@@ -211,8 +232,11 @@ class ConfigValue:
         return value.get() if isinstance(value, tk_type) \
             else value
 
+    def comment_description(self):
+        return '# ' + re.sub(r'\n\s*', '\n# ', str(self.description))
+
     def __str__(self):
-        return str(self.get_value()) + '  # ' + str(self.description).replace('\n', '\n\t\t#')
+        return str(self.get_value()) + '  ' + self.comment_description()
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if max_index is None:

@@ -29,7 +29,7 @@ def load_cfg(team1=None, team2=None, match_settings=None, config_path=None):
     return overall_config
 
 def save_cfg(overall_config, team1, team2, match_settings):
-    with open("rlbot.cfg", "w") as f:
+    with open("rlbot2.cfg", "w") as f:
         f.write(str(overall_config))
 
 def start_running():
