@@ -13,16 +13,15 @@ class CustomAgentFrame(tk.Frame):
         self.agent_module = agent_module
         self.custom_agent_options = self
         if agent_module is None:
-            self.agent_module = [None, BaseAgent]
+            self.agent_module = BaseAgent
         self.bot_config = bot_config
-
 
     def initialise_custom_config(self):
         """Create the Custom Config Frame containing all widgets for editing the parameters."""
         for widget in self.grid_slaves():
             widget.grid_forget()
         if self.bot_config is None:
-            self.bot_config = self.agent_module[1].create_agent_configurations()
+            self.bot_config = self.agent_module.create_agent_configurations()
 
         if self.bot_config is None:
             ttk.Label(self, text="No Bot Parameters for this agent").grid()
