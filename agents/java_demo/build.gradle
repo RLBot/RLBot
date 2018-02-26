@@ -1,0 +1,84 @@
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'maven'
+
+
+repositories {
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.3"
+    }
+}
+
+apply plugin: 'com.google.protobuf'
+
+def grpcVersion = '1.7.0'
+
+dependencies {
+    compile "io.grpc:grpc-netty:${grpcVersion}"
+    compile "io.grpc:grpc-protobuf:${grpcVersion}"
+    compile "io.grpc:grpc-stub:${grpcVersion}"
+}
+
+
+sourceSets {
+    main {
+        proto.srcDirs = ['../../grpcsupport/protobuf']
+        java.srcDirs = ['src', 'build/generated/source/proto/main/grpc', 'build/generated/source/proto/main/java']
+    }
+    test {
+        java.srcDirs = ['java/tst']
+        resources.srcDirs = ['java/resources/tst']
+    }
+}
+
+idea {
+    module {
+        generatedSourceDirs += file('build/generated/source/proto/main/grpc')
+        generatedSourceDirs += file('build/generated/source/proto/main/java')
+    }
+}
+
+mainClassName = 'rlbot.GrpcServer'
+
+// You can run gradew distZip to generate a zip file suitable for tournament submissions
+distributions {
+    main {
+        contents {
+            from("$projectDir") {
+                into 'README'
+                include 'README_Tournament.md', 'java_demo_agent.py', 'java_demo_agent.cfg', 'port.cfg'
+            }
+
+            from("$projectDir") {
+                into 'bin'
+                include 'port.cfg'
+            }
+        }
+    }
+}
+
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.4.0"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+tasks.idea.dependsOn ':generateProto'

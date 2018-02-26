@@ -108,9 +108,10 @@ ENV/
 
 # Intellij IDEA build output
 /out
+/agents/java_demo/out
 
 # Don't include pyvjoy in repo
 /pyvjoy
 
 # Gradle
-/.gradle
+.gradle
