@@ -4,13 +4,13 @@ import os
 import sys
 
 from agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
-    BOT_CONFIG_MODULE_HEADER
+    BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
 from utils.agent_creator import import_agent
 from utils.custom_config import ConfigObject
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_BOT_KEY = 'participant_is_bot'
-PARTICIPANT__RLBOT_KEY = 'participant_is_rlbot_controlled'
+PARTICIPANT_RLBOT_KEY = 'participant_is_rlbot_controlled'
 PARTICIPANT_CONFIG_KEY = 'participant_config'
 PARTICIPANT_BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICIPANT_TEAM = 'participant_team'
@@ -76,7 +76,7 @@ def create_bot_config_layout():
                                              'be activated in game or it will crash.\n' +
                                              'If no player is specified you will be spawned in as spectator!')
 
-    participant_header.add_value(PARTICIPANT__RLBOT_KEY, bool, default='yes',
+    participant_header.add_value(PARTICIPANT_RLBOT_KEY, bool, default='yes',
                                  description='Accepted values are "1", "yes", "true", and "on", for True,' +
                                              ' and "0", "no", "false", and "off", for False\n' +
                                              'By specifying \'no\' here you can use default bots ' +
@@ -156,7 +156,7 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
 
     # Setting up data about what type of bot it is
     bot_configuration.bBot = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, index)
-    bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT__RLBOT_KEY, index)
+    bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, index)
     bot_configuration.fBotSkill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
     bot_configuration.iPlayerIndex = index
 
@@ -174,7 +174,7 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
     bot_parameters = None
 
     if bot_configuration.bRLBotControlled:
-        bot_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
+        bot_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY)
         agent = import_agent(bot_module)
         bot_parameters = agent.create_agent_configurations()
         bot_parameters.parse_file(bot_config_object.get_raw_file())
