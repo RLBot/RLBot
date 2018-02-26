@@ -26,7 +26,7 @@ class AgentFrame(BaseAgentFrame):
         self.rlbot_controlled = tk.BooleanVar()
         self.bot_level = tk.StringVar(value="All-Star")
 
-    def initialise_widgets(self):
+    def initialize_widgets(self):
         # Agent config
         self.agent_config_path_widgets = list()  # row 0
         self.agent_config_path_widgets.append(ttk.Label(self, text="Config path:", anchor="e"))
@@ -66,6 +66,8 @@ class AgentFrame(BaseAgentFrame):
         ttk.Button(self, text="Edit Config", command=self.popup_custom_config).grid(row=8, column=0)
 
         self.grid_items(0, 0, self.agent_config_path_widgets, self.is_bot_widgets)
+
+    def refresh_widgets(self):
         self.change_is_bot()
         self.change_rlbot_controlled()
 

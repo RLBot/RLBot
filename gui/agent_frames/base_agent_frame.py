@@ -27,7 +27,10 @@ class BaseAgentFrame(tk.Frame):
         self.team_index = team_index
         self.parent = parent
 
-    def initialise_widgets(self):
+    def initialize_widgets(self):
+        pass
+
+    def refresh_widgets(self):
         pass
 
     @staticmethod
