@@ -32,8 +32,8 @@ class ConfigObject:
         self.headers[header_name] = header
         return header
 
-    def set_value(self, header_name, option, value):
-        self.get_header(header_name).set_value(option, value)
+    def set_value(self, header_name, option, value, index=None):
+        self.get_header(header_name).set_value(option, value, index)
 
     def get_header(self, header_name):
         """
@@ -126,17 +126,16 @@ class ConfigHeader:
         self.values[name] = ConfigValue(value_type, default=default, description=description, value=value)
         return self
 
-    def set_value(self, option, value):
+    def set_value(self, option, value, index=None):
         """
         Sets the value on the given option.
         :param option: The name of the option as it appears in the config file
         :param value: The value that is being applied, if this section is indexed value must be a list
         :return: an instance of itself so that you can chain setting values together.
         """
-        if value is not None and self.is_indexed and not isinstance(value, list):
+        if value is not None and self.is_indexed and not isinstance(value, list) and index is None:
             raise Exception('Indexed values must be a list')
         self.has_values = True
-        self.values[option].value = value
         return self
 
     def get(self, option, index=None):
@@ -231,6 +230,12 @@ class ConfigValue:
         if self.type == float:
             return config_parser.getfloat(value_name)
         return config_parser.get(value_name)
+
+    def set_value(self, value, index=None):
+        if index is not None:
+            self.value[index] = value
+        else:
+            self.value = value
 
     def reset(self):
         self.value = None
