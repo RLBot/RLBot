@@ -1,9 +1,6 @@
-import importlib
-import inspect
 import tkinter as tk
 
 import os
-from tkinter import ttk
 
 from agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
 from utils.agent_creator import import_agent, get_base_import_package
@@ -72,6 +69,12 @@ class BaseAgentFrame(tk.Frame):
                                              bot_skill, self.overall_index)
 
     def load_agent_config(self, agent_class=None):
+        """
+        Loads the config specific to the agent.
+        This only happens if the frame is for a custom agent otherwise this method is skipped
+        :param agent_class: If passed in and there is not a config file this agent is used.
+        :return:
+        """
         if self.is_participant_bot() and self.is_participant_custom_bot():
             agent_config_path = self.get_agent_config_path()
             base_agent_config = BaseAgent.create_agent_configurations()
@@ -90,6 +93,7 @@ class BaseAgentFrame(tk.Frame):
                 self.agent_config.parse_file(agent_config_path)
 
     def load_config(self, overall_config_file, overall_index):
+        """Loads the config data into the agent"""
         self.overall_config = overall_config_file
         self.overall_index = overall_index
         self.load_agent_config()
