@@ -4,7 +4,7 @@ from tkinter import ttk
 from gui.team_frames.base_team_frame import BaseTeamFrame
 
 
-class TeamFrame(BaseTeamFrame):
+class NotebookTeamFrame(BaseTeamFrame):
     add_agent_frame = None
 
     def __init__(self, parent, overall_config, team_index, agent_frame_class, *args, **kwargs):
@@ -18,7 +18,7 @@ class TeamFrame(BaseTeamFrame):
     def get_agents_frame(self):
         return self.agents_frame
 
-    def initialise_add_agent(self):
+    def initialize_add_agent(self):
         self.add_agent_frame = tk.Frame(self.agents_frame)
         self.agents_frame.add(self.add_agent_frame, text="  +  ")
 
@@ -34,11 +34,8 @@ class TeamFrame(BaseTeamFrame):
             if not label.endswith(str(i + 1)) and label != "  +  ":
                 self.agents_frame.tab(widget, text=team_name + " Bot " + str(i + 1))
 
-    def add_agent(self, config_file=None, overall_index=-1):
-        """Add an agent to the according team."""
+    def _place_agent(self, index):
         color = "Blue" if self.is_blue_team() else "Orange"
-        self.agents.append(self.create_agent())
-        index = len(self.agents) + 1
         self.agents_frame.insert(index, self.agents[index], text=color + " Bot " + str(index + 1))
         if len(self.agents) > 4:
             self.agents_frame.hide(self.add_agent_frame)
@@ -55,6 +52,6 @@ class TeamFrame(BaseTeamFrame):
 if __name__ == '__main__':
     from gui.agent_frames.agent_frame import AgentFrame
     root = tk.Tk()
-    team_frame = TeamFrame(root, 0, AgentFrame)
+    team_frame = NotebookTeamFrame(root, 0, AgentFrame)
     team_frame.pack(side="top", fill="both", expand=True)
     root.mainloop()
