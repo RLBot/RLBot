@@ -74,8 +74,9 @@ class BaseTeamFrame(tk.Frame):
         else:
             self.index_manager.mark_used(overall_index)
         agent.overall_index = overall_index
-        agent.initialise_widgets()
+        agent.initialize_widgets()
         agent.load_config(self.overall_config, overall_index)
+        agent.refresh_widgets()
         return agent
 
     def load_agents(self, config_file=None):
