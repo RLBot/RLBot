@@ -4,6 +4,7 @@ BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
 BOT_CONFIG_MODULE_HEADER = 'Bot Location'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
+AGENT_MODULE_KEY = 'agent_module'
 
 
 class BaseAgent:
@@ -52,7 +53,7 @@ class BaseAgent:
     def create_agent_configurations():
         config = ConfigObject()
         location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
-        location_config.add_value('agent_model', str, default='atba',
+        location_config.add_value(AGENT_MODULE_KEY, str, default='atba',
                                   description='Path to module from runner\nOnly need this if RLBot controlled')
 
         config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
