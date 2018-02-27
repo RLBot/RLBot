@@ -52,17 +52,25 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
                                 index, module_name)
     bm.run()
-
-
-def main():
+    
+def inject()
     # Inject DLL
     injector_dir = os.path.join(os.path.dirname(__file__), "RLBot_Injector.exe")
     incode=subprocess.call([injector_dir, 'hidden'])
     injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
-    print(injector_codes[incode])
-    if incode!=0 or incode!=3:
+    injection_status=injector_codes[incode]
+    print(injection_status)
+    
+    if injection_status=='INJECTION_SUCCESSFUL' or injection_status=='RLBOT_DLL_ALREADY_INJECTED':
+        return injection_status
+    else:
         sys.exit()
+    
 
+def main():
+    # Inject DLL
+    inject()
+    
     # Set up RLBot.cfg
     framework_config = configparser.RawConfigParser()
     framework_config.read(RLBOT_CONFIG_FILE)
