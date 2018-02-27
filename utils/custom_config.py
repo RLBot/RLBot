@@ -1,5 +1,6 @@
 import tkinter as tk
 from configparser import RawConfigParser
+import os
 
 import re
 
@@ -64,6 +65,8 @@ class ConfigObject:
         :return: None
         """
         if isinstance(config, str):
+            if not os.path.isfile(config):
+                raise FileNotFoundError("No file with path " + config + " found, cannot load config")
             self.raw_config_parser = RawConfigParser()
             self.raw_config_parser.read(config)
         elif isinstance(config, RawConfigParser):
@@ -210,13 +213,13 @@ class ConfigValue:
         :return: A value.
         """
 
+        if self.value is None:
+            return self.default
+
         if index is not None:
             value = self.value[index]
         else:
             value = self.value
-
-        if value is None:
-            return self.default
 
         return value.get() if isinstance(value, tk.Variable) else value
 
