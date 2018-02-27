@@ -10,6 +10,12 @@ import rlbot_exception
 import time
 import os
 import sys
+import subprocess
+
+injector_dir = os.path.join(os.path.dirname(__file__), "RLBot_Injector.exe")
+incode=subprocess.call([injector_dir, 'hidden'])
+injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
+print(injector_codes[incode])
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
