@@ -44,6 +44,7 @@ def get_bot_config_file_list(botCount, config, bot_configs):
     for i in range(botCount):
         if i in bot_configs:
             config_file_list.append(bot_configs[i])
+            print("Config available")
         else:
             bot_config = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
             bot_config_path = bot_config
@@ -51,6 +52,7 @@ def get_bot_config_file_list(botCount, config, bot_configs):
             raw_bot_config = configparser.RawConfigParser()
             raw_bot_config.read(bot_config_path)
             config_file_list.append(raw_bot_config)
+            print("Reading raw config")
 
     return config_file_list
 

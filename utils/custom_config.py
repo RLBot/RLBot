@@ -65,8 +65,6 @@ class ConfigObject:
         :return: None
         """
         if isinstance(config, str):
-            if not os.path.isfile(config):
-                raise FileNotFoundError("No file with path " + config + " found, cannot load config")
             self.raw_config_parser = RawConfigParser()
             self.raw_config_parser.read(config)
         elif isinstance(config, RawConfigParser):

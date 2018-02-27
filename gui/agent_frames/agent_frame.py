@@ -179,4 +179,4 @@ class AgentFrame(BaseAgentFrame):
         header["participant_bot_skill"].set_value(self.bot_level, self.overall_index)
 
     def get_config(self):
-        return self.overall_config, self.agent_config
+        return self.overall_index, self.agent_config
