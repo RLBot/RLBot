@@ -77,7 +77,7 @@ class AgentFrame(BaseAgentFrame):
     def popup_custom_config(self):
         """Popups a window to edit all config options of the bot"""
         new_window = tk.Toplevel()
-        new_window.title(self.agent_class if self.agent_class is not None else 'BaseAgent')
+        new_window.title(self.agent_class.__name__ if self.agent_class is not None else 'BaseAgent')
         custom_agent_frame = CustomAgentFrame(new_window, self.agent_class, self.agent_config)
         self.agent_config = custom_agent_frame.initialise_custom_config()
         custom_agent_frame.pack()
