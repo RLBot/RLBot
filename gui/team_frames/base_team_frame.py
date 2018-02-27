@@ -92,3 +92,10 @@ class BaseTeamFrame(tk.Frame):
             team_index = get_team(self.overall_config, i)
             if team_index == self.team_index:
                 self.add_agent(overall_index=i)
+
+    def get_configs(self):
+        configs = {}
+        for agent in self.agents:
+            index, config = agent.get_config()
+            configs[index] = config
+        return configs
