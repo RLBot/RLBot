@@ -177,3 +177,6 @@ class AgentFrame(BaseAgentFrame):
         header["participant_is_bot"].set_value(self.is_bot, self.overall_index)
         header["participant_is_rlbot_controlled"].set_value(self.rlbot_controlled, self.overall_index)
         header["participant_bot_skill"].set_value(self.bot_level, self.overall_index)
+
+    def get_config(self):
+        return self.overall_config, self.agent_config
