@@ -89,6 +89,12 @@ class ConfigObject:
             string += '[' + header_name + ']\n' + str(self.headers[header_name]) + '\n'
         return string
 
+    def copy(self):
+        new_object = ConfigObject()
+        for header_name, header in self.headers.items():
+            new_object.add_header(header_name, header.copy())
+        return new_object
+
     def has_section(self, header_name):
         """Returns true if the header exist and has had at least one value set on it."""
         return header_name in self.headers and self.headers[header_name].has_values
@@ -128,6 +134,9 @@ class ConfigHeader:
             self.has_values = True
         self.values[name] = ConfigValue(value_type, default=default, description=description, value=value)
         return self
+
+    def add_config_value(self, name, value):
+        self.values[name] = value
 
     def set_value(self, option, value, index=None):
         """
@@ -182,6 +191,12 @@ class ConfigHeader:
             string += '\n'
         return string
 
+    def copy(self):
+        new_header = ConfigHeader()
+        for value_name, value in self.values.items():
+            new_header.add_config_value(value_name, value.copy())
+        return new_header
+
     def get_indexed_string(self, value_name):
         value = self.values[value_name]
         string = value.comment_description() + '\n'
@@ -207,7 +222,7 @@ class ConfigValue:
         """
         Returns the default if value is none.
         Grabs tk version if value is a tk value.
-        :param tk_type:
+        :param index:
         :return: A value.
         """
 
@@ -226,6 +241,9 @@ class ConfigValue:
 
     def __str__(self):
         return str(self.get_value()) + '  ' + self.comment_description()
+
+    def copy(self):
+        return ConfigValue(self.type, self.default, self.description, self.get_value())
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if max_index is None:

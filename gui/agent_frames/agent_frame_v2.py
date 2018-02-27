@@ -123,5 +123,4 @@ class AgentFrameV2(BaseAgentFrame):
         window = tk.Toplevel()
         window.grab_set()
 
-
         self.wait_window(window)
