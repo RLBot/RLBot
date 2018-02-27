@@ -10,6 +10,12 @@ import rlbot_exception
 import time
 import os
 import sys
+import subprocess
+
+runner_dir = os.path.dirname(__file__)
+injector_dir = os.path.join(runner_dir, "RLBot_Injector.exe")
+arguments=('hidden')
+subprocess.call([injector_dir, arguments])
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
