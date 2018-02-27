@@ -61,8 +61,8 @@ def save_state(overall_config, team1, team2):
     layout_settings += "\n\n"
 
     with open("runner_GUI_settings.cfg", "w") as f:
-        f.write(layout_settings)
         f.write(str(overall_config))
+        f.write(layout_settings)
 
 
 def start_running(overall_config, team1, team2):
