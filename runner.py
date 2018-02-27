@@ -60,7 +60,7 @@ def main():
     incode=subprocess.call([injector_dir, 'hidden'])
     injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
     print(injector_codes[incode])
-    if incode!=0:
+    if incode!=0 or incode!=3:
         sys.exit()
 
     # Set up RLBot.cfg
