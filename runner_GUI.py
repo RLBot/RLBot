@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from configparser import RawConfigParser
 
+import copy
 import runner
 from gui import match_settings_frame
 from gui.team_frames.team_frame_notebook import NotebookTeamFrame
@@ -41,8 +42,9 @@ def save_cfg(overall_config=None, path=None, gui_config=None):
             path = get_file(
                 filetypes=[("Config File", "*.cfg")],
                 title="Choose a file")
-        with open(path, "w") as f:
-            f.write(str(overall_config))
+        if path:
+            with open(path, "w") as f:
+                f.write(str(overall_config))
     if gui_config is not None:
         with open("runner_GUI_settings.cfg", "w") as f:
             f.write(str(gui_config))
@@ -60,6 +62,18 @@ def load_team_frames(root, overall_config, gui_config, index_manager):
     team1.initialize_team_frame()
     team2.initialize_team_frame()
     return team1, team2, gui_config
+
+
+def reclassify_indices(header, index_manager):
+    header = header.copy()
+    used_indices = sorted(index_manager.numbers)
+    not_used_indices = [e for e in range(10) if e not in used_indices]
+    order = used_indices + not_used_indices
+
+    for name, config_value in header.values.items():
+        old_values = list(config_value.value)
+        for i in range(10):
+            config_value.set_value(old_values[order[i]], index=i)
 
 
 def create_gui_config():
@@ -99,7 +113,7 @@ def start_running(root, overall_config, team1, team2):
 
 def main():
     root = tk.Tk()
-    root.resizable(0, 1)
+    root.resizable(0, 0)
     index_manager = IndexManager()
     gui_config = create_gui_config()
     gui_config.parse_file("runner_GUI_settings.cfg")
@@ -120,7 +134,7 @@ def main():
     # Add buttons
     buttons_frame = ttk.Frame(root)
     ttk.Button(buttons_frame, text="Load", command=lambda: load_cfg(team1, team2, match_settings)).grid(row=0, column=0)
-    ttk.Button(buttons_frame, text="Save", command=lambda: save_cfg(overall_config, "rlbot2.cfg", gui_config)).grid(row=0, column=1)
+    ttk.Button(buttons_frame, text="Save", command=lambda: save_cfg(overall_config)).grid(row=0, column=1)
     ttk.Button(buttons_frame, text="Start", command=lambda: start_running(root, overall_config, team1, team2)).grid(row=0, column=2)
     for i in range(3):
         buttons_frame.grid_columnconfigure(i, weight=1)
