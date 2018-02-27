@@ -58,10 +58,11 @@ def inject()
     injector_dir = os.path.join(os.path.dirname(__file__), "RLBot_Injector.exe")
     incode=subprocess.call([injector_dir, 'hidden'])
     injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
+    injector_valid_codes=['INJECTION_SUCCESSFUL','RLBOT_DLL_ALREADY_INJECTED']
     injection_status=injector_codes[incode]
     print(injection_status)
     
-    if injection_status=='INJECTION_SUCCESSFUL' or injection_status=='RLBOT_DLL_ALREADY_INJECTED':
+    if injection_status in injector_valid_codes:
         return injection_status
     else:
         sys.exit()
