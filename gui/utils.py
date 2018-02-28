@@ -1,7 +1,6 @@
 from tkinter.filedialog import askopenfilename
 
 from itertools import count, filterfalse
-import os
 
 from utils.agent_creator import get_base_repo_path
 
@@ -12,7 +11,6 @@ def get_file(filetypes=None, title=None):
         initialdir=get_base_repo_path(),
         filetypes=filetypes,
         title=title)
-
 
 
 class IndexManager:
