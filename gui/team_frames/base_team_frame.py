@@ -6,6 +6,7 @@ from utils.rlbot_config_parser import get_num_players, get_team
 class BaseTeamFrame(tk.Frame):
     overall_config = None
     agents_frame = None
+    add_agent_object = None
 
     def __init__(self, parent, team_index, agent_index_manager, agent_frame_class,
                  overall_config=None, *args, **kwargs):
@@ -30,24 +31,35 @@ class BaseTeamFrame(tk.Frame):
             self.add_agent()
 
     def initialize_add_agent(self):
-        ttk.Button(self.get_agents_frame(), text="Add bot", command=lambda: self.add_agent()).grid(
-            row=5, column=0, sticky="se")
+        self.add_agent_object = ttk.Button(self.get_agents_frame(), text="Add bot", command=self.add_agent)
+        self.add_agent_object.grid(row=10, column=0, sticky="se")
 
     def add_agent(self, overall_index=-1):
         """
         Adds an agent to this frame, creates it too.
         :param overall_index: The index of the bot in the config file if it already exists.
         """
+        if len(self.agents) > 4:
+            return
+        elif len(self.agents) == 4:
+            self.remove_add_agent()
+        if overall_index == -1:
+            overall_index = self.index_manager.get_new_index()
+        else:
+            self.index_manager.mark_used(overall_index)
         self.agents.append(self.create_agent(overall_index))
-        index = len(self.agents) - 1
-        self._place_agent(index)
+        self._place_agent(len(self.agents) - 1, overall_index)
 
-    def _place_agent(self, index):
+    def place_add_agent(self):
+        if not self.add_agent_object.winfo_ismapped():
+            self.add_agent_object.grid(row=10, column=0, sticky="se")
+
+    def _place_agent(self, index, row):
         """
         Visually places the latest agent in the frame.
         :param index: The index of the agent added.
         """
-        self.agents[index].grid(row=index, column=0, sticky="e")
+        self.agents[index].grid(row=row, column=0, sticky="e")
 
     def remove_agent(self, agent):
         """
@@ -59,21 +71,23 @@ class BaseTeamFrame(tk.Frame):
         self.agents.remove(agent)
         if len(self.agents) == 0:
             self.add_agent()
+        if len(self.agents) < 5:
+            self.place_add_agent()
+
+    def remove_add_agent(self):
+        if self.add_agent_object.winfo_ismapped():
+            self.add_agent_object.grid_forget()
 
     def get_agents_frame(self):
         return self.agents_frame
 
-    def create_agent(self, overall_index=-1):
+    def create_agent(self, overall_index):
         """
         Creates a new agent frame, loads config data if needed.
         :param overall_index: An optional value if the overall index of this agent is already specified.
         :return: an instance of BaseAgentFrame
         """
         agent = self.agent_frame_class(self.get_agents_frame(), self.team_index)
-        if overall_index == -1:
-            overall_index = self.index_manager.get_new_index()
-        else:
-            self.index_manager.mark_used(overall_index)
         agent.overall_index = overall_index
         agent.initialize_widgets()
         agent.load_config(self.overall_config, overall_index)

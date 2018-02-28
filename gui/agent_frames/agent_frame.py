@@ -174,6 +174,7 @@ class AgentFrame(BaseAgentFrame):
 
     def link_variables(self):
         header = self.overall_config["Participant Configuration"]
+        header["participant_team"].set_value(self.team_index, self.overall_index)
         header["participant_is_bot"].set_value(self.is_bot, self.overall_index)
         header["participant_is_rlbot_controlled"].set_value(self.rlbot_controlled, self.overall_index)
         header["participant_bot_skill"].set_value(self.bot_level, self.overall_index)
