@@ -53,7 +53,7 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
                                 index, module_name)
     bm.run()
     
-def injectDLL()
+def injectDLL():
     """
     Calling thid function will inject the DLL with as 'hidden'
     DLL will return status codes from 0 to 5 wich correspond to injector_codes
