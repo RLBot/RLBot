@@ -55,10 +55,10 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
     
 def injectDLL():
     """
-    Calling thid function will inject the DLL with as 'hidden'
-    DLL will return status codes from 0 to 5 wich correspond to injector_codes
-    DLL injection only valid if codes are 0->'INJECTION_SUCCESSFUL' or 3->'RLBOT_DLL_ALREADY_INJECTED'
-    It print the output code and if it's not valid it will kill the runner.py
+    Calling this function will inject the DLL without GUI
+    DLL will return status codes from 0 to 5 which correspond to injector_codes
+    DLL injection is only valid if codes are 0->'INJECTION_SUCCESSFUL' or 3->'RLBOT_DLL_ALREADY_INJECTED'
+    It will print the output code and if it's not valid it will kill runner.py
     If RL isn't running the Injector will stay hidden waiting for RL to open and inject as soon as it does
     """
     # Inject DLL
@@ -75,7 +75,7 @@ def injectDLL():
     
 
 def main():
-    # Inject DLL, fails if 
+    # Inject DLL
     injectDLL()
     
     # Set up RLBot.cfg
