@@ -5,12 +5,14 @@ import ctypes
 import game_data_struct as gd
 import mmap
 import multiprocessing as mp
+import queue
 import msvcrt
 import rlbot_exception
 import time
 import os
 import sys
 import subprocess
+import psutil
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
@@ -48,11 +50,11 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
-def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name):
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, shared_dict):
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                index, module_name)
+                                index, module_name, shared_dict)
     bm.run()
-    
+
 def injectDLL():
     """
     Calling thid function will inject the DLL with as 'hidden'
@@ -72,12 +74,12 @@ def injectDLL():
         return injection_status
     else:
         sys.exit()
-    
+
 
 def main():
-    # Inject DLL, fails if 
+    # Inject DLL, fails if
     injectDLL()
-    
+
     # Set up RLBot.cfg
     framework_config = configparser.RawConfigParser()
     framework_config.read(RLBOT_CONFIG_FILE)
@@ -164,6 +166,9 @@ def main():
     # Create Quit event
     quit_event = mp.Event()
 
+    all_bot_data = {}
+    bot_data_queue = mp.Queue()
+
     # Launch processes
     for i in range(num_participants):
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
@@ -172,7 +177,7 @@ def main():
             process = mp.Process(target=run_agent,
                                  args=(quit_event, callback, bot_parameter_list[i],
                                        str(gameInputPacket.sPlayerConfiguration[i].wName),
-                                       bot_teams[i], i, bot_modules[i]))
+                                       bot_teams[i], i, bot_modules[i], bot_data_queue))
             process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
@@ -194,7 +199,18 @@ def main():
         raise rlbot_exception.RLBotException().raise_exception_from_error_code(bot_output.iLastError)
 
     print("Press any character to exit")
-    msvcrt.getch()
+    while True:
+        if msvcrt.kbhit():
+            break
+        try:
+            bot_data = bot_data_queue.get(timeout=1)
+            all_bot_data[bot_data['index']] = bot_data
+            configure_processes(all_bot_data)
+        except queue.Empty:
+            pass
+        except Exception as ex:
+            print(ex)
+            pass
 
     print("Shutting Down")
     quit_event.set()
@@ -206,6 +222,49 @@ def main():
             if not callback.is_set():
                 terminated = False
 
+
+def configure_processes(bot_data_dict):
+    team_pids_map = {}
+
+    for player_index, data in bot_data_dict.items():
+        team = data['team']
+        if not team in team_pids_map:
+            team_pids_map[team] = set()
+        team_pids_map[team].update(data['pids'])
+
+    shared_pids = set()
+    cpu_count = psutil.cpu_count()
+    cpus_per_team = cpu_count // 3
+
+    if len(team_pids_map) >= 2 and cpus_per_team > 0:
+        # Sort into three sets of pids: team 0 exclusives, team 1 exclusives, and shared pids
+        # All pids will be assigned high priority
+        # Team exclusive pids will be bound to a subset of cpus so they can't adversely affect the opposite team.
+
+        for team, team_set in team_pids_map.items():
+            if not shared_pids:
+                shared_pids.update(team_set)
+            else:
+                shared_pids.intersection_update(team_set)
+
+        for team, team_set in team_pids_map.items():
+            team_set -= shared_pids
+
+        for team, team_pids in team_pids_map.items():
+            team_cpu_offset = cpus_per_team * team
+            team_cpus = list(range(cpu_count - cpus_per_team - team_cpu_offset, cpu_count - team_cpu_offset))
+            for pid in team_pids:
+                p = psutil.Process(pid)
+                p.cpu_affinity(team_cpus)  # Restrict the process to run on the cpus assigned to the team
+                p.nice(psutil.HIGH_PRIORITY_CLASS)  # Allow the process to run at high priority
+    else:
+        # Consider everything a shared pid, because we are not in a position to split up cpus.
+        for team, team_set in team_pids_map.items():
+            shared_pids.update(team_set)
+
+    for pid in shared_pids:
+        p = psutil.Process(pid)  # Allow the process to run at high priority
+        p.nice(psutil.HIGH_PRIORITY_CLASS)
 
 if __name__ == '__main__':
     main()

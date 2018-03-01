@@ -1,6 +1,5 @@
 import bot_input_struct as bi
 import ctypes
-from ctypes import *
 from datetime import datetime, timedelta
 import game_data_struct as gd
 import importlib
@@ -21,7 +20,7 @@ MAX_CARS = 10
 
 class BotManager:
 
-    def __init__(self, terminateEvent, callbackEvent, bot_parameters, name, team, index, modulename):
+    def __init__(self, terminateEvent, callbackEvent, bot_parameters, name, team, index, modulename, data_queue):
         self.terminateEvent = terminateEvent
         self.callbackEvent = callbackEvent
         self.bot_parameters = bot_parameters
@@ -29,13 +28,26 @@ class BotManager:
         self.team = team
         self.index = index
         self.module_name = modulename
+        self.data_queue = data_queue
 
     def load_agent(self, agent_module):
         try:
             agent = agent_module.Agent(self.name, self.team, self.index, bot_parameters=self.bot_parameters)
-        except TypeError as e:
+        except TypeError:
             agent = agent_module.Agent(self.name, self.team, self.index)
+
+        self.update_data_queue(agent)
         return agent
+
+    def update_data_queue(self, agent):
+        pids = set()
+        pids.add(os.getpid())
+
+        get_extra_pids = getattr(agent, "get_extra_pids", None)
+        if callable(get_extra_pids):
+            pids.update(agent.get_extra_pids())
+
+        self.data_queue.put({'index': self.index, 'name': self.name, 'team': self.team, 'pids': pids})
 
     def run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer

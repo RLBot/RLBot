@@ -9,12 +9,10 @@ try:
         os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
     with open(os.path.join(location, "port.cfg"), "r") as portFile:
-        port = portFile.readline().rstrip()
-
-    int(port)
+        port = int(portFile.readline().rstrip())
 
 except ValueError:
     print("Failed to parse port file!")
     raise
 
-Agent = make_grpc_agent('localhost:' + port)
+Agent = make_grpc_agent('localhost', port)
