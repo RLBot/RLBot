@@ -1,0 +1,17 @@
+﻿  CallbackProcessor.cpp
+  GameFunctions.cpp
+  Interface.cpp
+  RenderFunctions.cpp
+GameFunctions\GameFunctions.cpp(133): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+RenderFunctions\RenderFunctions.cpp(103): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: Siehe Deklaration von "wcscpy"
+RenderFunctions\RenderFunctions.cpp(116): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: Siehe Deklaration von "wcscpy"
+Interface.cpp(17): warning C4996: 'freopen': This function or variable may be unsafe. Consider using freopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(240): note: Siehe Deklaration von "freopen"
+Interface.cpp(58): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: Siehe Deklaration von "wcscpy"
+Interface.cpp(67): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: Siehe Deklaration von "wcscpy"
+     Bibliothek "Bin\Win32\Debug-SDK\RLBot Core Interface.lib" und Objekt "Bin\Win32\Debug-SDK\RLBot Core Interface.exp" werden erstellt.
+  RLBot Core Interface.vcxproj -> Z:\Projekte\Game Hacking\RLBot Core\RLBot Core Interface\Bin\Win32\Debug-SDK\RLBot Core Interface.dll

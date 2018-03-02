@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\PacketStructs">
+      <UniqueIdentifier>{ef9b1d11-00cd-4e32-ba7f-304e87b15192}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MessageStructs">
+      <UniqueIdentifier>{c3e400bb-9346-4453-815d-59f05efcef1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MessageProcessor">
+      <UniqueIdentifier>{3458c1a1-f4a6-4fcd-93ec-7c623e48601b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MessageProcessor">
+      <UniqueIdentifier>{6df1448a-d87b-46ae-b4d9-111d02b25bd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MessageStructs">
+      <UniqueIdentifier>{76af8605-d375-48e8-bd79-6c7a885de9a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FileMappings">
+      <UniqueIdentifier>{8f040e84-0ad2-4a5c-a192-d6296ba35440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FileMappings">
+      <UniqueIdentifier>{8600fe36-1ec7-4164-b918-b0119806cb15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ErrorCodes">
+      <UniqueIdentifier>{5fad917b-6c0f-4984-94e7-4076577fa2a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MessageDefines">
+      <UniqueIdentifier>{37ff75d0-5575-4f59-81c9-ef0bb22721fb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Messages.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketStructs\PacketStructs.hpp">
+      <Filter>Header Files\PacketStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageStructs\RendererMessages.hpp">
+      <Filter>Header Files\MessageStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageStructs\GameMessages.hpp">
+      <Filter>Header Files\MessageStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageStructs\Message.hpp">
+      <Filter>Header Files\MessageStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageProcessor\MessageProcessor.hpp">
+      <Filter>Header Files\MessageProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="FileMappings\FileMappings.hpp">
+      <Filter>Header Files\FileMappings</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageStructs\CallbackMessages.hpp">
+      <Filter>Header Files\MessageStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorCodes\ErrorCodes.hpp">
+      <Filter>Header Files\ErrorCodes</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageDefines\MessageDefines.hpp">
+      <Filter>Header Files\MessageDefines</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MessageProcessor\MessageProcessor.cpp">
+      <Filter>Source Files\MessageProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageStructs\Message.cpp">
+      <Filter>Source Files\MessageStructs</Filter>
+    </ClCompile>
+    <ClCompile Include="FileMappings\FileMappings.cpp">
+      <Filter>Source Files\FileMappings</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
