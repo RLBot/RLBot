@@ -40,6 +40,12 @@
 .vs/
 RLBot Core/Bin/
 RLBot Core/Obj/
+RLBot Core Interface/Bin/
+RLBot Core Interface/Obj/
+RLBot Core Messages/Bin/
+RLBot Core Messages/Obj/
+RLBot Core SDK/Bin/
+RLBot Core SDK/Obj/
 *.vcxproj.user
 *.VC.VC.opendb
 *.VC.db
