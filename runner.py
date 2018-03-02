@@ -12,7 +12,17 @@ import time
 import os
 import sys
 import subprocess
-import psutil
+
+# These packages enhance RLBot but they are not critical to its proper functioning.
+# We have a lot of users who don't have these extra packages installed and we don't want to break them unexpectedly.
+# We also have some setup instructions that will take some time to update.
+# Until we get all of that up to speed, we will work around any missing optional packages and print warning messages.
+optional_packages_installed = False
+try:
+    import psutil
+    optional_packages_installed = True
+except ImportError:
+    pass
 
 PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
@@ -50,9 +60,9 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
-def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, shared_dict):
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue):
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                index, module_name, shared_dict)
+                                index, module_name, agent_telemetry_queue)
     bm.run()
 
 def injectDLL():
@@ -77,6 +87,11 @@ def injectDLL():
 
 
 def main():
+
+    if not optional_packages_installed:
+        print("\n#### WARNING ####\nYou are missing some optional packages which will become mandatory in the future!\n"
+              "Please run `pip install -r requirements.txt` to enjoy optimal functionality and future-proof yourself!\n")
+
     # Inject DLL, fails if
     injectDLL()
 
@@ -166,8 +181,8 @@ def main():
     # Create Quit event
     quit_event = mp.Event()
 
-    all_bot_data = {}
-    bot_data_queue = mp.Queue()
+    agent_metadata_map = {}
+    agent_metadata_queue = mp.Queue()
 
     # Launch processes
     for i in range(num_participants):
@@ -177,7 +192,7 @@ def main():
             process = mp.Process(target=run_agent,
                                  args=(quit_event, callback, bot_parameter_list[i],
                                        str(gameInputPacket.sPlayerConfiguration[i].wName),
-                                       bot_teams[i], i, bot_modules[i], bot_data_queue))
+                                       bot_teams[i], i, bot_modules[i], agent_metadata_queue))
             process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
@@ -201,11 +216,12 @@ def main():
     print("Press any character to exit")
     while True:
         if msvcrt.kbhit():
+            msvcrt.getch()
             break
         try:
-            bot_data = bot_data_queue.get(timeout=1)
-            all_bot_data[bot_data['index']] = bot_data
-            configure_processes(all_bot_data)
+            single_agent_metadata = agent_metadata_queue.get(timeout=1)
+            agent_metadata_map[single_agent_metadata['index']] = single_agent_metadata
+            configure_processes(agent_metadata_map)
         except queue.Empty:
             pass
         except Exception as ex:
@@ -223,10 +239,20 @@ def main():
                 terminated = False
 
 
-def configure_processes(bot_data_dict):
+def configure_processes(agent_metadata_map):
+    """
+    This will update the priority and CPU affinity of the processes owned by bots to try to achieve fairness and
+    good performance.
+
+    :param agent_metadata_map: A mapping of player index to agent metadata, including a list of owned process ids.
+    """
+
+    if not optional_packages_installed:
+        return
+
     team_pids_map = {}
 
-    for player_index, data in bot_data_dict.items():
+    for player_index, data in agent_metadata_map.items():
         team = data['team']
         if not team in team_pids_map:
             team_pids_map[team] = set()

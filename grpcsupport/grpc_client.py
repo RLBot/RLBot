@@ -7,7 +7,7 @@ from .protobuf import game_data_pb2_grpc
 
 
 def make_grpc_agent(address, port):
-    '''
+    """
         parameters:
             address - address for grpc connection. example: `localhost`
             port - port for grpc connection. example: 34865
@@ -16,7 +16,7 @@ def make_grpc_agent(address, port):
             grpc server and returns its response.
 
         For an example use of this, see: agents/java_demo
-    '''
+    """
     server_address = address + ':' + str(port)
 
     class GrpcForwardingAgent:
