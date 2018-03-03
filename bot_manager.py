@@ -10,6 +10,8 @@ import rate_limiter
 import sys
 import traceback
 
+from agents.base_agent import CHAT_NONE
+
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
@@ -101,7 +103,9 @@ class BotManager:
 
 
                     # Call agent
+                    chat_data = agent.get_chat_selection(game_tick_packet)
                     controller_input = agent.get_output_vector(game_tick_packet)
+
 
                     if not controller_input:
                         raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_module.__file__))
@@ -115,6 +119,10 @@ class BotManager:
                     player_input.bJump = controller_input[5]
                     player_input.bBoost = controller_input[6]
                     player_input.bHandbrake = controller_input[7]
+
+                    if chat_data[0] != CHAT_NONE:
+                        player_input.pQuickChatPreset = chat_data[0]
+                        player_input.bTeamChat = chat_data[1]
 
                 except Exception as e:
                     traceback.print_exc()
