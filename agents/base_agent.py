@@ -39,6 +39,15 @@ class BaseAgent:
             0     # handbrake
         ]
 
+    def get_chat_selection(self, game_tick_packet):
+        """
+        Where the bot will return the chat selection
+        :param game_tick_packet: see https://github.com/drssoccer55/RLBot/wiki/Input-and-Output-Data-(current)
+        :return: [chat_selection, team_only]
+        """
+        return [NONE,
+                EVERYONE]
+
     def load_config(self, config_object):
         pass
 
