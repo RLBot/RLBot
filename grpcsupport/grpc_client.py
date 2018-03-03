@@ -1,20 +1,24 @@
 import grpc
 import time
+import msvcrt
+import psutil
 from . import proto_converter
 from .protobuf import game_data_pb2_grpc
 from agents.base_agent import BaseAgent
 
 
-def make_grpc_agent(server_address):
+def make_grpc_agent(address, port):
     """
         parameters:
-            server_address - grpc target string. example: 'localhost:34865'
+            address - address for grpc connection. example: `localhost`
+            port - port for grpc connection. example: 34865
         returns:
             A RLBot Agent class which forwards the game_tick_packet to the
             grpc server and returns its response.
 
         For an example use of this, see: agents/java_demo
     """
+    server_address = address + ':' + str(port)
 
     class GrpcForwardingAgent(BaseAgent):
         def __init__(self, name, team, index):
@@ -31,6 +35,22 @@ def make_grpc_agent(server_address):
             except Exception as e:
                 print("Exception when trying to connect to grpc server: " + str(e))
                 pass
+
+        def get_extra_pids(self):
+            while True:
+                if msvcrt.kbhit():
+                    return []
+                for proc in psutil.process_iter():
+                    for conn in proc.connections():
+                        if conn.laddr.port == port:
+                            print('gRPC server for {} appears to have pid {}'.format(self.name, proc.pid))
+                            return [proc.pid]
+                time.sleep(1)
+
+        def init_protobuf(self):
+            print("Connecting to grpc server: " + server_address)
+            channel = grpc.insecure_channel(server_address)
+            self.stub = game_data_pb2_grpc.BotStub(channel)
 
         def get_output_vector(self, game_tick_packet):
 

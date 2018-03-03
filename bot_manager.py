@@ -1,3 +1,4 @@
+from utils.agent_creator import import_agent
 from utils.structures import bot_input_struct as bi, game_data_struct as gd
 import ctypes
 from datetime import datetime, timedelta
@@ -13,7 +14,7 @@ from agents.base_agent import CHAT_NONE
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
-MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0/30)  # Minimum call rate when paused.
+MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
 MAX_CARS = 10
@@ -21,20 +22,45 @@ MAX_CARS = 10
 
 class BotManager:
 
-    def __init__(self, terminateEvent, callbackEvent, bot_configuration, name, team, index, modulename):
-        self.terminateEvent = terminateEvent
-        self.callbackEvent = callbackEvent
+    def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
+                 module_name, agent_metadata_queue):
+        """
+        :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
+        :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
+        :param bot_configuration: parameters which will be passed to the bot's constructor
+        :param name: name which will be passed to the bot's constructor. Will probably be displayed in-game.
+        :param team: 0 for blue team or 1 for orange team. Will be passed to the bot's constructor.
+        :param index: The player index, i.e. "this is player number <index>". Will be passed to the bot's constructor.
+            Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
+        :param module_name: The name of the python module which contains the bot's code
+        :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
+        """
+        self.terminate_request_event = terminate_request_event
+        self.termination_complete_event = termination_complete_event
         self.bot_configuration = bot_configuration
         self.name = name
         self.team = team
         self.index = index
-        self.module_name = modulename
+        self.module_name = module_name
+        self.agent_metadata_queue = agent_metadata_queue
 
-    def load_agent(self, agent_module):
-        agent = agent_module.Agent(self.name, self.team, self.index)
+    def load_agent(self, agent_class):
+        agent = agent_class(self.name, self.team, self.index)
         agent.load_config(self.bot_configuration)
         agent.initialize_agent()
+
+        self.update_metadata_queue(agent)
         return agent
+
+    def update_metadata_queue(self, agent):
+        pids = set()
+        pids.add(os.getpid())
+
+        get_extra_pids = getattr(agent, "get_extra_pids", None)
+        if callable(get_extra_pids):
+            pids.update(agent.get_extra_pids())
+
+        self.agent_metadata_queue.put({'index': self.index, 'name': self.name, 'team': self.team, 'pids': pids})
 
     def run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
@@ -47,8 +73,7 @@ class BotManager:
         game_data_shared_memory = mmap.mmap(-1, ctypes.sizeof(gd.GameTickPacketWithLock), OUTPUT_SHARED_MEMORY_TAG)
         bot_output = gd.GameTickPacketWithLock.from_buffer(game_data_shared_memory)
         lock = ctypes.c_long(0)
-        game_tick_packet = gd.GameTickPacket() # We want to do a deep copy for game inputs so people don't mess with em
-
+        game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
         # Create Ratelimiter
         r = rate_limiter.RateLimiter(GAME_TICK_PACKET_REFRESHES_PER_SECOND)
@@ -62,22 +87,24 @@ class BotManager:
                 continue
 
         # Get bot module
-        agent_module = importlib.import_module(self.module_name)
+        agent_class = import_agent(self.module_name)
 
-        agent = self.load_agent(agent_module)
-        last_module_modification_time = os.stat(agent_module.__file__).st_mtime
-
+        agent = self.load_agent(agent_class)
+        last_module_modification_time = os.stat(agent_class.__file__).st_mtime
 
         # Run until main process tells to stop
-        while not self.terminateEvent.is_set():
+        while not self.terminate_request_event.is_set():
             before = datetime.now()
             # Read from game data shared memory
             game_data_shared_memory.seek(0)  # Move to beginning of shared memory
-            ctypes.memmove(ctypes.addressof(lock), game_data_shared_memory.read(ctypes.sizeof(lock)), ctypes.sizeof(lock)) # dll uses InterlockedExchange so this read will return the correct value!
+            ctypes.memmove(ctypes.addressof(lock), game_data_shared_memory.read(ctypes.sizeof(lock)), ctypes.sizeof(
+                lock))  # dll uses InterlockedExchange so this read will return the correct value!
 
             if lock.value != REFRESH_IN_PROGRESS:
-                game_data_shared_memory.seek(4, os.SEEK_CUR) # Move 4 bytes past error code
-                ctypes.memmove(ctypes.addressof(game_tick_packet), game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
+                game_data_shared_memory.seek(4, os.SEEK_CUR)  # Move 4 bytes past error code
+                ctypes.memmove(ctypes.addressof(game_tick_packet),
+                               game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),
+                               ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
 
             # Run the Agent only if the gameInfo has updated.
             tick_game_time = game_tick_packet.gameInfo.TimeSeconds
@@ -88,17 +115,16 @@ class BotManager:
 
                 try:
                     # Reload the Agent if it has been modified.
-                    new_module_modification_time = os.stat(agent_module.__file__).st_mtime
+                    new_module_modification_time = os.stat(agent_class.__file__).st_mtime
                     if new_module_modification_time != last_module_modification_time:
                         last_module_modification_time = new_module_modification_time
-                        print('Reloading Agent: ' + agent_module.__file__)
-                        importlib.reload(agent_module)
+                        print('Reloading Agent: ' + agent_class.__file__)
+                        importlib.reload(agent_class)
                         old_agent = agent
-                        agent = self.load_agent(agent_module)
+                        agent = self.load_agent(agent_class)
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
-
 
                     # Call agent
                     chat_data = agent.get_chat_selection(game_tick_packet)
@@ -106,7 +132,7 @@ class BotManager:
 
 
                     if not controller_input:
-                        raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_module.__file__))
+                        raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_class.__file__))
 
                     # Write all player inputs
                     player_input.fThrottle = controller_input[0]
@@ -132,9 +158,9 @@ class BotManager:
             # Ratelimit here
             after = datetime.now()
             # print('Latency of ' + self.name + ': ' + str(after - before))
-            r.acquire(after-before)
+            r.acquire(after - before)
 
         if hasattr(agent, 'retire'):
             agent.retire()
         # If terminated, send callback
-        self.callbackEvent.set()
+        self.termination_complete_event.set()
