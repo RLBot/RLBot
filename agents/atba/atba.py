@@ -32,13 +32,13 @@ class Atba(BaseAgent):
             turn *= -1.0
 
         return [
-            1.0, # throttle
-            turn, #steer
-            0.0, # pitch
-            0.0, # yaw
-            0.0, # roll
-            0, # jump
-            0, # boost
+            1.0,  # throttle
+            turn,  # steer
+            0.0,  # pitch
+            0.0,  # yaw
+            0.0,  # roll
+            0,  # jump
+            0,  # boost
             0  # handbrake
         ]
 
@@ -48,20 +48,21 @@ class Atba(BaseAgent):
     @staticmethod
     def create_agent_configurations():
         config = super(Atba, Atba).create_agent_configurations()
-        config.add_header_name('atba').add_value('flip_turning', bool, default=False,
-                                                 description='if true bot will turn opposite way')
+        config.add_header_name('Bot Parameters').add_value('flip_turning', bool, default=False,
+                                                           description='if true bot will turn opposite way')
         return config
 
+
 class Vector2:
-    def __init__(self, x = 0, y = 0):
+    def __init__(self, x=0, y=0):
         self.x = float(x)
         self.y = float(y)
 
     def __add__(self, val):
-        return Vector2( self.x + val.x, self.y + val.y)
+        return Vector2(self.x + val.x, self.y + val.y)
 
-    def __sub__(self,val):
-        return Vector2( self.x - val.x, self.y - val.y)
+    def __sub__(self, val):
+        return Vector2(self.x - val.x, self.y - val.y)
 
     def correction_to(self, ideal):
         # The in-game axes are left handed, so use -x
@@ -81,7 +82,6 @@ class Vector2:
 
 
 def get_car_facing_vector(car):
-
     pitch = float(car.Rotation.Pitch)
     yaw = float(car.Rotation.Yaw)
 

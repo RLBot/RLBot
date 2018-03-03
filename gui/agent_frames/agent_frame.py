@@ -151,15 +151,6 @@ class AgentFrame(BaseAgentFrame):
                 missing.append("Agent Path")
         return missing
 
-    @staticmethod
-    def grid_items(start_row=0, start_index=0, *widgets):
-        """Grid all items found in WIDGETS starting in row START_ROW from index START_INDEX"""
-        for row, widget_list in enumerate(widgets):
-            row += start_row
-            for column, widget in enumerate(widget_list):
-                column += start_index
-                widget.grid(row=row, column=column, sticky="nsew")
-
     def load_config(self, config_file, overall_index):
         super().load_config(config_file, overall_index)
         self.agent_config_path.set(self.get_agent_config_path())
@@ -179,5 +170,3 @@ class AgentFrame(BaseAgentFrame):
         header["participant_is_rlbot_controlled"].set_value(self.rlbot_controlled, self.overall_index)
         header["participant_bot_skill"].set_value(self.bot_level, self.overall_index)
 
-    def get_config(self):
-        return self.overall_index, self.agent_config
