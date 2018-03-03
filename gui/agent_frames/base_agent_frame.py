@@ -105,3 +105,6 @@ class BaseAgentFrame(tk.Frame):
 
     def link_variables(self):
         pass
+
+    def get_config(self):
+        return self.overall_index, self.agent_config
