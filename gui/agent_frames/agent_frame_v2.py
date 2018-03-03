@@ -11,15 +11,17 @@ class AgentFrameV2(BaseAgentFrame):
     player_type_widgets = None
     bot_level_widgets = None
     rlbot_config_button = None
+    agent_path_widgets = []
 
     def __init__(self, parent, team_index, *args, **kwargs):
         super().__init__(parent, team_index, *args, **kwargs)
         self.config(borderwidth=5)
-        self.in_game_name = tk.StringVar
+        self.in_game_name = tk.StringVar()
         self.is_bot = tk.BooleanVar()
         self.rlbot_controlled = tk.BooleanVar()
         self.bot_level = tk.DoubleVar(value=1)
         self.player_type = tk.StringVar(value="Human")
+        self.agent_path = tk.StringVar()
         self.looks_config = BaseAgent.create_agent_configurations()
 
     def initialize_widgets(self):
@@ -33,7 +35,7 @@ class AgentFrameV2(BaseAgentFrame):
         self.player_type_widgets.append(ttk.Label(self, text="Player type: ", anchor="e"))
         self.player_type_widgets.append(ttk.Combobox(
             self, textvariable=self.player_type, values=("Human", "Psyonix Bot", "RLBot"), state="readonly"))
-        self.player_type_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_bot_type())
+        self.player_type_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.refresh_widgets())
 
         ttk.Button(self, text="Edit looks", command=self.edit_looks).grid(row=3, column=0, sticky="e")
 
@@ -57,18 +59,23 @@ class AgentFrameV2(BaseAgentFrame):
 
         self.grid_columnconfigure(1, minsize=84)
 
-    def change_bot_type(self):
+    def refresh_widgets(self):
         for widget in self.grid_slaves(row=2):
             widget.grid_forget()
         for widget in self.grid_slaves(row=3, column=1):
             widget.grid_forget()
         if self.player_type.get() == "Human":
-            pass
+            self.is_bot = False
+            self.rlbot_controlled = False
         elif self.player_type.get() == "Psyonix Bot":
             self.bot_level_widgets[0].grid(row=2, column=0, sticky="nsew")
             self.bot_level_widgets[1].grid(row=2, column=1, columnspan=2, sticky="nsew")
+            self.is_bot = True
+            self.rlbot_controlled = False
         else:
             self.rlbot_config_button.grid(row=3, column=1, sticky="e")
+            self.is_bot = True
+            self.rlbot_controlled = True
 
     def edit_looks(self):
         window = tk.Toplevel()
@@ -81,7 +88,7 @@ class AgentFrameV2(BaseAgentFrame):
             header_frame = tk.Frame(window, borderwidth=8)
             header_frame.rowconfigure(0, minsize=25)
             ttk.Label(header_frame, text=header_name, anchor="center").grid(row=total_count, column=0,
-                                                                              columnspan=2, sticky="new")
+                                                                            columnspan=2, sticky="new")
             total_count += 1
 
             for parameter_index, (parameter_name, parameter) in enumerate(header.values.items()):
@@ -121,6 +128,42 @@ class AgentFrameV2(BaseAgentFrame):
 
     def configure_rlbot(self):
         window = tk.Toplevel()
-        window.grab_set()
+        window.resizable(0, 0)
+        window.minsize(300, 300)
+        window.update()
 
+        def load_agent_class():
+            agent_file_path = get_file(
+                filetypes=[("Python File", "*.py")],
+                title="Choose a file")
+            if agent_file_path:
+                self.agent_path.set(agent_file_path)
+                self.load_agent_from_path(agent_file_path)
+                custom_header = self.agent_class.create_agent_configurations()
+
+        def load_custom_config():
+            print("Test")
+
+
+        ttk.Label(window, text="Agent location: ", anchor="e").grid(row=0, column=0)
+        ttk.Entry(window, textvariable=self.agent_path, state="readonly").grid(row=0, column=1)
+        ttk.Button(window, text="Select file", command=load_agent_class).grid(row=0, column=2)
+
+
+        window.wm_attributes("-topmost", 1)
+        window.focus_force()
         self.wait_window(window)
+
+    def link_variables(self):
+        header = self.overall_config["Participant Configuration"]
+        header["participant_team"].set_value(self.team_index, self.overall_index)
+        header["participant_is_bot"].set_value(self.is_bot, self.overall_index)
+        header["participant_is_rlbot_controlled"].set_value(self.rlbot_controlled, self.overall_index)
+        header["participant_bot_skill"].set_value(self.bot_level, self.overall_index)
+
+        self.looks_config.set_value("Bot Loadout", "name", self.in_game_name, self.overall_index)
+        self.looks_config.set_value("Bot Loadout Orange", "name", self.in_game_name, self.overall_index)
+        self.looks_config.set_value("Bot Location", "agent_module", self.agent_path)
+
+    def load_config(self, overall_config_file, overall_index):
+        super().load_config(overall_config_file, overall_index)
