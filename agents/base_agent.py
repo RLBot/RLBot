@@ -60,6 +60,10 @@ class BaseAgent:
         pass
 
     def get_extra_pids(self):
+        """
+        Gets the list of process ids that should be marked as high priority.
+        :return: A list of process ids that are used by this bot in addition to the ones inside the python process.
+        """
         return []
 
     @staticmethod
