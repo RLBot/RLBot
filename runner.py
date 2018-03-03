@@ -9,6 +9,9 @@ import msvcrt
 import rlbot_exception
 import time
 from utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
+import os
+import sys
+import subprocess
 
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
@@ -20,11 +23,34 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
                                 index, module_name)
     bm.run()
 
+def injectDLL():
+    """
+    Calling this function will inject the DLL without GUI
+    DLL will return status codes from 0 to 5 which correspond to injector_codes
+    DLL injection is only valid if codes are 0->'INJECTION_SUCCESSFUL' or 3->'RLBOT_DLL_ALREADY_INJECTED'
+    It will print the output code and if it's not valid it will kill runner.py
+    If RL isn't running the Injector will stay hidden waiting for RL to open and inject as soon as it does
+    """
+    # Inject DLL
+    injector_dir = os.path.join(os.path.dirname(__file__), "RLBot_Injector.exe")
+    incode=subprocess.call([injector_dir, 'hidden'])
+    injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
+    injector_valid_codes=['INJECTION_SUCCESSFUL','RLBOT_DLL_ALREADY_INJECTED']
+    injection_status=injector_codes[incode]
+    print(injection_status)
+    if injection_status in injector_valid_codes:
+        return injection_status
+    else:
+        sys.exit()
+
 
 def main(framework_config=None, bot_configs=None):
     if bot_configs is None:
         bot_configs = {}
     callbacks = []
+    # Inject DLL
+    injectDLL()
+
     # Set up RLBot.cfg
     if framework_config is None:
         raw_config_parser = configparser.RawConfigParser()
