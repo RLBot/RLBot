@@ -1,12 +1,10 @@
-import bot_input_struct as bi
+from utils.structures import bot_input_struct as bi, game_data_struct as gd
 import ctypes
-from ctypes import *
 from datetime import datetime, timedelta
-import game_data_struct as gd
 import importlib
 import mmap
 import os
-import rate_limiter
+from utils import rate_limiter
 import sys
 import traceback
 

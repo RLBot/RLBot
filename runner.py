@@ -1,12 +1,11 @@
-import bot_input_struct as bi
+from utils.structures import bot_input_struct as bi, game_data_struct as gd
 import bot_manager
 import configparser
 import ctypes
-import game_data_struct as gd
 import mmap
 import multiprocessing as mp
 import msvcrt
-import rlbot_exception
+from utils import rlbot_exception
 import time
 from utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
 import os
