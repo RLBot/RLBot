@@ -59,6 +59,9 @@ class BaseAgent:
         """
         pass
 
+    def get_extra_pids(self):
+        return []
+
     @staticmethod
     def create_agent_configurations():
         config = ConfigObject()
