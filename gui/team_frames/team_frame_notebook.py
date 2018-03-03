@@ -10,13 +10,14 @@ class NotebookTeamFrame(BaseTeamFrame):
     def __init__(self, parent, overall_config, team_index, agent_frame_class, *args, **kwargs):
         super().__init__(parent, overall_config, team_index, agent_frame_class, *args, *kwargs)
 
+    def get_agents_frame(self):
+        return self.agents_frame
+
+    def initialize_agents_frame(self):
         self.agents_frame = ttk.Notebook(self)
         self.agents_frame.bind("<<NotebookTabChanged>>", lambda event: self.switch_tab())
 
         self.agents_frame.pack(side="top", fill="both")
-
-    def get_agents_frame(self):
-        return self.agents_frame
 
     def initialize_add_agent(self):
         self.add_agent_frame = tk.Frame(self.agents_frame)
@@ -25,7 +26,7 @@ class NotebookTeamFrame(BaseTeamFrame):
     def switch_tab(self):
         """Handle tab switch to add an agent if switched to Add Agent tab"""
         if self.agents_frame.tab(self.agents_frame.index("current"), option="text") == "  +  ":
-            self.add_agent(self.agents_frame.index("current"))
+            self.add_agent()
 
     def update_tabs(self):
         team_name = "Blue" if self.is_blue_team() else "Orange"
@@ -34,19 +35,22 @@ class NotebookTeamFrame(BaseTeamFrame):
             if not label.endswith(str(i + 1)) and label != "  +  ":
                 self.agents_frame.tab(widget, text=team_name + " Bot " + str(i + 1))
 
+    def place_add_agent(self):
+        self.agents_frame.add(self.add_agent_frame, text="  +  ")
+
     def _place_agent(self, index):
         color = "Blue" if self.is_blue_team() else "Orange"
         self.agents_frame.insert(index, self.agents[index], text=color + " Bot " + str(index + 1))
-        if len(self.agents) > 4:
-            self.agents_frame.hide(self.add_agent_frame)
         self.agents_frame.select(index)
 
     def remove_agent(self, agent):
         """Remove agent AGENT from the list and Notebook"""
         self.agents_frame.hide(self.add_agent_frame)
         super().remove_agent(agent)
-        self.agents_frame.add(self.add_agent_frame)
         self.update_tabs()
+
+    def remove_add_agent(self):
+        self.agents_frame.hide(self.add_agent_frame)
 
 
 if __name__ == '__main__':

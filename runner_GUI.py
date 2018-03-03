@@ -46,7 +46,8 @@ class RunnerGUI(tk.Frame):
         buttons_frame = ttk.Frame(self.parent)
         ttk.Button(buttons_frame, text="Load", command=lambda: self.load_cfg(teams=True, match_settings=True)).grid(
             row=0, column=0)
-        ttk.Button(buttons_frame, text="Save", command=lambda: self.save_cfg(self.overall_config)).grid(row=0, column=1)
+        ttk.Button(buttons_frame, text="Save", command=lambda: self.save_cfg(
+            overall_config=self.overall_config, gui_config=self.gui_config)).grid(row=0, column=1)
         ttk.Button(buttons_frame, text="Start", command=lambda: self.start_running()).grid(
             row=0, column=2)
         for i in range(3):
@@ -79,18 +80,19 @@ class RunnerGUI(tk.Frame):
         self.team1.initialize_team_frame()
         self.team2.initialize_team_frame()
 
-    def save_cfg(self, overal_config=None, path=None, gui_config=None):
-        if overal_config is not None:
+    def save_cfg(self, overall_config=None, path=None, gui_config=None):
+        if overall_config is not None:
             if path is None:
                 path = get_file(
                     filetypes=[("Config File", "*.cfg")],
                     title="Choose a file")
             if path:
+                self.gui_config.set_value("GUI Configuration", "latest_save_path", path)
                 with open(path, "w") as f:
-                    f.write(str(self.overall_config))
+                    f.write(str(overall_config))
         if gui_config is not None:
             with open("runner_GUI_settings.cfg", "w") as f:
-                f.write(str(self.gui_config))
+                f.write(str(gui_config))
 
     def reclassify_indices(self, header):
         used_indices = sorted(self.index_manager.numbers)
@@ -114,7 +116,7 @@ class RunnerGUI(tk.Frame):
             new_config = self.overall_config.copy()
             new_config.set_value("RLBot Configuration", "num_participants", len(self.index_manager.numbers))
             self.reclassify_indices(new_config.get_header("Participant Configuration"))
-            self.save_cfg(overal_config=new_config)
+            self.save_cfg(overall_config=new_config, gui_config=self.gui_config)
             popup.destroy()
 
         ttk.Button(frame, text="Save", command=save).grid(row=1, column=1)
