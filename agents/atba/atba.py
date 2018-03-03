@@ -1,12 +1,15 @@
 import math
 
-from agents.base_agent import BaseAgent
+from agents.base_agent import BaseAgent, Information_IGotIt, CHAT_EVERYONE
 
 URotationToRadians = math.pi / float(32768)
 
 
 class Atba(BaseAgent):
     flip_turning = False
+
+    def get_chat_selection(self, game_tick_packet):
+        return [Information_IGotIt, CHAT_EVERYONE]
 
     def get_output_vector(self, game_tick_packet):
 
