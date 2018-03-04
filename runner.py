@@ -6,17 +6,14 @@ import mmap
 import multiprocessing as mp
 import queue
 import msvcrt
-from utils import rlbot_exception
-import time
 from utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
-import os
-import sys
-import subprocess
 
 # These packages enhance RLBot but they are not critical to its proper functioning.
 # We have a lot of users who don't have these extra packages installed and we don't want to break them unexpectedly.
 # We also have some setup instructions that will take some time to update.
 # Until we get all of that up to speed, we will work around any missing optional packages and print warning messages.
+from utils.structures.game_interface import GameInterface, injectDLL
+
 optional_packages_installed = False
 try:
     import psutil
@@ -29,30 +26,6 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 
-def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue):
-    bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                index, module_name, agent_telemetry_queue)
-    bm.run()
-
-def injectDLL():
-    """
-    Calling this function will inject the DLL without GUI
-    DLL will return status codes from 0 to 5 which correspond to injector_codes
-    DLL injection is only valid if codes are 0->'INJECTION_SUCCESSFUL' or 3->'RLBOT_DLL_ALREADY_INJECTED'
-    It will print the output code and if it's not valid it will kill runner.py
-    If RL isn't running the Injector will stay hidden waiting for RL to open and inject as soon as it does
-    """
-    # Inject DLL
-    injector_dir = os.path.join(os.path.dirname(__file__), "RLBot_Injector.exe")
-    incode=subprocess.call([injector_dir, 'hidden'])
-    injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
-    injector_valid_codes=['INJECTION_SUCCESSFUL','RLBOT_DLL_ALREADY_INJECTED']
-    injection_status=injector_codes[incode]
-    print(injection_status)
-    if injection_status in injector_valid_codes:
-        return injection_status
-    else:
-        sys.exit()
 
 def main(framework_config=None, bot_configs=None):
     if bot_configs is None:
@@ -76,7 +49,7 @@ def main(framework_config=None, bot_configs=None):
 
     # Open anonymous shared memory for entire GameInputPacket and map buffer
     buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
-    gameInputPacket = bi.GameInputPacket.from_buffer(buff)
+    gameInputPacket = bi.GameInputPacket()
 
     num_participants, names, teams, modules, parameters = parse_configurations(gameInputPacket,
                                                                                framework_config, bot_configs)
@@ -87,6 +60,8 @@ def main(framework_config=None, bot_configs=None):
     agent_metadata_map = {}
     agent_metadata_queue = mp.Queue()
 
+    game_interface = GameInterface(gameInputPacket, num_participants)
+
     # Launch processes
     for i in range(num_participants):
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
@@ -95,27 +70,12 @@ def main(framework_config=None, bot_configs=None):
             process = mp.Process(target=run_agent,
                                  args=(quit_event, callback, parameters[i],
                                        str(gameInputPacket.sPlayerConfiguration[i].wName),
-                                       teams[i], i, modules[i], agent_metadata_queue))
+                                       teams[i], i, modules[i], agent_metadata_queue, game_interface))
 
             process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
-    gameInputPacket.bStartMatch = True
-
-    # Wait 100 milliseconds then check for an error code
-    time.sleep(0.1)
-    game_data_shared_memory = mmap.mmap(-1, ctypes.sizeof(gd.GameTickPacketWithLock), OUTPUT_SHARED_MEMORY_TAG)
-    bot_output = gd.GameTickPacketWithLock.from_buffer(game_data_shared_memory)
-    if not bot_output.iLastError == 0:
-        # Terminate all process and then raise an exception
-        quit_event.set()
-        terminated = False
-        while not terminated:
-            terminated = True
-            for callback in callbacks:
-                if not callback.is_set():
-                    terminated = False
-        raise rlbot_exception.RLBotException().raise_exception_from_error_code(bot_output.iLastError)
+    game_interface.start_match()
 
     print("Press any character to exit")
     while True:
@@ -141,6 +101,12 @@ def main(framework_config=None, bot_configs=None):
         for callback in callbacks:
             if not callback.is_set():
                 terminated = False
+
+
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue):
+    bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
+                                index, module_name, agent_telemetry_queue)
+    bm.run()
 
 
 def configure_processes(agent_metadata_map):
@@ -195,6 +161,7 @@ def configure_processes(agent_metadata_map):
     for pid in shared_pids:
         p = psutil.Process(pid)  # Allow the process to run at high priority
         p.nice(psutil.HIGH_PRIORITY_CLASS)
+
 
 if __name__ == '__main__':
     main()
