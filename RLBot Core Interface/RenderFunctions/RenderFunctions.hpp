@@ -21,6 +21,7 @@ extern "C"
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API DrawRect3D(const Vector3& vec, int width, int height, bool filled, const Color& color);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API DrawString2D(int x, int y, float scaleX, float scaleY, const Color& color, wchar_t* pString);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API DrawString3D(const Vector3& vec, float scaleX, float scaleY, const Color& color, wchar_t* pString);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API ToggleNullRenderer(bool Enable);
 	}
 
 #ifdef __cplusplus

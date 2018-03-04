@@ -67,4 +67,9 @@ struct DrawString3DMessage : public Message<DrawString3DMessageType, false>
 	wchar_t				String[1];
 };
 
+struct ToggleNullRendererMessage : public Message<ToggleNullRendererMessageType, false>
+{
+	bool				Enable;
+};
+
 #endif

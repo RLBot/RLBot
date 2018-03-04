@@ -36,41 +36,26 @@ namespace FileMappings
 
 	GameInput* GetGameInput()
 	{
-		if (!lpMappedInputData)
-			return nullptr;
-
 		return &((GameInputData*)lpMappedInputData)->GameInput;
 	}
 
 	RenderInput* GetRenderInput()
 	{
-		if (!lpMappedInputData)
-			return nullptr;
-
 		return &((GameInputData*)lpMappedInputData)->RenderInput;
 	}
 
 	LiveDataWrapper* GetLiveData()
 	{
-		if (!lpMappedOutputData)
-			return nullptr;
-
 		return &((GameOutputData*)lpMappedOutputData)->LiveData;
 	}
 
 	MatchDataWrapper* GetMatchData()
 	{
-		if (!lpMappedOutputData)
-			return nullptr;
-
 		return &((GameOutputData*)lpMappedOutputData)->MatchData;
 	}
 
 	CallbackOutput* GetCallbackOutput()
 	{
-		if (!lpMappedOutputData)
-			return nullptr;
-
 		return &((GameOutputData*)lpMappedOutputData)->CallbackOutput;
 	}
 

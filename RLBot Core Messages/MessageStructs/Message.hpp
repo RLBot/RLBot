@@ -18,6 +18,7 @@ enum MessageType
 	DrawRect3DMessageType,
 	DrawString2DMessageType,
 	DrawString3DMessageType,
+	ToggleNullRendererMessageType,
 	MaxMessageType
 };
 

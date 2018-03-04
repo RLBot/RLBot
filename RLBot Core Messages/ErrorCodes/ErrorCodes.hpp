@@ -22,7 +22,6 @@
 enum RLBotCoreStatus
 {
 	Success,
-	CoreNotRunning,
 	InvalidNumPlayers,
 	InvalidBotSkill,
 	InvalidHumanIndex,
