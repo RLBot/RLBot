@@ -9,7 +9,7 @@ from utils import rate_limiter
 import sys
 import traceback
 
-from agents.base_agent import CHAT_NONE
+from utils.structures.quick_chats import QuickChats
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
@@ -143,7 +143,7 @@ class BotManager:
                     player_input.bBoost = controller_input[6]
                     player_input.bHandbrake = controller_input[7]
 
-                    if chat_data[0] != CHAT_NONE:
+                    if chat_data[0] != QuickChats.CHAT_NONE:
                         player_input.pQuickChatPreset = chat_data[0]
                         player_input.bTeamChat = chat_data[1]
 
