@@ -6,11 +6,15 @@ MAX_NAME_LENGTH = 32
 SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 
 
+def get_player_input_list_type():
+    return PlayerConfiguration * MAX_PLAYERS
+
+
 class PlayerConfiguration(ctypes.Structure):
     _fields_ = [("bBot", ctypes.c_bool),
                 ("bRLBotControlled", ctypes.c_bool),
                 ("fBotSkill", ctypes.c_float),
-                ("iPlayerIndex", ctypes.c_int),
+                ("iHumanIndex", ctypes.c_int),
                 ("wName", ctypes.c_wchar * MAX_NAME_LENGTH),
                 ("ucTeam", ctypes.c_ubyte),
                 ("ucTeamColorID", ctypes.c_ubyte),
@@ -21,8 +25,8 @@ class PlayerConfiguration(ctypes.Structure):
                 ("iBoostID", ctypes.c_int),
                 ("iAntennaID", ctypes.c_int),
                 ("iHatID", ctypes.c_int),
-                ("iPaintFinish1ID", ctypes.c_int),
-                ("iPaintFinish2ID", ctypes.c_int),
+                ("iPaintFinishID", ctypes.c_int),
+                ("iCustomFinishID", ctypes.c_int),
                 ("iEngineAudioID", ctypes.c_int),
                 ("iTrailsID", ctypes.c_int),
                 ("iGoalExplosionID", ctypes.c_int)]
@@ -41,9 +45,16 @@ class PlayerInput(ctypes.Structure):
 
 class GameInputPacket(ctypes.Structure):
     _fields_ = [("bStartMatch", ctypes.c_bool),
-                ("sPlayerConfiguration", PlayerConfiguration * MAX_PLAYERS),
+                ("sPlayerConfiguration", get_player_input_list_type()),
                 ("sPlayerInput", PlayerInput * MAX_PLAYERS),
                 ("iNumPlayers", ctypes.c_int)]
+
+
+def get_player_configuration_list(game_tick_packet):
+    player_list = []
+    for i in range(MAX_PLAYERS):
+        player_list.append(PlayerConfiguration())
+    return game_tick_packet.sPlayerConfiguration
 
 
 def print_game_input_packet(gameInputPacket):
