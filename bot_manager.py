@@ -130,7 +130,6 @@ class BotManager:
                     chat_data = agent.get_chat_selection(game_tick_packet)
                     controller_input = agent.get_output_vector(game_tick_packet)
 
-
                     if not controller_input:
                         raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_class.__file__))
 
