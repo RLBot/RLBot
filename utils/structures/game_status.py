@@ -1,6 +1,5 @@
 def create_status_object():
     status_list = ["Success",
-     "CoreNotRunning",
      "InvalidNumPlayers",
      "InvalidBotSkill",
      "InvalidHumanIndex",
