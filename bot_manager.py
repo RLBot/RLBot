@@ -1,3 +1,5 @@
+import logging
+
 from utils.agent_creator import import_agent
 from utils.structures import bot_input_struct as bi, game_data_struct as gd
 import ctypes
@@ -23,7 +25,7 @@ MAX_CARS = 10
 class BotManager:
 
     def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                 module_name, agent_metadata_queue):
+                 module_name, agent_metadata_queue, game_interface):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -34,6 +36,7 @@ class BotManager:
             Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
         :param module_name: The name of the python module which contains the bot's code
         :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
+        :param
         """
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
@@ -43,6 +46,7 @@ class BotManager:
         self.index = index
         self.module_name = module_name
         self.agent_metadata_queue = agent_metadata_queue
+        self.logger = logging.getLogger('rlbot')
 
     def load_agent(self, agent_class):
         agent = agent_class(self.name, self.team, self.index)
@@ -118,7 +122,7 @@ class BotManager:
                     new_module_modification_time = os.stat(agent_class.__file__).st_mtime
                     if new_module_modification_time != last_module_modification_time:
                         last_module_modification_time = new_module_modification_time
-                        print('Reloading Agent: ' + agent_class.__file__)
+                        self.logger.info('Reloading Agent: ' + agent_class.__file__)
                         importlib.reload(agent_class)
                         old_agent = agent
                         agent = self.load_agent(agent_class)

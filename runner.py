@@ -1,3 +1,5 @@
+import logging
+
 from utils.structures import bot_input_struct as bi, game_data_struct as gd
 import bot_manager
 import configparser
@@ -12,7 +14,7 @@ from utils.rlbot_config_parser import create_bot_config_layout, parse_configurat
 # We have a lot of users who don't have these extra packages installed and we don't want to break them unexpectedly.
 # We also have some setup instructions that will take some time to update.
 # Until we get all of that up to speed, we will work around any missing optional packages and print warning messages.
-from utils.structures.game_interface import GameInterface, injectDLL
+from utils.structures.game_interface import GameInterface
 
 optional_packages_installed = False
 try:
@@ -28,16 +30,19 @@ OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 
 
 def main(framework_config=None, bot_configs=None):
+    logger = logging.getLogger('rlbot')
+    logger.setLevel(logging.DEBUG)
+    logger.debug('reading the configs')
     if bot_configs is None:
         bot_configs = {}
     callbacks = []
     # Inject DLL
+    game_interface = GameInterface()
+    game_interface.inject_dll()
 
     if not optional_packages_installed:
-        print("\n#### WARNING ####\nYou are missing some optional packages which will become mandatory in the future!\n"
+        logger.warning("\n#### WARNING ####\nYou are missing some optional packages which will become mandatory in the future!\n"
               "Please run `pip install -r requirements.txt` to enjoy optimal functionality and future-proof yourself!\n")
-
-    injectDLL()
 
     # Set up RLBot.cfg
     if framework_config is None:
@@ -54,13 +59,17 @@ def main(framework_config=None, bot_configs=None):
     num_participants, names, teams, modules, parameters = parse_configurations(gameInputPacket,
                                                                                framework_config, bot_configs)
 
+    game_interface.load_interface()
+
+
+    game_interface.participants = num_participants
+    game_interface.game_input_packet = gameInputPacket
+
     # Create Quit event
     quit_event = mp.Event()
 
     agent_metadata_map = {}
     agent_metadata_queue = mp.Queue()
-
-    game_interface = GameInterface(gameInputPacket, num_participants)
 
     # Launch processes
     for i in range(num_participants):
@@ -74,10 +83,10 @@ def main(framework_config=None, bot_configs=None):
 
             process.start()
 
-    print("Successfully configured bots. Setting flag for injected dll.")
+    logger.debug("Successfully configured bots. Setting flag for injected dll.")
     game_interface.start_match()
 
-    print("Press any character to exit")
+    logger.info("Press any character to exit")
     while True:
         if msvcrt.kbhit():
             msvcrt.getch()
@@ -92,7 +101,7 @@ def main(framework_config=None, bot_configs=None):
             print(ex)
             pass
 
-    print("Shutting Down")
+    logger.info("Shutting Down")
     quit_event.set()
     # Wait for all processes to terminate before terminating main process
     terminated = False
@@ -103,9 +112,10 @@ def main(framework_config=None, bot_configs=None):
                 terminated = False
 
 
-def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue):
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue,
+              game_interface):
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                index, module_name, agent_telemetry_queue)
+                                index, module_name, agent_telemetry_queue, game_interface)
     bm.run()
 
 
