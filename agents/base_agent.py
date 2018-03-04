@@ -8,8 +8,6 @@ BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 AGENT_MODULE_KEY = 'agent_module'
 
 
-
-
 class BaseAgent:
     # the name of the bot fixed for any duplicates that may occur
     name = None
