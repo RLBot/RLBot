@@ -1,4 +1,5 @@
 import configparser
+import logging
 import os
 
 import sys
@@ -19,6 +20,7 @@ RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 PARTICIPANT_COUNT_KEY = 'num_participants'
 
+logger = logging.getLogger('rlbot')
 
 # Cut off at 31 characters and handle duplicates
 def get_sanitized_bot_name(dict, name):
@@ -45,14 +47,14 @@ def get_bot_config_file_list(botCount, config, bot_configs):
     for i in range(botCount):
         if i in bot_configs:
             config_file_list.append(bot_configs[i])
-            print("Config available")
+            logger.debug("Config available")
         else:
             bot_config_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
             sys.path.append(os.path.dirname(bot_config_path))
             raw_bot_config = configparser.RawConfigParser()
             raw_bot_config.read(bot_config_path)
             config_file_list.append(raw_bot_config)
-            print("Reading raw config")
+            logger.debug("Reading raw config")
 
     return config_file_list
 
