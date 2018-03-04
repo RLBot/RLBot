@@ -1,12 +1,13 @@
-#include <Messages.hpp>
-
 #include "Interface.hpp"
+
+#include <atomic>
+#include <Messages.hpp>
 
 #include "CallbackProcessor\CallbackProcessor.hpp"
 
 namespace Interface
 {
-	static bool bInitialized = false;
+	static std::atomic_bool bInitialized = false;
 
 	extern "C" bool RLBOT_CORE_API IsInitialized()
 	{
