@@ -7,6 +7,7 @@ from agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_L
     BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
 from utils.agent_creator import import_agent
 from utils.custom_config import ConfigObject
+from utils.structures.bot_input_struct import get_player_configuration_list
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_BOT_KEY = 'participant_is_bot'
@@ -129,12 +130,14 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
     bot_config_object = BaseAgent.create_agent_configurations()
 
+    player_configuration_list = get_player_configuration_list(gameInputPacket)
+
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
         bot_config_object.reset()
         bot_config_object.parse_file(participant_configs[i])
 
-        bot_name, team_number, bot_module, bot_parameters = load_bot_config(i, gameInputPacket.sPlayerConfiguration[i],
+        bot_name, team_number, bot_module, bot_parameters = load_bot_config(i, player_configuration_list[i],
                                                                             bot_config_object, config_parser, name_dict)
 
         bot_names.append(bot_name)
@@ -163,7 +166,9 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
     bot_configuration.bBot = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, index)
     bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, index)
     bot_configuration.fBotSkill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
-    bot_configuration.iPlayerIndex = index
+
+    if not bot_configuration.bBot:
+        bot_configuration.iHumanIndex = index
 
     loadout_header = BOT_CONFIG_LOADOUT_HEADER
     if team_num == 1 and bot_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
