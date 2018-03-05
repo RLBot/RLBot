@@ -1,6 +1,6 @@
 import logging
 
-from utils.structures import bot_input_struct as bi, game_data_struct as gd
+from RlBotFramework.utils.structures import bot_input_struct as bi
 import bot_manager
 import configparser
 import ctypes
@@ -8,13 +8,13 @@ import mmap
 import multiprocessing as mp
 import queue
 import msvcrt
-from utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
+from RlBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
 
 # These packages enhance RLBot but they are not critical to its proper functioning.
 # We have a lot of users who don't have these extra packages installed and we don't want to break them unexpectedly.
 # We also have some setup instructions that will take some time to update.
 # Until we get all of that up to speed, we will work around any missing optional packages and print warning messages.
-from utils.structures.game_interface import GameInterface
+from RlBotFramework.utils.structures.game_interface import GameInterface
 
 optional_packages_installed = False
 try:

@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from utils.rlbot_config_parser import get_num_players, get_team
+from RlBotFramework.utils.rlbot_config_parser import get_num_players, get_team
 
 
 class BaseTeamFrame(tk.Frame):

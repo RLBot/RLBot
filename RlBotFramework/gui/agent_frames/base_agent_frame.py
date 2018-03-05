@@ -2,10 +2,10 @@ import tkinter as tk
 
 import os
 
-from agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
-from utils.agent_creator import import_agent, get_base_import_package
-from utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, PARTICIPANT_BOT_KEY, \
-    PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
+from RlBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
+from RlBotFramework.utils.agent_creator import import_agent, get_base_import_package
+from RlBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,\
+    PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
 
 
 class BaseAgentFrame(tk.Frame):

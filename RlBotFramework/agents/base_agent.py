@@ -1,5 +1,5 @@
-from utils.custom_config import ConfigObject, ConfigHeader
-from utils.structures.quick_chats import QuickChats
+from RlBotFramework.utils.custom_config import ConfigObject, ConfigHeader
+from RlBotFramework.utils.structures.quick_chats import QuickChats
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'

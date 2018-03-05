@@ -4,11 +4,11 @@ import os
 
 import sys
 
-from agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
+from RlBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
     BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
-from utils.agent_creator import import_agent
-from utils.custom_config import ConfigObject
-from utils.structures.bot_input_struct import get_player_configuration_list
+from RlBotFramework.utils.agent_creator import import_agent
+from RlBotFramework.utils.custom_config import ConfigObject
+from RlBotFramework.utils.structures.bot_input_struct import get_player_configuration_list
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_BOT_KEY = 'participant_is_bot'
