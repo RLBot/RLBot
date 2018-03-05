@@ -28,6 +28,7 @@ PARTICPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICPANT_BOT_KEY_PREFIX = 'participant_is_bot_'
 PARTICPANT_RLBOT_KEY_PREFIX = 'participant_is_rlbot_controlled_'
 PARTICPANT_CONFIG_KEY_PREFIX = 'participant_config_'
+PARTICPANT_MODULE_KEY_PREFIX = 'participant_module_'
 PARTICPANT_BOT_SKILL_KEY_PREFIX = 'participant_bot_skill_'
 PARTICPANT_TEAM_PREFIX = 'participant_team_'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
@@ -36,7 +37,6 @@ INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 BOT_CONFIG_LOADOUT_HEADER = 'Participant Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Participant Loadout Orange'
-BOT_CONFIG_MODULE_HEADER = 'Bot Location'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 
 
@@ -45,6 +45,13 @@ def get_bot_config_file_list(botCount, config):
     for i in range(botCount):
         config_file_list.append(config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_CONFIG_KEY_PREFIX + str(i)))
     return config_file_list
+
+
+def get_bot_module_file_list(botCount, config):
+    module_file_list = []
+    for i in range(botCount):
+        module_file_list.append(config.get(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_MODULE_KEY_PREFIX + str(i)))
+    return module_file_list
 
 
 # Cut off at 31 characters and handle duplicates
@@ -65,6 +72,7 @@ def run_agent(terminate_event, callback_event, config_file, name, team, index, m
                                 index, module_name, agent_telemetry_queue)
     bm.run()
 
+
 def injectDLL():
     """
     Calling this function will inject the DLL without GUI
@@ -75,10 +83,11 @@ def injectDLL():
     """
     # Inject DLL
     injector_dir = os.path.join(os.path.dirname(__file__), "RLBot_Injector.exe")
-    incode=subprocess.call([injector_dir, 'hidden'])
-    injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
-    injector_valid_codes=['INJECTION_SUCCESSFUL','RLBOT_DLL_ALREADY_INJECTED']
-    injection_status=injector_codes[incode]
+    incode = subprocess.call([injector_dir, 'hidden'])
+    injector_codes = ['INJECTION_SUCCESSFUL', 'INJECTION_FAILED', 'MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND',
+                      'RLBOT_DLL_ALREADY_INJECTED', 'RLBOT_DLL_NOT_FOUND', 'MULTIPLE_RLBOT_DLL_FILES_FOUND']
+    injector_valid_codes = ['INJECTION_SUCCESSFUL', 'RLBOT_DLL_ALREADY_INJECTED']
+    injection_status = injector_codes[incode]
     print(injection_status)
     if injection_status in injector_valid_codes:
         return injection_status
@@ -104,14 +113,14 @@ def main():
     # Determine number of participants
     num_participants = framework_config.getint(RLBOT_CONFIGURATION_HEADER, 'num_participants')
 
-    # Retrieve bot config files
+    # Retrieve bot config and module files
     participant_configs = get_bot_config_file_list(num_participants, framework_config)
+    participant_modules = get_bot_module_file_list(num_participants, framework_config)
 
     # Create empty lists
     bot_names = []
     bot_teams = []
     bot_modules = []
-    processes = []
     callbacks = []
     bot_parameter_list = []
     name_dict = dict()
@@ -120,8 +129,13 @@ def main():
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
+        # Add module path to sys.path
+        bot_module_path = participant_modules[i]
+        bot_module_directory = os.path.dirname(bot_module_path)
+        if bot_module_directory not in sys.path:
+            sys.path.append(bot_module_directory)
+
         bot_config_path = participant_configs[i]
-        sys.path.append(os.path.dirname(bot_config_path))
         bot_config = configparser.RawConfigParser()
         bot_config.read(bot_config_path)
 
@@ -138,8 +152,8 @@ def main():
             PARTICPANT_CONFIGURATION_HEADER,
             PARTICPANT_RLBOT_KEY_PREFIX + str(i))
         gameInputPacket.sPlayerConfiguration[i].fBotSkill = framework_config.getfloat(PARTICPANT_CONFIGURATION_HEADER,
-                                                                                      PARTICPANT_BOT_SKILL_KEY_PREFIX
-                                                                                      + str(i))
+                                                                                      PARTICPANT_BOT_SKILL_KEY_PREFIX +
+                                                                                      str(i))
         gameInputPacket.sPlayerConfiguration[i].iPlayerIndex = i
 
         gameInputPacket.sPlayerConfiguration[i].wName = get_sanitized_bot_name(name_dict,
@@ -172,7 +186,7 @@ def main():
         bot_names.append(bot_config.get(loadout_header, 'name'))
         bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
-            bot_modules.append(bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module'))
+            bot_modules.append(os.path.splitext(os.path.basename(bot_module_path))[0])
         else:
             bot_modules.append('NO_MODULE_FOR_PARTICIPANT')
 
@@ -252,7 +266,7 @@ def configure_processes(agent_metadata_map):
 
     for player_index, data in agent_metadata_map.items():
         team = data['team']
-        if not team in team_pids_map:
+        if team not in team_pids_map:
             team_pids_map[team] = set()
         team_pids_map[team].update(data['pids'])
 
@@ -289,6 +303,7 @@ def configure_processes(agent_metadata_map):
     for pid in shared_pids:
         p = psutil.Process(pid)  # Allow the process to run at high priority
         p.nice(psutil.HIGH_PRIORITY_CLASS)
+
 
 if __name__ == '__main__':
     main()
