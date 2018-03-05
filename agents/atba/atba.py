@@ -42,8 +42,8 @@ class Atba(BaseAgent):
             0  # handbrake
         ]
 
-    def load_config(self, config_object):
-        self.flip_turning = config_object.getboolean('atba', 'flip_turning')
+    def load_config(self, config_header):
+        self.flip_turning = config_header.getboolean('flip_turning')
 
     @staticmethod
     def create_agent_configurations():
