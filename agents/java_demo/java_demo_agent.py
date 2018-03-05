@@ -1,5 +1,5 @@
 import os
-from grpcsupport.grpc_client import make_grpc_agent
+from RlBotFramework.grpcsupport.grpc_client import make_grpc_agent
 
 port = None
 

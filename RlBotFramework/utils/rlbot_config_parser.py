@@ -1,12 +1,14 @@
 import configparser
+import logging
 import os
 
 import sys
 
-from agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
+from RlBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
     BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
-from utils.agent_creator import import_agent
-from utils.custom_config import ConfigObject
+from RlBotFramework.utils.agent_creator import import_agent
+from RlBotFramework.utils.custom_config import ConfigObject
+from RlBotFramework.utils.structures.bot_input_struct import get_player_configuration_list
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_BOT_KEY = 'participant_is_bot'
@@ -18,6 +20,7 @@ RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 PARTICIPANT_COUNT_KEY = 'num_participants'
 
+logger = logging.getLogger('rlbot')
 
 # Cut off at 31 characters and handle duplicates
 def get_sanitized_bot_name(dict, name):
@@ -44,14 +47,14 @@ def get_bot_config_file_list(botCount, config, bot_configs):
     for i in range(botCount):
         if i in bot_configs:
             config_file_list.append(bot_configs[i])
-            print("Config available")
+            logger.debug("Config available")
         else:
             bot_config_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
             sys.path.append(os.path.dirname(bot_config_path))
             raw_bot_config = configparser.RawConfigParser()
             raw_bot_config.read(bot_config_path)
             config_file_list.append(raw_bot_config)
-            print("Reading raw config")
+            logger.debug("Reading raw config")
 
     return config_file_list
 
@@ -129,12 +132,14 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
     bot_config_object = BaseAgent.create_agent_configurations()
 
+    player_configuration_list = get_player_configuration_list(gameInputPacket)
+
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
         bot_config_object.reset()
         bot_config_object.parse_file(participant_configs[i])
 
-        bot_name, team_number, bot_module, bot_parameters = load_bot_config(i, gameInputPacket.sPlayerConfiguration[i],
+        bot_name, team_number, bot_module, bot_parameters = load_bot_config(i, player_configuration_list[i],
                                                                             bot_config_object, config_parser, name_dict)
 
         bot_names.append(bot_name)
@@ -163,7 +168,9 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
     bot_configuration.bBot = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, index)
     bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, index)
     bot_configuration.fBotSkill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
-    bot_configuration.iPlayerIndex = index
+
+    if not bot_configuration.bBot:
+        bot_configuration.iHumanIndex = index
 
     loadout_header = BOT_CONFIG_LOADOUT_HEADER
     if team_num == 1 and bot_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):

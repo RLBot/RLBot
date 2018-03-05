@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from utils.rlbot_config_parser import get_num_players, get_team
+from RlBotFramework.utils.rlbot_config_parser import get_num_players, get_team
 
 
 class BaseTeamFrame(tk.Frame):
@@ -42,10 +42,6 @@ class BaseTeamFrame(tk.Frame):
         Adds an agent to this frame, creates it too.
         :param overall_index: The index of the bot in the config file if it already exists.
         """
-        if len(self.agents) > 4:
-            return
-        elif len(self.agents) == 4:
-            self.remove_add_agent()
         if overall_index == -1:
             overall_index = self.index_manager.get_new_index()
         else:

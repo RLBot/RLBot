@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 
-from gui.agent_frames.base_agent_frame import BaseAgentFrame
-from gui.utils import get_file
-from utils.agent_creator import get_base_import_package
-from agents.base_agent import BaseAgent
+from RlBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
+from RlBotFramework.gui.utils import get_file
+from RlBotFramework.agents.base_agent import BaseAgent
+from RlBotFramework.utils.agent_creator import get_base_import_package
 
 
 class AgentFrameV2(BaseAgentFrame):
@@ -140,6 +140,12 @@ class AgentFrameV2(BaseAgentFrame):
 
     def load_config(self, overall_config_file, overall_index):
         super().load_config(overall_config_file, overall_index)
+        if self.is_participant_bot() and not self.is_participant_custom_bot():
+            self.player_type.set('Psyonix Bot')
+        elif not self.is_participant_bot() and not self.is_participant_custom_bot():
+            self.player_type.set('Human')
+        elif self.is_participant_bot() and self.is_participant_custom_bot():
+            self.player_type.set('RLBot')
 
     @staticmethod
     def grid_custom_options_header(header_frame, header, exceptions=None, row_offset=0, column_offset=0):
