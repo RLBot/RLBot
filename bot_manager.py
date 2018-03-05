@@ -1,15 +1,18 @@
-from utils.agent_creator import import_agent
-from utils.structures import bot_input_struct as bi, game_data_struct as gd
+import logging
+
+from RlBotFramework.utils import rate_limiter
+from RlBotFramework.utils.agent_creator import import_agent
+from RlBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
 import ctypes
 from datetime import datetime, timedelta
 import importlib
 import mmap
 import os
-from utils import rate_limiter
 import sys
 import traceback
 
-from agents.base_agent import CHAT_NONE
+from RlBotFramework.utils.structures.game_interface import GameInterface
+from RlBotFramework.utils.structures.quick_chats import QuickChats
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
@@ -43,6 +46,8 @@ class BotManager:
         self.index = index
         self.module_name = module_name
         self.agent_metadata_queue = agent_metadata_queue
+        self.logger = logging.getLogger('rlbot')
+        self.game_interface = GameInterface()
 
     def load_agent(self, agent_class):
         agent = agent_class(self.name, self.team, self.index)
@@ -118,7 +123,7 @@ class BotManager:
                     new_module_modification_time = os.stat(agent_class.__file__).st_mtime
                     if new_module_modification_time != last_module_modification_time:
                         last_module_modification_time = new_module_modification_time
-                        print('Reloading Agent: ' + agent_class.__file__)
+                        self.logger.info('Reloading Agent: ' + agent_class.__file__)
                         importlib.reload(agent_class)
                         old_agent = agent
                         agent = self.load_agent(agent_class)
@@ -129,7 +134,6 @@ class BotManager:
                     # Call agent
                     chat_data = agent.get_chat_selection(game_tick_packet)
                     controller_input = agent.get_output_vector(game_tick_packet)
-
 
                     if not controller_input:
                         raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_class.__file__))
@@ -144,7 +148,7 @@ class BotManager:
                     player_input.bBoost = controller_input[6]
                     player_input.bHandbrake = controller_input[7]
 
-                    if chat_data[0] != CHAT_NONE:
+                    if chat_data[0] != QuickChats.CHAT_NONE:
                         player_input.pQuickChatPreset = chat_data[0]
                         player_input.bTeamChat = chat_data[1]
 

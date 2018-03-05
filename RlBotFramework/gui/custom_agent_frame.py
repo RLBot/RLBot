@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER
+from RlBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER
 
 
 class CustomAgentFrame(tk.Frame):

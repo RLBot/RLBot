@@ -1,12 +1,11 @@
-from utils.custom_config import ConfigObject, ConfigHeader
+from RlBotFramework.utils.custom_config import ConfigObject, ConfigHeader
+from RlBotFramework.utils.structures.quick_chats import QuickChats
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
 BOT_CONFIG_MODULE_HEADER = 'Bot Location'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 AGENT_MODULE_KEY = 'agent_module'
-
-
 
 
 class BaseAgent:
@@ -46,8 +45,8 @@ class BaseAgent:
         :param game_tick_packet: see https://github.com/drssoccer55/RLBot/wiki/Input-and-Output-Data-(current)
         :return: [chat_selection, team_only]
         """
-        return [CHAT_NONE,
-                CHAT_EVERYONE]
+        return [QuickChats.CHAT_NONE,
+                QuickChats.CHAT_EVERYONE]
 
     def load_config(self, config_object_header):
         pass
@@ -107,58 +106,8 @@ class BaseAgent:
         player_configuration.iBoostID = bot_config.getint(loadout_header, 'boost_id')
         player_configuration.iAntennaID = bot_config.getint(loadout_header, 'antenna_id')
         player_configuration.iHatID = bot_config.getint(loadout_header, 'hat_id')
-        player_configuration.iPaintFinish1ID = bot_config.getint(loadout_header, 'paint_finish_1_id')
-        player_configuration.iPaintFinish2ID = bot_config.getint(loadout_header, 'paint_finish_2_id')
+        player_configuration.iPaintFinishID = bot_config.getint(loadout_header, 'paint_finish_1_id')
+        player_configuration.iCustomFinishID = bot_config.getint(loadout_header, 'paint_finish_2_id')
         player_configuration.iEngineAudioID = bot_config.getint(loadout_header, 'engine_audio_id')
         player_configuration.iTrailsID = bot_config.getint(loadout_header, 'trails_id')
         player_configuration.iGoalExplosionID = bot_config.getint(loadout_header, 'goal_explosion_id')
-
-
-# Chat constants
-Information_IGotIt = 0
-Information_NeedBoost = 1
-Information_TakeTheShot = 2
-Information_Defending = 3
-Information_GoForIt = 4
-Information_Centering = 5
-Information_AllYours = 6
-Information_InPosition = 7
-Information_Incoming = 8
-Compliments_NiceShot = 9
-Compliments_GreatPass = 10
-Compliments_Thanks = 11
-Compliments_WhatASave = 12
-Compliments_NiceOne = 13
-Compliments_WhatAPlay = 14
-Compliments_GreatClear = 15
-Compliments_NiceBlock = 16
-Reactions_OMG = 17
-Reactions_Noooo = 18
-Reactions_Wow = 19
-Reactions_CloseOne = 20
-Reactions_NoWay = 21
-Reactions_HolyCow = 22
-Reactions_Whew = 23
-Reactions_Siiiick = 24
-Reactions_Calculated = 25
-Reactions_Savage = 26
-Reactions_Okay = 27
-Apologies_Cursing = 28
-Apologies_NoProblem = 29
-Apologies_Whoops = 30
-Apologies_Sorry = 31
-Apologies_MyBad = 32
-Apologies_Oops = 34
-Apologies_MyFault = 35
-PostGame_Gg = 36
-PostGame_WellPlayed = 37
-PostGame_ThatWasFun = 38
-PostGame_Rematch = 39
-PostGame_OneMoreGame = 40
-PostGame_WhatAGame = 41
-PostGame_NiceMoves = 42
-PostGame_EverybodyDance = 43
-
-CHAT_NONE = -1
-CHAT_EVERYONE = False
-CHAT_TEAM_ONLY = True

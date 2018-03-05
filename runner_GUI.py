@@ -2,15 +2,14 @@ import tkinter as tk
 from tkinter import ttk
 
 import runner
-from gui import match_settings_frame
-from gui.team_frames.team_frame_notebook import NotebookTeamFrame
-from gui.team_frames.base_team_frame import BaseTeamFrame
-from gui.agent_frames.agent_frame import AgentFrame
-from gui.agent_frames.agent_frame_v2 import AgentFrameV2
-from gui.utils import get_file, IndexManager
-from utils.custom_config import ConfigObject
-from utils.rlbot_config_parser import create_bot_config_layout
-
+from RlBotFramework.gui import match_settings_frame
+from RlBotFramework.gui.team_frames.team_frame_notebook import NotebookTeamFrame
+from RlBotFramework.gui.team_frames.base_team_frame import BaseTeamFrame
+from RlBotFramework.gui.agent_frames.agent_frame import AgentFrame
+from RlBotFramework.gui.agent_frames.agent_frame_v2 import AgentFrameV2
+from RlBotFramework.gui.utils import get_file, IndexManager
+from RlBotFramework.utils.custom_config import ConfigObject
+from RlBotFramework.utils.rlbot_config_parser import create_bot_config_layout
 
 team_frame_types = {BaseTeamFrame: "default", "default": BaseTeamFrame,
                     NotebookTeamFrame: "notebook", "notebook": NotebookTeamFrame}
@@ -35,7 +34,7 @@ class RunnerGUI(tk.Frame):
         self.load_cfg(self.latest_save_path)
         self.load_team_frames()
         self.match_settings = match_settings_frame.SettingsFrame(self.parent)
-        
+
         parent.wm_protocol("WM_DELETE_WINDOW", lambda: self.quit_save_popup())
 
         self.match_settings.grid(row=0, column=0, columnspan=2, sticky="nsew")

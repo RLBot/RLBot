@@ -2,10 +2,10 @@ import tkinter as tk
 
 import os
 
-from agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
-from utils.agent_creator import import_agent, get_base_import_package
-from utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, PARTICIPANT_BOT_KEY, \
-    PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
+from RlBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
+from RlBotFramework.utils.agent_creator import import_agent, get_base_import_package
+from RlBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,\
+    PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
 
 
 class BaseAgentFrame(tk.Frame):
@@ -97,7 +97,6 @@ class BaseAgentFrame(tk.Frame):
         self.overall_config = overall_config_file
         self.overall_index = overall_index
         self.load_agent_config()
-        self.link_variables()
 
     def load_agent_from_path(self, agent_file_path):
         module = get_base_import_package(agent_file_path)
