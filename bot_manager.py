@@ -36,7 +36,7 @@ class BotManager:
             Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
         :param module_name: The name of the python module which contains the bot's code
         :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
-        :param
+        :param game_interface: an interface into the game instance
         """
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
@@ -47,6 +47,7 @@ class BotManager:
         self.module_name = module_name
         self.agent_metadata_queue = agent_metadata_queue
         self.logger = logging.getLogger('rlbot')
+        self.game_interface = game_interface
 
     def load_agent(self, agent_class):
         agent = agent_class(self.name, self.team, self.index)
