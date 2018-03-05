@@ -171,5 +171,5 @@ class AgentFrameV2(BaseAgentFrame):
             self.player_type.set('Psyonix Bot')
         elif not self.is_participant_bot() and not self.is_participant_custom_bot():
             self.player_type.set('Human')
-        else self.is_participant_bot() and self.is_participant_custom_bot():
+        elif self.is_participant_bot() and self.is_participant_custom_bot():
             self.player_type.set('RLBot')
