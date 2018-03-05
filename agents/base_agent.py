@@ -49,7 +49,7 @@ class BaseAgent:
         return [CHAT_NONE,
                 CHAT_EVERYONE]
 
-    def load_config(self, config_object):
+    def load_config(self, config_object_header):
         pass
 
     def initialize_agent(self):
