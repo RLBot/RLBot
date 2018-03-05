@@ -100,7 +100,7 @@ def main():
         print("\n#### WARNING ####\nYou are missing some optional packages which will become mandatory in the future!\n"
               "Please run `pip install -r requirements.txt` to enjoy optimal functionality and future-proof yourself!\n")
 
-    # injectDLL()
+    injectDLL()
 
     # Set up RLBot.cfg
     framework_config = configparser.RawConfigParser()
