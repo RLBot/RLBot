@@ -167,3 +167,9 @@ class AgentFrameV2(BaseAgentFrame):
 
     def load_config(self, overall_config_file, overall_index):
         super().load_config(overall_config_file, overall_index)
+        if self.is_participant_bot() and not self.is_participant_custom_bot():
+            self.player_type.set('Psyonix Bot')
+        elif not self.is_participant_bot() and not self.is_participant_custom_bot():
+            self.player_type.set('Human')
+        else self.is_participant_bot() and self.is_participant_custom_bot():
+            self.player_type.set('RLBot')
