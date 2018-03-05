@@ -6,11 +6,11 @@ import os
 import subprocess
 import sys
 
-from utils.agent_creator import get_base_repo_path
-from utils.structures.bot_input_struct import get_player_input_list_type
+from RlBotFramework.utils.agent_creator import get_base_repo_path
+from RlBotFramework.utils.structures.bot_input_struct import get_player_input_list_type
 import time
 
-from utils.structures.game_status import RLBotCoreStatus
+from RlBotFramework.utils.structures.game_status import RLBotCoreStatus
 
 
 class GameInterface:
