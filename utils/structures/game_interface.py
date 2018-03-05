@@ -12,11 +12,6 @@ import time
 
 from utils.structures.game_status import RLBotCoreStatus
 
-def countdown(countdown_timer):
-    for i in range(countdown_timer):
-        print(countdown_timer - i)
-        time.sleep(1)
-
 
 class GameInterface:
 
@@ -59,7 +54,7 @@ class GameInterface:
     def create_callback(self):
         return
 
-    def game_status(self, rlbot_status):
+    def game_status(self, id, rlbot_status):
         self.logger.info(RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
@@ -100,9 +95,14 @@ class GameInterface:
             self.logger.debug('Finished Injecting DLL')
             if injection_status == 'INJECTION_SUCCESSFUL':
                 # We need to wait for the injections to be finished
-                #countdown(11)
+                self.countdown(11)
                 pass
             return injection_status
         else:
             self.logger.error('Failed to inject DLL: ' + injection_status)
             sys.exit()
+
+    def countdown(self, countdown_timer):
+        for i in range(countdown_timer):
+            self.logger.debug(countdown_timer - i)
+            time.sleep(1)
