@@ -11,6 +11,7 @@ from utils import rate_limiter
 import sys
 import traceback
 
+from utils.structures.game_interface import GameInterface
 from utils.structures.quick_chats import QuickChats
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
@@ -25,7 +26,7 @@ MAX_CARS = 10
 class BotManager:
 
     def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                 module_name, agent_metadata_queue, game_interface):
+                 module_name, agent_metadata_queue):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -36,7 +37,6 @@ class BotManager:
             Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
         :param module_name: The name of the python module which contains the bot's code
         :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
-        :param game_interface: an interface into the game instance
         """
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
@@ -47,7 +47,7 @@ class BotManager:
         self.module_name = module_name
         self.agent_metadata_queue = agent_metadata_queue
         self.logger = logging.getLogger('rlbot')
-        self.game_interface = game_interface
+        self.game_interface = GameInterface()
 
     def load_agent(self, agent_class):
         agent = agent_class(self.name, self.team, self.index)

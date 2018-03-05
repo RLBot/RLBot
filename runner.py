@@ -38,6 +38,7 @@ def main(framework_config=None, bot_configs=None):
     callbacks = []
     # Inject DLL
     game_interface = GameInterface()
+    game_interface.load_interface()
     game_interface.inject_dll()
 
     if not optional_packages_installed:
@@ -59,7 +60,7 @@ def main(framework_config=None, bot_configs=None):
     num_participants, names, teams, modules, parameters = parse_configurations(gameInputPacket,
                                                                                framework_config, bot_configs)
 
-    game_interface.load_interface()
+
 
 
     game_interface.participants = num_participants
@@ -71,6 +72,7 @@ def main(framework_config=None, bot_configs=None):
     agent_metadata_map = {}
     agent_metadata_queue = mp.Queue()
 
+
     # Launch processes
     for i in range(num_participants):
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
@@ -79,7 +81,7 @@ def main(framework_config=None, bot_configs=None):
             process = mp.Process(target=run_agent,
                                  args=(quit_event, callback, parameters[i],
                                        str(gameInputPacket.sPlayerConfiguration[i].wName),
-                                       teams[i], i, modules[i], agent_metadata_queue, game_interface))
+                                       teams[i], i, modules[i], agent_metadata_queue))
 
             process.start()
 
@@ -112,10 +114,9 @@ def main(framework_config=None, bot_configs=None):
                 terminated = False
 
 
-def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue,
-              game_interface):
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue):
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                index, module_name, agent_telemetry_queue, game_interface)
+                                index, module_name, agent_telemetry_queue)
     bm.run()
 
 
