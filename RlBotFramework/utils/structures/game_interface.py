@@ -47,7 +47,7 @@ class GameInterface:
     def update_player_input(self):
         pass
 
-    def send_chat(self):
+    def send_chat(self, index, message_details):
         pass
 
     def create_callback(self):

@@ -131,3 +131,4 @@ class QuickChatManager:
                     # do not send to other team if team only
                     continue
                 bots[1].put((index, message_details))
+            self.game_interface.send_chat(index, message_details)
