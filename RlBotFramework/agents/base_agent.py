@@ -65,6 +65,9 @@ class BaseAgent:
         """
         return []
 
+    def retire(self):
+        """Called after the game ends"""
+
     @staticmethod
     def create_agent_configurations():
         config = ConfigObject()

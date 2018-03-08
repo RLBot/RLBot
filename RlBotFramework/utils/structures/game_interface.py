@@ -17,13 +17,12 @@ class GameInterface:
     game = None
     participants = None
     game_input_packet = None
-    status_callback = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int)
+
 
     def __init__(self):
         self.logger = logging.getLogger('rlbot')
         self.dll_path = os.path.join(get_base_repo_path(), 'RLBot_Core_Interface.dll')
         # wait for the dll to load
-        self.rlbot_status_callback = self.status_callback(self.game_status)
 
     def update_live_data_packet(self):
         pass
@@ -40,7 +39,7 @@ class GameInterface:
         func.argtypes = [list_of_10, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
         func.restype = ctypes.c_int
         rlbot_status = self.game.StartMatch(self.game_input_packet.sPlayerConfiguration, self.participants,
-                             self.rlbot_status_callback, None)
+                                            self.create_status_callback(), None)
 
         self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
 
@@ -105,3 +104,6 @@ class GameInterface:
         for i in range(countdown_timer):
             self.logger.debug(countdown_timer - i)
             time.sleep(1)
+
+    def create_status_callback(self):
+        return ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int)(lambda id, rlbot_status: self.game_status(id, rlbot_status))
