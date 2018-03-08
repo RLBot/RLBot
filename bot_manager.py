@@ -14,8 +14,7 @@ import traceback
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChats
 
-OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
-INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
+
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
 MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
@@ -70,15 +69,11 @@ class BotManager:
 
     def run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
-        buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
-        bot_input = bi.GameInputPacket.from_buffer(buff)
+        bot_input = bi.GameInputPacket()
         player_input = bot_input.sPlayerInput[self.index]
-        player_input_lock = (ctypes.c_long).from_address(ctypes.addressof(player_input))
 
         # Set up shared memory for game data
-        game_data_shared_memory = mmap.mmap(-1, ctypes.sizeof(gd.GameTickPacketWithLock), OUTPUT_SHARED_MEMORY_TAG)
-        bot_output = gd.GameTickPacketWithLock.from_buffer(game_data_shared_memory)
-        lock = ctypes.c_long(0)
+        bot_output = gd.GameTickPacketWithLock()
         game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
         # Create Ratelimiter
@@ -103,9 +98,6 @@ class BotManager:
         while not self.terminate_request_event.is_set():
             before = datetime.now()
             # Read from game data shared memory
-
-            if lock.value != REFRESH_IN_PROGRESS:
-                pass
 
             # Run the Agent only if the gameInfo has updated.
             tick_game_time = game_tick_packet.gameInfo.TimeSeconds
