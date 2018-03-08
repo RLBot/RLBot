@@ -3,8 +3,6 @@ import logging
 from RlBotFramework.utils.structures import bot_input_struct as bi
 import bot_manager
 import configparser
-import ctypes
-import mmap
 import multiprocessing as mp
 import queue
 import msvcrt
@@ -25,8 +23,6 @@ except ImportError:
 
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
-INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
-OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 
 
 def main(framework_config=None, bot_configs=None):
@@ -38,7 +34,6 @@ def main(framework_config=None, bot_configs=None):
     callbacks = []
     # Inject DLL
     game_interface = GameInterface()
-    game_interface.load_interface()
     game_interface.inject_dll()
 
     if not optional_packages_installed:
@@ -54,14 +49,12 @@ def main(framework_config=None, bot_configs=None):
         framework_config.parse_file(raw_config_parser, max_index=10)
 
     # Open anonymous shared memory for entire GameInputPacket and map buffer
-    buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
     gameInputPacket = bi.GameInputPacket()
 
     num_participants, names, teams, modules, parameters = parse_configurations(gameInputPacket,
                                                                                framework_config, bot_configs)
 
-
-
+    game_interface.load_interface()
 
     game_interface.participants = num_participants
     game_interface.game_input_packet = gameInputPacket
