@@ -106,4 +106,4 @@ class GameInterface:
             time.sleep(1)
 
     def create_status_callback(self):
-        return ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int)(lambda id, rlbot_status: self.game_status(id, rlbot_status))
+        return ctypes.CFUNCTYPE(None, ctypes.c_int, ctypes.c_int)(lambda id, rlbot_status: self.game_status(id, rlbot_status))
