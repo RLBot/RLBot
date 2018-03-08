@@ -1,7 +1,7 @@
 import logging
 
 from RlBotFramework.utils import rate_limiter
-from RlBotFramework.utils.agent_creator import import_agent
+from RlBotFramework.utils.agent_creator import import_agent, get_agent_class_location
 from RlBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
 import ctypes
 from datetime import datetime, timedelta
@@ -55,7 +55,8 @@ class BotManager:
         agent.initialize_agent()
 
         self.update_metadata_queue(agent)
-        return agent
+        agent_class_file = get_agent_class_location(agent_class)
+        return agent, agent_class_file
 
     def update_metadata_queue(self, agent):
         pids = set()
@@ -94,22 +95,17 @@ class BotManager:
         # Get bot module
         agent_class = import_agent(self.module_name)
 
-        agent = self.load_agent(agent_class)
-        last_module_modification_time = os.stat(agent_class.__file__).st_mtime
+        agent, agent_class_file = self.load_agent(agent_class)
+
+        last_module_modification_time = os.stat(agent_class_file).st_mtime
 
         # Run until main process tells to stop
         while not self.terminate_request_event.is_set():
             before = datetime.now()
             # Read from game data shared memory
-            game_data_shared_memory.seek(0)  # Move to beginning of shared memory
-            ctypes.memmove(ctypes.addressof(lock), game_data_shared_memory.read(ctypes.sizeof(lock)), ctypes.sizeof(
-                lock))  # dll uses InterlockedExchange so this read will return the correct value!
 
             if lock.value != REFRESH_IN_PROGRESS:
-                game_data_shared_memory.seek(4, os.SEEK_CUR)  # Move 4 bytes past error code
-                ctypes.memmove(ctypes.addressof(game_tick_packet),
-                               game_data_shared_memory.read(ctypes.sizeof(gd.GameTickPacket)),
-                               ctypes.sizeof(gd.GameTickPacket))  # copy shared memory into struct
+                pass
 
             # Run the Agent only if the gameInfo has updated.
             tick_game_time = game_tick_packet.gameInfo.TimeSeconds
@@ -120,13 +116,13 @@ class BotManager:
 
                 try:
                     # Reload the Agent if it has been modified.
-                    new_module_modification_time = os.stat(agent_class.__file__).st_mtime
+                    new_module_modification_time = os.stat(agent_class_file).st_mtime
                     if new_module_modification_time != last_module_modification_time:
                         last_module_modification_time = new_module_modification_time
-                        self.logger.info('Reloading Agent: ' + agent_class.__file__)
+                        self.logger.info('Reloading Agent: ' + agent_class_file)
                         importlib.reload(agent_class)
                         old_agent = agent
-                        agent = self.load_agent(agent_class)
+                        agent, agent_class_file = self.load_agent(agent_class)
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
