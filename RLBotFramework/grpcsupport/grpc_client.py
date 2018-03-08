@@ -4,7 +4,7 @@ import msvcrt
 import psutil
 from . import proto_converter
 from .protobuf import game_data_pb2_grpc
-from RlBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.agents.base_agent import BaseAgent
 
 
 def make_grpc_agent(address, port):

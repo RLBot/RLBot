@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from RlBotFramework.gui.team_frames.base_team_frame import BaseTeamFrame
+from RLBotFramework.gui.team_frames.base_team_frame import BaseTeamFrame
 
 
 class NotebookTeamFrame(BaseTeamFrame):
@@ -54,7 +54,7 @@ class NotebookTeamFrame(BaseTeamFrame):
 
 
 if __name__ == '__main__':
-    from RlBotFramework.gui import AgentFrame
+    from RLBotFramework.gui import AgentFrame
     root = tk.Tk()
     team_frame = NotebookTeamFrame(root, 0, AgentFrame)
     team_frame.pack(side="top", fill="both", expand=True)
