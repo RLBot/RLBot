@@ -3,7 +3,7 @@ import inspect
 
 import os
 
-from RlBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.agents.base_agent import BaseAgent
 
 
 def is_class_agent(agent):

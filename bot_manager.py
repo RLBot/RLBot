@@ -1,8 +1,8 @@
 import logging
 
-from RlBotFramework.utils import rate_limiter
-from RlBotFramework.utils.agent_creator import import_agent, get_agent_class_location
-from RlBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
+from RLBotFramework.utils import rate_limiter
+from RLBotFramework.utils.agent_creator import import_agent, get_agent_class_location
+from RLBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
 import ctypes
 from datetime import datetime, timedelta
 import importlib
@@ -11,8 +11,8 @@ import os
 import sys
 import traceback
 
-from RlBotFramework.utils.structures.game_interface import GameInterface
-from RlBotFramework.utils.structures.quick_chats import QuickChats
+from RLBotFramework.utils.structures.game_interface import GameInterface
+from RLBotFramework.utils.structures.quick_chats import QuickChats
 
 OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'

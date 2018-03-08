@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 
-from RlBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
-from RlBotFramework.gui.utils import get_file
-from RlBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
+from RLBotFramework.gui.utils import get_file
+from RLBotFramework.agents.base_agent import BaseAgent
 
 
 class AgentFrameV2(BaseAgentFrame):
