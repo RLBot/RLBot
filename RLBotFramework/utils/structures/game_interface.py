@@ -12,12 +12,18 @@ import time
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
 
 
+def wrap_callback(callback_func):
+    def caller(id, status):
+        callback_func(id, status)
+    return caller
+
+
 class GameInterface:
 
     game = None
     participants = None
     game_input_packet = None
-
+    game_status_callback_type = None
 
     def __init__(self):
         self.logger = logging.getLogger('rlbot')
@@ -36,7 +42,7 @@ class GameInterface:
         # self.game_input_packet.bStartMatch = True
         func = self.game.StartMatch
         list_of_10 = get_player_input_list_type()
-        func.argtypes = [list_of_10, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]
+        func.argtypes = [list_of_10, ctypes.c_int, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
         rlbot_status = self.game.StartMatch(self.game_input_packet.sPlayerConfiguration, self.participants,
                                             self.create_status_callback(), None)
@@ -64,6 +70,8 @@ class GameInterface:
             self.wait_until_loaded()
 
     def load_interface(self):
+        self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)
+        self.callback_func = self.game_status_callback_type(wrap_callback(self.game_status))
         self.game = ctypes.WinDLL(self.dll_path)
         time.sleep(1)
 
@@ -106,4 +114,4 @@ class GameInterface:
             time.sleep(1)
 
     def create_status_callback(self):
-        return ctypes.CFUNCTYPE(None, ctypes.c_int, ctypes.c_int)(lambda id, rlbot_status: self.game_status(id, rlbot_status))
+        return self.callback_func
