@@ -3,9 +3,9 @@
 
 #include <SDK.hpp>
 
+#include "LiveDataPacket.hpp"
+#include "MatchDataPacket.hpp"
 #include "MatchSettingsStructs.hpp"
-#include "MatchStructs.hpp"
-#include "LiveDataStructs.hpp"
 
 struct PlayerInput
 {

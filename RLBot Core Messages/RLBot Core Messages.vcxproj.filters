@@ -68,10 +68,13 @@
     <ClInclude Include="MessageDefines\MessageDefines.hpp">
       <Filter>Header Files\MessageDefines</Filter>
     </ClInclude>
-    <ClInclude Include="PacketStructs\MatchStructs.hpp">
+    <ClInclude Include="PacketStructs\MatchDataPacket.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
-    <ClInclude Include="PacketStructs\MatchSettingsStructs.hpp">
+    <ClInclude Include="PacketStructs\LiveDataPacket.hpp">
+      <Filter>Header Files\PacketStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketStructs\MatchSettings.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
   </ItemGroup>
