@@ -68,12 +68,12 @@ class BotManager:
         self.agent_metadata_queue.put({'index': self.index, 'name': self.name, 'team': self.team, 'pids': pids})
 
     def run(self):
+        self.game_interface.load_interface()
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
         bot_input = bi.GameInputPacket()
         player_input = bot_input.sPlayerInput[self.index]
 
         # Set up shared memory for game data
-        bot_output = gd.GameTickPacketWithLock()
         game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
         # Create Ratelimiter
@@ -81,11 +81,6 @@ class BotManager:
         last_tick_game_time = None  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
 
-        # Find car with same name and assign index
-        for i in range(MAX_CARS):
-            if str(bot_output.gamecars[i].wName) == self.name:
-                self.index = i
-                continue
 
         # Get bot module
         agent_class = import_agent(self.module_name)
@@ -97,6 +92,8 @@ class BotManager:
         # Run until main process tells to stop
         while not self.terminate_request_event.is_set():
             before = datetime.now()
+            self.game_interface.update_live_data_packet(game_tick_packet)
+            # game_tick_packet = self.game_interface.get
             # Read from game data shared memory
 
             # Run the Agent only if the gameInfo has updated.
@@ -136,9 +133,8 @@ class BotManager:
                     player_input.bBoost = controller_input[6]
                     player_input.bHandbrake = controller_input[7]
 
-                    if chat_data[0] != QuickChats.CHAT_NONE:
-                        player_input.pQuickChatPreset = chat_data[0]
-                        player_input.bTeamChat = chat_data[1]
+                    self.game_interface.update_player_input(player_input, self.index)
+
 
                 except Exception as e:
                     traceback.print_exc()
