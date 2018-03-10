@@ -5,7 +5,7 @@
 
 #include "LiveDataPacket.hpp"
 #include "MatchDataPacket.hpp"
-#include "MatchSettingsStructs.hpp"
+#include "MatchSettings.hpp"
 
 struct PlayerInput
 {
