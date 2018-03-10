@@ -44,8 +44,9 @@
     <ClInclude Include="MessageStructs\GameMessages.hpp" />
     <ClInclude Include="MessageStructs\Message.hpp" />
     <ClInclude Include="MessageStructs\RendererMessages.hpp" />
-    <ClInclude Include="PacketStructs\MatchSettingsStructs.hpp" />
-    <ClInclude Include="PacketStructs\MatchStructs.hpp" />
+    <ClInclude Include="PacketStructs\LiveDataPacket.hpp" />
+    <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />
+    <ClInclude Include="PacketStructs\MatchSettings.hpp" />
     <ClInclude Include="PacketStructs\PacketStructs.hpp" />
   </ItemGroup>
   <ItemGroup>

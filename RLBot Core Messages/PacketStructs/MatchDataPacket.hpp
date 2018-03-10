@@ -1,5 +1,5 @@
-#ifndef MATCHSTRUCTS_HPP
-#define MATCHSTRUCTS_HPP
+#ifndef MATCHDATAPACKET_HPP
+#define MATCHDATAPACKET_HPP
 
 #include <SDK.hpp>
 
@@ -14,7 +14,6 @@ struct GoalInfo
 	unsigned char			TeamNum;
 };
 
-
 struct FieldInfo
 {
 	Rotator					FieldOrientation;
@@ -25,12 +24,10 @@ struct FieldInfo
 	GoalInfo				Goals[2];
 };
 
-
 struct MatchDataPacket
 {
 	FieldInfo				FieldInfo;
 };
-
 
 struct MatchDataWrapper
 {
