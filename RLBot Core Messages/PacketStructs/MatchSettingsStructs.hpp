@@ -36,21 +36,51 @@ enum GameMode
 
 enum Map
 {
-	Map_AquaDome,
-	Map_BeckwithPark,
-	Map_ChampionsField,
-	Map_DFH,
-	Map_Manfield,
-	Map_NeoTokyo,
-	Map_Starbase,
-	Map_UrbanCentral,
-	Map_UtopiaColiseum,
-	Map_Waseland
+	NormalMap_AquaDome,
+	NormalMap_BeckwithPark,
+	NormalMap_ChampionsField,
+	NormalMap_DFH,
+	NormalMap_Manfield,
+	NormalMap_NeoTokyo,
+	NormalMap_Starbase,
+	NormalMap_UrbanCentral,
+	NormalMap_UtopiaColiseum,
+	NormalMap_Waseland,
+	NormalMap_Farmstead,
+	RemovedMap_ARCtagon,
+	RemovedMap_Badlands,
+	RemovedMap_TokyoUnderpass,
+	Hoops_DunkHouse,
+	DropShot_Core707,
+	RocketLab_Cosmic,
+	RocketLab_DoubleGoal,
+	RocketLab_Octagon,
+	RocketLab_Pillars,
+	RocketLab_Underpass,
+	RocketLab_UtopiaRetro,
+	Workshop_Aerial_Map, // http://steamcommunity.com/sharedfiles/filedetails/?id=1212847139&searchtext=
+	Workshop_DribblingChallenge2, // http://steamcommunity.com/sharedfiles/filedetails/?id=964271505&searchtext=
+	Workshop_ShipYarr, // http://steamcommunity.com/sharedfiles/filedetails/?id=817314448&searchtext=
+	Workshop_BeachVolley, // http://steamcommunity.com/sharedfiles/filedetails/?id=916532343&searchtext=
+	Workshop_DribblingChallenge, // http://steamcommunity.com/sharedfiles/filedetails/?id=814218628&searchtext=
+	Workshop_ObstacleCourse2, // http://steamcommunity.com/sharedfiles/filedetails/?id=828803580&searchtext=
+	Workshop_ObstacleCourse // http://steamcommunity.com/sharedfiles/filedetails/?id=814207936
+};
+
+enum MapVariation
+{
+	Variation_Night,
+	Variation_Day,
+	Variation_Snowy,
+	Variation_Stormy,
+	Variation_Dusk
 };
 
 struct MatchSettings
 {
-
+	GameMode GameMode;
+	Map GameMap;
+	MapVariation MapVariation;
 };
 
 #endif
