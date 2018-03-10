@@ -25,16 +25,37 @@ class GameInterface:
     participants = None
     game_input_packet = None
     game_status_callback_type = None
+    callback_func = None
 
     def __init__(self, logger):
         self.logger = logger
         self.dll_path = os.path.join(get_base_repo_path(), 'RLBot_Core_Interface.dll')
         # wait for the dll to load
 
-    def update_live_data_packet(self, game_tick_packet):
+    def setup_function_types(self):
+        self.wait_until_loaded()
+        # update live data packet
         func = self.game.UpdateLiveDataPacket
         func.argtypes = [ctypes.POINTER(GameTickPacket)]
         func.restype = ctypes.c_int
+
+        # start match
+        func = self.game.StartMatch
+        list_of_10 = get_player_input_list_type()
+        func.argtypes = [list_of_10, ctypes.c_int, self.game_status_callback_type, ctypes.c_void_p]
+        func.restype = ctypes.c_int
+
+        # update player input
+        func = self.game.UpdatePlayerInput
+        func.argtypes = [PlayerInput, ctypes.c_int]
+        func.restype = ctypes.c_int
+
+        # send chat
+        func = self.game.SendChat
+        func.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_bool, self.game_status_callback_type, ctypes.c_void_p]
+        func.restype = ctypes.c_int
+
+    def update_live_data_packet(self, game_tick_packet):
         rlbot_status = self.game.UpdateLiveDataPacket(game_tick_packet)
         self.game_status(None, rlbot_status)
         return game_tick_packet
@@ -44,25 +65,19 @@ class GameInterface:
 
     def start_match(self):
         self.wait_until_loaded()
-
         # self.game_input_packet.bStartMatch = True
-        func = self.game.StartMatch
-        list_of_10 = get_player_input_list_type()
-        func.argtypes = [list_of_10, ctypes.c_int, self.game_status_callback_type, ctypes.c_void_p]
-        func.restype = ctypes.c_int
         rlbot_status = self.game.StartMatch(self.game_input_packet.sPlayerConfiguration, self.participants,
                                             self.create_status_callback(), None)
 
         self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
 
     def update_player_input(self, player_input, index):
-        func = self.game.UpdatePlayerInput
-        func.argtypes = [PlayerInput, ctypes.c_int]
-        func.restype = ctypes.c_int
         rlbot_status = self.game.UpdatePlayerInput(player_input, index)
         self.game_status(None, rlbot_status)
 
-    def send_chat(self, index, message_details):
+    def send_chat(self, index, team_only, message_details):
+        rlbot_status = self.game.SendChat(message_details, index, team_only, self.create_status_callback(), None)
+        self.game_status(None, rlbot_status)
         pass
 
     def create_callback(self):
@@ -85,6 +100,7 @@ class GameInterface:
         self.callback_func = self.game_status_callback_type(wrap_callback(self.game_status))
         self.game = ctypes.WinDLL(self.dll_path)
         time.sleep(1)
+        self.setup_function_types()
 
     def inject_dll(self):
         """
