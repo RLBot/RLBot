@@ -10,7 +10,7 @@ import traceback
 import time
 
 from RLBotFramework.utils.structures.game_interface import GameInterface
-from RLBotFramework.utils.structures.quick_chats import QuickChats, send_quick_chat, register_for_quick_chat
+from RLBotFramework.utils.structures.quick_chats import send_quick_chat, register_for_quick_chat
 
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
 MAX_CHAT_RATE = 1.0 / GAME_TICK_PACKET_REFRESHES_PER_SECOND * 2.0
