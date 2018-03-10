@@ -4,6 +4,8 @@ from multiprocessing import Manager
 
 import time
 
+from RLBotFramework.utils.logging_utils import get_logger
+
 
 def get_quick_chats():
     quick_chat_list = ["Information_IGotIt",
@@ -75,11 +77,11 @@ def send_quick_chat(queue_holder, index, team, team_only, quick_chat):
     queue_holder["output"].put((index, team, team_only, quick_chat))
 
 
-def register_for_quick_chat(queue_holder, is_game_running, called_func):
+def register_for_quick_chat(queue_holder, is_game_running_function, called_func):
     """
     Registers a function to be called anytime this queue gets a quick chat.
     :param queue_holder:  This holds the queues for the bots
-    :param is_game_running: This returns true while the game is running.
+    :param is_game_running_function: This returns true while the game is running.
                             Should return false once the game is no longer running.
     :param called_func: This is the function that is called when a quick chat is received
     :return: The newly created thread.
@@ -91,9 +93,10 @@ def register_for_quick_chat(queue_holder, is_game_running, called_func):
             if next_message is None:
                 time.sleep(0.01)  # sleep for 1/100th of a second
                 continue
-            called_func(next_message)
+            index, team, chat = next_message
+            called_func(index, team, chat)
         return
-    thread = Thread(target=threaded_func, args=(queue_holder["input"], is_game_running, called_func))
+    thread = Thread(target=threaded_func, args=(queue_holder["input"], is_game_running_function, called_func))
     thread.start()
     return thread
 
@@ -104,16 +107,17 @@ class QuickChatManager:
 
     def __init__(self, game_interface):
         self.game_interface = game_interface
-        self.general_chat_queue = multiprocessing.Queue()
+        self.manager = multiprocessing.Manager()
+        self.general_chat_queue = self.manager.Queue()
+        self.logger = get_logger('chats')
 
     def create_queue_for_bot(self, index, team):
-        bot_queue = multiprocessing.Queue()
-        with Manager() as manager:
-            queue_holder = manager.dict()
-            queue_holder["input"] = bot_queue
-            queue_holder["output"] = self.general_chat_queue
-            self.bot_queues[index] = (team, bot_queue)
-            return queue_holder
+        bot_queue = self.manager.Queue()
+        queue_holder = dict()
+        queue_holder["input"] = bot_queue
+        queue_holder["output"] = self.general_chat_queue
+        self.bot_queues[index] = (team, bot_queue)
+        return queue_holder
 
     def process_queue(self):
         while self.game_running:
@@ -122,6 +126,8 @@ class QuickChatManager:
                 time.sleep(0.01)  # sleep for 1/100th of a second
                 continue
             index, team, team_only, message_details = next_message
+            self.logger.debug('got quick chat from bot %s on team %s with message %s:', index, team,
+                              QuickChats.quick_chat_list[message_details])
             for i in self.bot_queues:
                 bots = self.bot_queues[i]
                 if i == index:
@@ -130,5 +136,10 @@ class QuickChatManager:
                 if bots[0] != team and team_only:
                     # do not send to other team if team only
                     continue
-                bots[1].put((index, message_details))
+                bots[1].put((index, team, message_details))
             self.game_interface.send_chat(index, message_details)
+
+    def start_manager(self):
+        thread = Thread(target=self.process_queue, args=())
+        thread.start()
+        return thread
