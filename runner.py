@@ -1,5 +1,6 @@
 import logging
 
+from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures import bot_input_struct as bi
 import bot_manager
 import configparser
@@ -26,10 +27,7 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 
 def main(framework_config=None, bot_configs=None):
-    logger = logging.getLogger('rlbot')
-    logging.basicConfig(level=logging.DEBUG)
-    logger.setLevel(logging.DEBUG)
-    logging.getLogger().setLevel(logging.INFO)
+    logger = get_logger('rlbot')
     logger.debug('reading the configs')
     if bot_configs is None:
         bot_configs = {}
