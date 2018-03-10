@@ -27,7 +27,9 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 def main(framework_config=None, bot_configs=None):
     logger = logging.getLogger('rlbot')
+    logging.basicConfig(level=logging.DEBUG)
     logger.setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
     logger.debug('reading the configs')
     if bot_configs is None:
         bot_configs = {}
