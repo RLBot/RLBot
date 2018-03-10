@@ -1,12 +1,11 @@
-import logging
 
 from RLBotFramework.utils import rate_limiter
 from RLBotFramework.utils.agent_creator import import_agent, get_agent_class_location
+from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
 from datetime import datetime, timedelta
 import importlib
 import os
-import sys
 import traceback
 
 from RLBotFramework.utils.structures.game_interface import GameInterface
@@ -43,8 +42,8 @@ class BotManager:
         self.index = index
         self.module_name = module_name
         self.agent_metadata_queue = agent_metadata_queue
-        self.logger = logging.getLogger('rlbot')
-        self.game_interface = GameInterface()
+        self.logger = get_logger('bot' + str(self.index))
+        self.game_interface = GameInterface(self.logger)
 
     def load_agent(self, agent_class):
         agent = agent_class(self.name, self.team, self.index)
@@ -137,9 +136,6 @@ class BotManager:
                 except Exception as e:
                     traceback.print_exc()
 
-                # Workaround for windows streams behaving weirdly when not in command prompt
-                sys.stdout.flush()
-                sys.stderr.flush()
 
             # Ratelimit here
             after = datetime.now()
