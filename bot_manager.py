@@ -3,10 +3,8 @@ import logging
 from RLBotFramework.utils import rate_limiter
 from RLBotFramework.utils.agent_creator import import_agent, get_agent_class_location
 from RLBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
-import ctypes
 from datetime import datetime, timedelta
 import importlib
-import mmap
 import os
 import sys
 import traceback
