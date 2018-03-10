@@ -6,9 +6,10 @@ import subprocess
 import sys
 
 from RLBotFramework.utils.agent_creator import get_base_repo_path
-from RLBotFramework.utils.structures.bot_input_struct import get_player_input_list_type
+from RLBotFramework.utils.structures.bot_input_struct import get_player_input_list_type, PlayerInput
 import time
 
+from RLBotFramework.utils.structures.game_data_struct import GameTickPacket
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
 
 
@@ -30,8 +31,13 @@ class GameInterface:
         self.dll_path = os.path.join(get_base_repo_path(), 'RLBot_Core_Interface.dll')
         # wait for the dll to load
 
-    def update_live_data_packet(self):
-        pass
+    def update_live_data_packet(self, game_tick_packet):
+        func = self.game.UpdateLiveDataPacket
+        func.argtypes = [ctypes.POINTER(GameTickPacket)]
+        func.restype = ctypes.c_int
+        rlbot_status = self.game.UpdateLiveDataPacket(game_tick_packet)
+        self.game_status(None, rlbot_status)
+        return game_tick_packet
 
     def update_match_data_packet(self):
         pass
@@ -49,8 +55,12 @@ class GameInterface:
 
         self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
 
-    def update_player_input(self):
-        pass
+    def update_player_input(self, player_input, index):
+        func = self.game.UpdatePlayerInput
+        func.argtypes = [PlayerInput, ctypes.c_int]
+        func.restype = ctypes.c_int
+        rlbot_status = self.game.UpdatePlayerInput(player_input, index)
+        self.game_status(None, rlbot_status)
 
     def send_chat(self, index, message_details):
         pass
@@ -59,7 +69,7 @@ class GameInterface:
         return
 
     def game_status(self, id, rlbot_status):
-        self.logger.info(RLBotCoreStatus.status_list[rlbot_status])
+        self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
