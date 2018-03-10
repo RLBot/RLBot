@@ -3,15 +3,13 @@
 
 #include <SDK.hpp>
 
-#define CONST_MaxNameLength 	32
-
 struct PlayerConfiguration
 {
 	bool					Bot;
 	bool					RLBotControlled;
 	float					BotSkill;
 	int						HumanIndex;
-	wchar_t					Name[CONST_MaxNameLength];
+	wchar_t					Name[32];
 	unsigned char			Team;
 	unsigned char			TeamColorID;
 	unsigned char			CustomColorID;
