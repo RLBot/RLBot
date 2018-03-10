@@ -64,7 +64,7 @@ namespace Interface
 			{
 				PlayerConfiguration playerConfiguration[CONST_MaxPlayers];
 				playerConfiguration[0].Bot = true;
-				playerConfiguration[0].RLBotControlled = false;
+				playerConfiguration[0].RLBotControlled = true;
 				playerConfiguration[0].BotSkill = 1.0f;
 				wcscpy(playerConfiguration[0].Name, L"Test");
 				playerConfiguration[0].Team = 0;
@@ -73,7 +73,7 @@ namespace Interface
 				playerConfiguration[0].CarID = 257;
 
 				playerConfiguration[1].Bot = true;
-				playerConfiguration[1].RLBotControlled = false;
+				playerConfiguration[1].RLBotControlled = true;
 				playerConfiguration[1].HumanIndex = 0;
 				wcscpy(playerConfiguration[1].Name, L"ccman32");
 				playerConfiguration[1].Team = 1;
@@ -86,7 +86,10 @@ namespace Interface
 
 			if (GetAsyncKeyState(VK_NUMPAD3) & 1)
 			{
-				GameFunctions::SendChat(QuickChatPreset::Apologies_Cursing, 0, false, &Callback, &id);
+				PlayerInput input;
+				input.Boost = true;
+				input.Throttle = 1.0f;
+				GameFunctions::UpdatePlayerInput(input, 0);
 			}
 
 			if (GetAsyncKeyState(VK_NUMPAD4) & 1)

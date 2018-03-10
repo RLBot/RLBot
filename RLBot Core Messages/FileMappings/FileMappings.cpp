@@ -1,5 +1,7 @@
 #include "FileMappings.hpp"
 
+#include <wtshintapi.h>
+
 namespace FileMappings
 {
 	static LPVOID lpMappedInputData = nullptr,
@@ -8,27 +10,24 @@ namespace FileMappings
 	static HANDLE hInputFileMapping = NULL,
 		hOutputFileMapping = NULL;
 
-	HANDLE createOrOpenFileMapping(DWORD size, LPCSTR lpName)
+	HANDLE createFileMapping(DWORD size, LPWSTR lpName)
 	{
-		HANDLE hMapFile = OpenFileMappingA(FILE_MAP_WRITE, FALSE, lpName);
+		HANDLE hMapFile = CreateFileMappingW(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, size, lpName);
 
 		if (!hMapFile)
-			hMapFile = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, size, lpName);
-
-		if (!hMapFile)
-			DEBUG_LOG("CreateFileMapping failed! Error code: %i\n", GetLastError());
+			DEBUG_LOG("CreateFileMapping failed! Error code: 0x%08X\n", GetLastError());
 
 		return hMapFile;
 	}
 
 	LPVOID mapViewOfFile(HANDLE hFileMappingObject, DWORD size)
 	{
-		LPVOID lpMappedData = MapViewOfFile(hFileMappingObject, FILE_MAP_WRITE, 0, 0, size);
+		LPVOID lpMappedData = MapViewOfFile(hFileMappingObject, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, size);
 
 		if (!lpMappedData)
 		{
+			DEBUG_LOG("MapViewOfFile failed! Error code: 0x%08X\n", GetLastError());
 			CloseHandle(hFileMappingObject);
-			DEBUG_LOG("MapViewOfFile failed! Error code: %i\n", GetLastError());
 		}
 
 		return lpMappedData;
@@ -73,8 +72,7 @@ namespace FileMappings
 	bool Initialize()
 	{
 		DEBUG_LOG("Initializing the input file mapping...\n");
-
-		hInputFileMapping = createOrOpenFileMapping(sizeof(GameInputData), "Local\\RLBotInput");
+		hInputFileMapping = createFileMapping(sizeof(GameInputData), L"Local\\RLBotInput");
 
 		if (!hInputFileMapping)
 			return false;
@@ -85,8 +83,7 @@ namespace FileMappings
 			return false;
 
 		DEBUG_LOG("Initializing the output file mapping...\n");
-
-		hOutputFileMapping = createOrOpenFileMapping(sizeof(GameOutputData), "Local\\RLBotOutput");
+		hOutputFileMapping = createFileMapping(sizeof(GameOutputData), L"Local\\RLBotOutput");
 
 		if (!hOutputFileMapping)
 			return false;
