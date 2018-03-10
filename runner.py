@@ -1,8 +1,6 @@
-import logging
-
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures import bot_input_struct as bi
-import bot_manager
+from RLBotFramework.agents import bot_manager
 import configparser
 import multiprocessing as mp
 import queue
