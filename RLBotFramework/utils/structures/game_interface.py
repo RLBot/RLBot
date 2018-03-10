@@ -29,7 +29,7 @@ class GameInterface:
 
     def __init__(self, logger):
         self.logger = logger
-        self.dll_path = os.path.join(get_base_repo_path(), 'RLBot_Core_Interface.dll')
+        self.dll_path = os.path.join(self.get_dll_path(), 'RLBot_Core_Interface.dll')
         # wait for the dll to load
 
     def setup_function_types(self):
@@ -113,7 +113,7 @@ class GameInterface:
 
         self.logger.debug('Injecting DLL')
         # Inject DLL
-        injector_dir = os.path.join(get_base_repo_path(), "RLBot_Injector.exe")
+        injector_dir = os.path.join(self.get_dll_path(), "RLBot_Injector.exe")
         incode = subprocess.call([injector_dir, 'hidden'])
         injector_codes = ['INJECTION_SUCCESSFUL',
                           'INJECTION_FAILED',
@@ -135,9 +135,12 @@ class GameInterface:
             self.logger.error('Failed to inject DLL: ' + injection_status)
             sys.exit()
 
+    def get_dll_path(self):
+        return os.path.join(get_base_repo_path(), 'RLBotFramework', 'dll')
+
     def countdown(self, countdown_timer):
         for i in range(countdown_timer):
-            self.logger.debug(countdown_timer - i)
+            self.logger.info(countdown_timer - i)
             time.sleep(1)
 
     def create_status_callback(self):
