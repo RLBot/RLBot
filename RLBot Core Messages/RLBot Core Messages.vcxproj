@@ -37,7 +37,6 @@
   <ItemGroup>
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
     <ClInclude Include="FileMappings\FileMappings.hpp" />
-    <ClInclude Include="MatchStructs.hpp" />
     <ClInclude Include="MessageDefines\MessageDefines.hpp" />
     <ClInclude Include="MessageProcessor\MessageProcessor.hpp" />
     <ClInclude Include="Messages.hpp" />
@@ -45,6 +44,8 @@
     <ClInclude Include="MessageStructs\GameMessages.hpp" />
     <ClInclude Include="MessageStructs\Message.hpp" />
     <ClInclude Include="MessageStructs\RendererMessages.hpp" />
+    <ClInclude Include="PacketStructs\MatchSettingsStructs.hpp" />
+    <ClInclude Include="PacketStructs\MatchStructs.hpp" />
     <ClInclude Include="PacketStructs\PacketStructs.hpp" />
   </ItemGroup>
   <ItemGroup>

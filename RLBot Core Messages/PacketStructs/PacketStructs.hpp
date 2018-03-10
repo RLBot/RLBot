@@ -3,6 +3,7 @@
 
 #include <SDK.hpp>
 
+#include "MatchSettingsStructs.hpp"
 #include "MatchStructs.hpp"
 
 #define CONST_MaxBoosts		50
@@ -73,27 +74,6 @@ struct GameInfo
 	bool					MatchEnded;
 };
 
-struct GoalInfo
-{
-	Vector3					Location;
-	Rotator					Rotation;
-	Vector3					Direction;
-	Vector3					LocalMin;
-	Vector3					LocalMax;
-	Vector3					LocalExtent;
-	unsigned char			TeamNum;
-};
-
-struct FieldInfo
-{
-	Rotator					FieldOrientation;
-	Vector3					FieldSize;
-	Vector3					FieldExtent;
-	Vector3					FieldCenter;
-	float					GroundZ;
-	GoalInfo				Goals[2];
-};
-
 struct PlayerInput
 {
 	float					Throttle;
@@ -114,11 +94,6 @@ struct LiveDataPacket
 	int						NumBoosts;
 	BallInfo  				GameBall;
 	GameInfo				GameInfo;
-};
-
-struct MatchDataPacket
-{
-	FieldInfo				FieldInfo;
 };
 
 struct GameInput
@@ -152,12 +127,6 @@ struct LiveDataWrapper
 {
 	long					ExchangedValue;
 	LiveDataPacket			LiveDataPacket;
-};
-
-struct MatchDataWrapper
-{
-	long					ExchangedValue;
-	MatchDataPacket			MatchDataPacket;
 };
 
 struct GameOutputData

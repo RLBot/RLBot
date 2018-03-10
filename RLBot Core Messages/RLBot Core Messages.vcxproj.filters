@@ -68,7 +68,10 @@
     <ClInclude Include="MessageDefines\MessageDefines.hpp">
       <Filter>Header Files\MessageDefines</Filter>
     </ClInclude>
-    <ClInclude Include="MatchStructs.hpp">
+    <ClInclude Include="PacketStructs\MatchStructs.hpp">
+      <Filter>Header Files\PacketStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketStructs\MatchSettingsStructs.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
   </ItemGroup>
