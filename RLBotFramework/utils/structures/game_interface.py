@@ -26,8 +26,8 @@ class GameInterface:
     game_input_packet = None
     game_status_callback_type = None
 
-    def __init__(self):
-        self.logger = logging.getLogger('rlbot')
+    def __init__(self, logger):
+        self.logger = logger
         self.dll_path = os.path.join(get_base_repo_path(), 'RLBot_Core_Interface.dll')
         # wait for the dll to load
 
@@ -69,12 +69,13 @@ class GameInterface:
         return
 
     def game_status(self, id, rlbot_status):
-        self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
+        pass
+        # self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
         is_loaded = self.game.IsInitialized()
-        self.logger.debug('dll is loaded', is_loaded)
+        self.logger.debug('dll is loaded: %s', is_loaded)
         if not is_loaded:
             time.sleep(1)
             self.wait_until_loaded()
