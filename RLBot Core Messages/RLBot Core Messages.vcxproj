@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
     <ClInclude Include="FileMappings\FileMappings.hpp" />
+    <ClInclude Include="MatchStructs.hpp" />
     <ClInclude Include="MessageDefines\MessageDefines.hpp" />
     <ClInclude Include="MessageProcessor\MessageProcessor.hpp" />
     <ClInclude Include="Messages.hpp" />
