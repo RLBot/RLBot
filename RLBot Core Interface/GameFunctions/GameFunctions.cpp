@@ -118,7 +118,7 @@ namespace GameFunctions
 		LiveDataPacket packet = LiveDataPacket();
 		UpdateLiveDataPacket(&packet);
 
-		rlbot::api::GameTickPacket* protoResult = convert(&packet);
+		rlbot::api::GameTickPacket* protoResult = ProtoConversions::convert(&packet);
 		int byte_size = protoResult->ByteSize();
 		void* array = malloc(byte_size);
 		protoResult->SerializeToArray(array, byte_size);

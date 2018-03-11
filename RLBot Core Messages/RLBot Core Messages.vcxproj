@@ -224,7 +224,6 @@
     <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|Win32'">
-    <TargetExt>.lib</TargetExt>
     <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
@@ -236,7 +235,6 @@
     <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|x64'">
-    <TargetExt>.lib</TargetExt>
     <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>

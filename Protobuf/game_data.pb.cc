@@ -381,7 +381,7 @@ void protobuf_AddDesc_game_5fdata_2eproto_impl() {
     "\022&\n\014latest_touch\030\006 \001(\0132\020.rlbot.api.Touch"
     "\"S\n\tBoostInfo\022$\n\010location\030\001 \001(\0132\022.rlbot."
     "api.Vector3\022\021\n\tis_active\030\002 \001(\010\022\r\n\005timer\030"
-    "\003 \001(\005\"\273\001\n\010GameInfo\022\027\n\017seconds_elapsed\030\001 "
+    "\003 \001(\002\"\273\001\n\010GameInfo\022\027\n\017seconds_elapsed\030\001 "
     "\001(\002\022\033\n\023game_time_remaining\030\002 \001(\002\022\023\n\013is_o"
     "vertime\030\003 \001(\010\022\031\n\021is_unlimited_time\030\004 \001(\010"
     "\022\027\n\017is_round_active\030\005 \001(\010\022\030\n\020is_kickoff_"
@@ -4776,17 +4776,17 @@ bool BoostInfo::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(24)) goto parse_timer;
+        if (input->ExpectTag(29)) goto parse_timer;
         break;
       }
 
-      // optional int32 timer = 3;
+      // optional float timer = 3;
       case 3: {
-        if (tag == 24) {
+        if (tag == 29) {
          parse_timer:
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
                  input, &timer_)));
         } else {
           goto handle_unusual;
@@ -4830,9 +4830,9 @@ void BoostInfo::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->is_active(), output);
   }
 
-  // optional int32 timer = 3;
+  // optional float timer = 3;
   if (this->timer() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->timer(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->timer(), output);
   }
 
   // @@protoc_insertion_point(serialize_end:rlbot.api.BoostInfo)
@@ -4854,9 +4854,9 @@ void BoostInfo::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->is_active(), target);
   }
 
-  // optional int32 timer = 3;
+  // optional float timer = 3;
   if (this->timer() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->timer(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->timer(), target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:rlbot.api.BoostInfo)
@@ -4879,11 +4879,9 @@ size_t BoostInfo::ByteSizeLong() const {
     total_size += 1 + 1;
   }
 
-  // optional int32 timer = 3;
+  // optional float timer = 3;
   if (this->timer() != 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->timer());
+    total_size += 1 + 4;
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -5025,15 +5023,15 @@ void BoostInfo::set_is_active(bool value) {
   // @@protoc_insertion_point(field_set:rlbot.api.BoostInfo.is_active)
 }
 
-// optional int32 timer = 3;
+// optional float timer = 3;
 void BoostInfo::clear_timer() {
   timer_ = 0;
 }
-::google::protobuf::int32 BoostInfo::timer() const {
+float BoostInfo::timer() const {
   // @@protoc_insertion_point(field_get:rlbot.api.BoostInfo.timer)
   return timer_;
 }
-void BoostInfo::set_timer(::google::protobuf::int32 value) {
+void BoostInfo::set_timer(float value) {
   
   timer_ = value;
   // @@protoc_insertion_point(field_set:rlbot.api.BoostInfo.timer)

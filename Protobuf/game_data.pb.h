@@ -1046,11 +1046,11 @@ class BoostInfo : public ::google::protobuf::Message /* @@protoc_insertion_point
   bool is_active() const;
   void set_is_active(bool value);
 
-  // optional int32 timer = 3;
+  // optional float timer = 3;
   void clear_timer();
   static const int kTimerFieldNumber = 3;
-  ::google::protobuf::int32 timer() const;
-  void set_timer(::google::protobuf::int32 value);
+  float timer() const;
+  void set_timer(float value);
 
   // @@protoc_insertion_point(class_scope:rlbot.api.BoostInfo)
  private:
@@ -1058,7 +1058,7 @@ class BoostInfo : public ::google::protobuf::Message /* @@protoc_insertion_point
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::rlbot::api::Vector3* location_;
   bool is_active_;
-  ::google::protobuf::int32 timer_;
+  float timer_;
   mutable int _cached_size_;
   friend void  protobuf_InitDefaults_game_5fdata_2eproto_impl();
   friend void  protobuf_AddDesc_game_5fdata_2eproto_impl();
@@ -2454,15 +2454,15 @@ inline void BoostInfo::set_is_active(bool value) {
   // @@protoc_insertion_point(field_set:rlbot.api.BoostInfo.is_active)
 }
 
-// optional int32 timer = 3;
+// optional float timer = 3;
 inline void BoostInfo::clear_timer() {
   timer_ = 0;
 }
-inline ::google::protobuf::int32 BoostInfo::timer() const {
+inline float BoostInfo::timer() const {
   // @@protoc_insertion_point(field_get:rlbot.api.BoostInfo.timer)
   return timer_;
 }
-inline void BoostInfo::set_timer(::google::protobuf::int32 value) {
+inline void BoostInfo::set_timer(float value) {
   
   timer_ = value;
   // @@protoc_insertion_point(field_set:rlbot.api.BoostInfo.timer)
