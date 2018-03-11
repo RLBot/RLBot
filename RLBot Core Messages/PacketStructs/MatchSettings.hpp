@@ -34,7 +34,7 @@ enum GameMode
 	GameMode_Normal
 };
 
-enum Map
+enum MapSelection
 {
 	NormalMap_AquaDome,
 	NormalMap_BeckwithPark,
@@ -79,8 +79,9 @@ enum MapVariation
 struct MatchSettings
 {
 	GameMode GameMode;
-	Map GameMap;
+	MapSelection GameMap;
 	MapVariation MapVariation;
 };
+
 
 #endif
