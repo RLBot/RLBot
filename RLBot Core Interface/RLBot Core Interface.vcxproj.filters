@@ -46,9 +46,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameFunctions\GameFunctions.hpp">
       <Filter>Header Files\GameFunctions</Filter>
     </ClInclude>
@@ -60,6 +57,9 @@
     </ClInclude>
     <ClInclude Include="CallbackProcessor\CallbackProcessor.hpp">
       <Filter>Header Files\CallbackProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
