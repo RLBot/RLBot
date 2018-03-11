@@ -27,7 +27,7 @@ class CustomAgentFrame(tk.Frame):
             ttk.Label(self, text="No Bot Parameters for this agent").grid()
             return
 
-        ttk.Label(self, text="Bot Parameters:", anchor="center").grid(row=0, column=0,columnspan=2)
+        ttk.Label(self, text="Bot Parameters:", anchor="center").grid(row=0, column=0, columnspan=2)
         ttk.Button(self, text="Item IDs", command=lambda: webbrowser.open("https://github.com/RLBot/RLBot/wiki/Item-ID's")).grid(row=0, column=3)
         total_count = 0
         max_per_column = 12
