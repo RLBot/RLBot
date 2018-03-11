@@ -648,7 +648,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -676,7 +676,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug\libprotobufd.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -713,7 +713,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -741,7 +741,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug\libprotobufd.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>

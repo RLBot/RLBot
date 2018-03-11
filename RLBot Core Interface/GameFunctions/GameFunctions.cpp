@@ -113,6 +113,7 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
+#ifdef ENABLE_PROTO
 	extern "C" void* RLBOT_CORE_API UpdateLiveDataPacketProto()
 	{
 		LiveDataPacket packet = LiveDataPacket();
@@ -126,6 +127,7 @@ namespace GameFunctions
 		// conversion happens here
 		return array;
 	}
+#endif
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateMatchDataPacket(MatchDataPacket* pMatchData)
 	{

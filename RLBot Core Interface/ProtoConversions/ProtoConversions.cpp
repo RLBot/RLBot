@@ -1,3 +1,5 @@
+#ifdef ENABLE_PROTO
+
 #include "ProtoConversions.hpp"
 
 #define _USE_MATH_DEFINES
@@ -127,3 +129,5 @@ namespace ProtoConversions {
 	}
 
 }
+
+#endif
