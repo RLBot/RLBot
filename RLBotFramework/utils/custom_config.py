@@ -72,7 +72,7 @@ class ConfigObject:
         elif isinstance(config, ConfigObject):
             self.raw_config_parser = config
         else:
-            raise TypeError("The config wat neither a string nor a RawConfigParser instance")
+            raise TypeError("The config was neither a string nor a RawConfigParser instance")
         for header_name, header in self.headers.items():
             try:
                 header.parse_file(self.raw_config_parser[header_name], max_index=max_index)
