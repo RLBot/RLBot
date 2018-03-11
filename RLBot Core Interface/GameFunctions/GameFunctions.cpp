@@ -113,6 +113,20 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
+	extern "C" void* RLBOT_CORE_API UpdateLiveDataPacketProto()
+	{
+		LiveDataPacket packet = LiveDataPacket();
+		UpdateLiveDataPacket(&packet);
+
+		rlbot::api::GameTickPacket* protoResult = convert(&packet);
+		int byte_size = protoResult->ByteSize();
+		void* array = malloc(byte_size);
+		protoResult->SerializeToArray(array, byte_size);
+
+		// conversion happens here
+		return array;
+	}
+
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateMatchDataPacket(MatchDataPacket* pMatchData)
 	{
 		memcpy(pMatchData, &FileMappings::GetMatchData()->MatchDataPacket, sizeof(MatchDataPacket));
