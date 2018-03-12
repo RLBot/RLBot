@@ -25,11 +25,13 @@ RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 
-def main(framework_config=None, bot_configs=None):
+def main(framework_config=None, bot_configs=None, looks_configs=None):
     logger = get_logger('rlbot')
     logger.debug('reading the configs')
     if bot_configs is None:
         bot_configs = {}
+    if looks_configs is None:
+        looks_configs = {}
     callbacks = []
     # Inject DLL
     game_interface = GameInterface(logger)
@@ -37,8 +39,10 @@ def main(framework_config=None, bot_configs=None):
     quick_chat_manager = QuickChatManager(game_interface)
 
     if not optional_packages_installed:
-        logger.warning("\n#### WARNING ####\nYou are missing some optional packages which will become mandatory in the future!\n"
-              "Please run `pip install -r requirements.txt` to enjoy optimal functionality and future-proof yourself!\n")
+        logger.warning("\n#### WARNING ####\n"
+                       "You are missing some optional packages which will become mandatory in the future!\n"
+                       "Please run `pip install -r requirements.txt` to enjoy optimal functionality "
+                       "and future-proof yourself!\n")
 
     # Set up RLBot.cfg
     if framework_config is None:
@@ -51,8 +55,8 @@ def main(framework_config=None, bot_configs=None):
     # Open anonymous shared memory for entire GameInputPacket and map buffer
     game_input_packet = bi.GameInputPacket()
 
-    num_participants, names, teams, modules, parameters = parse_configurations(game_input_packet,
-                                                                               framework_config, bot_configs)
+    num_participants, names, teams, modules, parameters = parse_configurations(game_input_packet, framework_config,
+                                                                               bot_configs, looks_configs)
 
     game_interface.load_interface()
 
@@ -64,7 +68,6 @@ def main(framework_config=None, bot_configs=None):
 
     agent_metadata_map = {}
     agent_metadata_queue = mp.Queue()
-
 
     # Launch processes
     for i in range(num_participants):
