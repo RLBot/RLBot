@@ -86,8 +86,8 @@ class ConfigObject:
 
     def __str__(self):
         string = ''
-        for header_name in self.headers:
-            string += '[' + header_name + ']\n' + str(self.headers[header_name]) + '\n'
+        for header_name, header in self.headers.items():
+            string += '[' + header_name + ']\n' + str(header) + '\n'
         return string
 
     def copy(self):
@@ -199,8 +199,10 @@ class ConfigHeader:
 
     def copy(self):
         new_header = ConfigHeader()
+        new_header.is_indexed = self.is_indexed
+        new_header.max_index = self.max_index
         for value_name, value in self.values.items():
-            new_header.add_config_value(value_name, value.copy())
+            new_header.values[value_name] = value.copy()
         return new_header
 
     def get_indexed_string(self, value_name):
@@ -243,7 +245,7 @@ class ConfigValue:
         if isinstance(value, tk.Variable):
             value = self.default if not value.get() and isinstance(value, tk.StringVar) else value.get()
 
-        return value.get() if isinstance(value, tk.Variable) else value
+        return value
 
     def comment_description(self):
         return '# ' + re.sub(r'\n\s*', '\n# ', str(self.description))
@@ -252,13 +254,17 @@ class ConfigValue:
         return str(self.get_value()) + '  ' + self.comment_description()
 
     def copy(self):
-        return ConfigValue(self.type, self.default, self.description, self.get_value())
+        return ConfigValue(self.type, self.default, self.description, self.value)
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if isinstance(config_parser, ConfigHeader):
             self.value = config_parser[value_name].value
         if max_index is None:
-            self.value = self.get_parser_value(config_parser, value_name)
+            value = self.get_parser_value(config_parser, value_name)
+            if isinstance(self.value, tk.Variable):
+                self.value.set(value)
+            else:
+                self.value = value
         else:
             self.value = []
             for i in range(max_index):

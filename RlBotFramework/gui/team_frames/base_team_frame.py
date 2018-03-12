@@ -15,6 +15,8 @@ class BaseTeamFrame(tk.Frame):
         self.team_index = team_index
         self.agent_frame_class = agent_frame_class
         self.index_manager = agent_index_manager
+        self.index_manager.filled_commands.append(self.remove_add_agent)
+        self.index_manager.not_filled_commands.append(self.place_add_agent)
 
         self.agents = list()
 
@@ -31,7 +33,7 @@ class BaseTeamFrame(tk.Frame):
 
     def initialize_agents_frame(self):
         self.agents_frame = tk.Frame(self)
-        self.agents_frame.grid()
+        self.agents_frame.grid(sticky="nsew")
 
     def initialize_add_agent(self):
         self.add_agent_object = ttk.Button(self.get_agents_frame(), text="Add bot", command=self.add_agent)
@@ -42,6 +44,8 @@ class BaseTeamFrame(tk.Frame):
         Adds an agent to this frame, creates it too.
         :param overall_index: The index of the bot in the config file if it already exists.
         """
+        if not self.index_manager.has_free_slots():
+            return
         if overall_index == -1:
             overall_index = self.index_manager.get_new_index()
         else:
@@ -68,10 +72,6 @@ class BaseTeamFrame(tk.Frame):
         agent.destroy()
         self.index_manager.free_index(agent.overall_index)
         self.agents.remove(agent)
-        if len(self.agents) == 0:
-            self.add_agent()
-        if len(self.agents) < 5:
-            self.place_add_agent()
 
     def remove_add_agent(self):
         if self.add_agent_object.winfo_ismapped():
@@ -90,6 +90,7 @@ class BaseTeamFrame(tk.Frame):
         agent.overall_index = overall_index
         agent.initialize_widgets()
         agent.load_config(self.overall_config, overall_index)
+        agent.link_variables()
         agent.refresh_widgets()
         return agent
 
@@ -98,6 +99,7 @@ class BaseTeamFrame(tk.Frame):
         Loads all agents for this team from the rlbot.cfg
         :param config_file:  A config file that is similar to rlbot.cfg
         """
+        self.force_remove_agents()
         if config_file is not None:
             self.overall_config = config_file
         num_participants = get_num_players(self.overall_config)
@@ -105,6 +107,13 @@ class BaseTeamFrame(tk.Frame):
             team_index = get_team(self.overall_config, i)
             if team_index == self.team_index:
                 self.add_agent(overall_index=i)
+
+    def force_remove_agents(self):
+        for widget in self.get_agents_frame().grid_slaves():
+            if widget in self.agents:
+                self.agents.remove(widget)
+                widget.destroy()
+                self.index_manager.free_index(widget.overall_index)
 
     def get_configs(self):
         configs = {}
