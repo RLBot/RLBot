@@ -1,0 +1,43 @@
+group 'RLBot'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'com.jfrog.bintray'
+
+def apiFile = new File('apikey')
+def apikey = ''
+if (apiFile.exists()) {
+    apikey = apiFile.text
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
+
+bintray {
+    user = 'rlbotofficial'
+    key = apikey
+    pkg {
+        repo = 'RLBot'
+        name = 'framework'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/RLBot/RLBotProtobuf.git'
+        version {
+            name = '0.0.1-Initial'
+            released = new Date()
+            vcsTag = '0.0.1'
+        }
+    }
+    filesSpec {
+        from('.') {
+            include '*.py'
+        }
+        from 'RLBotFramework'
+        into 'RLBotFramework'
+    }
+}
