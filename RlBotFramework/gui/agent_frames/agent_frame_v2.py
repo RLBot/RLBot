@@ -1,10 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
+from configparser import RawConfigParser
 
 from RlBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
 from RlBotFramework.gui.utils import get_file
 from RlBotFramework.agents.base_agent import BaseAgent
-from RlBotFramework.utils.agent_creator import get_base_import_package
+from RlBotFramework.utils.agent_creator import get_base_import_package, import_agent
 
 
 class AgentFrameV2(BaseAgentFrame):
@@ -66,27 +67,42 @@ class AgentFrameV2(BaseAgentFrame):
         for widget in self.grid_slaves(row=3, column=1):
             widget.grid_forget()
         if self.player_type.get() == "Human":
-            self.is_bot = False
-            self.rlbot_controlled = False
+            self.is_bot.set(False)
+            self.rlbot_controlled.set(False)
         elif self.player_type.get() == "Psyonix Bot":
             self.bot_level_widgets[0].grid(row=2, column=0, sticky="nsew")
             self.bot_level_widgets[1].grid(row=2, column=1, columnspan=2, sticky="nsew")
-            self.is_bot = True
-            self.rlbot_controlled = False
+            self.is_bot.set(True)
+            self.rlbot_controlled.set(False)
         else:
             self.rlbot_config_button.grid(row=3, column=1, sticky="e")
-            self.is_bot = True
-            self.rlbot_controlled = True
+            self.is_bot.set(True)
+            self.rlbot_controlled.set(True)
 
     def edit_looks(self):
+        def load():
+            config_file_path = get_file(
+                filetypes=[("Config File", "*.cfg")],
+                title="Choose a file")
+            if config_file_path:
+                config_parser = RawConfigParser()
+                config_parser.read(config_file_path)
+                self.agent_config["Bot Loadout"].parse_file(config_parser["Bot Loadout"])
+                self.agent_config["Bot Loadout Orange"].parse_file(config_parser["Bot Loadout Orange"])
+
+        def save():
+            print("TODO: implement save method")
+            # TODO fix this stuff without messing up the bot parameters
+
         window = tk.Toplevel()
         window.grab_set()
 
+        config_frame = tk.Frame(window)
         for header_index, (header_name, header) in enumerate(self.agent_config.headers.items()):
-            if header_name == 'Bot Location' or header_name == "Bot Parameters":
+            if not (header_name == 'Bot Loadout' or header_name == "Bot Loadout Orange"):
                 continue
             total_count = 0
-            header_frame = tk.Frame(window, borderwidth=8)
+            header_frame = tk.Frame(config_frame, borderwidth=8)
             header_frame.rowconfigure(0, minsize=25)
             ttk.Label(header_frame, text=header_name, anchor="center").grid(row=total_count, column=0,
                                                                             columnspan=2, sticky="new")
@@ -94,6 +110,13 @@ class AgentFrameV2(BaseAgentFrame):
 
             self.grid_custom_options_header(header_frame, header, ["name"], 0, 0)
             header_frame.grid(row=0, column=header_index)
+        config_frame.grid(row=0, column=0)
+
+        button_frame = tk.Frame(window)
+        ttk.Button(button_frame, text="Load", command=load).grid(row=0, column=0)
+        ttk.Button(button_frame, text="Save", command=save).grid(row=0, column=1)
+        ttk.Button(button_frame, text="Quit", command=window.destroy).grid(row=0, column=2)
+        button_frame.grid(row=1, column=0)
 
         self.wait_window(window)
 
@@ -103,31 +126,53 @@ class AgentFrameV2(BaseAgentFrame):
         window.minsize(300, 300)
         window.grab_set()
         window.update()
-
-        def load_agent_class():
-            agent_file_path = get_file(
-                filetypes=[("Python File", "*.py")],
-                title="Choose a file")
-            if agent_file_path:
-                self.agent_path.set(get_base_import_package(agent_file_path))
-                self.load_agent_from_path(agent_file_path)
-                self.agent_config = self.agent_class.create_agent_configurations().parse_file(self.agent_config)
-                initialize_custom_config()
+        options_window = tk.Frame(window)
 
         def initialize_custom_config():
-            options_window = tk.Frame()
+            options_window.destroy()
             self.grid_custom_options_header(options_window, self.agent_config["Bot Parameters"], [], 1, 0)
+
+        def load_agent_class(module_path=None):
+            if module_path is None:
+                agent_file_path = get_file(
+                    filetypes=[("Python File", "*.py")],
+                    title="Choose a file")
+                if not agent_file_path:
+                    return
+                module_path = get_base_import_package(agent_file_path)
+            self.agent_path.set(module_path)
+            self.agent_class = import_agent(module_path)
+            self.agent_config = self.agent_class.create_agent_configurations().parse_file(self.agent_config)
+            initialize_custom_config()
+
+        def load_parameters():
+            config_file_path = get_file(
+                filetypes=[("Config File", "*.cfg")],
+                title="Choose a file")
+            if config_file_path:
+                config_parser = RawConfigParser()
+                config_parser.read(config_file_path)
+                self.agent_config["Bot Parameters"].parse_file(config_parser["Bot Parameters"])
+
+        def save():
+            print("Gotta save")
+            # TODO save this
 
         ttk.Label(window, text="Agent location: ", anchor="e").grid(row=0, column=0)
         ttk.Entry(window, textvariable=self.agent_path, state="readonly").grid(row=0, column=1)
         ttk.Button(window, text="Select file", command=load_agent_class).grid(row=0, column=2)
 
         button_frame = tk.Frame()
-        # ttk.Button(button_frame, text="Load", command= )
+        ttk.Button(button_frame, text="Load", command=load_parameters).grid(row=0, column=0)
 
         self.wait_window(window)
 
     def link_variables(self):
+        """Sets some tkinter variables to the config value and then sets the value in the config to the tkinter one"""
+        self.is_bot.set(self.is_participant_bot())
+        self.rlbot_controlled.set(self.is_participant_custom_bot())
+        self.bot_level.set(self.get_bot_skill())
+
         self.overall_config["Participant Configuration"] \
             .set_value("participant_team", self.team_index, self.overall_index) \
             .set_value("participant_is_bot", self.is_bot, self.overall_index) \
@@ -169,7 +214,7 @@ class AgentFrameV2(BaseAgentFrame):
                 elif not isinstance(parameter.value, tk.Variable):
                     parameter.value = tk.DoubleVar(value=parameter.value)
                 widget = tk.Spinbox(header_frame, textvariable=parameter.value, from_=0, to=big,
-                                    increment=.0001)
+                                    increment=.001)
             elif parameter.type == bool:
                 if parameter.value is None:
                     parameter.value = tk.BooleanVar()

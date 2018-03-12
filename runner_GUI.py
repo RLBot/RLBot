@@ -25,7 +25,7 @@ class RunnerGUI(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
-        self.index_manager = IndexManager()
+        self.index_manager = IndexManager(10)
         self.gui_config = create_gui_config()
         self.gui_config.parse_file("runner_GUI_settings.cfg")
 
@@ -62,6 +62,7 @@ class RunnerGUI(tk.Frame):
             self.overall_config = create_bot_config_layout()
         self.overall_config.parse_file(config_path, 10)
         if teams:
+            self.index_manager.numbers = set()
             self.team1.load_agents(self.overall_config)
             self.team2.load_agents(self.overall_config)
         if match_settings:
@@ -112,10 +113,10 @@ class RunnerGUI(tk.Frame):
         ttk.Label(frame, text="Do you want to save before exiting the GUI?").grid(row=0, column=0, columnspan=2)
 
         def save():
-            new_config = self.overall_config.copy()
-            new_config.set_value("RLBot Configuration", "num_participants", len(self.index_manager.numbers))
-            self.reclassify_indices(new_config.get_header("Participant Configuration"))
-            self.save_cfg(overall_config=new_config, gui_config=self.gui_config)
+            self.overall_config = self.overall_config.copy()
+            self.overall_config.set_value("RLBot Configuration", "num_participants", len(self.index_manager.numbers))
+            self.reclassify_indices(self.overall_config.get_header("Participant Configuration"))
+            self.save_cfg(overall_config=self.overall_config, gui_config=self.gui_config)
             popup.destroy()
 
         ttk.Button(frame, text="Save", command=save).grid(row=1, column=1)
