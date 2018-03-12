@@ -2,12 +2,16 @@ group 'RLBot'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'de.undercouch.download'
+apply plugin: 'ru.vyarus.use-python'
 
 def apiFile = new File('apikey')
 def apikey = ''
 if (apiFile.exists()) {
     apikey = apiFile.text
 }
+
+def protoDir = 'RLBotFramework/proto'
 
 buildscript {
     repositories {
@@ -16,7 +20,19 @@ buildscript {
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'org.apache.ivy:ivy:2.3.0'
+        classpath 'de.undercouch:gradle-download-task:3.4.1'
+        classpath 'ru.vyarus:gradle-use-python-plugin:1.0.1'
     }
+}
+
+python {
+    pip 'psutil:5.4.3'
+    pip 'grpcio:1.00.0'
+}
+
+task build {
+    println('Building')
 }
 
 bintray {
@@ -41,3 +57,9 @@ bintray {
         into 'RLBotFramework'
     }
 }
+
+task setup {
+    println('installing tools')
+}
+
+setup.dependsOn pipInstall
