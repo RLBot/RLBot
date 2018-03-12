@@ -127,9 +127,13 @@ class RunnerGUI(tk.Frame):
 
     def start_running(self):
         self.quit_save_popup()
-        configs = dict(self.team1.get_configs())
-        configs.update(self.team2.get_configs())
-        runner.main(self.overall_config, configs)
+        bot_configs, looks_configs = self.team1.get_configs()
+        team2_configs = self.team2.get_configs()
+        bot_configs.update(team2_configs[0])
+        looks_configs.update(team2_configs[1])
+        self.overall_config.set_value("RLBot Configuration", "num_participants", len(self.index_manager.numbers))
+        self.reclassify_indices(self.overall_config["Participant Configuration"])
+        runner.main(self.overall_config, bot_configs, looks_configs)
 
 
 def create_gui_config():

@@ -100,10 +100,15 @@ class BaseAgent:
                                   description='Path to loadout config from runner')
         location_config.add_value(AGENT_MODULE_KEY, str, default='agents.atba.atba',
                                   description='Path to module from runner\nOnly need this if RLBot controlled')
+        return config
 
+    @staticmethod
+    def create_looks_configurations():
+        config = ConfigObject()
         config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
         config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
         return config
+
 
     @staticmethod
     def _create_loadout():

@@ -192,9 +192,9 @@ class ConfigHeader:
         for value_name in self.values:
             if self.is_indexed:
                 string += self.get_indexed_string(value_name)
+                string += '\n'
             else:
                 string += self.get_string(value_name)
-            string += '\n'
         return string
 
     def copy(self):
