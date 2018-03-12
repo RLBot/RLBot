@@ -3,7 +3,7 @@ import inspect
 
 import os
 
-from RlBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.agents.base_agent import BaseAgent
 
 
 def is_class_agent(agent):
@@ -52,3 +52,6 @@ def get_base_import_package(config_file_path):
 def get_base_repo_path():
     """Gets the path of the RLBot directory"""
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
+def get_agent_class_location(input_class):
+    return inspect.getfile(input_class)

@@ -1,5 +1,6 @@
-from RlBotFramework.utils.custom_config import ConfigObject, ConfigHeader
-from RlBotFramework.utils.structures.quick_chats import QuickChats
+from RLBotFramework.utils.custom_config import ConfigObject, ConfigHeader
+from RLBotFramework.utils.logging_utils import get_logger
+from RLBotFramework.utils.structures.quick_chats import QuickChats
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
@@ -16,11 +17,13 @@ class BaseAgent:
     team = None
     # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.gamecars
     index = None
+    quick_chat_func = None
 
     def __init__(self, name, team, index):
         self.name = name
         self.team = team
         self.index = index
+        self.logger = get_logger('nameless_bot')
 
     def get_output_vector(self, game_tick_packet):
         """
@@ -39,16 +42,36 @@ class BaseAgent:
             0     # handbrake
         ]
 
-    def get_chat_selection(self, game_tick_packet):
+    def send_quick_chat(self, team_only, quick_chat):
         """
-        Where the bot will return the chat selection
-        :param game_tick_packet: see https://github.com/drssoccer55/RLBot/wiki/Input-and-Output-Data-(current)
-        :return: [chat_selection, team_only]
+        Sends a quick chat to the other bots.
+        :param team_only: either True or False, this says if the quick chat should only go to team members.
+        :param quick_chat: The quick chat selection, available chats are defined in quick_chats.py
         """
-        return [QuickChats.CHAT_NONE,
-                QuickChats.CHAT_EVERYONE]
+        self.quick_chat_func(team_only, quick_chat)
+
+    def receive_quick_chat(self, index, team, quick_chat):
+        """
+        Gets a quick chat from another
+        :param index: Returns the index in the list of game cars that sent the quick chat
+        :param team: Which team this player is on
+        :param quick_chat: What the quick chat selection was
+        """
+        self.logger.debug('got quick chat from bot %s on team %s with message %s:', index, team,
+                          QuickChats.quick_chat_list[quick_chat])
+
+    def register_quick_chat(self, quick_chat_func):
+        """
+        Registers the send quick chat function.
+        This should not be overwritten by the agent.
+        """
+        self.quick_chat_func = quick_chat_func
 
     def load_config(self, config_object_header):
+        """
+        Loads a config object this is called after the constructor but before anything else inside the bot.
+        :param config_object: This is a config object that has headers, and values for custom agent configuration.
+        """
         pass
 
     def initialize_agent(self):
@@ -64,6 +87,9 @@ class BaseAgent:
         :return: A list of process ids that are used by this bot in addition to the ones inside the python process.
         """
         return []
+
+    def retire(self):
+        """Called after the game ends"""
 
     @staticmethod
     def create_agent_configurations():

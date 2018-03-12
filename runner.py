@@ -1,20 +1,18 @@
-import logging
-
-from RlBotFramework.utils.structures import bot_input_struct as bi
-import bot_manager
+from RLBotFramework.utils.logging_utils import get_logger
+from RLBotFramework.utils.structures import bot_input_struct as bi
+from RLBotFramework.agents import bot_manager
 import configparser
-import ctypes
-import mmap
 import multiprocessing as mp
 import queue
 import msvcrt
-from RlBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
+from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
 
 # These packages enhance RLBot but they are not critical to its proper functioning.
 # We have a lot of users who don't have these extra packages installed and we don't want to break them unexpectedly.
 # We also have some setup instructions that will take some time to update.
 # Until we get all of that up to speed, we will work around any missing optional packages and print warning messages.
-from RlBotFramework.utils.structures.game_interface import GameInterface
+from RLBotFramework.utils.structures.game_interface import GameInterface
+from RLBotFramework.utils.structures.quick_chats import QuickChatManager
 
 optional_packages_installed = False
 try:
@@ -25,21 +23,18 @@ except ImportError:
 
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
-INPUT_SHARED_MEMORY_TAG = 'Local\\RLBotInput'
-OUTPUT_SHARED_MEMORY_TAG = 'Local\\RLBotOutput'
 
 
 def main(framework_config=None, bot_configs=None):
-    logger = logging.getLogger('rlbot')
-    logger.setLevel(logging.DEBUG)
+    logger = get_logger('rlbot')
     logger.debug('reading the configs')
     if bot_configs is None:
         bot_configs = {}
     callbacks = []
     # Inject DLL
-    game_interface = GameInterface()
-    game_interface.load_interface()
+    game_interface = GameInterface(logger)
     game_interface.inject_dll()
+    quick_chat_manager = QuickChatManager(game_interface)
 
     if not optional_packages_installed:
         logger.warning("\n#### WARNING ####\nYou are missing some optional packages which will become mandatory in the future!\n"
@@ -54,17 +49,15 @@ def main(framework_config=None, bot_configs=None):
         framework_config.parse_file(raw_config_parser, max_index=10)
 
     # Open anonymous shared memory for entire GameInputPacket and map buffer
-    buff = mmap.mmap(-1, ctypes.sizeof(bi.GameInputPacket), INPUT_SHARED_MEMORY_TAG)
-    gameInputPacket = bi.GameInputPacket()
+    game_input_packet = bi.GameInputPacket()
 
-    num_participants, names, teams, modules, parameters = parse_configurations(gameInputPacket,
+    num_participants, names, teams, modules, parameters = parse_configurations(game_input_packet,
                                                                                framework_config, bot_configs)
 
-
-
+    game_interface.load_interface()
 
     game_interface.participants = num_participants
-    game_interface.game_input_packet = gameInputPacket
+    game_interface.game_input_packet = game_input_packet
 
     # Create Quit event
     quit_event = mp.Event()
@@ -75,18 +68,22 @@ def main(framework_config=None, bot_configs=None):
 
     # Launch processes
     for i in range(num_participants):
-        if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
+        if game_input_packet.sPlayerConfiguration[i].bRLBotControlled:
+            queue_holder = quick_chat_manager.create_queue_for_bot(i, teams[i])
             callback = mp.Event()
             callbacks.append(callback)
             process = mp.Process(target=run_agent,
                                  args=(quit_event, callback, parameters[i],
-                                       str(gameInputPacket.sPlayerConfiguration[i].wName),
-                                       teams[i], i, modules[i], agent_metadata_queue))
+                                       str(game_input_packet.sPlayerConfiguration[i].wName),
+                                       teams[i], i, modules[i], agent_metadata_queue, queue_holder))
 
             process.start()
 
-    logger.debug("Successfully configured bots. Setting flag for injected dll.")
+    logger.debug("Successfully started bot processes")
+    quick_chat_manager.start_manager()
+    logger.debug("Successfully started quick chat manager")
     game_interface.start_match()
+    logger.debug("Match has started")
 
     logger.info("Press any character to exit")
     while True:
@@ -114,9 +111,10 @@ def main(framework_config=None, bot_configs=None):
                 terminated = False
 
 
-def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue):
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name,
+              agent_telemetry_queue, queue_holder):
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                index, module_name, agent_telemetry_queue)
+                                index, module_name, agent_telemetry_queue, queue_holder)
     bm.run()
 
 

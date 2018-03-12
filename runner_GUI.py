@@ -2,14 +2,14 @@ import tkinter as tk
 from tkinter import ttk
 
 import runner
-from RlBotFramework.gui import match_settings_frame
-from RlBotFramework.gui.team_frames.team_frame_notebook import NotebookTeamFrame
-from RlBotFramework.gui.team_frames.base_team_frame import BaseTeamFrame
-from RlBotFramework.gui.agent_frames.agent_frame import AgentFrame
-from RlBotFramework.gui.agent_frames.agent_frame_v2 import AgentFrameV2
-from RlBotFramework.gui.utils import get_file, IndexManager
-from RlBotFramework.utils.custom_config import ConfigObject
-from RlBotFramework.utils.rlbot_config_parser import create_bot_config_layout
+from RLBotFramework.gui import match_settings_frame
+from RLBotFramework.gui.team_frames.team_frame_notebook import NotebookTeamFrame
+from RLBotFramework.gui.team_frames.base_team_frame import BaseTeamFrame
+from RLBotFramework.gui.agent_frames.agent_frame import AgentFrame
+from RLBotFramework.gui.agent_frames.agent_frame_v2 import AgentFrameV2
+from RLBotFramework.gui.utils import get_file, IndexManager
+from RLBotFramework.utils.custom_config import ConfigObject
+from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout
 
 team_frame_types = {BaseTeamFrame: "default", "default": BaseTeamFrame,
                     NotebookTeamFrame: "notebook", "notebook": NotebookTeamFrame}

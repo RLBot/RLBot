@@ -1,16 +1,13 @@
 import math
 
-from RlBotFramework.agents.base_agent import BaseAgent
-from RlBotFramework.utils.structures.quick_chats import QuickChats
+from RLBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.utils.structures.quick_chats import QuickChats
 
 URotationToRadians = math.pi / float(32768)
 
 
 class Atba(BaseAgent):
     flip_turning = False
-
-    def get_chat_selection(self, game_tick_packet):
-        return [QuickChats.Information_IGotIt, QuickChats.CHAT_EVERYONE]
 
     def get_output_vector(self, game_tick_packet):
 
@@ -30,7 +27,10 @@ class Atba(BaseAgent):
             turn = 1.0
 
         if self.flip_turning:
+            self.flip_turning = not self.flip_turning
             turn *= -1.0
+
+        self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
 
         return [
             1.0,  # throttle
