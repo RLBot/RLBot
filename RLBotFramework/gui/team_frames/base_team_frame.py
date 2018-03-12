@@ -116,8 +116,10 @@ class BaseTeamFrame(tk.Frame):
                 self.index_manager.free_index(widget.overall_index)
 
     def get_configs(self):
-        configs = {}
+        bot_configs = {}
+        looks_configs = {}
         for agent in self.agents:
-            index, config = agent.get_config()
-            configs[index] = config
-        return configs
+            index, bot, looks = agent.get_config()
+            bot_configs[index] = bot
+            looks_configs[index] = looks
+        return bot_configs, looks_configs
