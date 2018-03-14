@@ -14,6 +14,7 @@ if (apiFile.exists()) {
 def protoDir = 'RLBotFramework/proto'
 
 buildscript {
+  println('buildscript')
     repositories {
         mavenCentral()
         jcenter()
@@ -30,6 +31,13 @@ python {
     pip 'psutil:5.4.3'
     pip 'grpcio:1.00.0'
 }
+
+task gui(type:Exec) {
+  println('gui')
+    workingDir System.getProperty("user.dir")
+    commandLine 'python', 'runner_GUI.py'
+}
+
 
 task build {
     println('Building')
