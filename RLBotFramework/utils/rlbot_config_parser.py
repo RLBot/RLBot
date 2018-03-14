@@ -22,6 +22,7 @@ PARTICIPANT_COUNT_KEY = 'num_participants'
 
 logger = logging.getLogger('rlbot')
 
+
 # Cut off at 31 characters and handle duplicates
 def get_sanitized_bot_name(dict, name):
     if name not in dict:
@@ -50,7 +51,6 @@ def get_bot_config_file_list(botCount, config, bot_configs):
             logger.debug("Config available")
         else:
             bot_config_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
-            sys.path.append(os.path.dirname(bot_config_path))
             raw_bot_config = configparser.RawConfigParser()
             raw_bot_config.read(bot_config_path)
             config_file_list.append(raw_bot_config)
@@ -112,7 +112,7 @@ def get_num_players(config):
     return config.getint(RLBOT_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
-def parse_configurations(gameInputPacket, config_parser, bot_configs):
+def parse_configurations(gameInputPacket, config_parser, bot_configs, looks_configs):
     bot_names = []
     bot_teams = []
     bot_modules = []
@@ -130,17 +130,20 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
 
     gameInputPacket.iNumPlayers = num_participants
 
-    bot_config_object = BaseAgent.create_agent_configurations()
-
     player_configuration_list = get_player_configuration_list(gameInputPacket)
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
-        bot_config_object.reset()
-        bot_config_object.parse_file(participant_configs[i])
+        if i not in looks_configs:
+            looks_config_object = configparser.RawConfigParser()
+            looks_config_object_path = participant_configs[i].get("Locations", "looks_config")
+            looks_config_object.read(looks_config_object_path)
+        else:
+            looks_config_object = looks_configs[i]
 
         bot_name, team_number, bot_module, bot_parameters = load_bot_config(i, player_configuration_list[i],
-                                                                            bot_config_object, config_parser, name_dict)
+                                                                            participant_configs[i], looks_config_object,
+                                                                            config_parser, name_dict)
 
         bot_names.append(bot_name)
         bot_teams.append(team_number)
@@ -150,7 +153,7 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs):
     return num_participants, bot_names, bot_teams, bot_modules, bot_parameter_list
 
 
-def load_bot_config(index, bot_configuration, bot_config_object, overall_config, name_dict):
+def load_bot_config(index, bot_configuration, bot_config_object, looks_config_object, overall_config, name_dict):
     """
     Loads the config data of a single bot
     :param index: This is the bot index (where it appears in game_cars)
@@ -173,14 +176,14 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
         bot_configuration.iHumanIndex = index
 
     loadout_header = BOT_CONFIG_LOADOUT_HEADER
-    if team_num == 1 and bot_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
+    if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
         loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
     # Setting up the bots name
-    bot_name = bot_config_object.get(loadout_header, 'name')
+    bot_name = looks_config_object.get(loadout_header, 'name')
     bot_configuration.wName = get_sanitized_bot_name(name_dict, bot_name)
 
-    BaseAgent.parse_bot_loadout(bot_configuration, bot_config_object, loadout_header)
+    BaseAgent.parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
 
     bot_module = 'NO_MODULE_FOR_PARTICIPANT'
     bot_parameters = None
@@ -188,7 +191,10 @@ def load_bot_config(index, bot_configuration, bot_config_object, overall_config,
     if bot_configuration.bRLBotControlled:
         bot_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY)
         agent = import_agent(bot_module)
+        dirpath = os.path.dirname(os.path.realpath(sys.modules[agent.__module__].__file__))
+        if dirpath not in sys.path:
+            sys.path.append(dirpath)
         bot_parameters = agent.create_agent_configurations()
-        bot_parameters.parse_file(bot_config_object.get_raw_file())
+        bot_parameters.parse_file(bot_config_object)
 
     return bot_name, team_num, bot_module, bot_parameters

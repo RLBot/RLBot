@@ -15,8 +15,10 @@ def configure_processes(agent_metadata_map, logger):
     """
 
     if not optional_packages_installed:
-        logger.warning("\n#### WARNING ####\nYou are missing some optional packages which will become mandatory in the future!\n"
-                       "Please run `pip install -r requirements.txt` to enjoy optimal functionality and future-proof yourself!\n")
+        logger.warning("\n#### WARNING ####\n"
+                       "You are missing some optional packages which will become mandatory in the future!\n"
+                       "Please run `pip install -r requirements.txt` to enjoy optimal functionality "
+                       "and future-proof yourself!\n")
 
     if not optional_packages_installed:
         return

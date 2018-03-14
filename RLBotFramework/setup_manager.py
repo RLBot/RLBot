@@ -17,7 +17,6 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 
 class SetupManager:
-
     has_started = False
     num_participants = None
     names = None
