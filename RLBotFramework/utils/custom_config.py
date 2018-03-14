@@ -67,17 +67,17 @@ class ConfigObject:
         if isinstance(config, str):
             self.raw_config_parser = RawConfigParser()
             self.raw_config_parser.read(config)
+            config = self.raw_config_parser
         elif isinstance(config, RawConfigParser):
             self.raw_config_parser = config
-        elif isinstance(config, ConfigObject):
-            self.raw_config_parser = config
-        else:
-            raise TypeError("The config was neither a string nor a RawConfigParser instance")
+        elif not isinstance(config, ConfigObject):
+            raise TypeError("The config should be a String, RawConfigParser of a ConfigObject")
         for header_name, header in self.headers.items():
             try:
-                header.parse_file(self.raw_config_parser[header_name], max_index=max_index)
+                header.parse_file(config[header_name], max_index=max_index)
             except KeyError:
                 pass  # skip this header as it does not exist
+        return self
 
     def reset(self):
         for header_name in self.headers:
@@ -86,8 +86,8 @@ class ConfigObject:
 
     def __str__(self):
         string = ''
-        for header_name in self.headers:
-            string += '[' + header_name + ']\n' + str(self.headers[header_name]) + '\n'
+        for header_name, header in self.headers.items():
+            string += '[' + header_name + ']\n' + str(header) + '\n'
         return string
 
     def copy(self):
@@ -146,9 +146,14 @@ class ConfigHeader:
         :param value: The value that is being applied, if this section is indexed value must be a list
         :return: an instance of itself so that you can chain setting values together.
         """
-        if value is not None and self.is_indexed and not isinstance(value, list) and index is None:
-            raise Exception('Indexed values must be a list')
+        # Should raise error if indexed and there's no list or if indexed and no index given
+        if self.is_indexed and index is None:
+            if not isinstance(value, list):
+                raise TypeError("Value should be a list when not giving an index in an indexed header")
+            else:
+                raise IndexError("Index cannot be None when not giving a list in an indexed header")
         self.has_values = True
+        self.values[option].set_value(value=value, index=index)
         return self
 
     def get(self, option, index=None):
@@ -187,15 +192,17 @@ class ConfigHeader:
         for value_name in self.values:
             if self.is_indexed:
                 string += self.get_indexed_string(value_name)
+                string += '\n'
             else:
                 string += self.get_string(value_name)
-            string += '\n'
         return string
 
     def copy(self):
         new_header = ConfigHeader()
+        new_header.is_indexed = self.is_indexed
+        new_header.max_index = self.max_index
         for value_name, value in self.values.items():
-            new_header.add_config_value(value_name, value.copy())
+            new_header.values[value_name] = value.copy()
         return new_header
 
     def get_indexed_string(self, value_name):
@@ -235,7 +242,10 @@ class ConfigValue:
         else:
             value = self.value
 
-        return value.get() if isinstance(value, tk.Variable) else value
+        if isinstance(value, tk.Variable):
+            value = self.default if not value.get() and isinstance(value, tk.StringVar) else value.get()
+
+        return value
 
     def comment_description(self):
         return '# ' + re.sub(r'\n\s*', '\n# ', str(self.description))
@@ -244,11 +254,17 @@ class ConfigValue:
         return str(self.get_value()) + '  ' + self.comment_description()
 
     def copy(self):
-        return ConfigValue(self.type, self.default, self.description, self.get_value())
+        return ConfigValue(self.type, self.default, self.description, self.value)
 
     def parse_file(self, config_parser, value_name, max_index=None):
+        if isinstance(config_parser, ConfigHeader):
+            self.value = config_parser[value_name].value
         if max_index is None:
-            self.value = self.get_parser_value(config_parser, value_name)
+            value = self.get_parser_value(config_parser, value_name)
+            if isinstance(self.value, tk.Variable):
+                self.value.set(value)
+            else:
+                self.value = value
         else:
             self.value = []
             for i in range(max_index):

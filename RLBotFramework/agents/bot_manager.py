@@ -60,7 +60,7 @@ class BotManager:
     def load_agent(self, agent_class):
         agent = agent_class(self.name, self.team, self.index)
         agent.logger = self.logger
-        agent.load_config(self.bot_configuration)
+        agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
         agent.initialize_agent()
 
         self.update_metadata_queue(agent)
