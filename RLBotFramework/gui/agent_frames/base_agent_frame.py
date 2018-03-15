@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 import os
 
@@ -108,3 +109,48 @@ class BaseAgentFrame(tk.Frame):
 
     def get_config(self):
         return self.overall_index, self.agent_config, self.looks_config
+
+    @staticmethod
+    def grid_custom_options_header(header_frame, header, exceptions=None, row_offset=0, column_offset=0):
+        for parameter_index, (parameter_name, parameter) in enumerate(header.values.items()):
+            if exceptions is not None:
+                if parameter_name in exceptions:
+                    continue
+
+            ttk.Label(header_frame, text=parameter_name + ":", anchor='e').grid(
+                row=parameter_index + row_offset, column=0 + column_offset, sticky="ew")
+            big = 20000000
+            if parameter.type == int:
+                if parameter.value is None:
+                    parameter.value = tk.IntVar(value=parameter.default)
+                elif not isinstance(parameter.value, tk.Variable):
+                    parameter.value = tk.IntVar(value=parameter.value)
+                widget = tk.Spinbox(header_frame, textvariable=parameter.value, from_=0, to=big)
+            elif parameter.type == float:
+                if parameter.value is None:
+                    parameter.value = tk.DoubleVar(value=parameter.default)
+                elif not isinstance(parameter.value, tk.Variable):
+                    parameter.value = tk.DoubleVar(value=parameter.value)
+                widget = tk.Spinbox(header_frame, textvariable=parameter.value, from_=0, to=big,
+                                    increment=.001)
+            elif parameter.type == bool:
+                if parameter.value is None:
+                    parameter.value = tk.BooleanVar()
+                elif not isinstance(parameter.value, tk.Variable):
+                    parameter.value = tk.BooleanVar(value=parameter.value)
+                widget = ttk.Combobox(header_frame, textvariable=parameter.value, values=(False, True),
+                                      state="readonly")
+                widget.current(parameter.default)
+            elif parameter.type == str:
+                if parameter.value is None:
+                    parameter.value = tk.StringVar(value=parameter.default)
+                elif not isinstance(parameter.value, tk.Variable):
+                    parameter.value = tk.StringVar(value=parameter.value)
+                widget = ttk.Entry(header_frame, textvariable=parameter.value)
+            else:
+                widget = ttk.Label("Unknown type")
+
+            if parameter.default is not None and parameter.type is not bool:
+                parameter.value.set(parameter.default)
+
+            widget.grid(row=parameter_index + row_offset, column=1 + column_offset, sticky="ew")

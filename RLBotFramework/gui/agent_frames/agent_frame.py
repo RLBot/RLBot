@@ -1,172 +1,227 @@
 import tkinter as tk
 from tkinter import ttk
+from configparser import RawConfigParser
+import webbrowser
 
 from RLBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
-from RLBotFramework.gui.custom_agent_frame import CustomAgentFrame
 from RLBotFramework.gui.utils import get_file
+from RLBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.utils.class_importer import get_base_import_package, import_agent, get_base_repo_path
 
 
 class AgentFrame(BaseAgentFrame):
-    bot_config = None
-    config_options_path = {}
-
-    agent_config_path_widgets = None
-    is_bot_widgets = None
-    rlbot_controlled_widgets = None
+    name_widgets = None
+    player_type_widgets = None
     bot_level_widgets = None
-    agent_path_widgets = None
-    custom_agent_options = None
-    custom_agent_frame = None
+    rlbot_config_button = None
+    agent_path_widgets = []
 
     def __init__(self, parent, team_index, *args, **kwargs):
         super().__init__(parent, team_index, *args, **kwargs)
-        self.agent_path = tk.StringVar()
-        self.agent_config_path = tk.StringVar()
+        self.config(borderwidth=5)
+        self.in_game_name = tk.StringVar()
         self.is_bot = tk.BooleanVar()
         self.rlbot_controlled = tk.BooleanVar()
-        self.bot_level_str = tk.StringVar(value="All-Star")
         self.bot_level = tk.DoubleVar(value=1)
+        self.player_type = tk.StringVar(value="Human")
+        self.agent_path = tk.StringVar()
+        self.latest_looks_path = tk.StringVar()
+        self.agent_config = BaseAgent.create_agent_configurations()
+        self.looks_config = BaseAgent.create_looks_configurations()
 
     def initialize_widgets(self):
-        # Agent config
-        self.agent_config_path_widgets = list()  # row 0
-        self.agent_config_path_widgets.append(ttk.Label(self, text="Config path:", anchor="e"))
-        self.agent_config_path_widgets.append(ttk.Entry(self, textvariable=self.agent_config_path, state="readonly", takefocus=False))
-        self.agent_config_path_widgets.append(ttk.Button(self, text="Select file",
-                                                         command=self.change_agent_config_path))
+        # In-game name editable
+        self.name_widgets = list()
+        self.name_widgets.append(ttk.Label(self, text="In-game name:", anchor="e"))
+        self.name_widgets.append(ttk.Entry(self, textvariable=self.in_game_name))
 
-        # rlbot.cfg options
-        self.is_bot_widgets = list()  # row 1
-        self.is_bot_widgets.append(ttk.Label(self, text="Is bot: ", anchor="e"))
-        self.is_bot_widgets.append(
-            ttk.Combobox(self, textvariable=self.is_bot, values=(False, True), state="readonly"))
-        self.is_bot_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_is_bot())
-        self.is_bot_widgets[1].current(1)
+        # Combobox for changing type
+        self.player_type_widgets = list()
+        self.player_type_widgets.append(ttk.Label(self, text="Player type: ", anchor="e"))
+        self.player_type_widgets.append(ttk.Combobox(
+            self, textvariable=self.player_type, values=("Human", "Psyonix Bot", "RLBot"), state="readonly"))
+        self.player_type_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.refresh_widgets())
 
-        self.rlbot_controlled_widgets = list()  # row 2
-        self.rlbot_controlled_widgets.append(ttk.Label(self, text="RLBot controlled: ", anchor="e"))
-        self.rlbot_controlled_widgets.append(
-            ttk.Combobox(self, textvariable=self.rlbot_controlled, values=(False, True), state="readonly"))
-        self.rlbot_controlled_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_rlbot_controlled())
-        self.rlbot_controlled_widgets[1].current(0)
+        ttk.Button(self, text="Edit looks", command=self.edit_looks).grid(row=3, column=0, sticky="e")
 
+        # Remove the agent
+        ttk.Button(self, text="Remove", command=lambda: self.parent.master.remove_agent(self)).grid(row=3, column=2,
+                                                                                                    sticky="e")
+
+        # Psyonix bot level skill scale
         self.bot_level_widgets = list()
         self.bot_level_widgets.append(ttk.Label(self, text="Bot level: ", anchor="e"))
-        self.bot_level_widgets.append(ttk.Combobox(self, textvariable=self.bot_level_str, state="readonly",
-                                                   values=("Rookie", "Pro", "All-Star")))
-        self.bot_level_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.change_rlbot_controlled())
+        self.bot_level_widgets.append(ttk.Scale(self, from_=0.0, to=1.0, variable=self.bot_level))
 
-        # Agent path
-        self.agent_path_widgets = list()  # row 4
-        self.agent_path_widgets.append(ttk.Label(self, text="Agent path: ", anchor="e"))
-        self.agent_path_widgets.append(
-            ttk.Entry(self, textvariable=self.agent_path, state="readonly", takefocus=False))
-        self.agent_path_widgets.append(
-            ttk.Button(self, text="Select file", command=self.change_bot_path))
+        # Configure bot popup
+        self.rlbot_config_button = ttk.Button(self, text="Configure Bot", command=self.configure_rlbot)
 
-        self.custom_agent_options = tk.Frame(self, borderwidth=2, relief=tk.SUNKEN)  # row 7
-        ttk.Button(self, text="Remove", command=lambda: self.parent.master.remove_agent(self)).grid(row=8, column=2)
-        ttk.Button(self, text="Edit Config", command=self.popup_custom_config).grid(row=8, column=0)
+        self.name_widgets[0].grid(row=0, column=0, sticky="nsew")
+        self.name_widgets[1].grid(row=0, column=1, columnspan=2, sticky="nsew")
 
-        self.grid_items(0, 0, self.agent_config_path_widgets, self.is_bot_widgets)
+        self.player_type_widgets[0].grid(row=1, column=0, sticky="nsew")
+        self.player_type_widgets[1].grid(row=1, column=1, columnspan=2, sticky="nsew")
+
+        self.grid_columnconfigure(1, minsize=84)
 
     def refresh_widgets(self):
-        self.change_is_bot()
-        self.change_rlbot_controlled()
-
-    def popup_custom_config(self):
-        """Popups a window to edit all config options of the bot"""
-        new_window = tk.Toplevel()
-        new_window.title(self.agent_class.__name__ if self.agent_class is not None else 'BaseAgent')
-        custom_agent_frame = CustomAgentFrame(new_window, self.agent_class, self.agent_config)
-        self.agent_config = custom_agent_frame.initialise_custom_config()
-        custom_agent_frame.pack()
-
-    def change_is_bot(self, hide=False):
-        """Hide or show the widgets which have to do with the is_bot value."""
-        self.set_is_participant_bot(self.is_bot.get())
-        if self.is_bot.get() and not hide:
-            if self.rlbot_controlled_widgets[0].winfo_ismapped():
-                return
-            self.grid_items(2, 0, self.rlbot_controlled_widgets)
-            self.change_rlbot_controlled()
+        for widget in self.grid_slaves(row=2):
+            widget.grid_forget()
+        for widget in self.grid_slaves(row=3, column=1):
+            widget.grid_forget()
+        if self.player_type.get() == "Human":
+            self.is_bot.set(False)
+            self.rlbot_controlled.set(False)
+        elif self.player_type.get() == "Psyonix Bot":
+            self.bot_level_widgets[0].grid(row=2, column=0, sticky="nsew")
+            self.bot_level_widgets[1].grid(row=2, column=1, columnspan=2, sticky="nsew")
+            self.is_bot.set(True)
+            self.rlbot_controlled.set(False)
         else:
-            if not self.rlbot_controlled_widgets[0].winfo_ismapped():
-                return
-            for widget in self.grid_slaves(row=2):
-                widget.grid_forget()
-            self.change_rlbot_controlled(hide=True)
+            self.rlbot_config_button.grid(row=3, column=1, sticky="e")
+            self.is_bot.set(True)
+            self.rlbot_controlled.set(True)
 
-    def change_bot_path(self):
-        """Popup, ask for a new agent path and apply that path."""
-        agent_file_path = get_file(
-            filetypes=[("Python File", "*.py")],
-            title="Choose a file")
-        if agent_file_path:
-            self.agent_path.set(agent_file_path)
-            self.load_agent_from_path(agent_file_path)
-            self.load_agent_config(self.agent_class)
+    def edit_looks(self):
+        def load():
+            config_file_path = get_file(
+                filetypes=[("Config File", "*.cfg")],
+                title="Choose a file")
+            if config_file_path:
+                config_parser = RawConfigParser()
+                config_parser.read(config_file_path)
+                self.looks_config.parse_file(config_parser)
 
-    def change_agent_config_path(self):
-        """Popup, ask for the config and apply that path."""
-        config_path = get_file(
-            filetypes=[("Config File", "*.cfg")],
-            title="Choose a file")
-        if config_path:
-            self.agent_config_path.set(config_path)
-            self.set_agent_config_path(config_path)
-            self.load_agent_config()
+        def save():
+            config_file_path = get_file(
+                filetypes=[("Config File", "*.cfg")],
+                title="Choose a file")
+            if config_file_path:
+                self.latest_looks_path.set(config_file_path.replace(get_base_repo_path().replace("\\", "/"), '.'))
+                with open(config_file_path, "w") as f:
+                    f.write(str(self.looks_config))
 
-    def change_rlbot_controlled(self, hide=False):
-        """Hide or show the widgets which have to do with the rlbot_controlled value."""
-        self.set_is_participant_custom_bot(self.rlbot_controlled.get())
-        if hide:
-            for i in [3, 4, 5, 6]:
-                for widget in self.grid_slaves(row=i):
-                    widget.grid_forget()
-            return
-        if self.rlbot_controlled.get():
-            for widget in self.grid_slaves(row=3):
-                widget.grid_forget()
-            self.grid_items(4, 0, self.agent_path_widgets)
-            self.custom_agent_options.grid(row=6, column=0, columnspan=3, sticky="nsew")
-        else:
-            for i in [4, 5, 6]:
-                for widget in self.grid_slaves(row=i):
-                    widget.grid_forget()
-            self.grid_items(3, 0, self.bot_level_widgets)
+        window = tk.Toplevel()
+        window.grab_set()
 
-    def change_bot_level(self):
-        string = self.bot_level_str
-        number = 0 if string == "Rookie" else .5 if string == "Pro" else 1
-        self.bot_level.set(number)
+        config_frame = tk.Frame(window)
+        for header_index, (header_name, header) in enumerate(self.looks_config.headers.items()):
+            total_count = 0
+            header_frame = tk.Frame(config_frame, borderwidth=8)
+            header_frame.rowconfigure(0, minsize=25)
+            ttk.Label(header_frame, text=header_name, anchor="center").grid(row=total_count, column=0,
+                                                                            columnspan=2, sticky="new")
+            total_count += 1
 
-    def check_for_settings(self):
-        """Return list with items missing, if nothing an empty list."""
-        missing = list()
-        if not self.agent_config_path.get():
-            missing.append("Loadout Path")
-        if self.rlbot_controlled.get():
-            if not self.agent_path.get():
-                missing.append("Agent Path")
-        return missing
+            self.grid_custom_options_header(header_frame, header, ["name"], 0, 0)
+            header_frame.grid(row=0, column=header_index)
+        config_frame.grid(row=0, column=0)
 
-    def load_config(self, config_file, overall_index):
-        super().load_config(config_file, overall_index)
-        self.agent_config_path.set(self.get_agent_config_path())
-        self.is_bot_widgets[1].current(self.is_participant_bot())
-        self.rlbot_controlled_widgets[1].current(self.is_participant_custom_bot())
-        level = self.get_bot_skill()
-        bot_level = 0 if level <= .25 else 1 if level <= .75 else 2
-        self.bot_level_widgets[1].current(bot_level)
-        self.change_is_bot()
-        self.change_rlbot_controlled()
-        # self.agent_path.set(self.agent_class.__name__)
+        buttons_frame = tk.Frame(window)
+        ttk.Button(buttons_frame, text="Item IDs", command=lambda:
+                   webbrowser.open("https://github.com/RLBot/RLBot/wiki/Item-ID's")).grid(row=0, column=0)
+        ttk.Button(buttons_frame, text="Load", command=load).grid(row=0, column=1)
+        ttk.Button(buttons_frame, text="Save", command=save).grid(row=0, column=2)
+        ttk.Button(buttons_frame, text="Quit", command=window.destroy).grid(row=0, column=3)
+        buttons_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+        for i in range(4):
+            buttons_frame.grid_columnconfigure(i, weight=1)
+
+        self.wait_window(window)
+
+    def configure_rlbot(self):
+        window = tk.Toplevel()
+        window.resizable(0, 0)
+        window.minsize(300, 300)
+        window.grab_set()
+        window.update()
+        options_window = tk.Frame(window)
+
+        def initialize_custom_config():
+            for child in options_window.winfo_children():
+                child.destroy()
+            self.grid_custom_options_header(options_window, self.agent_config["Bot Parameters"], [], 0, 0)
+
+        def load_agent_class(module_path=None):
+            if module_path is None:
+                agent_file_path = get_file(
+                    filetypes=[("Python File", "*.py")],
+                    title="Choose a file")
+                if not agent_file_path:
+                    return
+                module_path = get_base_import_package(agent_file_path)
+            self.agent_path.set(module_path)
+            self.agent_class = import_agent(module_path)
+            self.agent_config = self.agent_class.create_agent_configurations().parse_file(self.agent_config)
+            initialize_custom_config()
+
+        def load_file():
+            config_file_path = get_file(
+                filetypes=[("Config File", "*.cfg")],
+                title="Choose a file")
+            if config_file_path:
+                # Read the file
+                config_parser = RawConfigParser()
+                config_parser.read(config_file_path)
+
+                # Set the agent_class to the right module and obtain the right config structure
+                module_path = config_parser.get("Locations", "agent_module")
+                load_agent_class(module_path)
+
+                self.agent_config.parse_file(config_parser)
+
+                # Make sure the custom bot parameters will get updated
+                initialize_custom_config()
+
+        def save():
+            config_file_path = get_file(
+                filetypes=[("Config File", "*.cfg")],
+                title="Choose a file")
+            if config_file_path:
+                with open(config_file_path, "w") as f:
+                    f.write(str(self.agent_config))
+
+        ttk.Label(window, text="Agent location: ", anchor="e").grid(row=0, column=0)
+        ttk.Entry(window, textvariable=self.agent_path, state="readonly").grid(row=0, column=1)
+        ttk.Button(window, text="Select file", command=load_agent_class).grid(row=0, column=2)
+
+        buttons_frame = tk.Frame(window)
+        ttk.Button(buttons_frame, text="Load", command=load_file).grid(row=0, column=0)
+        ttk.Button(buttons_frame, text="Save", command=save).grid(row=0, column=1)
+        ttk.Button(buttons_frame, text="Quit", command=window.destroy).grid(row=0, column=2)
+        buttons_frame.grid(row=2, column=0, columnspan=3)
+
+        for i in range(3):
+            buttons_frame.grid_columnconfigure(i, weight=1)
+
+        options_window.grid(row=1, column=0, columnspan=3, sticky="nsew")
+
+        self.wait_window(window)
 
     def link_variables(self):
-        header = self.overall_config["Participant Configuration"]
-        header["participant_team"].set_value(self.team_index, self.overall_index)
-        header["participant_is_bot"].set_value(self.is_bot, self.overall_index)
-        header["participant_is_rlbot_controlled"].set_value(self.rlbot_controlled, self.overall_index)
-        header["participant_bot_skill"].set_value(self.bot_level, self.overall_index)
+        """Sets some tkinter variables to the config value and then sets the value in the config to the tkinter one"""
+        self.is_bot.set(self.is_participant_bot())
+        self.rlbot_controlled.set(self.is_participant_custom_bot())
+        self.bot_level.set(self.get_bot_skill())
+
+        self.overall_config["Participant Configuration"] \
+            .set_value("participant_team", self.team_index, self.overall_index) \
+            .set_value("participant_is_bot", self.is_bot, self.overall_index) \
+            .set_value("participant_is_rlbot_controlled", self.rlbot_controlled, self.overall_index) \
+            .set_value("participant_bot_skill", self.bot_level, self.overall_index)
+
+        self.agent_config.set_value("Locations", "agent_module", self.agent_path)
+        self.agent_config.set_value("Locations", "looks_config", self.latest_looks_path)
+        self.looks_config.set_value("Bot Loadout", "name", self.in_game_name)
+        self.looks_config.set_value("Bot Loadout Orange", "name", self.in_game_name)
+
+    def load_config(self, overall_config_file, overall_index):
+        super().load_config(overall_config_file, overall_index)
+        if self.is_participant_bot() and not self.is_participant_custom_bot():
+            self.player_type.set('Psyonix Bot')
+        elif not self.is_participant_bot() and not self.is_participant_custom_bot():
+            self.player_type.set('Human')
+        elif self.is_participant_bot() and self.is_participant_custom_bot():
+            self.player_type.set('RLBot')
 
