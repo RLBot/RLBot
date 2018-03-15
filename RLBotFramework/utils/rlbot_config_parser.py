@@ -19,6 +19,7 @@ PARTICIPANT_TEAM = 'participant_team'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 PARTICIPANT_COUNT_KEY = 'num_participants'
+EXTENSION_PATH_KEY = 'extension_path'
 
 logger = logging.getLogger('rlbot')
 
@@ -64,6 +65,8 @@ def create_bot_config_layout():
     rlbot_header = config_object.add_header_name(RLBOT_CONFIGURATION_HEADER)
     rlbot_header.add_value('num_participants', int, default=2,
                            description='Number of bots/players which will be spawned.  We support up to max 10.')
+    rlbot_header.add_value(EXTENSION_PATH_KEY, str, default=None,
+                           description='A path to the extension file we want to load')
 
     participant_header = config_object.add_header_name(PARTICIPANT_CONFIGURATION_HEADER, is_indexed=True)
     participant_header.add_value(PARTICIPANT_CONFIG_KEY, str, default='./agents/atba/atba.cfg',

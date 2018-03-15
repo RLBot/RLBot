@@ -29,7 +29,7 @@ class BaseExtension:
         :param team: The team that saved the ball
         """
 
-    def onMatchStart(self):
+    def onMatchStart(self, rlbot_status):
         """
         Called when a match has started
         :return:
