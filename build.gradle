@@ -3,7 +3,8 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'de.undercouch.download'
-apply plugin: 'ru.vyarus.use-python'
+apply plugin: 'com.linkedin.python-sdist'
+apply plugin: 'groovy'
 
 def apiFile = new File('apikey')
 def apikey = ''
@@ -18,19 +19,24 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
+        maven {
+      url "https://plugins.gradle.org/m2/"
+    }
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'org.apache.ivy:ivy:2.3.0'
         classpath 'de.undercouch:gradle-download-task:3.4.1'
-        classpath 'ru.vyarus:gradle-use-python-plugin:1.0.1'
+        classpath 'gradle.plugin.com.linkedin.pygradle:pygradle-plugin:0.6.17'
+        classpath 'RLBot:Framework.proto:0.0.1'
     }
 }
 
-python {
-    pip 'psutil:5.4.3'
-    pip 'grpcio:1.00.0'
-}
+
+// python {
+//     pip 'psutil:5.4.3'
+//     pip 'grpcio:1.00.0'
+// }
 
 task gui(type:Exec) {
   println('gui')
@@ -65,6 +71,12 @@ bintray {
         into 'RLBotFramework'
     }
 }
+
+// task download(type: Download) {
+//     src 'https://dl.bintray.com/rlbotofficial/RLBotProto/generated/python/game_data_pb2.py'
+//     dest buildDir
+// }
+
 
 task setup {
     println('installing tools')
