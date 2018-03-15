@@ -4,10 +4,11 @@ import queue
 import multiprocessing as mp
 
 from RLBotFramework.agents import bot_manager
+from RLBotFramework.base_extension import BaseExtension
 from RLBotFramework.utils.class_importer import get_base_import_package, import_class_with_base
 from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from RLBotFramework.utils.process_configuration import configure_processes
-from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
+from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
 from RLBotFramework.utils.structures import bot_input_struct as bi
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChatManager
@@ -28,6 +29,7 @@ class SetupManager:
     agent_metadata_queue = None
     agent_metadata_map = None
     quit_event = None
+    extension = None
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -73,6 +75,10 @@ class SetupManager:
         self.game_interface.participants = self.num_participants
         self.game_interface.game_input_packet = self.game_input_packet
 
+        extension_path = framework_config.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
+        if extension_path is not None:
+            self.load_extension(extension_path)
+
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
 
@@ -111,6 +117,12 @@ class SetupManager:
             except Exception as ex:
                 print(ex)
                 pass
+
+    def load_extension(self, path_to_extension):
+        import_path = get_base_import_package(path_to_extension)
+        extension_class = import_class_with_base(import_path, BaseExtension)
+        self.extension = extension_class(self)
+        self.game_interface.set_extension(self.extension)
 
     @staticmethod
     def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name,

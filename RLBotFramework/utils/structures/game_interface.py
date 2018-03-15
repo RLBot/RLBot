@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 
-from RLBotFramework.utils.agent_creator import get_base_repo_path
+from RLBotFramework.utils.class_importer import get_base_repo_path
 from RLBotFramework.utils.structures.bot_input_struct import get_player_input_list_type, PlayerInput
 import time
 
@@ -26,6 +26,7 @@ class GameInterface:
     game_input_packet = None
     game_status_callback_type = None
     callback_func = None
+    extension = None
 
     def __init__(self, logger):
         self.logger = logger
@@ -67,9 +68,10 @@ class GameInterface:
         self.wait_until_loaded()
         # self.game_input_packet.bStartMatch = True
         rlbot_status = self.game.StartMatch(self.game_input_packet.sPlayerConfiguration, self.participants,
-                                            self.create_status_callback(), None)
+                                            self.create_status_callback(
+                                                None if self.extension is None else self.extension.onMatchStart), None)
 
-        self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
+        self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
 
     def update_player_input(self, player_input, index):
         rlbot_status = self.game.UpdatePlayerInput(player_input, index)
@@ -143,5 +145,19 @@ class GameInterface:
             self.logger.info(countdown_timer - i)
             time.sleep(1)
 
-    def create_status_callback(self):
-        return self.callback_func
+    def create_status_callback(self, callback=None):
+        """
+        Creates a callback for the rlbot status, uses default function if callback is none.
+        :param callback:
+        :return:
+        """
+        if callback is None:
+            return self.callback_func
+
+        def safe_wrapper(id, rlbotstatsus):
+            callback(rlbotstatsus)
+        return self.game_status_callback_type(wrap_callback(safe_wrapper))
+
+    def set_extension(self, extension):
+        self.game_status_callback_type(wrap_callback(self.game_status))
+        self.extension = extension
