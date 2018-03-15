@@ -4,7 +4,8 @@ import queue
 import multiprocessing as mp
 
 from RLBotFramework.agents import bot_manager
-from RLBotFramework.utils.logging_utils import get_logger
+from RLBotFramework.utils.class_importer import get_base_import_package, import_class_with_base
+from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from RLBotFramework.utils.process_configuration import configure_processes
 from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations
 from RLBotFramework.utils.structures import bot_input_struct as bi
@@ -29,7 +30,7 @@ class SetupManager:
     quit_event = None
 
     def __init__(self):
-        self.logger = get_logger('rlbot')
+        self.logger = get_logger(DEFAULT_LOGGER)
         self.game_interface = GameInterface(self.logger)
         self.quick_chat_manager = QuickChatManager(self.game_interface)
         self.callbacks = []
