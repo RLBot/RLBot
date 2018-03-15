@@ -1,6 +1,6 @@
 
 from RLBotFramework.utils import rate_limiter
-from RLBotFramework.utils.agent_creator import import_agent, get_agent_class_location
+from RLBotFramework.utils.class_importer import import_agent, get_agent_class_location
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
 from datetime import datetime, timedelta

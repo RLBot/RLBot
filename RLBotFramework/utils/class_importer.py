@@ -4,12 +4,13 @@ import inspect
 import os
 
 from RLBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.utils.logging_utils import log_warn
 
 
-def is_class_agent(agent):
-    super_classes = agent.__bases__
+def is_extends_base_class(module, base_class):
+    super_classes = module.__bases__
     for super_class in super_classes:
-        if super_class == BaseAgent:
+        if super_class == base_class:
             return True
     return False
 
@@ -21,16 +22,28 @@ def import_agent(module_name):
     :param module_name: A string formatted like a normal python import
     :return: The agent requested or BaseAgent if there are any problems.
     """
+    return import_class_with_base(module_name, BaseAgent)
+
+
+def import_class_with_base(module_name, base_class):
+    """
+    Imports the first class that extends base_class.
+
+    :param module_name: A string formatted like a normal python import
+    :param base_class: The class that we look for the extension for also is returned if no matching module is found
+    :return: The agent requested or BaseAgent if there are any problems.
+    """
     try:
         module = importlib.import_module(module_name)
-        agent_class = [agent[1] for agent in inspect.getmembers(module, inspect.isclass) if is_class_agent(agent[1])]
+        agent_class = [agent[1] for agent in inspect.getmembers(module, inspect.isclass)
+                       if is_extends_base_class(agent[1], base_class)]
 
         agent = agent_class[0]
         # grabs only the first one
         return agent
     except Exception:
-        print('Custom agent not found using BaseAgent instead')
-        return BaseAgent
+        log_warn('sub module %s not found using %s instead', [str(module_name), str(base_class)])
+        return base_class
 
 
 def get_base_import_package(config_file_path):
