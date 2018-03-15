@@ -48,7 +48,7 @@ class SetupManager:
 
         self.has_started = True
 
-    def load_config(self, framework_config=None, bot_configs=None):
+    def load_config(self, framework_config=None, bot_configs=None, looks_configs=None):
         self.logger.debug('reading the configs')
 
         # Set up RLBot.cfg
@@ -60,12 +60,14 @@ class SetupManager:
             framework_config.parse_file(raw_config_parser, max_index=10)
         if bot_configs is None:
             bot_configs = {}
+        if looks_configs is None:
+            looks_configs = {}
 
         # Open anonymous shared memory for entire GameInputPacket and map buffer
         self.game_input_packet = bi.GameInputPacket()
 
         self.num_participants, self.names, self.teams, self.modules, self.parameters = parse_configurations(
-            self.game_input_packet, framework_config, bot_configs)
+            self.game_input_packet, framework_config, bot_configs, looks_configs)
 
         self.game_interface.participants = self.num_participants
         self.game_interface.game_input_packet = self.game_input_packet
