@@ -3,7 +3,7 @@ import tkinter as tk
 import os
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
-from RLBotFramework.utils.agent_creator import import_agent, get_base_import_package
+from RLBotFramework.utils.class_importer import import_agent, get_base_import_package
 from RLBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,\
     PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
 

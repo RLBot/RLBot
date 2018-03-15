@@ -5,7 +5,7 @@ from configparser import RawConfigParser
 from RLBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
 from RLBotFramework.gui.utils import get_file
 from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotFramework.utils.agent_creator import get_base_import_package, import_agent, get_base_repo_path
+from RLBotFramework.utils.class_importer import get_base_import_package, import_agent, get_base_repo_path
 
 
 class AgentFrameV2(BaseAgentFrame):

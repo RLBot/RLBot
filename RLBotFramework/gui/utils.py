@@ -2,7 +2,7 @@ from tkinter.filedialog import askopenfilename
 
 from itertools import count, filterfalse
 
-from RLBotFramework.utils.agent_creator import get_base_repo_path
+from RLBotFramework.utils.class_importer import get_base_repo_path
 
 
 def get_file(filetypes=None, title=None):
