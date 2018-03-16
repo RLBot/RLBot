@@ -3,6 +3,8 @@ import msvcrt
 import queue
 import multiprocessing as mp
 
+import time
+
 from RLBotFramework.agents import bot_manager
 from RLBotFramework.base_extension import BaseExtension
 from RLBotFramework.utils.class_importer import get_base_import_package, import_class_with_base
@@ -101,7 +103,7 @@ class SetupManager:
         self.quick_chat_manager.start_manager()
         self.logger.debug("Successfully started quick chat manager")
         self.game_interface.start_match()
-        self.logger.debug("Match has started")
+        self.logger.info("Match has started")
 
         self.logger.info("Press any character to exit")
         while True:
