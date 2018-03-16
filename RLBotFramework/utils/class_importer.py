@@ -41,8 +41,12 @@ def import_class_with_base(module_name, base_class):
         agent = agent_class[0]
         # grabs only the first one
         return agent
-    except Exception:
-        log_warn('sub module %s not found using %s instead', [str(module_name), str(base_class)])
+    except ModuleNotFoundError as e:
+        log_warn('ModuleNotFoundError: %s\nsub module %s not found using %s instead', [str(e), str(module_name),
+                                                                                       str(base_class)])
+    except Exception as e:
+        log_warn('Error: %s\n%s not found using %s instead', [str(e), str(module_name), str(base_class)])
+    finally:
         return base_class
 
 
