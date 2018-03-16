@@ -55,6 +55,7 @@ class GameInterface:
         func = self.game.SendChat
         func.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_bool, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
+        self.logger.debug('game interface functions are setup')
 
     def update_live_data_packet(self, game_tick_packet):
         rlbot_status = self.game.UpdateLiveDataPacket(game_tick_packet)
