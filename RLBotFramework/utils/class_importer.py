@@ -46,8 +46,8 @@ def import_class_with_base(module_name, base_class):
                                                                                        str(base_class)])
     except Exception as e:
         log_warn('Error: %s\n%s not found using %s instead', [str(e), str(module_name), str(base_class)])
-    finally:
-        return base_class
+
+    return base_class
 
 
 def get_base_import_package(config_file_path):
