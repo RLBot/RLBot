@@ -78,7 +78,7 @@ message BallInfo {
 message BoostInfo {
   Vector3 location = 1;
   bool is_active = 2;
-  int32 timer = 3;
+  float timer = 3;
 }
 
 message GameInfo {
