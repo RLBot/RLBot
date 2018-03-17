@@ -106,7 +106,6 @@ namespace ProtoConversions {
 
 	rlbot::api::GameTickPacket* convert(LiveDataPacket * pLiveData)
 	{
-
 		auto packet = new rlbot::api::GameTickPacket();
 
 		for (int i = 0; i < pLiveData->NumCars; i++) {
@@ -130,7 +129,23 @@ namespace ProtoConversions {
 
 	RLBotCoreStatus convert(rlbot::api::GameTickPacket* protoResult, LiveDataPacket* pLiveData)
 	{
+		// This should copy over only the data that has been set from protoResult to pLiveData
 		return RLBotCoreStatus::Success;
+	}
+
+	PlayerInput* convert(rlbot::api::ControllerState* protoResult)
+	{
+		PlayerInput* playerInput = new PlayerInput();
+		playerInput->Boost = protoResult->boost();
+		playerInput->Handbrake = protoResult->handbrake();
+		playerInput->Jump = protoResult->jump();
+		playerInput->Pitch = protoResult->pitch();
+		playerInput->Roll = protoResult->roll();
+		playerInput->Steer = protoResult->steer();
+		playerInput->Throttle = protoResult->throttle();
+		playerInput->Yaw = protoResult->yaw();
+		
+		return playerInput;
 	}
 }
 

@@ -147,6 +147,16 @@ namespace GameFunctions
 		END_GAME_FUNCTION;
 		return RLBotCoreStatus::Success;
 	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledControllerState controllerState, int protoSize, int playerIndex)
+	{
+		// decode player input proto
+		rlbot::api::ControllerState controllerStateProto = rlbot::api::ControllerState();
+		controllerStateProto.ParseFromArray(controllerState, protoSize);
+		PlayerInput* playerInput = ProtoConversions::convert(&controllerStateProto);
+
+		return UpdatePlayerInput(*playerInput, playerIndex);
+	}
 #endif
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateMatchDataPacket(MatchDataPacket* pMatchData)

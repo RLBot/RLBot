@@ -27,7 +27,7 @@ extern "C"
 #ifdef ENABLE_PROTO
 		DLL_EXPORT CompiledGameTickPacket RLBOT_CORE_API UpdateLiveDataPacketProto();
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID);
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledGameTickPacket playerInput);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledControllerState controllerState, int protoSize, int playerIndex);
 #endif
 	}
 
