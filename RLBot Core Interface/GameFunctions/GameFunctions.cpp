@@ -114,18 +114,21 @@ namespace GameFunctions
 	}
 
 #ifdef ENABLE_PROTO
-	extern "C" CompiledGameTickPacket RLBOT_CORE_API UpdateLiveDataPacketProto()
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketProto()
 	{
 		LiveDataPacket packet = LiveDataPacket();
 		UpdateLiveDataPacket(&packet);
 
 		rlbot::api::GameTickPacket* protoResult = ProtoConversions::convert(&packet);
 		int byte_size = protoResult->ByteSize();
-		void* array = malloc(byte_size);
-		protoResult->SerializeToArray(array, byte_size);
+		CompiledGameTickPacket proto_binary = malloc(byte_size);
+		protoResult->SerializeToArray(proto_binary, byte_size);
 
-		// conversion happens here
-		return array;
+		ByteBuffer byteBuffer;
+		byteBuffer.ptr = proto_binary;
+		byteBuffer.size = byte_size;
+
+		return byteBuffer;
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
@@ -156,6 +159,11 @@ namespace GameFunctions
 		PlayerInput* playerInput = ProtoConversions::convert(&controllerStateProto);
 
 		return UpdatePlayerInput(*playerInput, playerIndex);
+	}
+
+	extern "C" void RLBOT_CORE_API Free(void* ptr)
+	{
+		free(ptr);
 	}
 #endif
 
