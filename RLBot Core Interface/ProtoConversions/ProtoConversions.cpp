@@ -128,6 +128,10 @@ namespace ProtoConversions {
 		return packet;
 	}
 
+	RLBotCoreStatus convert(rlbot::api::GameTickPacket* protoResult, LiveDataPacket* pLiveData)
+	{
+		return RLBotCoreStatus::Success;
+	}
 }
 
 #endif

@@ -11,6 +11,7 @@ enum MessageType
 	StartMatchMessageType,
 	UpdatePlayerInputMessageType,
 	SendChatMessageType,
+	SetGameStateMessageType,
 	DrawLine2DMessageType,
 	DrawLine3DMessageType,
 	DrawLine2D_3DMessageType,

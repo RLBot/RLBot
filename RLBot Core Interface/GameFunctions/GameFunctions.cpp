@@ -127,6 +127,26 @@ namespace GameFunctions
 		// conversion happens here
 		return array;
 	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
+	{
+		rlbot::api::GameTickPacket* protoResult = &rlbot::api::GameTickPacket();
+		protoResult->ParseFromArray(gameTickPacket, protoSize);
+		LiveDataPacket* packet = &LiveDataPacket();
+		UpdateLiveDataPacket(packet);
+		RLBotCoreStatus status = ProtoConversions::convert(protoResult, packet);
+
+		if (status != RLBotCoreStatus::Success)
+			return status;
+
+		BEGIN_GAME_FUNCTION(SetGameStateMessage, pSetGameData);
+		REGISTER_CALLBACK(pSetGameData, callback, pID);
+
+		pSetGameData->GameState = *packet;
+
+		END_GAME_FUNCTION;
+		return RLBotCoreStatus::Success;
+	}
 #endif
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateMatchDataPacket(MatchDataPacket* pMatchData)
