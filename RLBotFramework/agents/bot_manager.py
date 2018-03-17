@@ -80,6 +80,7 @@ class BotManager:
         self.agent_metadata_queue.put({'index': self.index, 'name': self.name, 'team': self.team, 'pids': pids})
 
     def run(self):
+        self.logger.debug('initializing agent')
         self.game_interface.load_interface()
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
         bot_input = bi.GameInputPacket()
@@ -89,7 +90,7 @@ class BotManager:
         game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
         # Create Ratelimiter
-        r = rate_limiter.RateLimiter(GAME_TICK_PACKET_REFRESHES_PER_SECOND)
+        rate_limit = rate_limiter.RateLimiter(GAME_TICK_PACKET_REFRESHES_PER_SECOND)
         last_tick_game_time = None  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
 
@@ -146,13 +147,14 @@ class BotManager:
 
                     self.game_interface.update_player_input(player_input, self.index)
                 except Exception as e:
-                    traceback.print_exc()
+                    self.logger.error(e)
 
 
             # Ratelimit here
+            #self.logger.debug('Latency of %s: %s', self.name, str(before - after))
             after = datetime.now()
-            # print('Latency of ' + self.name + ': ' + str(after - before))
-            r.acquire(after - before)
+
+            rate_limit.acquire(after - before)
 
         if hasattr(agent, 'retire'):
             agent.retire()
