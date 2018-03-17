@@ -1,20 +1,18 @@
 #include "RenderFunctions.hpp"
 
-#define BEGIN_RENDER_FUNCTION(structName, name)	BEGIN_FUNCTION(structName, name, pRenderMessage)
+#define BEGIN_RENDER_FUNCTION(structName, name)	BEGIN_FUNCTION(structName, name, FileMappings::GetRenderInput())
 
-#define END_RENDER_FUNCTION						END_FUNCTION(FileMappings::GetRenderInput(), pRenderMessage)
+#define END_RENDER_FUNCTION						END_FUNCTION(FileMappings::GetRenderInput())
 
 namespace RenderFunctions
 {
 	static bool bRendering = false;
-	static MessageBase* pRenderMessage = nullptr;
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API BeginRendering()
 	{
 		RenderInput* pRenderInput = FileMappings::GetRenderInput();
-		FileMappings::Lock(pRenderInput);
-		RESET_MESSAGE_POINTER(pRenderMessage, pRenderInput);
-		pRenderInput->NumMessages = 0;
+		pRenderInput->Lock();
+		pRenderInput->Reset();
 		bRendering = true;
 
 		return RLBotCoreStatus::Success;
@@ -23,7 +21,7 @@ namespace RenderFunctions
 	extern "C" RLBotCoreStatus RLBOT_CORE_API EndRendering()
 	{
 		RenderInput* pRenderInput = FileMappings::GetRenderInput();
-		FileMappings::Unlock(pRenderInput);
+		pRenderInput->Unlock();
 		bRendering = false;
 
 		return RLBotCoreStatus::Success;

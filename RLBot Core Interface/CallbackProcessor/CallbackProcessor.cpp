@@ -7,8 +7,7 @@ namespace CallbackProcessor
 {
 	static volatile bool bTerminate = false;
 	static HANDLE hProcessCallbacks = NULL;
-	static MessageProcessor messageProcessor;
-	static CallbackOutput* pCallbackOutput = nullptr;
+	static MessageProcessor<CONST_CALLBACK_INPUT_SIZE>* pMessageProcessor;
 	static std::unordered_map<unsigned int, CallbackFunction> callbackMap;
 
 	RLBotCoreStatus handleCallback(MessageBase* pMessage)
@@ -29,10 +28,7 @@ namespace CallbackProcessor
 	{
 		while (!bTerminate)
 		{
-			FileMappings::Lock(pCallbackOutput);
-			messageProcessor.ProcessMessages((MessageBase*)&pCallbackOutput->Data[0], pCallbackOutput->NumMessages);
-			pCallbackOutput->NumMessages = 0;
-			FileMappings::Unlock(pCallbackOutput);
+			pMessageProcessor->ProcessMessages(true);
 			Sleep(100);
 		}
 
@@ -47,7 +43,7 @@ namespace CallbackProcessor
 	bool Initialize()
 	{
 		DEBUG_LOG("Initializing the callback processor...\n");
-		pCallbackOutput = FileMappings::GetCallbackOutput();
+		pMessageProcessor = new MessageProcessor<CONST_CALLBACK_INPUT_SIZE>(FileMappings::GetCallbackOutput());
 		hProcessCallbacks = CreateThread(nullptr, 0, &processCallbacks, nullptr, 0, nullptr);
 
 		if (hProcessCallbacks)
@@ -55,7 +51,7 @@ namespace CallbackProcessor
 		else
 			DEBUG_LOG("Failed to create the ProcessCallbacks thread! Error code: %i\n", GetLastError());
 
-		messageProcessor.SubscribeMessage(CallbackMessageType, &handleCallback);
+		pMessageProcessor->SubscribeMessage(CallbackMessageType, &handleCallback);
 		DEBUG_LOG("Successfully initialized the callback processor!\n");
 
 		return hProcessCallbacks != NULL;

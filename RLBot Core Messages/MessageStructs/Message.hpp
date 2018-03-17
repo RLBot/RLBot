@@ -30,6 +30,8 @@ struct MessageBase
 
 	MessageBase() = delete;
 
+	static std::function<size_t(MessageBase*)> GetSizeFunctions[MaxMessageType];
+
 protected:
 	MessageBase(MessageType type, bool hasCallback) : Type(type), HasCallback(hasCallback)
 	{
@@ -37,8 +39,6 @@ protected:
 		ID = currentID++;
 	}
 };
-
-extern std::function<size_t(MessageBase*)> GetSizeFunctions[MaxMessageType];
 
 template<MessageType type, bool hasCallback>
 struct Message : MessageBase

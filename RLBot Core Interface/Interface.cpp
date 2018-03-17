@@ -86,10 +86,13 @@ namespace Interface
 
 			if (GetAsyncKeyState(VK_NUMPAD3) & 1)
 			{
-				PlayerInput input;
-				input.Boost = true;
-				input.Throttle = 1.0f;
-				GameFunctions::UpdatePlayerInput(input, 0);
+				for (int i = 0; i < 1000; i++)
+				{
+					PlayerInput input;
+					input.Boost = true;
+					input.Throttle = 1.0f;
+					GameFunctions::UpdatePlayerInput(input, 0);
+				}
 			}
 
 			if (GetAsyncKeyState(VK_NUMPAD4) & 1)

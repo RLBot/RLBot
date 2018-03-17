@@ -4,18 +4,77 @@
 #include <unordered_map>
 
 #include "..\ErrorCodes\ErrorCodes.hpp"
+#include "..\FileMappings\FileMappings.hpp"
+#include "..\MessageDefines\MessageDefines.hpp"
+#include "..\MessageStructs\CallbackMessages.hpp"
 #include "..\MessageStructs\Message.hpp"
+
+#define BEGIN_CALLBACK_FUNCTION(structName, name)	if (!pCallbackOutput) \
+													{ \
+														pCallbackOutput = FileMappings::GetCallbackOutput(); \
+													} \
+													pCallbackOutput->Lock(); \
+													BEGIN_FUNCTION(structName, name, pCallbackOutput)
+
+#define END_CALLBACK_FUNCTION						END_FUNCTION(pCallbackOutput); \
+													pCallbackOutput->Unlock()
 
 typedef RLBotCoreStatus (*MessageHandler)(MessageBase* pMessage);
 
+template<unsigned int size>
 class MessageProcessor
 {
 private:
 	std::unordered_map<MessageType, MessageHandler> messageHandlerMap;
+	CallbackOutput* pCallbackOutput;
+	MessageStorage<size>* pStorage;
 
 public:
-	void SubscribeMessage(MessageType type, MessageHandler handler);
-	void ProcessMessages(MessageBase* pFirst, size_t numMessages);
+	MessageProcessor(MessageStorage<size>* pStorage)
+	{
+		this->pCallbackOutput = nullptr;
+		this->pStorage = pStorage;
+	}
+
+	void SubscribeMessage(MessageType type, MessageHandler handler)
+	{
+		messageHandlerMap[type] = handler;
+	}
+
+	void ProcessMessages(bool resetOffset)
+	{
+		pStorage->Lock();
+
+		for (
+			auto it = pStorage->Begin();
+			it != pStorage->End();
+			it++
+			)
+		{
+			auto result = messageHandlerMap.find(it->Type);
+
+			if (result != messageHandlerMap.end())
+			{
+				RLBotCoreStatus returnValue = result->second(it.GetCurrentMessage());
+
+				if (it->HasCallback)
+				{
+					BEGIN_CALLBACK_FUNCTION(CallbackMessage, pCallback);
+					pCallback->FunctionID = it->ID;
+					pCallback->Status = returnValue;
+					END_CALLBACK_FUNCTION;
+				}
+			}
+		}
+
+		if (resetOffset)
+			pStorage->Reset();
+
+		pStorage->Unlock();
+	}
 };
+
+#undef BEGIN_CALLBACK_FUNCTION
+#undef END_CALLBACK_FUNCTION
 
 #endif

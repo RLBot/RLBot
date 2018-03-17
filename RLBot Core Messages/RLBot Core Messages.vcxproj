@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileMappings\FileMappings.cpp" />
-    <ClCompile Include="MessageProcessor\MessageProcessor.cpp" />
     <ClCompile Include="MessageStructs\Message.cpp" />
   </ItemGroup>
   <ItemGroup>

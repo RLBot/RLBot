@@ -3,15 +3,11 @@
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 
 #define BEGIN_GAME_FUNCTION(structName, name)	GameInput* pGameInput = FileMappings::GetGameInput(); \
-												FileMappings::Lock(pGameInput); \
-												if (!pGameMessage || pGameInput->NumMessages == 0) \
-												{ \
-													RESET_MESSAGE_POINTER(pGameMessage, pGameInput); \
-												} \
-												BEGIN_FUNCTION(structName, name, pGameMessage)
+												pGameInput->Lock(); \
+												BEGIN_FUNCTION(structName, name, pGameInput)
 
-#define END_GAME_FUNCTION						END_FUNCTION(pGameInput, pGameMessage); \
-												FileMappings::Unlock(pGameInput)
+#define END_GAME_FUNCTION						END_FUNCTION(pGameInput); \
+												pGameInput->Unlock()
 
 #define REGISTER_CALLBACK(name, callback, id)	if (callback) \
 												{ \
@@ -24,7 +20,7 @@
 
 namespace GameFunctions
 {
-	static MessageBase* pGameMessage = nullptr;
+	//static MessageBase* pGameMessage = nullptr;
 
 	bool isValidName(wchar_t* pName)
 	{
