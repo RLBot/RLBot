@@ -1,20 +1,17 @@
 import configparser
 import msvcrt
-import queue
 import multiprocessing as mp
-
-import time
+import queue
 
 from RLBotFramework.agents import bot_manager
 from RLBotFramework.base_extension import BaseExtension
-from RLBotFramework.utils.class_importer import get_base_import_package, import_class_with_base
+from RLBotFramework.utils.class_importer import get_base_import_package, import_class_with_base, import_agent
 from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from RLBotFramework.utils.process_configuration import configure_processes
 from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
 from RLBotFramework.utils.structures import bot_input_struct as bi
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChatManager
-
 
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
@@ -129,6 +126,13 @@ class SetupManager:
     @staticmethod
     def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name,
                   agent_telemetry_queue, queue_holder):
-        bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                    index, module_name, agent_telemetry_queue, queue_holder)
+
+        agent_class = import_agent(module_name)
+
+        if hasattr(agent_class, "get_output_proto"):
+            bm = bot_manager.BotManagerProto(terminate_event, callback_event, config_file, name, team,
+                                             index, agent_class, agent_telemetry_queue, queue_holder)
+        else:
+            bm = bot_manager.BotManagerStruct(terminate_event, callback_event, config_file, name, team,
+                                              index, agent_class, agent_telemetry_queue, queue_holder)
         bm.run()
