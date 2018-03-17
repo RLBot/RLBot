@@ -114,7 +114,7 @@ namespace GameFunctions
 	}
 
 #ifdef ENABLE_PROTO
-	extern "C" void* RLBOT_CORE_API UpdateLiveDataPacketProto()
+	extern "C" CompiledGameTickPacket RLBOT_CORE_API UpdateLiveDataPacketProto()
 	{
 		LiveDataPacket packet = LiveDataPacket();
 		UpdateLiveDataPacket(&packet);

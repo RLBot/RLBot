@@ -25,8 +25,9 @@ extern "C"
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback = nullptr, unsigned int* pID = nullptr);
 
 #ifdef ENABLE_PROTO
-		DLL_EXPORT void* RLBOT_CORE_API UpdateLiveDataPacketProto();
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(void* playerInput);
+		DLL_EXPORT CompiledGameTickPacket RLBOT_CORE_API UpdateLiveDataPacketProto();
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledGameTickPacket playerInput);
 #endif
 	}
 

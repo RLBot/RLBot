@@ -3,6 +3,7 @@
 
 #include <game_data.pb.h>
 #include <PacketStructs\LiveDataPacket.hpp>
+typedef void* CompiledGameTickPacket;
 
 namespace ProtoConversions {
 	rlbot::api::GameTickPacket* convert(LiveDataPacket* pLiveData);
