@@ -4,7 +4,7 @@ from RLBotFramework.agents.base_proto_agent import BaseProtoAgent
 from RLBotFramework.grpcsupport.protobuf import game_data_pb2
 
 
-class Proto(BaseProtoAgent):
+class ProtoAtba(BaseProtoAgent):
     def get_output_proto(self, game_tick_proto):
 
         controller_state = game_data_pb2.ControllerState()
