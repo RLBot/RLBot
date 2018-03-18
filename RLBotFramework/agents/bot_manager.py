@@ -177,7 +177,7 @@ class BotManagerStruct(BotManager):
     def call_agent(self, agent, agent_class):
         controller_input = agent.get_output_vector(self.game_tick_packet)
         if not controller_input:
-            raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_class.__file__))
+            raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_class.__name__))
 
         player_input = self.bot_input.sPlayerInput[self.index]
 
@@ -213,7 +213,7 @@ class BotManagerProto(BotManager):
     def call_agent(self, agent, agent_class):
         controller_state = agent.get_output_proto(self.game_tick_proto)
         if not controller_state:
-            raise Exception('Agent "{}" did not return a controller_state.'.format(agent_class.__file__))
+            raise Exception('Agent "{}" did not return a controller_state.'.format(agent_class.__name__))
 
         self.game_interface.update_controller_state(controller_state, self.index)
 
