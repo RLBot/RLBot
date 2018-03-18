@@ -131,7 +131,7 @@ class BotManager:
                     # Call agent
                     self.call_agent(agent, self.agent_class)
                 except Exception as e:
-                    traceback.print_exc()
+                    self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
 
 
             # Ratelimit here
