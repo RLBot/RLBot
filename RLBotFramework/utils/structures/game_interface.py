@@ -92,7 +92,8 @@ class GameInterface:
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
         is_loaded = self.game.IsInitialized()
-        self.logger.debug('dll is loaded: %s', is_loaded)
+        if not is_loaded:
+            self.logger.debug('DLL is loaded!')
         if not is_loaded:
             time.sleep(1)
             self.wait_until_loaded()
