@@ -50,11 +50,3 @@ def gather_data(timeout=20.0):
         kill_proc_tree(proc.pid)
         proc.join()
     log("Data gathering finished.")
-
-
-def main():
-    gather_data()
-    analyze_results()
-
-if __name__ == '__main__':
-    main()
