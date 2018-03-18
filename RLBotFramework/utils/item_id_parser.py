@@ -1,7 +1,7 @@
 # data in the form of: ID,FullName,AssetPackageName,AsciiLabel,PackID,Quality,UnlockMethod
 
 dump_file = input('Data dump (input) file name?->')
-data = open(dump_file, 'r', encoding='utf-8-sig')
+data = open(dump_file, 'r')
 Bodies,Wheels,Boosts,Antennas,Decals,Toppers,Trails,Goal_Explosions,Paints,Banners,Engine_Audio=[],[],[],[],[],[],[],[],[],[],[]
 
 car_dict = {'backfire': 'Backfire', 'force': 'Breakout', 'octane': 'Octane', 'orion': 'Paladin', 'rhino': 'Road Hog',
@@ -78,11 +78,16 @@ for line in data:
 file_name = input('Clean file (output) name(with "".txt")->')
 clean_file = open(file_name, 'w')
 
-
+clean_file.write("# List of Item ID's in game as of DATE\n\n")
 clean_file.write('### ID - AsciiLabel\n\n')
 clean_file.write('### Bodies\n```\n')
 for body in Bodies:
     clean_file.write(body)
+    clean_file.write('\n')
+
+clean_file.write('```\n\n### Wheels\n```\n')
+for wheel in Wheels:
+    clean_file.write(wheel)
     clean_file.write('\n')
 
 clean_file.write('```\n\n### Boosts\n```\n')
