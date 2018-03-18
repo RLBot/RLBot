@@ -7,6 +7,11 @@ from RLBotFramework.grpcsupport.protobuf import game_data_pb2
 class Proto(BaseProtoAgent):
     def get_output_proto(self, game_tick_proto):
 
+        controller_state = game_data_pb2.ControllerState()
+
+        if len(game_tick_proto.players) - 1 < self.index:
+            return controller_state
+
         ball_location = Vector2(game_tick_proto.ball.location.x, game_tick_proto.ball.location.y)
 
         my_car = game_tick_proto.players[self.index]
@@ -22,7 +27,6 @@ class Proto(BaseProtoAgent):
         else:
             turn = 1.0
 
-        controller_state = game_data_pb2.ControllerState()
         controller_state.throttle = 1.0
         controller_state.steer = turn
 
