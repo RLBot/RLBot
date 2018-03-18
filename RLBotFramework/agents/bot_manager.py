@@ -14,7 +14,8 @@ from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import send_quick_chat, register_for_quick_chat
 
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
-MAX_CHAT_RATE = 1.0 / GAME_TICK_PACKET_REFRESHES_PER_SECOND * 2.0
+MAX_CHAT_RATE = 2.0
+MAX_CHAT_COUNT = 5
 MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
@@ -49,14 +50,29 @@ class BotManager:
         self.game_interface = GameInterface(self.logger)
         self.quick_chat_queue_holder = quick_chat_queue_holder
         self.last_chat_time = time.time()
+        self.chat_counter = 0
+        self.reset_chat_time = True
         self.game_tick_packet = None
         self.bot_input = None
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
-        """Passes the agents quick chats to the other bots."""
-        if time.time() - self.last_chat_time >= MAX_CHAT_RATE:
-            send_quick_chat(self.quick_chat_queue_holder, self.index, self.team, team_only, quick_chat)
+        """
+        Passes the agents quick chats to the other bots.
+        This does perform limiting.
+        You are limited to 5 quick chats in a 2 second period starting from the first chat.
+        This means you can spread your chats out to be even within that 2 second period.
+        You could spam them in the first little bit but then will be throttled.
+        """
+        time_since_last_chat = time.time() - self.last_chat_time
+        if not self.reset_chat_time and time_since_last_chat >= MAX_CHAT_RATE:
+            self.reset_chat_time = True
+        if self.reset_chat_time:
             self.last_chat_time = time.time()
+            self.chat_counter = 0
+            self.reset_chat_time = False
+        if self.chat_counter < MAX_CHAT_COUNT:
+            send_quick_chat(self.quick_chat_queue_holder, self.index, self.team, team_only, quick_chat)
+            self.chat_counter += 1
 
     def is_game_running(self):
         return True
