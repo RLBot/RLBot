@@ -73,6 +73,8 @@ class BotManager:
         if self.chat_counter < MAX_CHAT_COUNT:
             send_quick_chat(self.quick_chat_queue_holder, self.index, self.team, team_only, quick_chat)
             self.chat_counter += 1
+        else:
+            self.logger.debug('quick chat disabled for %s', MAX_CHAT_RATE - time_since_last_chat)
 
     def is_game_running(self):
         return True
