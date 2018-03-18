@@ -41,22 +41,21 @@ class MessageStorageIterator
 private:
 	MessageBase* pCurrentMessage;
 	tMessageStorage* pStorage;
-
-	unsigned long currentOffset;
+	unsigned long totalOffset;
 
 public:
 	MessageStorageIterator()
 	{
 		pCurrentMessage = nullptr;
 		pStorage = nullptr;
-		currentOffset = 0;
+		totalOffset = 0;
 	}
 
 	MessageStorageIterator(tMessageStorage* pStorage)
 	{
 		pCurrentMessage = pStorage->offset > 0 ? pStorage->GetFirstMessageMemory() : nullptr;
 		this->pStorage = pStorage;
-		currentOffset = 0;
+		totalOffset = 0;
 	}
 
 	bool operator==(const MessageStorageIterator& OtherIterator) const
@@ -75,8 +74,9 @@ public:
 	{
 		if (pCurrentMessage)
 		{
-			currentOffset += MessageBase::GetSizeFunctions[pCurrentMessage->Type](pCurrentMessage);
-			pCurrentMessage = currentOffset < pStorage->offset ? (MessageBase*)((unsigned char*)pCurrentMessage + currentOffset) : nullptr;
+			unsigned long currentMessageSize = MessageBase::GetSizeFunctions[pCurrentMessage->Type](pCurrentMessage);
+			totalOffset += currentMessageSize;
+			pCurrentMessage = totalOffset < pStorage->offset ? (MessageBase*)((unsigned char*)pCurrentMessage + currentMessageSize) : nullptr;
 		}
 
 		return *this;
