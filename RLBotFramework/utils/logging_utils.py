@@ -28,3 +28,6 @@ def get_logger(logger_name, log_creation=True):
 def log_warn(message, args):
     """Logs a warning message using the default logger."""
     get_logger(DEFAULT_LOGGER, log_creation=False).log(logging.WARNING, message, *args)
+
+def log(message):
+    get_logger(DEFAULT_LOGGER, log_creation=False).log(logging.INFO, message)
