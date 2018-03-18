@@ -36,14 +36,18 @@ def import_class_with_base(module_name, base_class):
     try:
         module = importlib.import_module(module_name)
         agent_class = [agent[1] for agent in inspect.getmembers(module, inspect.isclass)
-                       if is_extends_base_class(agent[1], base_class)]
+                       if issubclass(agent[1], base_class) and agent[1].__module__ == module_name]
 
         agent = agent_class[0]
         # grabs only the first one
         return agent
-    except Exception:
-        log_warn('sub module %s not found using %s instead', [str(module_name), str(base_class)])
-        return base_class
+    except ModuleNotFoundError as e:
+        log_warn('ModuleNotFoundError: %s\nsub module %s not found using %s instead', [str(e), str(module_name),
+                                                                                       str(base_class)])
+    except Exception as e:
+        log_warn('Error: %s\n%s not found using %s instead', [str(e), str(module_name), str(base_class)])
+
+    return base_class
 
 
 def get_base_import_package(config_file_path):

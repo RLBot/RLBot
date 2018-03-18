@@ -18,11 +18,13 @@ class Rotator(ctypes.Structure):
                 ("Yaw", ctypes.c_int),
                 ("Roll", ctypes.c_int)]
 
+
 class Touch(ctypes.Structure):
     _fields_ = [("wPlayerName", ctypes.c_wchar * MAX_NAME_LENGTH),
                 ("fTimeSeconds", ctypes.c_float),
                 ("sHitLocation", Vector3),
                 ("sHitNormal", Vector3)]
+
 
 class ScoreInfo(ctypes.Structure):
     _fields_ = [("Score", ctypes.c_int),
@@ -106,6 +108,12 @@ class GameTickPacketWithLock(ctypes.Structure):
                 ("numBoosts", ctypes.c_int),
                 ("gameball", BallInfo),
                 ("gameInfo", GameInfo)]
+
+
+# Helps us return raw bytes from protobuf functions.
+class ByteBuffer(ctypes.Structure):
+    _fields_ = [("ptr", ctypes.c_void_p),
+                ("size", ctypes.c_int)]
 
 
 def print_vector_3(vector):
@@ -225,7 +233,7 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
     game_tick_packet.gameball.AngularVelocity.Y = -1 * game_tick_packet.gameball.AngularVelocity.Y
     game_tick_packet.gameball.Acceleration.X = -1 * game_tick_packet.gameball.Acceleration.X
     game_tick_packet.gameball.Acceleration.Y = -1 * game_tick_packet.gameball.Acceleration.Y
-    
+
     # ball touch data
     game_tick_packet.gameball.LatestTouch.sHitLocation.X = -1 * game_tick_packet.gameball.LatestTouch.sHitLocation.X
     game_tick_packet.gameball.LatestTouch.sHitLocation.Y = -1 * game_tick_packet.gameball.LatestTouch.sHitLocation.Y

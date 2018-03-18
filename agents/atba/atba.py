@@ -30,7 +30,8 @@ class Atba(BaseAgent):
             self.flip_turning = not self.flip_turning
             turn *= -1.0
 
-        self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
+        if turn == -1.0:
+            self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
 
         return [
             1.0,  # throttle
