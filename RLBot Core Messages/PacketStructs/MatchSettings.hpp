@@ -34,7 +34,7 @@ enum GameMode
 	GameMode_Normal
 };
 
-enum Map
+enum MapSelection
 {
 	NormalMap_AquaDome,
 	NormalMap_BeckwithPark,
@@ -59,12 +59,12 @@ enum Map
 	RocketLab_Underpass,
 	RocketLab_UtopiaRetro,
 	Workshop_Aerial_Map, // http://steamcommunity.com/sharedfiles/filedetails/?id=1212847139&searchtext=
-	Workshop_DribblingChallenge2, // http://steamcommunity.com/sharedfiles/filedetails/?id=964271505&searchtext=
-	Workshop_ShipYarr, // http://steamcommunity.com/sharedfiles/filedetails/?id=817314448&searchtext=
 	Workshop_BeachVolley, // http://steamcommunity.com/sharedfiles/filedetails/?id=916532343&searchtext=
+	Workshop_DribblingChallenge2, // http://steamcommunity.com/sharedfiles/filedetails/?id=964271505&searchtext=
 	Workshop_DribblingChallenge, // http://steamcommunity.com/sharedfiles/filedetails/?id=814218628&searchtext=
 	Workshop_ObstacleCourse2, // http://steamcommunity.com/sharedfiles/filedetails/?id=828803580&searchtext=
-	Workshop_ObstacleCourse // http://steamcommunity.com/sharedfiles/filedetails/?id=814207936
+	Workshop_ObstacleCourse, // http://steamcommunity.com/sharedfiles/filedetails/?id=814207936
+	Workshop_ShipYarr // http://steamcommunity.com/sharedfiles/filedetails/?id=817314448&searchtext=
 };
 
 enum MapVariation
@@ -79,8 +79,14 @@ enum MapVariation
 struct MatchSettings
 {
 	GameMode GameMode;
-	Map GameMap;
+	MapSelection GameMap;
 	MapVariation MapVariation;
+};
+
+
+struct Mutators
+{
+
 };
 
 #endif

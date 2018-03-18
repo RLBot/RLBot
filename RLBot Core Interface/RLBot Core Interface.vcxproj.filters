@@ -44,11 +44,11 @@
     <ClCompile Include="CallbackProcessor\CallbackProcessor.cpp">
       <Filter>Source Files\CallbackProcessor</Filter>
     </ClCompile>
+    <ClCompile Include="ProtoConversions\ProtoConversions.cpp">
+      <Filter>Source Files\GameFunctions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameFunctions\GameFunctions.hpp">
       <Filter>Header Files\GameFunctions</Filter>
     </ClInclude>
@@ -60,6 +60,12 @@
     </ClInclude>
     <ClInclude Include="CallbackProcessor\CallbackProcessor.hpp">
       <Filter>Header Files\CallbackProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtoConversions\ProtoConversions.hpp">
+      <Filter>Header Files\GameFunctions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

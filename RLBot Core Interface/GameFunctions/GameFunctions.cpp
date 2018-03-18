@@ -109,6 +109,60 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
+#ifdef ENABLE_PROTO
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketProto()
+	{
+		LiveDataPacket packet = LiveDataPacket();
+		UpdateLiveDataPacket(&packet);
+
+		rlbot::api::GameTickPacket* protoResult = ProtoConversions::convert(&packet);
+		int byte_size = protoResult->ByteSize();
+		CompiledGameTickPacket proto_binary = malloc(byte_size);
+		protoResult->SerializeToArray(proto_binary, byte_size);
+
+		ByteBuffer byteBuffer;
+		byteBuffer.ptr = proto_binary;
+		byteBuffer.size = byte_size;
+
+		return byteBuffer;
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
+	{
+		rlbot::api::GameTickPacket* protoResult = &rlbot::api::GameTickPacket();
+		protoResult->ParseFromArray(gameTickPacket, protoSize);
+		LiveDataPacket* packet = &LiveDataPacket();
+		UpdateLiveDataPacket(packet);
+		RLBotCoreStatus status = ProtoConversions::convert(protoResult, packet);
+
+		if (status != RLBotCoreStatus::Success)
+			return status;
+
+		BEGIN_GAME_FUNCTION(SetGameStateMessage, pSetGameData);
+		REGISTER_CALLBACK(pSetGameData, callback, pID);
+
+		pSetGameData->GameState = *packet;
+
+		END_GAME_FUNCTION;
+		return RLBotCoreStatus::Success;
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledControllerState controllerState, int protoSize, int playerIndex)
+	{
+		// decode player input proto
+		rlbot::api::ControllerState controllerStateProto = rlbot::api::ControllerState();
+		controllerStateProto.ParseFromArray(controllerState, protoSize);
+		PlayerInput* playerInput = ProtoConversions::convert(&controllerStateProto);
+
+		return UpdatePlayerInput(*playerInput, playerIndex);
+	}
+
+	extern "C" void RLBOT_CORE_API Free(void* ptr)
+	{
+		free(ptr);
+	}
+#endif
+
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateMatchDataPacket(MatchDataPacket* pMatchData)
 	{
 		memcpy(pMatchData, &FileMappings::GetMatchData()->MatchDataPacket, sizeof(MatchDataPacket));

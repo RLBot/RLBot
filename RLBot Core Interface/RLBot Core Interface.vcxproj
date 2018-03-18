@@ -128,7 +128,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -136,11 +136,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -148,11 +148,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-SDK|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -160,11 +160,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-SDK|x64'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -172,11 +172,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -184,11 +184,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -196,11 +196,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -208,11 +208,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|x64'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)\Protobuf\generated;$(SolutionDir)\Protobuf;$(SolutionDir)\RLBot Core SDK;$(SolutionDir)\RLBot Core Messages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -220,7 +220,7 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(SolutionDir)\Protobuf\Bin\$(Platform)\$(Configuration);$(SolutionDir)\RLBot Core Messages\Bin\$(Platform)\$(Configuration);$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -251,13 +251,12 @@
       <AdditionalOptions>/Zc:implicitNoexcept- /Zc:sizedDealloc- /Zc:threadSafeInit- /bigobj /Gs100000000 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Precise</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -279,6 +278,7 @@
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -296,7 +296,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ENABLE_PROTO;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -322,13 +322,12 @@
       <AdditionalOptions>/Zc:implicitNoexcept- /Zc:sizedDealloc- /Zc:threadSafeInit- /bigobj /Gs100000000 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Precise</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -353,6 +352,7 @@
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -396,13 +396,12 @@
       <AdditionalOptions>/Zc:implicitNoexcept- /Zc:sizedDealloc- /Zc:threadSafeInit- /bigobj /Gs100000000 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Precise</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -427,6 +426,7 @@
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -439,12 +439,15 @@
       <Command>
       </Command>
     </PreBuildEvent>
+    <CustomBuildStep />
+    <CustomBuildStep />
+    <CustomBuildStep />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-SDK|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ENABLE_PROTO;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -470,13 +473,12 @@
       <AdditionalOptions>/Zc:implicitNoexcept- /Zc:sizedDealloc- /Zc:threadSafeInit- /bigobj /Gs100000000 %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Precise</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -501,6 +503,7 @@
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -540,13 +543,12 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -566,6 +568,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -580,7 +583,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ENABLE_PROTO;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -603,13 +606,12 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Release\libprotobuf.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -631,6 +633,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -645,7 +648,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -668,13 +671,12 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug\libprotobufd.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -696,6 +698,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -710,7 +713,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ENABLE_PROTO;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -733,13 +736,12 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>FastCall</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RLBot Core SDK.lib;RLBot Core Messages.lib;Protobuf.lib;$(SolutionDir)packages\protobuf.cpp.3.1.0\build\native\lib\$(Platform)\v140\Debug\libprotobufd.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
@@ -761,6 +763,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <AdditionalOptions>/IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(SolutionDir)Protobuf\Bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -775,6 +778,7 @@
     <ClCompile Include="CallbackProcessor\CallbackProcessor.cpp" />
     <ClCompile Include="GameFunctions\GameFunctions.cpp" />
     <ClCompile Include="Interface.cpp" />
+    <ClCompile Include="ProtoConversions\ProtoConversions.cpp" />
     <ClCompile Include="RenderFunctions\RenderFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -782,9 +786,13 @@
     <ClInclude Include="GameFunctions\GameFunctions.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="InterfaceBase\InterfaceBase.hpp" />
+    <ClInclude Include="ProtoConversions\ProtoConversions.hpp" />
     <ClInclude Include="RenderFunctions\RenderFunctions.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Protobuf\Protobuf.vcxproj">
+      <Project>{3e9d3ce4-db07-49f5-b186-a38a5a494e35}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\RLBot Core Messages\RLBot Core Messages.vcxproj">
       <Project>{075f4b01-013a-4200-9720-95051226d748}</Project>
     </ProjectReference>

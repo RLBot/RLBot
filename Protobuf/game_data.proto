@@ -1,0 +1,100 @@
+syntax = "proto3";
+ 
+package rlbot.api;
+
+
+service Bot {
+  rpc GetControllerState (GameTickPacket) returns (ControllerState) {}
+}
+
+message ControllerState {
+  float throttle = 1; // -1 for full reverse, 1 for full forward
+  float steer = 2; // -1 for full left, 1 for full right
+  float pitch = 3; // -1 for nose down, 1 for nose up
+  float yaw = 4; // -1 for full left, 1 for full right
+  float roll = 5; // -1 for roll left, 1 for roll right
+  bool jump = 6;
+  bool boost = 7;
+  bool handbrake = 8;
+}
+
+// Values are in "unreal units"
+message Vector3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+// Values are in radians
+message Rotator {
+  float pitch = 1;
+  float yaw = 2;
+  float roll = 3;
+}
+
+message Touch {
+  string player_name = 1;
+  float game_seconds = 2;  // Seconds elapsed since the beginning of the game at the time of the touch
+  Vector3 location = 3;
+  Vector3 normal = 4;
+}
+
+message ScoreInfo {
+  int32 score = 1;
+  int32 goals = 2;
+  int32 own_goals = 3;
+  int32 assists = 4;
+  int32 saves = 5;
+  int32 shots = 6;
+  int32 demolitions = 7;
+}
+
+message PlayerInfo {
+  Vector3 location = 1;
+  Rotator rotation = 2;
+  Vector3 velocity = 3;
+  Vector3 angular_velocity = 4;
+  ScoreInfo score_info = 5;
+  bool is_demolished = 6;
+  bool is_midair = 7;
+  bool is_supersonic = 8;
+  bool is_bot = 9;
+  bool jumped = 10;
+  bool double_jumped = 11;
+  string name = 12;
+  int32 team = 13;
+  int32 boost = 14;
+}
+
+message BallInfo {
+  Vector3 location = 1;
+  Rotator rotation = 2;
+  Vector3 velocity = 3;
+  Vector3 angular_velocity = 4;
+  Vector3 acceleration = 5;
+  Touch latest_touch = 6;
+}
+
+message BoostInfo {
+  Vector3 location = 1;
+  bool is_active = 2;
+  float timer = 3;
+}
+
+message GameInfo {
+  float seconds_elapsed = 1;
+  float game_time_remaining = 2;
+  bool is_overtime = 3;
+  bool is_unlimited_time = 4;
+  bool is_round_active = 5;
+  bool is_kickoff_pause = 6;
+  bool is_match_ended = 7;
+}
+
+message GameTickPacket {
+  repeated PlayerInfo players = 1;
+  int32 player_index = 2;
+  repeated BoostInfo boost_pads = 3;
+  BallInfo ball = 4;
+  GameInfo game_info = 5;
+}

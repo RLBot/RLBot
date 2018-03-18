@@ -223,7 +223,6 @@
     <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|Win32'">
-    <TargetExt>.lib</TargetExt>
     <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
@@ -235,7 +234,6 @@
     <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|x64'">
-    <TargetExt>.lib</TargetExt>
     <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
@@ -669,7 +667,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -734,7 +732,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
