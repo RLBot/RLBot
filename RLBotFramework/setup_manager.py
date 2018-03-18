@@ -97,7 +97,6 @@ class SetupManager:
         self.logger.debug("Successfully started bot processes")
 
     def run(self):
-        self.logger.debug("Successfully started bot processes")
         self.quick_chat_manager.start_manager()
         self.logger.debug("Successfully started quick chat manager")
         self.game_interface.start_match()
