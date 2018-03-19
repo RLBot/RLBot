@@ -10,7 +10,8 @@
 struct StartMatchMessage : public Message<StartMatchMessageType, true>
 {
 	PlayerConfiguration	PlayerConfiguration[CONST_MaxPlayers];
-	int					NumPlayers;
+	MatchSettings		MatchSettings;
+	MutatorSettings		MutatorSettings;
 };
 
 struct UpdatePlayerInputMessage : public Message<UpdatePlayerInputMessageType, false>

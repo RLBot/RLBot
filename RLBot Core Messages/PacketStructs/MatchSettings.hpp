@@ -88,6 +88,7 @@ enum MapVariation
 
 struct MatchSettings
 {
+	int numPlayers;
 	int GameMode;
 	int GameMap;
 	MapVariation MapVariation;
@@ -117,6 +118,14 @@ struct MutatorSettings
 {
 	int MatchLength;
 	BoostOptions BoostOptions;
+};
+
+
+struct MatchConfigurationWrapper
+{
+	PlayerConfiguration playerConfiguration[CONST_MaxPlayers];
+	MatchSettings matchSettings;
+	MutatorSettings mutatorSettings;
 };
 
 #endif
