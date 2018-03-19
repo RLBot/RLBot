@@ -46,7 +46,7 @@ for line in data:
     UnlockMethod = line_parts[6]
 
     #if it is platform specific, logo for season play, crate, bots, keys, packs
-    if (ID=='0' or AssetPackageName == 'seasonlogos' or AssetPackageName == 'itemcontainer' or
+    if (ID =='0' or AssetPackageName == 'seasonlogos' or AssetPackageName == 'itemcontainer' or
     AssetPackageName == 'bots' or 'key' in AssetPackageName or 'pack' in AssetPackageName):
         continue
 
@@ -67,13 +67,13 @@ def write_file(categories):
     clean_file = open(file_name, 'w')
 
     day = date.today()
-    today=day.strftime("%d/%m/%y")
-    title="# List of Item ID's in game as of "+today+"\n\n"
+    today = day.strftime("%d/%m/%y")
+    title ="# List of Item ID's in game as of "+today+"\n\n"
     clean_file.write(title)
 
     clean_file.write('### ID - AsciiLabel')
     for cat in categories:
-        write='\n\n### '+cat+'\n'
+        write = '\n\n### '+cat+'\n'
         clean_file.write(write)
         clean_file.write('```\n')
         for item in categories[cat][0]:
