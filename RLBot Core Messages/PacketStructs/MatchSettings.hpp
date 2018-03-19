@@ -76,11 +76,14 @@ enum MapVariation
 	Variation_Dusk
 };
 
+
 struct MatchSettings
 {
 	GameMode GameMode;
 	MapSelection GameMap;
 	MapVariation MapVariation;
+	bool skipReplays;
+	bool instantStart;
 };
 
 
