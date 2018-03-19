@@ -6,9 +6,6 @@ data = open(dump_file, 'r')
 
 Bodies,Wheels,Boosts,Antennas,Decals,Toppers,Trails,Goal_Explosions,Paints,Banners,Engine_Audio=[],[],[],[],[],[],[],[],[],[],[]
 
-types={"Bodies":Bodies,"Wheels":Wheels,"Boosts":Boosts,"Antennas":Antennas,"Decals":Decals,"Toppers":Toppers,
-"Trails":Trails,"Goal_Explosions":Goal_Explosions,"Paints":Paints,"Banners":Banners,"Engine_Audio":Engine_Audio}
-
 car_dict = {'backfire': 'Backfire', 'force': 'Breakout', 'octane': 'Octane', 'orion': 'Paladin',
 'rhino': 'Road Hog','spark': 'Gizmo', 'torch': 'X-Devil', 'torment': 'Hotshot', 'vanquish': 'Merc',
 'venom':'Venom','import': 'Takumi', 'musclecar': 'Dominus', 'zippy': 'Zippy', 'scarab': 'Scarab',
@@ -23,6 +20,20 @@ car_dict = {'backfire': 'Backfire', 'force': 'Breakout', 'octane': 'Octane', 'or
 'multigrain': 'Imperator DT5','berry': 'The Dark Knight Rises Tumbler','eggplant': "'89 Batmobile",
 'Universal Decal': 'Universal Decal'}
 
+categories = {
+"Bodies": [Bodies,['body']],
+"Decals": [Decals,['skin']],
+"Wheels": [Wheels,['wheel']],
+"Boosts": [Boosts,['boost']],
+"Antennas": [Antennas,['flag','antenna','pennant','.at']],
+"Toppers": [Toppers,['hat','crown']],
+"Trails": [Trails,['ss']],
+"Goal_Explosions": [Goal_Explosions,['explosion']],
+"Paints": [Paints,['paintfinish']],
+"Banners": [Banners,['playerbanner']],
+"Engine_Audio": [Engine_Audio,['engineaudio']]
+}
+
 for line in data:
     line = line.lower()
     line_parts = line.split(',')
@@ -33,64 +44,25 @@ for line in data:
     PackID = line_parts[4]
     Quality = line_parts[5]
     UnlockMethod = line_parts[6]
+
     #if it is platform specific, logo for season play, crate, bots, keys, packs
     if (ID=='0' or AssetPackageName == 'seasonlogos' or AssetPackageName == 'itemcontainer' or
     AssetPackageName == 'bots' or 'key' in AssetPackageName or 'pack' in AssetPackageName):
         continue
 
-    elif 'body' in FullName:
-        body = ('{:4} - {}'.format(ID,AsciiLabel))
-        Bodies.append(body)
-
-    elif 'skin' in FullName:
-        car=AssetPackageName.split('_')
-        if len(car) <= 2:
-            car = 'Universal Decal'
-        else:
-            car = car[1]
-        skin = ('{:4} - {} - {}'.format(ID,AsciiLabel,car_dict[car]))
-        Decals.append(skin)
-
-    elif 'engineaudio' in FullName:
-        engineaudio = ('{:4} - {}'.format(ID,AsciiLabel))
-        Engine_Audio.append(engineaudio)
-
-    elif 'flag' in FullName or 'antenna' in FullName or 'pennant' in FullName or '.at' in FullName:
-        antenna = ('{:4} - {}'.format(ID,AsciiLabel))
-        Antennas.append(antenna)
-
-    elif 'playerbanner' in FullName:
-        playerbanner = ('{:4} - {}'.format(ID,AsciiLabel))
-        Banners.append(playerbanner)
-
-    elif 'wheel' in FullName:
-        wheel = ('{:4} - {}'.format(ID,AsciiLabel))
-        Wheels.append(wheel)
-
-    elif 'boost' in FullName:
-        boost = ('{:4} - {}'.format(ID,AsciiLabel))
-        Boosts.append(boost)
-
-    elif 'explosion' in FullName:
-        explosion = ('{:4} - {}'.format(ID,AsciiLabel))
-        Goal_Explosions.append(explosion)
-
-    elif 'hat' in FullName or 'crown' in FullName:
-        hat = ('{:4} - {}'.format(ID,AsciiLabel))
-        Toppers.append(hat)
-
-    elif 'paintfinish' in FullName:
-        paintfinish = ('{:4} - {}'.format(ID,AsciiLabel))
-        Paints.append(paintfinish)
-
-    elif 'ss' in FullName: #trails
-        trail = ('{:4} - {}'.format(ID,AsciiLabel))
-        Trails.append(trail)
-
     else:
+        filtered = False
+        for cat in categories:
+            filters = categories[cat][1]
+            for filter in filters:
+                if filter in FullName and not filtered:
+                    name = ('{:4} - {}'.format(ID,AsciiLabel))
+                    categories[cat][0].append(name)
+                    filtered = True
+    if not filtered:
         print('unassigned:\n',line_parts)
 
-def write_file(types):
+def write_file(categories):
     file_name = input('Clean file (output) name(with "".txt")->')
     clean_file = open(file_name, 'w')
 
@@ -100,14 +72,14 @@ def write_file(types):
     clean_file.write(title)
 
     clean_file.write('### ID - AsciiLabel')
-    for type in types:
-        write='\n\n### '+type+'\n'
+    for cat in categories:
+        write='\n\n### '+cat+'\n'
         clean_file.write(write)
         clean_file.write('```\n')
-        for item in types[type]:
+        for item in categories[cat][0]:
             clean_file.write(item)
             clean_file.write('\n')
         clean_file.write('```')
     clean_file.close()
 
-write_file(types)
+write_file(categories)
