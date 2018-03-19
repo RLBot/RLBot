@@ -128,7 +128,11 @@ class SetupManager:
 
         agent_class = import_agent(module_name)
 
-        if hasattr(agent_class, "get_output_proto"):
+        if hasattr(agent_class, "run_independently"):
+            bm = bot_manager.BotManagerIndependent(terminate_event, callback_event, config_file, name, team,
+                                                   index, agent_class, agent_telemetry_queue, queue_holder)
+
+        elif hasattr(agent_class, "get_output_proto"):
             bm = bot_manager.BotManagerProto(terminate_event, callback_event, config_file, name, team,
                                              index, agent_class, agent_telemetry_queue, queue_holder)
         else:
