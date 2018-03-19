@@ -9,6 +9,7 @@ from RLBotFramework.utils import rate_limiter
 from RLBotFramework.utils.class_importer import get_agent_class_location, import_agent
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
+from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import send_quick_chat, register_for_quick_chat
 
@@ -185,7 +186,7 @@ class BotManagerStruct(BotManager):
 
     def prepare_for_run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
-        self.bot_input = bi.GameInputPacket()
+        self.bot_input = PlayerInput()
         # Set up shared memory for game data
         self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
@@ -194,7 +195,7 @@ class BotManagerStruct(BotManager):
         if not controller_input:
             raise Exception('Agent "{}" did not return a player_input tuple.'.format(agent_class.__name__))
 
-        player_input = self.bot_input.sPlayerInput[self.index]
+        player_input = self.bot_input
 
         # Write all player inputs
         player_input.fThrottle = controller_input[0]
