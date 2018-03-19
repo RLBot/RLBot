@@ -26,16 +26,24 @@ struct PlayerConfiguration
 	int						GoalExplosionID;
 };
 
-enum GameMode
-{
-	GameMode_DropShot,
-	GameMode_Hoops,
-	GameMode_Hockey,
-	GameMode_Normal
+static std::wstring pGameModeKeyNames[] = {
+	/*Soccer*/		L"game=TAGame.GameInfo_Soccar_TA",
+	/*Hoops*/		L"game=TAGame.GameInfo_Basketball_TA",
+	/*Dropshot*/	L"game=TAGame.GameInfo_Breakout_TA",
+	/*Hockey*/		L"game=TAGame.GameInfo_Hockey_TA",
+	/*Rumble*/		L"game=TAGame.GameInfo_Items_TA"
+};
+
+
+static std::wstring pMapSelectionKeyNames[] = {
+	/*NormalMap_Default */ L"Stadium_P",
+	L"ShatterShot_P",
+	L"HoopsStadium_P"
 };
 
 enum MapSelection
 {
+	NormalMap_Default,
 	NormalMap_AquaDome,
 	NormalMap_BeckwithPark,
 	NormalMap_ChampionsField,
@@ -79,8 +87,8 @@ enum MapVariation
 
 struct MatchSettings
 {
-	GameMode GameMode;
-	MapSelection GameMap;
+	int GameMode;
+	int GameMap;
 	MapVariation MapVariation;
 	bool skipReplays;
 	bool instantStart;
