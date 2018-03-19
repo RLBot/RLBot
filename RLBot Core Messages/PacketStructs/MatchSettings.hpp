@@ -85,6 +85,7 @@ enum MapVariation
 };
 
 
+
 struct MatchSettings
 {
 	int GameMode;
@@ -94,10 +95,28 @@ struct MatchSettings
 	bool instantStart;
 };
 
+static std::wstring pMapMatchLengthNames[] = {
+	/*FIVE_MINUTES*/		L"5Minutes",
+	/*TEN_MINUTES*/			L"10Minutes",
+	/*TWENTY_MINUTES*/		L"20Minutes",
+	/*UNLIMITED_MINUTES */	L"UnlimitedTime"
+};
 
-struct Mutators
+
+enum BoostOptions
 {
+	Normal_Boost,
+	Unlimited_Boost,
+	Slow_Recharge,
+	Rapid_Recharge,
+	No_Boost
+};
 
+
+struct MutatorSettings
+{
+	int MatchLength;
+	BoostOptions BoostOptions;
 };
 
 #endif
