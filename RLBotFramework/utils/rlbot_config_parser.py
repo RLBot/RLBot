@@ -8,7 +8,7 @@ from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADE
     BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
 from RLBotFramework.utils.class_importer import import_agent
 from RLBotFramework.utils.custom_config import ConfigObject
-from RLBotFramework.utils.structures.bot_input_struct import get_player_configuration_list
+from RLBotFramework.utils.structures.start_match_structures import get_player_configuration_list
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_BOT_KEY = 'participant_is_bot'
@@ -182,7 +182,7 @@ def get_num_players(config):
     return config.getint(RLBOT_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
-def parse_configurations(gameInputPacket, config_parser, bot_configs, looks_configs):
+def parse_configurations(start_match_configuration, config_parser, bot_configs, looks_configs):
     bot_names = []
     bot_teams = []
     bot_modules = []
@@ -198,9 +198,9 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs, looks_conf
     bot_parameter_list = []
     name_dict = {}
 
-    gameInputPacket.iNumPlayers = num_participants
+    start_match_configuration.matchSettings.numPlayers = num_participants
 
-    player_configuration_list = get_player_configuration_list(gameInputPacket)
+    player_configuration_list = get_player_configuration_list(start_match_configuration)
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
