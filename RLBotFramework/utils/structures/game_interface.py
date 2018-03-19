@@ -6,9 +6,10 @@ import time
 
 from RLBotFramework.grpcsupport.protobuf import game_data_pb2
 from RLBotFramework.utils.class_importer import get_base_repo_path
-from RLBotFramework.utils.structures.bot_input_struct import get_player_input_list_type, PlayerInput
+from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
+from RLBotFramework.utils.structures.start_match_structures import MatchConfigurationWrapper
 
 
 def wrap_callback(callback_func):
@@ -21,7 +22,7 @@ class GameInterface:
 
     game = None
     participants = None
-    game_input_packet = None
+    start_match_configuration = None
     game_status_callback_type = None
     callback_func = None
     extension = None
@@ -45,8 +46,7 @@ class GameInterface:
 
         # start match
         func = self.game.StartMatch
-        list_of_10 = get_player_input_list_type()
-        func.argtypes = [list_of_10, ctypes.c_int, self.game_status_callback_type, ctypes.c_void_p]
+        func.argtypes = [MatchConfigurationWrapper, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
 
         # update player input
@@ -80,7 +80,7 @@ class GameInterface:
     def start_match(self):
         self.wait_until_loaded()
         # self.game_input_packet.bStartMatch = True
-        rlbot_status = self.game.StartMatch(self.game_input_packet.sPlayerConfiguration, self.participants,
+        rlbot_status = self.game.StartMatch(self.start_match_configuration,
                                             self.create_status_callback(
                                                 None if self.extension is None else self.extension.onMatchStart), None)
 
