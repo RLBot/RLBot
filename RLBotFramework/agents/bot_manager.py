@@ -1,4 +1,3 @@
-
 import importlib
 import os
 import sys
@@ -23,7 +22,6 @@ MAX_CARS = 10
 
 
 class BotManager:
-
     def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
                  agent_class, agent_metadata_queue, quick_chat_queue_holder):
         """
@@ -112,7 +110,6 @@ class BotManager:
         last_tick_game_time = None  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
 
-
         # Get bot module
         agent, agent_class_file = self.load_agent(self.agent_class)
 
@@ -152,7 +149,6 @@ class BotManager:
                 except Exception as e:
                     self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
 
-
             # Ratelimit here
             #self.logger.debug('Latency of %s: %s', self.name, str(before - after))
             after = datetime.now()
@@ -178,7 +174,6 @@ class BotManager:
 
 
 class BotManagerStruct(BotManager):
-
     def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
                  module_name, agent_metadata_queue, quick_chat_queue_holder):
         """
@@ -220,7 +215,6 @@ class BotManagerStruct(BotManager):
 
 
 class BotManagerProto(BotManager):
-
     def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
                  module_name, agent_metadata_queue, quick_chat_queue_holder):
         """
@@ -242,6 +236,33 @@ class BotManagerProto(BotManager):
 
     def pull_data_from_game(self):
         self.game_tick_proto = self.game_interface.update_live_data_proto()
+
+    def prepare_for_run(self):
+        pass
+
+
+class BotManagerIndependent(BotManager):
+    def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
+                 module_name, agent_metadata_queue, quick_chat_queue_holder):
+        """
+        See documentation on BotManager.
+        """
+        super().__init__(terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
+                         module_name, agent_metadata_queue, quick_chat_queue_holder)
+
+    def run(self):
+        # Get bot module
+        agent, agent_class_file = self.load_agent(self.agent_class)
+        agent.run_independently()
+
+    def call_agent(self, agent, agent_class):
+        pass
+
+    def pull_data_from_game(self):
+        pass
+
+    def get_game_time(self):
+        pass
 
     def prepare_for_run(self):
         pass
