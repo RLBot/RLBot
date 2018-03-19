@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'de.undercouch.download'
-apply plugin: 'com.linkedin.python-sdist'
+apply plugin: 'ru.vyarus.use-python'
 apply plugin: 'groovy'
 
 def apiFile = new File('apikey')
@@ -20,15 +20,15 @@ buildscript {
         mavenCentral()
         jcenter()
         maven {
-      url "https://plugins.gradle.org/m2/"
-    }
+            url "https://plugins.gradle.org/m2/"
+          }
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'org.apache.ivy:ivy:2.3.0'
         classpath 'de.undercouch:gradle-download-task:3.4.1'
-        classpath 'gradle.plugin.com.linkedin.pygradle:pygradle-plugin:0.6.17'
-        classpath 'RLBot:Framework.proto:0.0.1'
+        classpath 'ru.vyarus:gradle-use-python-plugin:1.0.1'
+        classpath 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2'
     }
 }
 
@@ -38,16 +38,16 @@ buildscript {
 //     pip 'grpcio:1.00.0'
 // }
 
-task gui(type:Exec) {
-  println('gui')
-    workingDir System.getProperty("user.dir")
-    commandLine 'python', 'runner_GUI.py'
-}
+// task gui(type:Exec) {
+//   println('gui')
+//     workingDir System.getProperty("user.dir")
+//     commandLine 'python', 'runner_GUI.py'
+// }
 
 
-task build {
-    println('Building')
-}
+// task build {
+//     println('Building')
+// }
 
 bintray {
     user = 'rlbotofficial'
