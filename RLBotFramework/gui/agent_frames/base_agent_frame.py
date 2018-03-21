@@ -1,13 +1,11 @@
+import os
 import tkinter as tk
 from tkinter import ttk
 
-from configparser import RawConfigParser
-import os
-
-from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY, LOADOUT_MODULE_KEY
-from RLBotFramework.utils.class_importer import import_agent, get_base_import_package
-from RLBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,\
-    PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
+from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
+from RLBotFramework.utils.class_importer import import_agent
+from RLBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
+    PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY, get_bot_config_bundle, BotConfigBundle
 
 
 class BaseAgentFrame(tk.Frame):
@@ -21,6 +19,7 @@ class BaseAgentFrame(tk.Frame):
     agent_class = None  # The class for the agent
     agent_config = None
     looks_config = None
+    config_bundle = None
 
     def __init__(self, parent, team_index, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, *kwargs)
@@ -71,22 +70,23 @@ class BaseAgentFrame(tk.Frame):
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
                                              bot_skill, self.overall_index)
 
-    def load_agent_configs(self, agent_class=None):
+    def load_agent_configs(self):
         """
         Loads the config specific to the agent.
         This only happens if the frame is for a custom agent otherwise this method is skipped
         :param agent_class: If passed in and there is not a config file this agent is used.
         :return:
         """
-        config_path = self.get_agent_config_path()
-        agent_cfg = RawConfigParser()
-        agent_cfg.read(config_path)
-        bot_module = agent_cfg.get(BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY)
-        self.agent_class = import_agent(bot_module)
-        self.agent_config = self.agent_class.create_agent_configurations()
-        self.agent_config.parse_file(agent_cfg)
 
-        looks_path = agent_cfg.get(BOT_CONFIG_MODULE_HEADER, LOADOUT_MODULE_KEY)
+        config_bundle = get_bot_config_bundle(self.get_agent_config_path())
+        python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+        self.agent_class = import_agent(python_file).agent_class
+
+        self.agent_config = self.agent_class.create_agent_configurations()
+        self.agent_config.parse_file(config_bundle.config_obj)
+        self.config_bundle = BotConfigBundle(config_bundle.config_directory, self.agent_config)
+
+        looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
         self.looks_config = BaseAgent.create_looks_configurations()
         self.looks_config.parse_file(looks_path)
 
@@ -96,15 +96,11 @@ class BaseAgentFrame(tk.Frame):
         self.overall_index = overall_index
         self.load_agent_configs()
 
-    def load_agent_from_path(self, agent_file_path):
-        module = get_base_import_package(agent_file_path)
-        self.agent_class = import_agent(module)
-
     def link_variables(self):
         pass
 
     def get_config(self):
-        return self.overall_index, self.agent_config, self.looks_config
+        return self.overall_index, self.config_bundle, self.looks_config
 
     @staticmethod
     def transfer_config_value(config_value, tkinter_var, index=None):
