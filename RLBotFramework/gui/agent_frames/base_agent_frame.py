@@ -95,17 +95,17 @@ class BaseAgentFrame(tk.Frame):
         self.overall_config = overall_config_file
         self.overall_index = overall_index
         self.load_agent_configs()
+        self.load_fields_from_config()
 
-    def link_variables(self):
+    def write_fields_to_config(self):
+        pass
+
+    def load_fields_from_config(self):
         pass
 
     def get_config(self):
+        self.write_fields_to_config()
         return self.overall_index, self.config_bundle, self.looks_config
-
-    @staticmethod
-    def transfer_config_value(config_value, tkinter_var, index=None):
-        tkinter_var.set(config_value.get_value(index))
-        config_value.set_value(tkinter_var, index)
 
     @staticmethod
     def grid_custom_options_header(header_frame, header, exceptions=None, row_offset=0, column_offset=0):
