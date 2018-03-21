@@ -8,7 +8,8 @@ from RLBotFramework.gui.utils import get_file
 from RLBotFramework.agents.base_agent import BaseAgent, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_CONFIG_MODULE_HEADER, \
     BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER
 from RLBotFramework.utils.class_importer import import_agent, get_base_repo_path
-from RLBotFramework.utils.rlbot_config_parser import get_bot_config_bundle, PARTICIPANT_CONFIGURATION_HEADER
+from RLBotFramework.utils.rlbot_config_parser import get_bot_config_bundle, PARTICIPANT_CONFIGURATION_HEADER, \
+    PARTICIPANT_BOT_KEY, PARTICIPANT_TEAM, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
 
 
 class AgentFrame(BaseAgentFrame):
@@ -98,6 +99,7 @@ class AgentFrame(BaseAgentFrame):
                 title="Choose a file")
             if config_file_path:
                 self.latest_looks_path.set(config_file_path.replace(get_base_repo_path().replace("\\", "/"), '.'))
+                self.write_fields_to_config()
                 with open(config_file_path, "w") as f:
                     f.write(str(self.looks_config))
 
@@ -167,6 +169,7 @@ class AgentFrame(BaseAgentFrame):
                 initialize_custom_config()
 
         def save():
+            self.write_fields_to_config()
             config_file_path = get_file(
                 filetypes=[("Config File", "*.cfg")],
                 title="Choose a file")
@@ -199,20 +202,34 @@ class AgentFrame(BaseAgentFrame):
 
         self.wait_window(window)
 
-    def link_variables(self):
-        """Sets some tkinter variables to the config value and then sets the value in the config to the tkinter one"""
-        t = self.transfer_config_value
+    def write_fields_to_config(self):
         i = self.overall_index
 
         self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_team"].set_value(self.team_index, i)
-        t(self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_is_bot"], self.is_bot, i)
-        t(self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_is_rlbot_controlled"], self.rlbot_controlled, i)
-        t(self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_bot_skill"], self.bot_level, i)
 
-        t(self.agent_config[BOT_CONFIG_MODULE_HEADER][PYTHON_FILE_KEY], self.agent_path)
-        t(self.agent_config[BOT_CONFIG_MODULE_HEADER][LOOKS_CONFIG_KEY], self.latest_looks_path)
-        t(self.looks_config[BOT_CONFIG_LOADOUT_HEADER]["name"], self.in_game_name)
-        t(self.looks_config[BOT_CONFIG_LOADOUT_ORANGE_HEADER]["name"], self.in_game_name)
+        self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_is_bot"].set_value(self.is_bot.get(), i)
+        self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_is_rlbot_controlled"].set_value(self.rlbot_controlled.get(), i)
+        self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_bot_skill"].set_value(self.bot_level.get(), i)
+
+        self.agent_config[BOT_CONFIG_MODULE_HEADER][PYTHON_FILE_KEY].set_value(self.agent_path.get())
+        self.agent_config[BOT_CONFIG_MODULE_HEADER][LOOKS_CONFIG_KEY].set_value(self.latest_looks_path.get())
+
+        self.looks_config[BOT_CONFIG_LOADOUT_HEADER]["name"].set_value(self.in_game_name.get())
+        self.looks_config[BOT_CONFIG_LOADOUT_ORANGE_HEADER]["name"].set_value(self.in_game_name.get())
+
+    def load_fields_from_config(self):
+        i = self.overall_index
+
+        self.team_index = self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, i)
+
+        self.is_bot.set(self.overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, i))
+        self.rlbot_controlled.set(self.overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, i))
+        self.bot_level.set(self.overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, i))
+
+        self.agent_path.set(self.agent_config.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY))
+        self.latest_looks_path.set(self.agent_config.get(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY))
+
+        self.in_game_name.set(self.looks_config.get(BOT_CONFIG_LOADOUT_HEADER, 'name'))
 
     def load_config(self, overall_config_file, overall_index):
         super().load_config(overall_config_file, overall_index)
