@@ -5,7 +5,7 @@ import os
 import sys
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
-    BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY
+    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY
 from RLBotFramework.utils.class_importer import import_agent
 from RLBotFramework.utils.custom_config import ConfigObject
 from RLBotFramework.utils.structures.bot_input_struct import get_player_configuration_list
@@ -43,6 +43,16 @@ EXTENSION_PATH_KEY = 'extension_path'
 logger = logging.getLogger('rlbot')
 
 
+class BotConfigBundle:
+    def __init__(self, config_directory, config_obj):
+        self.config_directory = config_directory
+        self.config_obj = config_obj
+
+    def get_absolute_path(self, header, key):
+        joined = os.path.join(self.config_directory, self.config_obj.get(header, key))
+        return os.path.realpath(joined)
+
+
 # Cut off at 31 characters and handle duplicates
 def get_sanitized_bot_name(dict, name):
     if name not in dict:
@@ -56,27 +66,32 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
-def get_bot_config_file_list(botCount, config, bot_configs):
+def get_bot_config_bundles(num_participants, config, config_bundle_overrides):
     """
     Adds all the config files or config objects.
-    :param botCount:
+    :param num_participants:
     :param config:
-    :param bot_configs: These are configs that have been loaded from the gui, they get assigned a bot index.
+    :param config_bundle_overrides: These are configs that have been loaded from the gui, they get assigned a bot index.
     :return:
     """
-    config_file_list = []
-    for i in range(botCount):
-        if i in bot_configs:
-            config_file_list.append(bot_configs[i])
+    config_bundles = []
+    for i in range(num_participants):
+        if i in config_bundle_overrides:
+            config_bundles.append(config_bundle_overrides[i])
             logger.debug("Config available")
         else:
             bot_config_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
-            raw_bot_config = configparser.RawConfigParser()
-            raw_bot_config.read(bot_config_path)
-            config_file_list.append(raw_bot_config)
+            config_bundles.append(get_bot_config_bundle(bot_config_path))
             logger.debug("Reading raw config")
 
-    return config_file_list
+    return config_bundles
+
+
+def get_bot_config_bundle(bot_config_path):
+    raw_bot_config = configparser.RawConfigParser()
+    raw_bot_config.read(bot_config_path)
+    config_directory = os.path.dirname(os.path.realpath(bot_config_path))
+    return BotConfigBundle(config_directory, raw_bot_config)
 
 
 def create_bot_config_layout():
@@ -182,16 +197,16 @@ def get_num_players(config):
     return config.getint(RLBOT_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
-def parse_configurations(gameInputPacket, config_parser, bot_configs, looks_configs):
+def parse_configurations(gameInputPacket, config_parser, config_bundle_overrides, looks_configs):
     bot_names = []
     bot_teams = []
-    bot_modules = []
+    python_files = []
 
     # Determine number of participants
     num_participants = get_num_players(config_parser)
 
     # Retrieve bot config files
-    participant_configs = get_bot_config_file_list(num_participants, config_parser, bot_configs)
+    config_bundles = get_bot_config_bundles(num_participants, config_parser, config_bundle_overrides)
 
     # Create empty lists
 
@@ -204,31 +219,34 @@ def parse_configurations(gameInputPacket, config_parser, bot_configs, looks_conf
 
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
+
+        config_bundle = config_bundles[i]
+
         if i not in looks_configs:
+            looks_path = config_bundle.get_absolute_path("Locations", "looks_config")
             looks_config_object = configparser.RawConfigParser()
-            looks_config_object_path = participant_configs[i].get("Locations", "looks_config")
-            looks_config_object.read(looks_config_object_path)
+            looks_config_object.read(looks_path)
         else:
             looks_config_object = looks_configs[i]
 
-        bot_name, team_number, bot_module, bot_parameters = load_bot_config(i, player_configuration_list[i],
-                                                                            participant_configs[i], looks_config_object,
+        bot_name, team_number, python_file, bot_parameters = load_bot_config(i, player_configuration_list[i],
+                                                                            config_bundle, looks_config_object,
                                                                             config_parser, name_dict)
 
         bot_names.append(bot_name)
         bot_teams.append(team_number)
-        bot_modules.append(bot_module)
+        python_files.append(python_file)
         bot_parameter_list.append(bot_parameters)
 
-    return num_participants, bot_names, bot_teams, bot_modules, bot_parameter_list
+    return num_participants, bot_names, bot_teams, python_files, bot_parameter_list
 
 
-def load_bot_config(index, bot_configuration, bot_config_object, looks_config_object, overall_config, name_dict):
+def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, looks_config_object, overall_config, name_dict):
     """
     Loads the config data of a single bot
     :param index: This is the bot index (where it appears in game_cars)
     :param bot_configuration: This is the game_tick_packet configuration that is sent back to the game
-    :param bot_config_object: A config object for a single bot
+    :param config_bundle: A config object for a single bot
     :param overall_config: This is the config for the entire session not one particular bot
     :param name_dict: A mapping of used names so we can make sure to not reuse bot names.
     :return:
@@ -255,16 +273,14 @@ def load_bot_config(index, bot_configuration, bot_config_object, looks_config_ob
 
     BaseAgent.parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
 
-    bot_module = 'NO_MODULE_FOR_PARTICIPANT'
+    python_file = 'NO_MODULE_FOR_PARTICIPANT'
     bot_parameters = None
 
     if bot_configuration.bRLBotControlled:
-        bot_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY)
-        agent = import_agent(bot_module)
-        dirpath = os.path.dirname(os.path.realpath(sys.modules[agent.__module__].__file__))
-        if dirpath not in sys.path:
-            sys.path.append(dirpath)
-        bot_parameters = agent.create_agent_configurations()
-        bot_parameters.parse_file(bot_config_object)
+        # Python file relative to the config location.
+        python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+        agent_load_data = import_agent(python_file)
+        bot_parameters = agent_load_data.agent_class.create_agent_configurations()
+        bot_parameters.parse_file(config_bundle.config_obj)
 
-    return bot_name, team_num, bot_module, bot_parameters
+    return bot_name, team_num, python_file, bot_parameters
