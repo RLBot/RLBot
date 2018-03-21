@@ -5,8 +5,10 @@ import webbrowser
 
 from RLBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
 from RLBotFramework.gui.utils import get_file
-from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotFramework.utils.class_importer import get_base_import_package, import_agent, get_base_repo_path
+from RLBotFramework.agents.base_agent import BaseAgent, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_CONFIG_MODULE_HEADER, \
+    BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER
+from RLBotFramework.utils.class_importer import import_agent, get_base_repo_path
+from RLBotFramework.utils.rlbot_config_parser import get_bot_config_bundle, PARTICIPANT_CONFIGURATION_HEADER
 
 
 class AgentFrame(BaseAgentFrame):
@@ -136,16 +138,15 @@ class AgentFrame(BaseAgentFrame):
                 child.destroy()
             self.grid_custom_options_header(options_window, self.agent_config["Bot Parameters"], [], 0, 0)
 
-        def load_agent_class(module_path=None):
-            if module_path is None:
-                agent_file_path = get_file(
+        def load_agent_class(python_file=None):
+            if python_file is None:
+                python_file = get_file(
                     filetypes=[("Python File", "*.py")],
                     title="Choose a file")
-                if not agent_file_path:
+                if not python_file:
                     return
-                module_path = get_base_import_package(agent_file_path)
-            self.agent_path.set(module_path)
-            self.agent_class = import_agent(module_path)
+            self.agent_path.set(python_file)
+            self.agent_class = import_agent(python_file).agent_class
             self.agent_config = self.agent_class.create_agent_configurations().parse_file(self.agent_config)
             initialize_custom_config()
 
@@ -154,15 +155,13 @@ class AgentFrame(BaseAgentFrame):
                 filetypes=[("Config File", "*.cfg")],
                 title="Choose a file")
             if config_file_path:
-                # Read the file
-                config_parser = RawConfigParser()
-                config_parser.read(config_file_path)
+                config_bundle = get_bot_config_bundle(config_file_path)
 
                 # Set the agent_class to the right module and obtain the right config structure
-                module_path = config_parser.get("Locations", "agent_module")
-                load_agent_class(module_path)
+                python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+                load_agent_class(python_file)
 
-                self.agent_config.parse_file(config_parser)
+                self.agent_config.parse_file(config_bundle.config_obj)
 
                 # Make sure the custom bot parameters will get updated
                 initialize_custom_config()
@@ -205,16 +204,15 @@ class AgentFrame(BaseAgentFrame):
         t = self.transfer_config_value
         i = self.overall_index
 
-        self.overall_config["Participant Configuration"]["participant_team"].set_value(self.team_index, i)
-        t(self.overall_config["Participant Configuration"]["participant_is_bot"], self.is_bot, i)
-        t(self.overall_config["Participant Configuration"]["participant_is_rlbot_controlled"], self.rlbot_controlled, i)
-        t(self.overall_config["Participant Configuration"]["participant_bot_skill"], self.bot_level, i)
+        self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_team"].set_value(self.team_index, i)
+        t(self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_is_bot"], self.is_bot, i)
+        t(self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_is_rlbot_controlled"], self.rlbot_controlled, i)
+        t(self.overall_config[PARTICIPANT_CONFIGURATION_HEADER]["participant_bot_skill"], self.bot_level, i)
 
-        t(self.agent_config["Locations"]["agent_module"], self.agent_path)
-        t(self.agent_config["Locations"]["agent_module"], self.agent_path)
-        t(self.agent_config["Locations"]["looks_config"], self.latest_looks_path)
-        t(self.looks_config["Bot Loadout"]["name"], self.in_game_name)
-        t(self.looks_config["Bot Loadout Orange"]["name"], self.in_game_name)
+        t(self.agent_config[BOT_CONFIG_MODULE_HEADER][PYTHON_FILE_KEY], self.agent_path)
+        t(self.agent_config[BOT_CONFIG_MODULE_HEADER][LOOKS_CONFIG_KEY], self.latest_looks_path)
+        t(self.looks_config[BOT_CONFIG_LOADOUT_HEADER]["name"], self.in_game_name)
+        t(self.looks_config[BOT_CONFIG_LOADOUT_ORANGE_HEADER]["name"], self.in_game_name)
 
     def load_config(self, overall_config_file, overall_index):
         super().load_config(overall_config_file, overall_index)

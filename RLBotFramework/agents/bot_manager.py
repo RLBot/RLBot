@@ -6,7 +6,7 @@ import traceback
 from datetime import datetime, timedelta
 
 from RLBotFramework.utils import rate_limiter
-from RLBotFramework.utils.class_importer import get_agent_class_location, import_agent
+from RLBotFramework.utils.class_importer import AgentLoadData
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
 from RLBotFramework.utils.structures.game_interface import GameInterface
@@ -23,7 +23,7 @@ MAX_CARS = 10
 
 class BotManager:
     def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                 agent_class, agent_metadata_queue, quick_chat_queue_holder):
+                 agent_load_data, agent_metadata_queue, quick_chat_queue_holder):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -32,7 +32,7 @@ class BotManager:
         :param team: 0 for blue team or 1 for orange team. Will be passed to the bot's constructor.
         :param index: The player index, i.e. "this is player number <index>". Will be passed to the bot's constructor.
             Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
-        :param agent_class: The class of the bot
+        :param agent_load_data: The AgentLoadData object that can be used to load and reload the bot
         :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
         :param quick_chat_queue_holder: A data structure which helps the bot send and receive quickchat
         """
@@ -42,7 +42,7 @@ class BotManager:
         self.name = name
         self.team = team
         self.index = index
-        self.agent_class = agent_class
+        self.agent_load_data = agent_load_data
         self.agent_metadata_queue = agent_metadata_queue
         self.logger = get_logger('bot' + str(self.index))
         self.game_interface = GameInterface(self.logger)
@@ -77,14 +77,14 @@ class BotManager:
     def is_game_running(self):
         return True
 
-    def load_agent(self, agent_class):
-        agent = agent_class(self.name, self.team, self.index)
+    def load_agent(self, agent_load_data: AgentLoadData):
+        agent = agent_load_data.agent_class(self.name, self.team, self.index)
         agent.logger = self.logger
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
         agent.initialize_agent()
 
         self.update_metadata_queue(agent)
-        agent_class_file = get_agent_class_location(agent_class)
+        agent_class_file = self.agent_load_data.module_spec.origin
         agent.register_quick_chat(self.send_quick_chat_from_agent)
         register_for_quick_chat(self.quick_chat_queue_holder, self.is_game_running, agent.receive_quick_chat)
         return agent, agent_class_file
@@ -111,7 +111,7 @@ class BotManager:
         last_call_real_time = datetime.now()  # When we last called the Agent
 
         # Get bot module
-        agent, agent_class_file = self.load_agent(self.agent_class)
+        agent, agent_class_file = self.load_agent(self.agent_load_data)
 
         last_module_modification_time = os.stat(agent_class_file).st_mtime
 
@@ -135,17 +135,15 @@ class BotManager:
                     if new_module_modification_time != last_module_modification_time:
                         last_module_modification_time = new_module_modification_time
                         self.logger.info('Reloading Agent: ' + agent_class_file)
-                        module_name = self.agent_class.__module__
-                        importlib.reload(sys.modules[module_name])
-                        self.agent_class = import_agent(module_name)
+                        self.agent_load_data.reload()
                         old_agent = agent
-                        agent, agent_class_file = self.load_agent(self.agent_class)
+                        agent, agent_class_file = self.load_agent(self.agent_load_data)
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
 
                     # Call agent
-                    self.call_agent(agent, self.agent_class)
+                    self.call_agent(agent, self.agent_load_data.agent_class)
                 except Exception as e:
                     self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
 
@@ -252,7 +250,7 @@ class BotManagerIndependent(BotManager):
 
     def run(self):
         # Get bot module
-        agent, agent_class_file = self.load_agent(self.agent_class)
+        agent, agent_class_file = self.load_agent(self.agent_load_data)
         agent.run_independently()
 
     def call_agent(self, agent, agent_class):
