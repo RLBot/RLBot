@@ -34,7 +34,6 @@ static std::wstring pGameModeKeyNames[] = {
 	/*Rumble*/		L"game=TAGame.GameInfo_Items_TA"
 };
 
-
 static std::wstring pMapSelectionKeyNames[] = {
 	/*NormalMap_Default */ L"Stadium_P",
 	L"ShatterShot_P",
@@ -84,8 +83,6 @@ enum MapVariation
 	Variation_Dusk
 };
 
-
-
 struct MatchSettings
 {
 	int numPlayers;
@@ -103,7 +100,6 @@ static std::wstring pMapMatchLengthNames[] = {
 	/*UNLIMITED_MINUTES */	L"UnlimitedTime"
 };
 
-
 enum BoostOptions
 {
 	Normal_Boost,
@@ -113,19 +109,10 @@ enum BoostOptions
 	No_Boost
 };
 
-
 struct MutatorSettings
 {
 	int MatchLength;
 	BoostOptions BoostOptions;
-};
-
-
-struct MatchConfigurationWrapper
-{
-	PlayerConfiguration playerConfiguration[CONST_MaxPlayers];
-	MatchSettings matchSettings;
-	MutatorSettings mutatorSettings;
 };
 
 #endif

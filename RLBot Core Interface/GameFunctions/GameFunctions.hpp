@@ -20,7 +20,7 @@ extern "C"
 	{
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateLiveDataPacket(LiveDataPacket* pLiveData);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateMatchDataPacket(MatchDataPacket* pMatchData);
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchConfigurationWrapper matchConfiguration, CallbackFunction callback, unsigned int* pID);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API StartMatch(PlayerConfiguration playerConfiguration[CONST_MaxPlayers], MatchSettings matchSettings, MutatorSettings mutatorSettings, CallbackFunction callback, unsigned int* pID);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(const PlayerInput& playerInput, int playerIndex);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback = nullptr, unsigned int* pID = nullptr);
 

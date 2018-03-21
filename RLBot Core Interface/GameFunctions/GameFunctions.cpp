@@ -170,10 +170,10 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchConfigurationWrapper matchConfiguration, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(PlayerConfiguration playerConfiguration[CONST_MaxPlayers], MatchSettings matchSettings, MutatorSettings mutatorSettings, CallbackFunction callback, unsigned int* pID)
 	{
-		int numPlayers = matchConfiguration.matchSettings.numPlayers;
-		RLBotCoreStatus status = checkPlayerConfiguration(matchConfiguration.playerConfiguration, numPlayers);
+		int numPlayers = matchSettings.numPlayers;
+		RLBotCoreStatus status = checkPlayerConfiguration(playerConfiguration, numPlayers);
 
 		if (status != RLBotCoreStatus::Success)
 			return status;
@@ -183,11 +183,11 @@ namespace GameFunctions
 
 		for (size_t i = 0; i < numPlayers; i++)
 		{
-			pStartMatch->PlayerConfiguration[i] = matchConfiguration.playerConfiguration[i];
+			pStartMatch->PlayerConfiguration[i] = playerConfiguration[i];
 		}
 
-		pStartMatch->MatchSettings = matchConfiguration.matchSettings;
-		pStartMatch->MutatorSettings = matchConfiguration.mutatorSettings;
+		pStartMatch->MatchSettings = matchSettings;
+		pStartMatch->MutatorSettings = mutatorSettings;
 		END_GAME_FUNCTION;
 
 		return RLBotCoreStatus::Success;
