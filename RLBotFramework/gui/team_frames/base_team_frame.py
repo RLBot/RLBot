@@ -90,7 +90,6 @@ class BaseTeamFrame(tk.Frame):
         agent.overall_index = overall_index
         agent.initialize_widgets()
         agent.load_config(self.overall_config, overall_index)
-        agent.link_variables()
         agent.refresh_widgets()
         return agent
 
