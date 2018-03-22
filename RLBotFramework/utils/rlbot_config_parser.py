@@ -11,8 +11,7 @@ from RLBotFramework.utils.custom_config import ConfigObject
 from RLBotFramework.utils.structures.bot_input_struct import get_player_configuration_list
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
-PARTICIPANT_BOT_KEY = 'participant_is_bot'
-PARTICIPANT_RLBOT_KEY = 'participant_is_rlbot_controlled'
+PARTICIPANT_TYPE_KEY = 'participant_type'
 PARTICIPANT_CONFIG_KEY = 'participant_config'
 PARTICIPANT_BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICIPANT_TEAM = 'participant_team'
@@ -99,18 +98,15 @@ def create_bot_config_layout():
                                              "\nteam 0 (blue) shoots on positive goal, " +
                                              "team 1 (orange) shoots on negative goal")
 
-    participant_header.add_value(PARTICIPANT_BOT_KEY, bool, default='yes',
-                                 description='Accepted values are "1", "yes", "true", and "on", for True,' +
-                                             ' and "0", "no", "false", and "off", for False\n' +
+    participant_header.add_value(PARTICIPANT_TYPE_KEY, str, default='rlbot',
+                                 description='Accepted values are "human", "rlbot", "psyonix", and "possessed_human"' +
                                              'You can have up to 4 local players and they must ' +
                                              'be activated in game or it will crash.\n' +
-                                             'If no player is specified you will be spawned in as spectator!')
-
-    participant_header.add_value(PARTICIPANT_RLBOT_KEY, bool, default='yes',
-                                 description='Accepted values are "1", "yes", "true", and "on", for True,' +
-                                             ' and "0", "no", "false", and "off", for False\n' +
-                                             'By specifying \'no\' here you can use default bots ' +
-                                             'like the rookie, all-star, etc.')
+                                             'If no player is specified you will be spawned in as spectator!\n' +
+                                             'human - not controlled by the framework\n' +
+                                             'rlbot - controlled by the framework\n' +
+                                             'psyonix - default bots (skill level can be changed with participant_bot_skill\n' +
+                                             'possessed_human - controlled by the framework but the game detects it as a human')
 
     participant_header.add_value(PARTICIPANT_BOT_SKILL_KEY, float, default=1.0,
                                  description='If participant is a bot and not RLBot controlled,' +
@@ -238,8 +234,25 @@ def load_bot_config(index, bot_configuration, bot_config_object, looks_config_ob
     bot_configuration.ucTeam = team_num
 
     # Setting up data about what type of bot it is
-    bot_configuration.bBot = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, index)
-    bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, index)
+    bot_type = overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, index)
+
+    if bot_type == 'human':
+        is_bot = False
+        is_rlbot = False
+    elif bot_type == 'rlbot':
+        is_bot = True
+        is_rlbot = True
+    elif bot_type == 'psyonix':
+        is_bot = True
+        is_rlbot = False
+    elif bot_type == 'possessed_human':
+        is_bot = False
+        is_rlbot = True
+    else:
+        raise ValueError('participant_type value is not "human", "rlbot", "psyonix", or "possessed_human"')
+
+    bot_configuration.bBot = is_bot
+    bot_configuration.bRLBotControlled = is_rlbot
     bot_configuration.fBotSkill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
 
     if not bot_configuration.bBot:
