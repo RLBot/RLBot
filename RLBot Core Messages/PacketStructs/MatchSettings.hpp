@@ -26,20 +26,6 @@ struct PlayerConfiguration
 	int						GoalExplosionID;
 };
 
-static std::wstring pGameModeKeyNames[] = {
-	/*Soccer*/		L"game=TAGame.GameInfo_Soccar_TA",
-	/*Hoops*/		L"game=TAGame.GameInfo_Basketball_TA",
-	/*Dropshot*/	L"game=TAGame.GameInfo_Breakout_TA",
-	/*Hockey*/		L"game=TAGame.GameInfo_Hockey_TA",
-	/*Rumble*/		L"game=TAGame.GameInfo_Items_TA"
-};
-
-static std::wstring pMapSelectionKeyNames[] = {
-	/*NormalMap_Default */ L"Stadium_P",
-	L"ShatterShot_P",
-	L"HoopsStadium_P"
-};
-
 enum MapSelection
 {
 	NormalMap_Default,
@@ -74,6 +60,15 @@ enum MapSelection
 	Workshop_ShipYarr // http://steamcommunity.com/sharedfiles/filedetails/?id=817314448&searchtext=
 };
 
+enum GameMode
+{
+	Soccer,
+	Hoops,
+	Dropshot,
+	Hockey,
+	Rumble
+};
+
 enum MapVariation
 {
 	Variation_Night,
@@ -85,22 +80,15 @@ enum MapVariation
 
 struct MatchSettings
 {
-	int numPlayers;
-	int GameMode;
-	int GameMap;
-	MapVariation MapVariation;
-	bool skipReplays;
-	bool instantStart;
+	int						NumPlayers;
+	GameMode				GameMode;
+	MapSelection			GameMap;
+	MapVariation			MapVariation;
+	bool					SkipReplays;
+	bool					InstantStart;
 };
 
-static std::wstring pMapMatchLengthNames[] = {
-	/*FIVE_MINUTES*/		L"5Minutes",
-	/*TEN_MINUTES*/			L"10Minutes",
-	/*TWENTY_MINUTES*/		L"20Minutes",
-	/*UNLIMITED_MINUTES */	L"UnlimitedTime"
-};
-
-enum BoostOptions
+enum BoostOption
 {
 	Normal_Boost,
 	Unlimited_Boost,
@@ -111,8 +99,8 @@ enum BoostOptions
 
 struct MutatorSettings
 {
-	int MatchLength;
-	BoostOptions BoostOptions;
+	int						MatchLength;
+	BoostOption				BoostOptions;
 };
 
 #endif

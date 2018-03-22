@@ -81,7 +81,19 @@ namespace Interface
 				playerConfiguration[1].CustomColorID = 0;
 				playerConfiguration[1].CarID = 257;
 
-				GameFunctions::StartMatch(playerConfiguration, 2);
+				MatchSettings matchSettings;
+				matchSettings.NumPlayers = 2;
+				matchSettings.GameMode = Soccer;
+				matchSettings.GameMap = NormalMap_Default;
+				matchSettings.MapVariation = Variation_Snowy;
+				matchSettings.SkipReplays = true;
+				matchSettings.InstantStart = true;
+
+				MutatorSettings mutatorSettings;
+				mutatorSettings.MatchLength = 1;
+				mutatorSettings.BoostOptions = Rapid_Recharge;
+
+				GameFunctions::StartMatch(playerConfiguration, matchSettings, mutatorSettings, nullptr, nullptr);
 			}
 
 			if (GetAsyncKeyState(VK_NUMPAD3) & 1)

@@ -172,7 +172,7 @@ namespace GameFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(PlayerConfiguration playerConfiguration[CONST_MaxPlayers], MatchSettings matchSettings, MutatorSettings mutatorSettings, CallbackFunction callback, unsigned int* pID)
 	{
-		int numPlayers = matchSettings.numPlayers;
+		int numPlayers = matchSettings.NumPlayers;
 		RLBotCoreStatus status = checkPlayerConfiguration(playerConfiguration, numPlayers);
 
 		if (status != RLBotCoreStatus::Success)
