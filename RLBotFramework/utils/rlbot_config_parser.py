@@ -99,7 +99,7 @@ def create_bot_config_layout():
                                              "team 1 (orange) shoots on negative goal")
 
     participant_header.add_value(PARTICIPANT_TYPE_KEY, str, default='rlbot',
-                                 description='Accepted values are "human", "rlbot", "psyonix", and "possessed_human"' +
+                                 description='Accepted values are "human", "rlbot", "psyonix", and "possessed_human"\n' +
                                              'You can have up to 4 local players and they must ' +
                                              'be activated in game or it will crash.\n' +
                                              'If no player is specified you will be spawned in as spectator!\n' +
