@@ -13,15 +13,12 @@ if (apiFile.exists()) {
 }
 
 def protoDir = 'RLBotFramework/proto'
+def destinationDir  = protoDir
 
 buildscript {
   println('buildscript')
     repositories {
-        mavenCentral()
         jcenter()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-          }
     }
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
@@ -42,11 +39,6 @@ buildscript {
 //   println('gui')
 //     workingDir System.getProperty("user.dir")
 //     commandLine 'python', 'runner_GUI.py'
-// }
-
-
-// task build {
-//     println('Building')
 // }
 
 bintray {
@@ -71,6 +63,7 @@ bintray {
         into 'RLBotFramework'
     }
 }
+
 
 // task download(type: Download) {
 //     src 'https://dl.bintray.com/rlbotofficial/RLBotProto/generated/python/game_data_pb2.py'
