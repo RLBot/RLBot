@@ -40,7 +40,7 @@ class SetupManager:
         if self.has_started:
             return
         self.logger.debug("Starting up game management")
-        # self.game_interface.inject_dll()
+        self.game_interface.inject_dll()
         self.game_interface.load_interface()
         # Create Quit event
         self.quit_event = mp.Event()
