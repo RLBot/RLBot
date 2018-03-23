@@ -91,6 +91,14 @@ struct MatchSettings
 	bool					InstantStart;
 };
 
+enum MatchLength
+{
+	Five_Minutes,
+	Ten_Minutes,
+	Twenty_Minutes,
+	Unlimited
+};
+
 enum BoostOption
 {
 	Normal_Boost,
@@ -102,7 +110,7 @@ enum BoostOption
 
 struct MutatorSettings
 {
-	int						MatchLength;
+	MatchLength				MatchLength;
 	BoostOption				BoostOptions;
 };
 
