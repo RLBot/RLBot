@@ -1,10 +1,10 @@
 import importlib
 import inspect
-
 import os
+import sys
+import uuid
 
 from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotFramework.utils.logging_utils import log_warn
 
 
 class AgentLoadData:
@@ -17,6 +17,7 @@ class AgentLoadData:
 
     def reload(self):
         self.agent_module = importlib.util.module_from_spec(self.module_spec)
+        sys.modules[self.module_spec.name] = self.agent_module
         self.module_spec.loader.exec_module(self.agent_module)
         self.agent_class = extract_agent_class(self.agent_module, self.base_class)
 
@@ -39,8 +40,20 @@ def import_class_with_base(python_file, base_class):
     :param base_class: The class that we look for the extension for
     :return: The agent requested or BaseAgent if there are any problems.
     """
+    dir_name = os.path.dirname(python_file)
+    package_name = str(uuid.uuid1())  # Pick a random package name so that we don't have to worry about collisions.
+
+    init_name = os.path.join(dir_name, "__init__.py")
+    if not os.path.exists(init_name):
+        with open(init_name, 'w'):  # Create an empty __init__.py file if it doesn't exist
+            pass
+    package_spec = importlib.util.spec_from_file_location(package_name, init_name)
+    package_module = importlib.util.module_from_spec(package_spec)
+    sys.modules[package_name] = package_module
+    package_spec.loader.exec_module(package_module)
+
     module_name = os.path.splitext(os.path.basename(python_file))[0]
-    module_spec = importlib.util.spec_from_file_location(module_name, python_file)
+    module_spec = importlib.util.spec_from_file_location(package_name + "." + module_name, python_file)
 
     return AgentLoadData(module_spec, base_class)
 
@@ -58,4 +71,3 @@ def extract_agent_class(agent_module, base_class):
 def get_base_repo_path():
     """Gets the path of the RLBot directory"""
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
