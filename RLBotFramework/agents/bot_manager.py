@@ -1,6 +1,4 @@
-import importlib
 import os
-import sys
 import time
 import traceback
 from datetime import datetime, timedelta
@@ -84,7 +82,7 @@ class BotManager:
         agent.initialize_agent()
 
         self.update_metadata_queue(agent)
-        agent_class_file = self.agent_load_data.module_spec.origin
+        agent_class_file = self.agent_load_data.python_file
         agent.register_quick_chat(self.send_quick_chat_from_agent)
         register_for_quick_chat(self.quick_chat_queue_holder, self.is_game_running, agent.receive_quick_chat)
         return agent, agent_class_file
