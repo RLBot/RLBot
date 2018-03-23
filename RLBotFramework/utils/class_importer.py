@@ -2,23 +2,35 @@ import importlib
 import inspect
 import os
 import sys
-import uuid
 
 from RLBotFramework.agents.base_agent import BaseAgent
 
 
 class AgentLoadData:
-    def __init__(self, module_spec, base_class):
-        self.module_spec = module_spec
+    def __init__(self, python_file, base_class):
+        self.python_file = python_file
         self.base_class = base_class
         self.agent_class = None
         self.agent_module = None
         self.reload()
 
     def reload(self):
-        self.agent_module = importlib.util.module_from_spec(self.module_spec)
-        sys.modules[self.module_spec.name] = self.agent_module
-        self.module_spec.loader.exec_module(self.agent_module)
+        dir_name = os.path.dirname(self.python_file)
+        module_name = os.path.splitext(os.path.basename(self.python_file))[0]
+        keys_before = set(sys.modules.keys())
+
+        # Temporarily modify the sys.path while we load the module so that bots can use import statements naturally
+        sys.path.insert(0, dir_name)
+        self.agent_module = importlib.import_module(module_name)
+
+        # Clean up the changes to sys.path and sys.modules to avoid collisions between bots and to
+        # prepare for the next reload.
+        added = set(sys.modules.keys()).difference(keys_before)
+        del sys.path[0]
+        for key in added:
+            del sys.modules[key]
+
+        # Find and return the bot class
         self.agent_class = extract_agent_class(self.agent_module, self.base_class)
 
 
@@ -40,22 +52,8 @@ def import_class_with_base(python_file, base_class):
     :param base_class: The class that we look for the extension for
     :return: The agent requested or BaseAgent if there are any problems.
     """
-    dir_name = os.path.dirname(python_file)
-    package_name = str(uuid.uuid1())  # Pick a random package name so that we don't have to worry about collisions.
 
-    init_name = os.path.join(dir_name, "__init__.py")
-    if not os.path.exists(init_name):
-        with open(init_name, 'w'):  # Create an empty __init__.py file if it doesn't exist
-            pass
-    package_spec = importlib.util.spec_from_file_location(package_name, init_name)
-    package_module = importlib.util.module_from_spec(package_spec)
-    sys.modules[package_name] = package_module
-    package_spec.loader.exec_module(package_module)
-
-    module_name = os.path.splitext(os.path.basename(python_file))[0]
-    module_spec = importlib.util.spec_from_file_location(package_name + "." + module_name, python_file)
-
-    return AgentLoadData(module_spec, base_class)
+    return AgentLoadData(python_file, base_class)
 
 
 def extract_agent_class(agent_module, base_class):
