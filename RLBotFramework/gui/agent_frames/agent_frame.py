@@ -25,6 +25,11 @@ class AgentFrame(BaseAgentFrame):
         self.player_type = tk.StringVar(value="RLBot")
         self.agent_path = tk.StringVar()
         self.latest_looks_path = tk.StringVar()
+        self.player_type_config_gui = {"Human": "human",
+                                       "Psyonix Bot": "psyonix",
+                                       "RLBot": "rlbot",
+                                       "Possessed Human": "possessed_human"
+                                       }
 
     def initialize_widgets(self):
         # In-game name editable
@@ -66,18 +71,13 @@ class AgentFrame(BaseAgentFrame):
             widget.grid_forget()
         for widget in self.grid_slaves(row=3, column=1):
             widget.grid_forget()
-        if self.player_type.get() == "Human":
-            self.participant_type.set("human")
-        elif self.player_type.get() == "Psyonix Bot":
+
+        self.participant_type.set(self.player_type_config_gui[self.player_type.get()])
+        if self.player_type.get() == "Psyonix Bot":
             self.bot_level_widgets[0].grid(row=2, column=0, sticky="nsew")
             self.bot_level_widgets[1].grid(row=2, column=1, columnspan=2, sticky="nsew")
-            self.participant_type.set("psyonix")
-        elif self.player_type.get() == "RLBot":
+        elif self.player_type.get() == "RLBot" or self.player_type.get() == "possessed_human":
             self.rlbot_config_button.grid(row=3, column=1, sticky="e")
-            self.participant_type.set("rlbot")
-        else:
-            self.rlbot_config_button.grid(row=3, column=1, sticky="e")
-            self.participant_type.set("possessed_human")
 
     def edit_looks(self):
         def load():
