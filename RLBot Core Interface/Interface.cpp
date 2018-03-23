@@ -84,7 +84,7 @@ namespace Interface
 				MatchSettings matchSettings;
 				matchSettings.NumPlayers = 2;
 				matchSettings.GameMode = Soccer;
-				matchSettings.GameMap = NormalMap_Default;
+				matchSettings.GameMap = NormalMap_Stadium;
 				matchSettings.MapVariation = Variation_Snowy;
 				matchSettings.SkipReplays = true;
 				matchSettings.InstantStart = true;
