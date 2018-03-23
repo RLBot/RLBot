@@ -21,32 +21,39 @@ class RunnerGUI(tk.Frame):
     team1 = None
     team2 = None
 
-    def __init__(self, parent, runner, *args, **kwargs):
+    def __init__(self, parent, setup_manager, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        # Set some values
         self.parent = parent
-        self.runner = runner
+        self.runner = setup_manager
         self.index_manager = IndexManager(10)
+
+        # Create GUI config layout and load it from the file
         self.gui_config = create_gui_config()
         self.gui_config.parse_file("runner_GUI_settings.cfg")
 
+        # Load latest saved file and then initialize all agents and the match settings
         self.latest_save_path = self.gui_config.get("GUI Configuration", "latest_save_path")
-
         self.load_cfg(self.latest_save_path)
         self.load_team_frames()
         self.match_settings = match_settings_frame.SettingsFrame(self.parent)
 
+        # Make sure to ask to save before quitting
         parent.wm_protocol("WM_DELETE_WINDOW", lambda: self.quit_save_popup())
 
+        # Grid all previously created frames and the button frame
         self.match_settings.grid(row=0, column=0, columnspan=2, sticky="nsew")
         self.team1.grid(row=1, column=0, sticky="nsew")
         self.team2.grid(row=1, column=1, sticky="nsew")
+        self.initialize_buttons()
 
-        # Add buttons
+    def initialize_buttons(self):
+        """Creates the load, save and start buttons and grids them"""
         buttons_frame = ttk.Frame(self.parent)
         ttk.Button(buttons_frame, text="Load", command=lambda: self.load_cfg(teams=True, match_settings=True)).grid(
             row=0, column=0)
-        ttk.Button(buttons_frame, text="Save", command=lambda: self.save_cfg(
-            overall_config=self.overall_config, gui_config=self.gui_config)).grid(row=0, column=1)
+        ttk.Button(buttons_frame, text="Save", command=lambda: self.save_cfg(overall_config=self.overall_config)).grid(
+            row=0, column=1)
         ttk.Button(buttons_frame, text="Start", command=lambda: self.start_running()).grid(
             row=0, column=2)
         for i in range(3):
@@ -69,6 +76,7 @@ class RunnerGUI(tk.Frame):
             self.match_settings.load_match_settings(self.overall_config)
 
     def load_team_frames(self):
+        """Load the team frames with the layout configured in the config"""
         layout_header = self.gui_config["GUI Configuration"]
         agent_frame = agent_frame_types.get(layout_header.get("agent_type"), AgentFrame)
 
@@ -80,7 +88,8 @@ class RunnerGUI(tk.Frame):
         self.team1.initialize_team_frame()
         self.team2.initialize_team_frame()
 
-    def save_cfg(self, overall_config=None, path=None, gui_config=None):
+    def save_cfg(self, overall_config=None, path=None):
+        """If path not defined ask for path and then save overall_config to the path"""
         if overall_config is not None:
             if path is None:
                 path = get_file(
@@ -90,9 +99,8 @@ class RunnerGUI(tk.Frame):
                 self.gui_config.set_value("GUI Configuration", "latest_save_path", path)
                 with open(path, "w") as f:
                     f.write(str(overall_config))
-        if gui_config is not None:
-            with open("runner_GUI_settings.cfg", "w") as f:
-                f.write(str(gui_config))
+                with open("runner_GUI_settings.cfg", "w") as f:
+                    f.write(str(self.gui_config))
 
     def reclassify_indices(self, header):
         used_indices = sorted(self.index_manager.numbers)
@@ -116,7 +124,7 @@ class RunnerGUI(tk.Frame):
             self.overall_config = self.overall_config.copy()
             self.overall_config.set_value("RLBot Configuration", "num_participants", len(self.index_manager.numbers))
             self.reclassify_indices(self.overall_config.get_header("Participant Configuration"))
-            self.save_cfg(overall_config=self.overall_config, gui_config=self.gui_config)
+            self.save_cfg(overall_config=self.overall_config)
             popup.destroy()
 
         ttk.Button(frame, text="Save", command=save).grid(row=1, column=1)
@@ -126,9 +134,12 @@ class RunnerGUI(tk.Frame):
         self.parent.destroy()
 
     def start_running(self):
+        """
+        Ask to save, grab the agent configurations
+        Then make sure to reclassify to start the correct agents
+
+        And start the match"""
         self.quit_save_popup()
-        configs = dict(self.team1.get_configs())
-        configs.update(self.team2.get_configs())
         bot_configs, looks_configs = self.team1.get_configs()
         team2_configs = self.team2.get_configs()
         bot_configs.update(team2_configs[0])
@@ -136,7 +147,7 @@ class RunnerGUI(tk.Frame):
         self.overall_config.set_value("RLBot Configuration", "num_participants", len(self.index_manager.numbers))
         self.reclassify_indices(self.overall_config["Participant Configuration"])
         self.runner.startup()
-        self.runner.load_config(self.overall_config, configs)
+        self.runner.load_config(self.overall_config, bot_configs, looks_configs)
         self.runner.launch_bot_processes()
         self.runner.run()
 

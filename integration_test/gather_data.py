@@ -22,6 +22,10 @@ def record_atba():
     manager.launch_bot_processes()
     manager.run()
 
+def ensure_dll_is_injected():
+    manager = SetupManager()
+    manager.startup()
+
 
 def KILL(process):
     try:
@@ -38,10 +42,14 @@ def kill_proc_tree(pid):
 
 
 def gather_data(timeout=20.0):
+    log("Gathering data...")
     HistoryIO().clear()
 
-    log("Gathering data...")
+     # Do this synchonously, the time the process needs to startup is more consistent.
+    ensure_dll_is_injected()
+
     proc = multiprocessing.Process(target=record_atba)
+    log("Starting data gethering process...")
     proc.start()
     proc.join(timeout)
     if proc.is_alive():
