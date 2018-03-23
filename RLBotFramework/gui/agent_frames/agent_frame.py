@@ -26,8 +26,6 @@ class AgentFrame(BaseAgentFrame):
         self.player_type = tk.StringVar(value="Human")
         self.agent_path = tk.StringVar()
         self.latest_looks_path = tk.StringVar()
-        self.agent_config = BaseAgent.create_agent_configurations()
-        self.looks_config = BaseAgent.create_looks_configurations()
 
     def initialize_widgets(self):
         # In-game name editable
@@ -109,6 +107,8 @@ class AgentFrame(BaseAgentFrame):
             total_count = 0
             header_frame = tk.Frame(config_frame, borderwidth=8)
             header_frame.rowconfigure(0, minsize=25)
+            if header_name == "Bot Loadout":
+                header_name = "Bot Loadout Blue"
             ttk.Label(header_frame, text=header_name, anchor="center").grid(row=total_count, column=0,
                                                                             columnspan=2, sticky="new")
             total_count += 1
@@ -131,13 +131,6 @@ class AgentFrame(BaseAgentFrame):
         self.wait_window(window)
 
     def configure_rlbot(self):
-        window = tk.Toplevel()
-        window.resizable(0, 0)
-        window.minsize(300, 300)
-        window.grab_set()
-        window.update()
-        options_window = tk.Frame(window)
-
         def initialize_custom_config():
             for child in options_window.winfo_children():
                 child.destroy()
@@ -182,6 +175,14 @@ class AgentFrame(BaseAgentFrame):
                 with open(config_file_path, "w") as f:
                     f.write(str(self.agent_config))
 
+        window = tk.Toplevel()
+        window.resizable(0, 0)
+        window.minsize(300, 300)
+        window.grab_set()
+        window.update()
+        options_window = tk.Frame(window, bg='blue')
+        initialize_custom_config()
+
         ttk.Label(window, text="Agent location: ", anchor="e").grid(row=0, column=0)
         ttk.Entry(window, textvariable=self.agent_path, state="readonly").grid(row=0, column=1)
         ttk.Button(window, text="Select file", command=load_agent_class).grid(row=0, column=2)
@@ -201,20 +202,19 @@ class AgentFrame(BaseAgentFrame):
 
     def link_variables(self):
         """Sets some tkinter variables to the config value and then sets the value in the config to the tkinter one"""
-        self.is_bot.set(self.is_participant_bot())
-        self.rlbot_controlled.set(self.is_participant_custom_bot())
-        self.bot_level.set(self.get_bot_skill())
+        t = self.transfer_config_value
+        i = self.overall_index
 
-        self.overall_config["Participant Configuration"] \
-            .set_value("participant_team", self.team_index, self.overall_index) \
-            .set_value("participant_is_bot", self.is_bot, self.overall_index) \
-            .set_value("participant_is_rlbot_controlled", self.rlbot_controlled, self.overall_index) \
-            .set_value("participant_bot_skill", self.bot_level, self.overall_index)
+        self.overall_config["Participant Configuration"]["participant_team"].set_value(self.team_index, i)
+        t(self.overall_config["Participant Configuration"]["participant_is_bot"], self.is_bot, i)
+        t(self.overall_config["Participant Configuration"]["participant_is_rlbot_controlled"], self.rlbot_controlled, i)
+        t(self.overall_config["Participant Configuration"]["participant_bot_skill"], self.bot_level, i)
 
-        self.agent_config.set_value("Locations", "agent_module", self.agent_path)
-        self.agent_config.set_value("Locations", "looks_config", self.latest_looks_path)
-        self.looks_config.set_value("Bot Loadout", "name", self.in_game_name)
-        self.looks_config.set_value("Bot Loadout Orange", "name", self.in_game_name)
+        t(self.agent_config["Locations"]["agent_module"], self.agent_path)
+        t(self.agent_config["Locations"]["agent_module"], self.agent_path)
+        t(self.agent_config["Locations"]["looks_config"], self.latest_looks_path)
+        t(self.looks_config["Bot Loadout"]["name"], self.in_game_name)
+        t(self.looks_config["Bot Loadout Orange"]["name"], self.in_game_name)
 
     def load_config(self, overall_config_file, overall_index):
         super().load_config(overall_config_file, overall_index)
