@@ -84,13 +84,12 @@ namespace Interface
 				MatchSettings matchSettings;
 				matchSettings.NumPlayers = 2;
 				matchSettings.GameMode = Soccer;
-				matchSettings.GameMap = NormalMap_Stadium;
-				matchSettings.MapVariation = Variation_Snowy;
+				matchSettings.GameMap = Farmstead;
 				matchSettings.SkipReplays = true;
 				matchSettings.InstantStart = true;
 
 				MutatorSettings mutatorSettings;
-				mutatorSettings.MatchLength = 1;
+				mutatorSettings.MatchLength = Twenty_Minutes;
 				mutatorSettings.BoostOptions = Rapid_Recharge;
 
 				GameFunctions::StartMatch(playerConfiguration, matchSettings, mutatorSettings, nullptr, nullptr);
