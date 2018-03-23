@@ -7,7 +7,7 @@ import os
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY, LOADOUT_MODULE_KEY
 from RLBotFramework.utils.class_importer import import_agent, get_base_import_package
 from RLBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,\
-    PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
+    PARTICIPANT_TYPE_KEY, PARTICIPANT_BOT_SKILL_KEY
 
 
 class BaseAgentFrame(tk.Frame):
@@ -50,19 +50,12 @@ class BaseAgentFrame(tk.Frame):
         self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,
                                       config_path, self.overall_index)
 
-    def is_participant_bot(self):
-        return self.overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, self.overall_index)
+    def get_participant_type(self):
+        return self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, self.overall_index)
 
-    def set_is_participant_bot(self, is_bot):
-        return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY,
-                                             is_bot, self.overall_index)
-
-    def is_participant_custom_bot(self):
-        return self.overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, self.overall_index)
-
-    def set_is_participant_custom_bot(self, is_rlbot):
-        return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY,
-                                             is_rlbot, self.overall_index)
+    def set_participant_type(self, participant_type):
+        return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY,
+                                             participant_type, self.overall_index)
 
     def get_bot_skill(self):
         return self.overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, self.overall_index)

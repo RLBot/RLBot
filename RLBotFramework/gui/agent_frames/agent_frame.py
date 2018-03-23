@@ -20,10 +20,9 @@ class AgentFrame(BaseAgentFrame):
         super().__init__(parent, team_index, *args, **kwargs)
         self.config(borderwidth=5)
         self.in_game_name = tk.StringVar()
-        self.is_bot = tk.BooleanVar()
-        self.rlbot_controlled = tk.BooleanVar()
+        self.participant_type = tk.StringVar()
         self.bot_level = tk.DoubleVar(value=1)
-        self.player_type = tk.StringVar(value="Human")
+        self.player_type = tk.StringVar(value="RLBot")
         self.agent_path = tk.StringVar()
         self.latest_looks_path = tk.StringVar()
 
@@ -37,7 +36,7 @@ class AgentFrame(BaseAgentFrame):
         self.player_type_widgets = list()
         self.player_type_widgets.append(ttk.Label(self, text="Player type: ", anchor="e"))
         self.player_type_widgets.append(ttk.Combobox(
-            self, textvariable=self.player_type, values=("Human", "Psyonix Bot", "RLBot"), state="readonly"))
+            self, textvariable=self.player_type, values=("Human", "Psyonix Bot", "RLBot", "Possessed Human"), state="readonly"))
         self.player_type_widgets[1].bind("<<ComboboxSelected>>", lambda e: self.refresh_widgets())
 
         ttk.Button(self, text="Edit looks", command=self.edit_looks).grid(row=3, column=0, sticky="e")
@@ -68,17 +67,17 @@ class AgentFrame(BaseAgentFrame):
         for widget in self.grid_slaves(row=3, column=1):
             widget.grid_forget()
         if self.player_type.get() == "Human":
-            self.is_bot.set(False)
-            self.rlbot_controlled.set(False)
+            self.participant_type.set("human")
         elif self.player_type.get() == "Psyonix Bot":
             self.bot_level_widgets[0].grid(row=2, column=0, sticky="nsew")
             self.bot_level_widgets[1].grid(row=2, column=1, columnspan=2, sticky="nsew")
-            self.is_bot.set(True)
-            self.rlbot_controlled.set(False)
+            self.participant_type.set("psyonix")
+        elif self.player_type.get() == "RLBot":
+            self.rlbot_config_button.grid(row=3, column=1, sticky="e")
+            self.participant_type.set("rlbot")
         else:
             self.rlbot_config_button.grid(row=3, column=1, sticky="e")
-            self.is_bot.set(True)
-            self.rlbot_controlled.set(True)
+            self.participant_type.set("possessed_human")
 
     def edit_looks(self):
         def load():
@@ -119,7 +118,7 @@ class AgentFrame(BaseAgentFrame):
 
         buttons_frame = tk.Frame(window)
         ttk.Button(buttons_frame, text="Item IDs", command=lambda:
-                   webbrowser.open("https://github.com/RLBot/RLBot/wiki/Item-ID's")).grid(row=0, column=0)
+        webbrowser.open("https://github.com/RLBot/RLBot/wiki/Item-ID's")).grid(row=0, column=0)
         ttk.Button(buttons_frame, text="Load", command=load).grid(row=0, column=1)
         ttk.Button(buttons_frame, text="Save", command=save).grid(row=0, column=2)
         ttk.Button(buttons_frame, text="Quit", command=window.destroy).grid(row=0, column=3)
@@ -206,8 +205,7 @@ class AgentFrame(BaseAgentFrame):
         i = self.overall_index
 
         self.overall_config["Participant Configuration"]["participant_team"].set_value(self.team_index, i)
-        t(self.overall_config["Participant Configuration"]["participant_is_bot"], self.is_bot, i)
-        t(self.overall_config["Participant Configuration"]["participant_is_rlbot_controlled"], self.rlbot_controlled, i)
+        t(self.overall_config["Participant Configuration"]["participant_type"], self.participant_type, i)
         t(self.overall_config["Participant Configuration"]["participant_bot_skill"], self.bot_level, i)
 
         t(self.agent_config["Locations"]["agent_module"], self.agent_path)
@@ -218,10 +216,4 @@ class AgentFrame(BaseAgentFrame):
 
     def load_config(self, overall_config_file, overall_index):
         super().load_config(overall_config_file, overall_index)
-        if self.is_participant_bot() and not self.is_participant_custom_bot():
-            self.player_type.set('Psyonix Bot')
-        elif not self.is_participant_bot() and not self.is_participant_custom_bot():
-            self.player_type.set('Human')
-        elif self.is_participant_bot() and self.is_participant_custom_bot():
-            self.player_type.set('RLBot')
-
+        self.participant_type.set(self.get_participant_type())
