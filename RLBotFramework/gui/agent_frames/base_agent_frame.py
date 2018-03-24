@@ -80,7 +80,7 @@ class BaseAgentFrame(tk.Frame):
 
         config_bundle = get_bot_config_bundle(self.get_agent_config_path())
         python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
-        self.agent_class = import_agent(python_file).agent_class
+        self.agent_class = import_agent(python_file).get_loaded_class()
 
         self.agent_config = self.agent_class.create_agent_configurations()
         self.agent_config.parse_file(config_bundle.config_obj)

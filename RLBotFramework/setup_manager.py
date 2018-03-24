@@ -117,7 +117,7 @@ class SetupManager:
                 pass
 
     def load_extension(self, extension_filename):
-        extension_class = import_class_with_base(extension_filename, BaseExtension)
+        extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
         self.extension = extension_class(self)
         self.game_interface.set_extension(self.extension)
 
@@ -125,16 +125,16 @@ class SetupManager:
     def run_agent(terminate_event, callback_event, config_file, name, team, index, python_file,
                   agent_telemetry_queue, queue_holder):
 
-        agent_load_data = import_agent(python_file)
+        agent_class_wrapper = import_agent(python_file)
 
-        if hasattr(agent_load_data.agent_class, "run_independently"):
+        if hasattr(agent_class_wrapper.get_loaded_class(), "run_independently"):
             bm = bot_manager.BotManagerIndependent(terminate_event, callback_event, config_file, name, team,
-                                                   index, agent_load_data, agent_telemetry_queue, queue_holder)
+                                                   index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
 
-        elif hasattr(agent_load_data.agent_class, "get_output_proto"):
+        elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_proto"):
             bm = bot_manager.BotManagerProto(terminate_event, callback_event, config_file, name, team,
-                                             index, agent_load_data, agent_telemetry_queue, queue_holder)
+                                             index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         else:
             bm = bot_manager.BotManagerStruct(terminate_event, callback_event, config_file, name, team,
-                                              index, agent_load_data, agent_telemetry_queue, queue_holder)
+                                              index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         bm.run()
