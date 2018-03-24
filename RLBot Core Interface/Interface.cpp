@@ -62,37 +62,35 @@ namespace Interface
 
 			if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 			{
-				PlayerConfiguration playerConfiguration[CONST_MaxPlayers];
-				playerConfiguration[0].Bot = true;
-				playerConfiguration[0].RLBotControlled = false;
-				playerConfiguration[0].BotSkill = 1.0f;
-				wcscpy(playerConfiguration[0].Name, L"Test");
-				playerConfiguration[0].Team = 0;
-				playerConfiguration[0].TeamColorID = 0;
-				playerConfiguration[0].CustomColorID = 0;
-				playerConfiguration[0].CarID = 257;
-
-				playerConfiguration[1].Bot = false;
-				playerConfiguration[1].RLBotControlled = false;
-				playerConfiguration[1].HumanIndex = 0;
-				wcscpy(playerConfiguration[1].Name, L"ccman32");
-				playerConfiguration[1].Team = 1;
-				playerConfiguration[1].TeamColorID = 0;
-				playerConfiguration[1].CustomColorID = 0;
-				playerConfiguration[1].CarID = 257;
-
 				MatchSettings matchSettings;
+
+				matchSettings.PlayerConfiguration[0].Bot = true;
+				matchSettings.PlayerConfiguration[0].RLBotControlled = false;
+				matchSettings.PlayerConfiguration[0].BotSkill = 1.0f;
+				wcscpy(matchSettings.PlayerConfiguration[0].Name, L"Test");
+				matchSettings.PlayerConfiguration[0].Team = 0;
+				matchSettings.PlayerConfiguration[0].TeamColorID = 0;
+				matchSettings.PlayerConfiguration[0].CustomColorID = 0;
+				matchSettings.PlayerConfiguration[0].CarID = 257;
+
+				matchSettings.PlayerConfiguration[1].Bot = false;
+				matchSettings.PlayerConfiguration[1].RLBotControlled = false;
+				matchSettings.PlayerConfiguration[1].HumanIndex = 0;
+				wcscpy(matchSettings.PlayerConfiguration[1].Name, L"ccman32");
+				matchSettings.PlayerConfiguration[1].Team = 1;
+				matchSettings.PlayerConfiguration[1].TeamColorID = 0;
+				matchSettings.PlayerConfiguration[1].CustomColorID = 0;
+				matchSettings.PlayerConfiguration[1].CarID = 257;
+
 				matchSettings.NumPlayers = 2;
 				matchSettings.GameMode = Soccer;
 				matchSettings.GameMap = Farmstead;
 				matchSettings.SkipReplays = true;
 				matchSettings.InstantStart = true;
+				matchSettings.MutatorSettings.MatchLength = Twenty_Minutes;
+				matchSettings.MutatorSettings.BoostOptions = Rapid_Recharge;
 
-				MutatorSettings mutatorSettings;
-				mutatorSettings.MatchLength = Twenty_Minutes;
-				mutatorSettings.BoostOptions = Rapid_Recharge;
-
-				GameFunctions::StartMatch(playerConfiguration, matchSettings, mutatorSettings, nullptr, nullptr);
+				GameFunctions::StartMatch(matchSettings, nullptr, nullptr);
 			}
 
 			if (GetAsyncKeyState(VK_NUMPAD3) & 1)

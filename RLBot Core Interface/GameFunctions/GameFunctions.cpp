@@ -170,24 +170,18 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(PlayerConfiguration playerConfiguration[CONST_MaxPlayers], MatchSettings matchSettings, MutatorSettings mutatorSettings, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings, CallbackFunction callback, unsigned int* pID)
 	{
 		int numPlayers = matchSettings.NumPlayers;
-		RLBotCoreStatus status = checkPlayerConfiguration(playerConfiguration, numPlayers);
+		//ToDo: Check the other settings
+		RLBotCoreStatus status = checkPlayerConfiguration(matchSettings.PlayerConfiguration, numPlayers);
 
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
 		BEGIN_GAME_FUNCTION(StartMatchMessage, pStartMatch);
 		REGISTER_CALLBACK(pStartMatch, callback, pID);
-
-		for (size_t i = 0; i < numPlayers; i++)
-		{
-			pStartMatch->PlayerConfiguration[i] = playerConfiguration[i];
-		}
-
 		pStartMatch->MatchSettings = matchSettings;
-		pStartMatch->MutatorSettings = mutatorSettings;
 		END_GAME_FUNCTION;
 
 		return RLBotCoreStatus::Success;

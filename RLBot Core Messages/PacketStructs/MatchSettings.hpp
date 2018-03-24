@@ -82,15 +82,6 @@ enum GameMap
 	Workshop_ShipYarr // http://steamcommunity.com/sharedfiles/filedetails/?id=817314448&searchtext=
 };
 
-struct MatchSettings
-{
-	int						NumPlayers;
-	GameMode				GameMode;
-	GameMap					GameMap;
-	bool					SkipReplays;
-	bool					InstantStart;
-};
-
 enum MatchLength
 {
 	Five_Minutes,
@@ -112,6 +103,17 @@ struct MutatorSettings
 {
 	MatchLength				MatchLength;
 	BoostOption				BoostOptions;
+};
+
+struct MatchSettings
+{
+	PlayerConfiguration		PlayerConfiguration[CONST_MaxPlayers];
+	int						NumPlayers;
+	GameMode				GameMode;
+	GameMap					GameMap;
+	bool					SkipReplays;
+	bool					InstantStart;
+	MutatorSettings			MutatorSettings;
 };
 
 #endif
