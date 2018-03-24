@@ -14,6 +14,9 @@ class AgentLoadData:
         self.agent_module = None
         self.reload()
 
+    def get_agent_class(self):
+        return self.agent_class
+
     def reload(self):
         dir_name = os.path.dirname(self.python_file)
         module_name = os.path.splitext(os.path.basename(self.python_file))[0]
