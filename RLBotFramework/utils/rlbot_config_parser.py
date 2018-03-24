@@ -279,8 +279,8 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     if bot_configuration.bRLBotControlled:
         # Python file relative to the config location.
         python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
-        agent_load_data = import_agent(python_file)
-        bot_parameters = agent_load_data.agent_class.create_agent_configurations()
+        agent_class_wrapper = import_agent(python_file)
+        bot_parameters = agent_class_wrapper.get_loaded_class().create_agent_configurations()
         bot_parameters.parse_file(config_bundle.config_obj)
 
     return bot_name, team_num, python_file, bot_parameters
