@@ -148,7 +148,7 @@ class AgentFrame(BaseAgentFrame):
                 if not python_file:
                     return
             self.agent_path.set(python_file)
-            self.agent_class = import_agent(python_file).agent_class
+            self.agent_class = import_agent(python_file).get_loaded_class()
             self.agent_config = self.agent_class.create_agent_configurations().parse_file(self.agent_config)
             initialize_custom_config()
 
