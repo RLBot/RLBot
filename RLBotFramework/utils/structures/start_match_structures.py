@@ -9,52 +9,46 @@ def get_player_configuration_list_type():
 
 
 class PlayerConfiguration(ctypes.Structure):
-    _fields_ = [("bBot", ctypes.c_bool),
-                ("bRLBotControlled", ctypes.c_bool),
-                ("fBotSkill", ctypes.c_float),
-                ("iHumanIndex", ctypes.c_int),
-                ("wName", ctypes.c_wchar * MAX_NAME_LENGTH),
-                ("ucTeam", ctypes.c_ubyte),
-                ("ucTeamColorID", ctypes.c_ubyte),
-                ("ucCustomColorID", ctypes.c_ubyte),
-                ("iCarID", ctypes.c_int),
-                ("iDecalID", ctypes.c_int),
-                ("iWheelsID", ctypes.c_int),
-                ("iBoostID", ctypes.c_int),
-                ("iAntennaID", ctypes.c_int),
-                ("iHatID", ctypes.c_int),
-                ("iPaintFinishID", ctypes.c_int),
-                ("iCustomFinishID", ctypes.c_int),
-                ("iEngineAudioID", ctypes.c_int),
-                ("iTrailsID", ctypes.c_int),
-                ("iGoalExplosionID", ctypes.c_int)]
-
-
-class MatchSettings(ctypes.Structure):
-    _fields_ = [("numPlayers", ctypes.c_int),
-                ("GameMode", ctypes.c_uint),
-                ("GameMap", ctypes.c_uint),
-                ("MapVariation", ctypes.c_uint),
-                ("skipReplays", ctypes.c_bool),
-                ("instantStart", ctypes.c_bool),
-               ]
+    _fields_ = [("bot", ctypes.c_bool),
+                ("rlbot_controlled", ctypes.c_bool),
+                ("bot_skill", ctypes.c_float),
+                ("human_index", ctypes.c_int),
+                ("name", ctypes.c_wchar * MAX_NAME_LENGTH),
+                ("team", ctypes.c_ubyte),
+                ("team_color_id", ctypes.c_ubyte),
+                ("custom_color_id", ctypes.c_ubyte),
+                ("car_id", ctypes.c_int),
+                ("decal_id", ctypes.c_int),
+                ("wheels_id", ctypes.c_int),
+                ("boost_id", ctypes.c_int),
+                ("antenna_id", ctypes.c_int),
+                ("hat_id", ctypes.c_int),
+                ("paint_finish_id", ctypes.c_int),
+                ("custom_finish_id", ctypes.c_int),
+                ("engine_audio_id", ctypes.c_int),
+                ("trails_id", ctypes.c_int),
+                ("goal_explosion_id", ctypes.c_int)]
 
 
 class MutatorSettings(ctypes.Structure):
-    _fields_ = [("MatchLength", ctypes.c_uint),
-                ("BoostOptions", ctypes.c_uint),
+    _fields_ = [("match_length", ctypes.c_uint),
+                ("boost_options", ctypes.c_uint),
                 ]
 
 
-class MatchConfigurationWrapper(ctypes.Structure):
-    _fields_ = [("playerConfiguration", get_player_configuration_list_type()),
-                ("matchSettings", MatchSettings),
-                ("mutatorSettings", MutatorSettings),
-               ]
+class MatchSettings(ctypes.Structure):
+    _fields_ = [("player_configuration", get_player_configuration_list_type()),
+                ("num_players", ctypes.c_int),
+                ("game_mode", ctypes.c_uint),
+                ("game_map", ctypes.c_uint),
+                ("skip_replays", ctypes.c_bool),
+                ("instant_start", ctypes.c_bool),
+                ("mutator_settings", MutatorSettings),
+                ]
 
 
 def get_player_configuration_list(match_configuration_wrapper):
     player_list = []
     for i in range(MAX_PLAYERS):
         player_list.append(PlayerConfiguration())
-    return match_configuration_wrapper.playerConfiguration
+    return match_configuration_wrapper.player_configuration

@@ -198,7 +198,7 @@ def parse_configurations(start_match_configuration, config_parser, bot_configs, 
     bot_parameter_list = []
     name_dict = {}
 
-    start_match_configuration.matchSettings.numPlayers = num_participants
+    start_match_configuration.num_players = num_participants
 
     player_configuration_list = get_player_configuration_list(start_match_configuration)
 
@@ -235,15 +235,15 @@ def load_bot_config(index, bot_configuration, bot_config_object, looks_config_ob
     """
     team_num = get_team(overall_config, index)
 
-    bot_configuration.ucTeam = team_num
+    bot_configuration.team = team_num
 
     # Setting up data about what type of bot it is
-    bot_configuration.bBot = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, index)
-    bot_configuration.bRLBotControlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, index)
-    bot_configuration.fBotSkill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
+    bot_configuration.bot = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY, index)
+    bot_configuration.rlbot_controlled = overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY, index)
+    bot_configuration.bot_skill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
 
-    if not bot_configuration.bBot:
-        bot_configuration.iHumanIndex = index
+    if not bot_configuration.bot:
+        bot_configuration.human_index = index
 
     loadout_header = BOT_CONFIG_LOADOUT_HEADER
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
@@ -251,14 +251,14 @@ def load_bot_config(index, bot_configuration, bot_config_object, looks_config_ob
 
     # Setting up the bots name
     bot_name = looks_config_object.get(loadout_header, 'name')
-    bot_configuration.wName = get_sanitized_bot_name(name_dict, bot_name)
+    bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
 
     BaseAgent.parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
 
     bot_module = 'NO_MODULE_FOR_PARTICIPANT'
     bot_parameters = None
 
-    if bot_configuration.bRLBotControlled:
+    if bot_configuration.rlbot_controlled:
         bot_module = bot_config_object.get(BOT_CONFIG_MODULE_HEADER, AGENT_MODULE_KEY)
         agent = import_agent(bot_module)
         dirpath = os.path.dirname(os.path.realpath(sys.modules[agent.__module__].__file__))
