@@ -89,7 +89,7 @@ class SetupManager:
                 self.callbacks.append(callback)
                 process = mp.Process(target=SetupManager.run_agent,
                                      args=(self.quit_event, callback, self.parameters[i],
-                                           str(self.start_match_configuration.player_configuration[i].wName),
+                                           str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue, queue_holder))
                 process.start()
 
