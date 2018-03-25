@@ -276,7 +276,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     python_file = 'NO_MODULE_FOR_PARTICIPANT'
     bot_parameters = None
 
-    if bot_configuration.bRLBotControlled:
+    if bot_configuration.rlbot_controlled:
         # Python file relative to the config location.
         python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
         agent_class_wrapper = import_agent(python_file)
