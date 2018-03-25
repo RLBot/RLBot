@@ -9,11 +9,14 @@
 #include "..\MessageStructs\CallbackMessages.hpp"
 #include "..\MessageStructs\Message.hpp"
 
-#define BEGIN_CALLBACK_FUNCTION(structName, name)	if (!pCallbackOutput) \
-													{ \
-														pCallbackOutput = FileMappings::GetCallbackOutput(); \
-													} \
+//ToDo: Think of a better solution
+#define BEGIN_CALLBACK_FUNCTION(structName, name)	CallbackOutput* pCallbackOutput = FileMappings::GetCallbackOutput(); \
 													pCallbackOutput->Lock(); \
+													if (pCallbackOutput->IsBufferOverfilled()) \
+													{ \
+														pCallbackOutput->Unlock(); \
+														break; \
+													} \
 													BEGIN_FUNCTION(structName, name, pCallbackOutput)
 
 #define END_CALLBACK_FUNCTION						END_FUNCTION(pCallbackOutput); \
@@ -26,13 +29,11 @@ class MessageProcessor
 {
 private:
 	std::unordered_map<MessageType, MessageHandler> messageHandlerMap;
-	CallbackOutput* pCallbackOutput;
 	MessageStorage<size>* pStorage;
 
 public:
 	MessageProcessor(MessageStorage<size>* pStorage)
 	{
-		this->pCallbackOutput = nullptr;
 		this->pStorage = pStorage;
 	}
 

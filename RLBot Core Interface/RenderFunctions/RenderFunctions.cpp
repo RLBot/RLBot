@@ -1,6 +1,8 @@
 #include "RenderFunctions.hpp"
 
-#define BEGIN_RENDER_FUNCTION(structName, name)	BEGIN_FUNCTION(structName, name, FileMappings::GetRenderInput())
+//ToDo: Optimize code
+#define BEGIN_RENDER_FUNCTION(structName, name)	CHECK_BUFFER_OVERFILLED(FileMappings::GetRenderInput(), false); \
+												BEGIN_FUNCTION(structName, name, FileMappings::GetRenderInput())
 
 #define END_RENDER_FUNCTION						END_FUNCTION(FileMappings::GetRenderInput())
 

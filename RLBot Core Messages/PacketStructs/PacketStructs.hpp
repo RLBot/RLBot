@@ -6,9 +6,11 @@
 template <unsigned int size>
 class MessageStorage;
 
-#define CONST_GAME_INPUT_SIZE						0x5000
+#define CONST_MAX_MESSAGE_SIZE						0x1000
+
+#define CONST_GAME_INPUT_SIZE						0x10000
 #define CONST_RENDER_INPUT_SIZE						0x50000
-#define CONST_CALLBACK_INPUT_SIZE					0x5000
+#define CONST_CALLBACK_INPUT_SIZE					0x10000
 
 typedef MessageStorage<CONST_GAME_INPUT_SIZE>		GameInput;
 typedef MessageStorage<CONST_RENDER_INPUT_SIZE>		RenderInput;
@@ -104,6 +106,11 @@ private:
 	unsigned long			offset;
 
 public:
+	bool IsBufferOverfilled()
+	{
+		return size - offset < CONST_MAX_MESSAGE_SIZE;
+	}
+
 	MessageBase* GetFirstMessageMemory()
 	{
 		return (MessageBase*)&data[0];

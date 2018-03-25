@@ -4,6 +4,7 @@
 
 #define BEGIN_GAME_FUNCTION(structName, name)	GameInput* pGameInput = FileMappings::GetGameInput(); \
 												pGameInput->Lock(); \
+												CHECK_BUFFER_OVERFILLED(pGameInput, true); \
 												BEGIN_FUNCTION(structName, name, pGameInput)
 
 #define END_GAME_FUNCTION						END_FUNCTION(pGameInput); \
@@ -20,8 +21,6 @@
 
 namespace GameFunctions
 {
-	//static MessageBase* pGameMessage = nullptr;
-
 	bool isValidName(wchar_t* pName)
 	{
 		for (int i = 0; i < sizeof(PlayerConfiguration::Name) / sizeof(wchar_t); i++)

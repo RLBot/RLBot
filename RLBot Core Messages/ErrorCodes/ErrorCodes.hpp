@@ -22,6 +22,7 @@
 enum RLBotCoreStatus
 {
 	Success,
+	BufferOverfilled,
 	InvalidNumPlayers,
 	InvalidBotSkill,
 	InvalidHumanIndex,
