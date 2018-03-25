@@ -56,6 +56,7 @@ public:
 
 			if (result != messageHandlerMap.end())
 			{
+				//ToDo: Execute only if the callback buffer is not overfilled?
 				RLBotCoreStatus returnValue = result->second(it.GetCurrentMessage());
 
 				if (it->HasCallback)

@@ -41,13 +41,13 @@ namespace Interface
 		bInitialized = true;
 		DEBUG_LOG("RLBot Core Interface has been successfully initialized!\n");
 
-		while (1)
+		/*while (1)
 		{
 			if (GetAsyncKeyState(VK_NUMPAD0) & 1)
 			{
 				RenderFunctions::BeginRendering();
-				/*RenderFunctions::DrawLine2D(10, 10, 500, 500, { 0, 0, 0xFF, 0xFF });
-				RenderFunctions::DrawLine3D(Vector3(0, 0, 0), Vector3(0, 300, 300), { 0, 0, 0xFF, 0xFF });*/
+				RenderFunctions::DrawLine2D(10, 10, 500, 500, { 0, 0, 0xFF, 0xFF });
+				RenderFunctions::DrawLine3D(Vector3(0, 0, 0), Vector3(0, 300, 300), { 0, 0, 0xFF, 0xFF });
 				RenderFunctions::DrawString2D(600, 380, 10, 10, Color(0, 0, 0xFF, 0xFF), L"YOU SUCK!!!");
 				RenderFunctions::EndRendering();
 			}
@@ -95,15 +95,13 @@ namespace Interface
 
 			if (GetAsyncKeyState(VK_NUMPAD3) & 1)
 			{
-				/*for (int i = 0; i < 1000; i++)
+				for (int i = 0; i < 1000; i++)
 				{
 					PlayerInput input;
 					input.Boost = true;
 					input.Throttle = 1.0f;
 					GameFunctions::UpdatePlayerInput(input, 0);
-				}*/
-				FileMappings::GetGameInput()->Lock();
-				FileMappings::GetGameInput()->Lock();
+				}
 			}
 
 			if (GetAsyncKeyState(VK_NUMPAD4) & 1)
@@ -125,7 +123,7 @@ namespace Interface
 			{
 				GameFunctions::SendChat(QuickChatPreset::Reactions_Siiiick, 1, false, &Callback, &id);
 			}
-		}
+		}*/
 
 		return ERROR_SUCCESS;
 	}
