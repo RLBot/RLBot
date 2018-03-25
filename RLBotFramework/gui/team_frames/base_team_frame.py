@@ -90,7 +90,6 @@ class BaseTeamFrame(tk.Frame):
         agent.overall_index = overall_index
         agent.initialize_widgets()
         agent.load_config(self.overall_config, overall_index)
-        agent.link_variables()
         agent.refresh_widgets()
         return agent
 
@@ -119,7 +118,7 @@ class BaseTeamFrame(tk.Frame):
         bot_configs = {}
         looks_configs = {}
         for agent in self.agents:
-            index, bot, looks = agent.get_config()
-            bot_configs[index] = bot
+            index, config_bundle, looks = agent.get_config()
+            bot_configs[index] = config_bundle
             looks_configs[index] = looks
         return bot_configs, looks_configs

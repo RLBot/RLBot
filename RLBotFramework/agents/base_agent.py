@@ -6,8 +6,8 @@ BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
 BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
-AGENT_MODULE_KEY = 'agent_module'
-LOADOUT_MODULE_KEY = 'looks_config'
+PYTHON_FILE_KEY = 'python_file'
+LOOKS_CONFIG_KEY = 'looks_config'
 
 
 class BaseAgent:
@@ -93,17 +93,17 @@ class BaseAgent:
         """Called after the game ends"""
 
     @staticmethod
-    def create_agent_configurations():
+    def create_agent_configurations() -> ConfigObject:
         config = ConfigObject()
         location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
-        location_config.add_value(LOADOUT_MODULE_KEY, str, default='./agents/atba/atba_looks.cfg',
+        location_config.add_value(LOOKS_CONFIG_KEY, str, default='./atba_looks.cfg',
                                   description='Path to loadout config from runner')
-        location_config.add_value(AGENT_MODULE_KEY, str, default='agents.atba.atba',
-                                  description='Path to module from runner\nOnly need this if RLBot controlled')
+        location_config.add_value(PYTHON_FILE_KEY, str, default='./atba.py',
+                                  description="Bot's python file.\nOnly need this if RLBot controlled")
         return config
 
     @staticmethod
-    def create_looks_configurations():
+    def create_looks_configurations() -> ConfigObject:
         config = ConfigObject()
         config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
         config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
@@ -111,7 +111,7 @@ class BaseAgent:
 
 
     @staticmethod
-    def _create_loadout():
+    def _create_loadout() -> ConfigHeader:
         header = ConfigHeader()
         header.add_value('name', str, default='nameless', description='The name that will be displayed in game')
         header.add_value('team_color_id', int, default=27, description='Primary Color selection')

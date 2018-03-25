@@ -1,75 +1,88 @@
 import importlib
 import inspect
-
 import os
+import sys
 
 from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotFramework.utils.logging_utils import log_warn
 
 
-def is_extends_base_class(module, base_class):
-    super_classes = module.__bases__
-    for super_class in super_classes:
-        if super_class == base_class:
-            return True
-    return False
+class ExternalClassWrapper:
+    """
+    Given the absolute path of a python file, this can load the associated module and find a class inside it
+    that extends the base class. The module in the target file may assume that its current directory is on
+    sys.path and expect import statements to work accordingly.
+
+    Will throw an exception during construction if the module cannot be loaded or the class cannot be located.
+    """
+
+    def __init__(self, python_file, base_class):
+        self.python_file = python_file
+        self.base_class = base_class
+        self.loaded_class, self.loaded_module = load_external_class(self.python_file, self.base_class)
+
+    def get_loaded_class(self):
+        """
+        Guaranteed to return a valid class that extends base_class.
+        """
+        return self.loaded_class
+
+    def reload(self):
+        self.loaded_class, self.loaded_module = load_external_class(self.python_file, self.base_class)
 
 
-def import_agent(module_name):
+def import_agent(python_file) -> ExternalClassWrapper:
     """
     Imports the first class that extends BaseAgent.
 
-    :param module_name: A string formatted like a normal python import
+    :param python_file: The absolute path of the bot's main python file
     :return: The agent requested or BaseAgent if there are any problems.
     """
-    return import_class_with_base(module_name, BaseAgent)
+    return import_class_with_base(python_file, BaseAgent)
 
 
-def import_class_with_base(module_name, base_class):
+def import_class_with_base(python_file, base_class) -> ExternalClassWrapper:
     """
     Imports the first class that extends base_class.
 
-    :param module_name: A string formatted like a normal python import
-    :param base_class: The class that we look for the extension for also is returned if no matching module is found
+    :param python_file: The absolute path of the bot's main python file
+    :param base_class: The class that we look for the extension for
     :return: The agent requested or BaseAgent if there are any problems.
     """
-    try:
-        module = importlib.import_module(module_name)
-        agent_class = [agent[1] for agent in inspect.getmembers(module, inspect.isclass)
-                       if issubclass(agent[1], base_class) and agent[1].__module__ == module_name]
 
-        agent = agent_class[0]
-        # grabs only the first one
-        return agent
-    except ModuleNotFoundError as e:
-        log_warn('ModuleNotFoundError: %s\nsub module %s not found using %s instead', [str(e), str(module_name),
-                                                                                       str(base_class)])
-    except Exception as e:
-        log_warn('Error: %s\n%s not found using %s instead', [str(e), str(module_name), str(base_class)])
-
-    return base_class
+    return ExternalClassWrapper(python_file, base_class)
 
 
-def get_base_import_package(config_file_path):
-    """
-    Returns a string that is the base import path of the config file.
-    :param config_file_path:
-    :return:
-    """
-    original_path = get_base_repo_path()
-    config_file_path = os.path.realpath(config_file_path)
-    module = config_file_path.replace(original_path, "", 1).replace(os.sep, ".")
-    remove_ending = '.' in config_file_path
-    if remove_ending:
-        return module[1:module.rfind(".")]
-    else:
-        return module[1:]
+def load_external_class(python_file, base_class):
+    dir_name = os.path.dirname(python_file)
+    module_name = os.path.splitext(os.path.basename(python_file))[0]
+    keys_before = set(sys.modules.keys())
+
+    # Temporarily modify the sys.path while we load the module so that the module can use import statements naturally
+    sys.path.insert(0, dir_name)
+    loaded_module = importlib.import_module(module_name)
+
+    # Clean up the changes to sys.path and sys.modules to avoid collisions with other external classes and to
+    # prepare for the next reload.
+    added = set(sys.modules.keys()).difference(keys_before)
+    del sys.path[0]
+    for key in added:
+        del sys.modules[key]
+
+    # Find a class that extends base_class
+    loaded_class = extract_class(loaded_module, base_class)
+    return loaded_class, loaded_module
+
+
+def extract_class(containing_module, base_class):
+    valid_classes = [agent[1] for agent in inspect.getmembers(containing_module, inspect.isclass)
+                     if issubclass(agent[1], base_class) and agent[1].__module__ == containing_module.__name__]
+
+    if len(valid_classes) == 0:
+        raise ValueError('Could not locate a suitable bot class')
+
+    return valid_classes[0]
 
 
 def get_base_repo_path():
     """Gets the path of the RLBot directory"""
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
-
-def get_agent_class_location(input_class):
-    return inspect.getfile(input_class)
