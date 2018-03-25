@@ -1,8 +1,5 @@
-import tkinter as tk
-from configparser import RawConfigParser
-import os
-
 import re
+from configparser import RawConfigParser
 
 
 class ConfigObject:
@@ -229,7 +226,6 @@ class ConfigValue:
     def get_value(self, index=None):
         """
         Returns the default if value is none.
-        Grabs tk version if value is a tk value.
         :param index:
         :return: A value.
         """
@@ -241,9 +237,6 @@ class ConfigValue:
             value = self.value[index]
         else:
             value = self.value
-
-        if isinstance(value, tk.Variable):
-            value = self.default if not value.get() and isinstance(value, tk.StringVar) else value.get()
 
         return value
 
@@ -261,10 +254,7 @@ class ConfigValue:
             self.value = config_parser[value_name].value
         if max_index is None:
             value = self.get_parser_value(config_parser, value_name)
-            if isinstance(self.value, tk.Variable):
-                self.value.set(value)
-            else:
-                self.value = value
+            self.value = value
         else:
             self.value = []
             for i in range(max_index):
