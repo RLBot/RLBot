@@ -9,7 +9,7 @@ from RLBotFramework.utils.class_importer import get_base_repo_path
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
-from RLBotFramework.utils.structures.start_match_structures import MatchConfigurationWrapper
+from RLBotFramework.utils.structures.start_match_structures import MatchSettings
 
 
 def wrap_callback(callback_func):
@@ -46,7 +46,7 @@ class GameInterface:
 
         # start match
         func = self.game.StartMatch
-        func.argtypes = [MatchConfigurationWrapper, self.game_status_callback_type, ctypes.c_void_p]
+        func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
 
         # update player input
