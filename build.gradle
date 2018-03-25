@@ -2,9 +2,10 @@ group 'RLBot'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'de.undercouch.download'
+// apply plugin: 'de.undercouch.download'
 apply plugin: 'ru.vyarus.use-python'
 apply plugin: 'groovy'
+apply plugin: 'java'
 
 def apiFile = new File('apikey')
 def apikey = ''
@@ -29,6 +30,12 @@ buildscript {
     }
 }
 
+task copyProto(type: Copy) {
+  def homePath = System.properties['user.home']
+  def cpfrom = homePath + '\\' + '.gradle\\caches\\modules-2\\files-2.1\\rlbotofficial.RLBotProtoMaven\\proto-interface\\0.0.2'
+  from cpfrom
+  into protoDir
+}
 
 // python {
 //     pip 'psutil:5.4.3'
@@ -37,7 +44,7 @@ buildscript {
 
 // task gui(type:Exec) {
 //   println('gui')
-//     workingDir System.getProperty("user.dir")
+//     workingDir System.getProperty  ("user.dir")
 //     commandLine 'python', 'runner_GUI.py'
 // }
 
@@ -76,3 +83,4 @@ task setup {
 }
 
 setup.dependsOn pipInstall
+build.dependsOn copyProto
