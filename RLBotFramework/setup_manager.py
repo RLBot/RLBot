@@ -9,9 +9,9 @@ from RLBotFramework.utils.class_importer import import_class_with_base, import_a
 from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from RLBotFramework.utils.process_configuration import configure_processes
 from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
-from RLBotFramework.utils.structures import bot_input_struct as bi
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChatManager
+from RLBotFramework.utils.structures.start_match_structures import MatchSettings
 
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
@@ -24,7 +24,7 @@ class SetupManager:
     teams = None
     python_files = None
     parameters = None
-    game_input_packet = None
+    start_match_configuration = None
     agent_metadata_queue = None
     agent_metadata_map = None
     quit_event = None
@@ -66,13 +66,13 @@ class SetupManager:
             looks_configs = {}
 
         # Open anonymous shared memory for entire GameInputPacket and map buffer
-        self.game_input_packet = bi.GameInputPacket()
+        self.start_match_configuration = MatchSettings()
 
         self.num_participants, self.names, self.teams, self.python_files, self.parameters = parse_configurations(
-            self.game_input_packet, framework_config, bot_configs, looks_configs)
+            self.start_match_configuration, framework_config, bot_configs, looks_configs)
 
         self.game_interface.participants = self.num_participants
-        self.game_interface.game_input_packet = self.game_input_packet
+        self.game_interface.start_match_configuration = self.start_match_configuration
 
         extension_path = framework_config.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
         if extension_path is not None:
@@ -83,13 +83,13 @@ class SetupManager:
 
         # Launch processes
         for i in range(self.num_participants):
-            if self.game_input_packet.sPlayerConfiguration[i].bRLBotControlled:
+            if self.start_match_configuration.player_configuration[i].rlbot_controlled:
                 queue_holder = self.quick_chat_manager.create_queue_for_bot(i, self.teams[i])
                 callback = mp.Event()
                 self.callbacks.append(callback)
                 process = mp.Process(target=SetupManager.run_agent,
                                      args=(self.quit_event, callback, self.parameters[i],
-                                           str(self.game_input_packet.sPlayerConfiguration[i].wName),
+                                           str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue, queue_holder))
                 process.start()
 
