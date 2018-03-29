@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from RLBotFramework.utils import rate_limiter
 from RLBotFramework.utils.class_importer import ExternalClassWrapper
 from RLBotFramework.utils.logging_utils import get_logger
-from RLBotFramework.utils.structures import game_data_struct as gd, bot_input_struct as bi
+from RLBotFramework.utils.structures import game_data_struct as gd
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import send_quick_chat, register_for_quick_chat
@@ -73,9 +73,6 @@ class BotManager:
         else:
             self.logger.debug('quick chat disabled for %s', MAX_CHAT_RATE - time_since_last_chat)
 
-    def is_game_running(self):
-        return True
-
     def load_agent(self, agent_wrapper: ExternalClassWrapper):
         agent_class = agent_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
@@ -86,7 +83,7 @@ class BotManager:
         self.update_metadata_queue(agent)
         agent_class_file = self.agent_class_wrapper.python_file
         agent.register_quick_chat(self.send_quick_chat_from_agent)
-        register_for_quick_chat(self.quick_chat_queue_holder, self.is_game_running, agent.receive_quick_chat)
+        register_for_quick_chat(self.quick_chat_queue_holder, agent.receive_quick_chat, self.terminate_request_event)
         return agent, agent_class_file
 
     def update_metadata_queue(self, agent):

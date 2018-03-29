@@ -4,7 +4,7 @@ import logging
 
 DEFAULT_LOGGER = 'rlbot'
 logger_initialized = False
-logging_level = logging.DEBUG
+logging_level = logging.INFO
 FORMAT = "%(levelname)s:%(name)5s[%(filename)20s:%(lineno)s - %(funcName)20s() ] %(message)s"
 
 
