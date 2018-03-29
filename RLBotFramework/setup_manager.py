@@ -3,6 +3,8 @@ import msvcrt
 import multiprocessing as mp
 import queue
 
+import time
+
 from RLBotFramework.agents import bot_manager
 from RLBotFramework.base_extension import BaseExtension
 from RLBotFramework.utils.class_importer import import_class_with_base, import_agent
@@ -34,7 +36,7 @@ class SetupManager:
         self.logger = get_logger(DEFAULT_LOGGER)
         self.game_interface = GameInterface(self.logger)
         self.quick_chat_manager = QuickChatManager(self.game_interface)
-        self.callbacks = []
+        self.bot_quit_callbacks = []
 
     def startup(self):
         if self.has_started:
@@ -86,7 +88,7 @@ class SetupManager:
             if self.start_match_configuration.player_configuration[i].rlbot_controlled:
                 queue_holder = self.quick_chat_manager.create_queue_for_bot(i, self.teams[i])
                 callback = mp.Event()
-                self.callbacks.append(callback)
+                self.bot_quit_callbacks.append(callback)
                 process = mp.Process(target=SetupManager.run_agent,
                                      args=(self.quit_event, callback, self.parameters[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
@@ -96,7 +98,7 @@ class SetupManager:
         self.logger.debug("Successfully started bot processes")
 
     def run(self):
-        self.quick_chat_manager.start_manager()
+        self.quick_chat_manager.start_manager(self.quit_event)
         self.logger.debug("Successfully started quick chat manager")
         self.game_interface.start_match()
         self.logger.info("Match has started")
@@ -113,8 +115,22 @@ class SetupManager:
             except queue.Empty:
                 pass
             except Exception as ex:
-                print(ex)
+                self.logger.error(ex)
                 pass
+
+    def shut_down(self):
+        self.logger.info("Shutting Down")
+
+        self.quit_event.set()
+
+        # Wait for all processes to terminate before terminating main process
+        terminated = False
+        while not terminated:
+            terminated = True
+            for callback in self.bot_quit_callbacks:
+                if not callback.is_set():
+                    terminated = False
+            time.sleep(0.1)
 
     def load_extension(self, extension_filename):
         extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
