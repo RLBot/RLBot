@@ -104,7 +104,6 @@ def register_for_quick_chat(queue_holder, called_func, quit_event):
 
 class QuickChatManager:
     bot_queues = {}
-    game_running = True
 
     def __init__(self, game_interface):
         self.game_interface = game_interface
@@ -120,8 +119,8 @@ class QuickChatManager:
         self.bot_queues[index] = (team, bot_queue)
         return queue_holder
 
-    def process_queue(self, quit_event, quit_callback):
-        while self.game_running and not quit_event.is_set():
+    def process_queue(self, quit_event):
+        while not quit_event.is_set():
 
             try:
                 next_message = self.general_chat_queue.get(timeout=0.01)
@@ -141,9 +140,7 @@ class QuickChatManager:
             except queue.Empty:
                 pass
 
-        quit_callback.set()
-
-    def start_manager(self, quit_event, quit_callback):
-        thread = Thread(target=self.process_queue, args=(quit_event, quit_callback))
+    def start_manager(self, quit_event):
+        thread = Thread(target=self.process_queue, args=(quit_event,))
         thread.start()
         return thread

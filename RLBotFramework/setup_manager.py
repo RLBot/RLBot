@@ -29,7 +29,7 @@ class SetupManager:
     start_match_configuration = None
     agent_metadata_queue = None
     agent_metadata_map = None
-    bots_quit_event = None
+    quit_event = None
     extension = None
 
     def __init__(self):
@@ -45,7 +45,7 @@ class SetupManager:
         self.game_interface.inject_dll()
         self.game_interface.load_interface()
         # Create Quit event
-        self.bots_quit_event = mp.Event()
+        self.quit_event = mp.Event()
 
         self.agent_metadata_map = {}
         self.agent_metadata_queue = mp.Queue()
@@ -90,7 +90,7 @@ class SetupManager:
                 callback = mp.Event()
                 self.bot_quit_callbacks.append(callback)
                 process = mp.Process(target=SetupManager.run_agent,
-                                     args=(self.bots_quit_event, callback, self.parameters[i],
+                                     args=(self.quit_event, callback, self.parameters[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue, queue_holder))
                 process.start()
@@ -98,9 +98,7 @@ class SetupManager:
         self.logger.debug("Successfully started bot processes")
 
     def run(self):
-        quick_chat_quit_event = mp.Event()
-        quick_chat_quit_callback = mp.Event()
-        self.quick_chat_manager.start_manager(quick_chat_quit_event, quick_chat_quit_callback)
+        self.quick_chat_manager.start_manager(self.quit_event)
         self.logger.debug("Successfully started quick chat manager")
         self.game_interface.start_match()
         self.logger.info("Match has started")
@@ -120,13 +118,10 @@ class SetupManager:
                 self.logger.error(ex)
                 pass
 
+    def shut_down(self):
         self.logger.info("Shutting Down")
-        quick_chat_quit_event.set()
 
-        while not quick_chat_quit_callback.is_set():
-            time.sleep(0.1)
-
-        self.bots_quit_event.set()
+        self.quit_event.set()
 
         # Wait for all processes to terminate before terminating main process
         terminated = False
