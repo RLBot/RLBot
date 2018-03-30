@@ -275,7 +275,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -346,7 +346,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -420,7 +420,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -494,7 +494,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -564,7 +564,7 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
@@ -627,7 +627,7 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
@@ -692,7 +692,7 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
@@ -757,7 +757,7 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
