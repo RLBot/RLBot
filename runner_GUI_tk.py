@@ -4,8 +4,8 @@ from tkinter import ttk
 
 from RLBotFramework.gui import match_settings_frame
 from RLBotFramework.gui.team_frames.team_frame_notebook import NotebookTeamFrame
-from RLBotFramework.gui.team_frames.base_team_frame import BaseTeamFrame
-from RLBotFramework.gui.agent_frames.agent_frame import AgentFrame
+from RLBotFramework.gui.team_frames.base_team_frame_tk import BaseTeamFrame
+from RLBotFramework.gui.agent_frames.agent_frame_tk import AgentFrame
 from RLBotFramework.gui.utils import get_file, IndexManager
 from RLBotFramework.setup_manager import SetupManager
 from RLBotFramework.utils.custom_config import ConfigObject

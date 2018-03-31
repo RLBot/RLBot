@@ -3,7 +3,7 @@ from tkinter import ttk
 from configparser import RawConfigParser
 import webbrowser
 
-from RLBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
+from RLBotFramework.gui.agent_frames.base_agent_frame_tk import BaseAgentFrame
 from RLBotFramework.gui.utils import get_file
 from RLBotFramework.agents.base_agent import BaseAgent, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_CONFIG_MODULE_HEADER, \
     BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER
