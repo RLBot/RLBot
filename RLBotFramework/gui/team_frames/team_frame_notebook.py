@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from RLBotFramework.gui.team_frames.base_team_frame import BaseTeamFrame
+from RLBotFramework.gui.team_frames.base_team_frame_tk import BaseTeamFrame
 
 
 class NotebookTeamFrame(BaseTeamFrame):
