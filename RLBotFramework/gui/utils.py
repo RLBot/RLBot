@@ -14,6 +14,8 @@ def get_file(filetypes=None, title=None):
 
 
 class IndexManager:
+
+    # TODO: Update to use new base_gui
     def __init__(self, size):
         self.numbers = set()
         self.size = size

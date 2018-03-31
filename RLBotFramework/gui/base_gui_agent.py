@@ -89,3 +89,31 @@ class BaseGuiAgent:
     def get_config(self):
         self.write_fields_to_config()
         return self.overall_index, self.config_bundle, self.looks_config
+
+
+
+    def remove(self):
+        """
+        Removes the agent. Called by the GUI.
+        """
+
+
+    def remove_add_agent(self):
+        if self.add_agent_object.winfo_ismapped():
+            self.add_agent_object.grid_forget()
+
+    def get_agents_frame(self):
+        return self.agents_frame
+
+    def create_agent(self, overall_index):
+        """
+        Creates a new agent frame, loads config data if needed.
+        :param overall_index: An optional value if the overall index of this agent is already specified.
+        :return: an instance of BaseAgentFrame
+        """
+        agent = self.agent_frame_class(self.get_agents_frame(), self.team_index)
+        agent.overall_index = overall_index
+        agent.initialize_widgets()
+        agent.load_config(self.overall_config, overall_index)
+        agent.refresh_widgets()
+        return agent

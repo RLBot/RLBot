@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Harry\Documents\Rocket League\bot\v4\RLBotFramework\gui\qt_gui.ui'
+# Form implementation generated from reading ui file 'qt_gui.ui'
 #
 # Created by: PyQt5 UI code generator 5.9
 #
@@ -120,9 +120,9 @@ class Ui_MainWindow(object):
         self.loadout_preset_combobox = QtWidgets.QComboBox(self.frame_2)
         self.loadout_preset_combobox.setObjectName("loadout_preset_combobox")
         self.gridLayout.addWidget(self.loadout_preset_combobox, 1, 1, 1, 1)
-        self.toolButton = QtWidgets.QToolButton(self.frame_2)
-        self.toolButton.setObjectName("toolButton")
-        self.gridLayout.addWidget(self.toolButton, 1, 2, 1, 1)
+        self.loadout_preset_toolbutton = QtWidgets.QToolButton(self.frame_2)
+        self.loadout_preset_toolbutton.setObjectName("loadout_preset_toolbutton")
+        self.gridLayout.addWidget(self.loadout_preset_toolbutton, 1, 2, 1, 1)
         self.ign_lineedit = QtWidgets.QLineEdit(self.frame_2)
         self.ign_lineedit.setObjectName("ign_lineedit")
         self.gridLayout.addWidget(self.ign_lineedit, 0, 1, 1, 2)
@@ -225,7 +225,7 @@ class Ui_MainWindow(object):
         self.orange_radiobutton.setText(_translate("MainWindow", "Orange"))
         self.label_3.setText(_translate("MainWindow", "IGN:"))
         self.label_4.setText(_translate("MainWindow", "Loadout Preset:"))
-        self.toolButton.setText(_translate("MainWindow", "..."))
+        self.loadout_preset_toolbutton.setText(_translate("MainWindow", "..."))
         self.label_2.setText(_translate("MainWindow", "Bot Level:"))
         self.label_5.setText(_translate("MainWindow", "Agent:"))
         self.agent_toolbutton.setText(_translate("MainWindow", "..."))
