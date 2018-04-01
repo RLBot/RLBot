@@ -1,7 +1,8 @@
 import configparser
 
 from RLBotFramework.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header
-from RLBotFramework.parsing.match_settings_config_parser import add_mutator_header
+from RLBotFramework.parsing.match_settings_config_parser import add_mutator_header, get_num_players, \
+    add_match_settings_header, parse_match_settings
 from RLBotFramework.parsing.custom_config import ConfigObject
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures.start_match_structures import get_player_configuration_list
@@ -9,7 +10,6 @@ from RLBotFramework.utils.structures.start_match_structures import get_player_co
 
 TEAM_CONFIGURATION_HEADER = "Team Configuration"
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
-PARTICIPANT_COUNT_KEY = 'num_participants'
 EXTENSION_PATH_KEY = 'extension_path'
 
 logger = get_logger('rlbot')
@@ -18,8 +18,6 @@ logger = get_logger('rlbot')
 def create_bot_config_layout():
     config_object = ConfigObject()
     rlbot_header = config_object.add_header_name(RLBOT_CONFIGURATION_HEADER)
-    rlbot_header.add_value('num_participants', int, default=2,
-                           description='Number of bots/players which will be spawned.  We support up to max 10.')
     rlbot_header.add_value(EXTENSION_PATH_KEY, str, default=None,
                            description='A path to the extension file we want to load')
 
@@ -32,16 +30,10 @@ def create_bot_config_layout():
                           description="Changes Blue team color, use 0 to use default color")
     team_header.add_value("Team Orange Name", str, default="Blue",
                           description="Changes the Team name to use instead of 'Orange'")
+    add_match_settings_header(config_object)
     add_mutator_header(config_object)
     add_participant_header(config_object)
     return config_object
-
-
-def get_num_players(config):
-    """
-    Returns the number of players specified by the config parser
-    """
-    return config.getint(RLBOT_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
 def parse_configurations(start_match_configuration, config_parser, config_bundle_overrides, looks_configs):
@@ -51,6 +43,8 @@ def parse_configurations(start_match_configuration, config_parser, config_bundle
 
     # Determine number of participants
     num_participants = get_num_players(config_parser)
+
+    parse_match_settings(start_match_configuration, config_parser)
 
     # Retrieve bot config files
     config_bundles = get_bot_config_bundles(num_participants, config_parser, config_bundle_overrides)

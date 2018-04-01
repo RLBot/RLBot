@@ -121,9 +121,15 @@ def get_bot_options(bot_type):
     elif bot_type == 'psyonix':
         is_bot = True
         is_rlbot = False
-    elif bot_type == 'possessed_human':
-        is_bot = False
+    elif bot_type == 'human_bot':
+        # this is an rlbot but a very specific rlbot
+        is_bot = True
         is_rlbot = True
+    elif bot_type == 'bot_human':
+        # this is a bot running under a human
+        
+        is_rlbot = True
+        is_bot = False
     else:
         raise ValueError('participant_type value is not "human", "rlbot", "psyonix", or "possessed_human"')
 
