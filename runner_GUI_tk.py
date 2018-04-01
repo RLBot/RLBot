@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-from RLBotFramework.gui import match_settings_frame
+from RLBotFramework.gui import match_settings_frame_tk
 from RLBotFramework.gui.team_frames.team_frame_notebook import NotebookTeamFrame
 from RLBotFramework.gui.team_frames.base_team_frame_tk import BaseTeamFrame
 from RLBotFramework.gui.agent_frames.agent_frame_tk import AgentFrame
@@ -36,7 +36,7 @@ class RunnerGUI(tk.Frame):
         self.latest_save_path = self.gui_config.get("GUI Configuration", "latest_save_path")
         self.load_cfg(self.latest_save_path)
         self.load_team_frames()
-        self.match_settings = match_settings_frame.SettingsFrame(self.parent)
+        self.match_settings = match_settings_frame_tk.SettingsFrame(self.parent)
 
         # Make sure to ask to save before quitting
         parent.wm_protocol("WM_DELETE_WINDOW", lambda: self.quit_save_popup())

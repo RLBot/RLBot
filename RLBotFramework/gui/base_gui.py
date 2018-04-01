@@ -2,6 +2,8 @@ from RLBotFramework.utils.rlbot_config_parser import get_num_players, get_team
 from RLBotFramework.utils.custom_config import ConfigObject
 from RLBotFramework.gui.index_manager import IndexManager
 from RLBotFramework.gui.base_gui_agent import BaseGuiAgent
+from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout
+
 
 class BaseGui:
     overall_config = None
@@ -13,31 +15,40 @@ class BaseGui:
 
     def __init__(self, overall_config=None):
         self.overall_config = overall_config
+        self.agent_class.overall_config = overall_config
 
         self.index_manager = self.index_manager(10)
 
         self.gui_config = self.create_gui_config()
+        self.latest_save_path = self.gui_config.get("GUI Configuration", "latest_save_path")
+        self.load_cfg(self.latest_save_path)
 
-    def initialize_team_frame(self):
-        if self.overall_config is not None:
-            self.load_agents()
-        else:
-            self.add_agent()
+        self.agents = []
+        self.load_agents()
+        print(self.agents)
+
+    def load_cfg(self, config_path, teams=False, match_settings=False):
+        if self.overall_config is None:
+            self.overall_config = create_bot_config_layout()
+        self.overall_config.parse_file(config_path, 10)
+        if teams:
+            self.index_manager.numbers = set()
+            self.team1.load_agents(self.overall_config)
+            self.team2.load_agents(self.overall_config)
+        if match_settings:
+            self.match_settings.load_match_settings(self.overall_config)
+        self.agent_class.overall_config = self.overall_config
 
     def load_agents(self, config_file=None):
         """
         Loads all agents for this team from the rlbot.cfg
         :param config_file:  A config file that is similar to rlbot.cfg
         """
-        self.force_remove_agents()
         if config_file is not None:
             self.overall_config = config_file
         num_participants = get_num_players(self.overall_config)
         for i in range(num_participants):
-            # TODO: Fix whatever this is. What is team_index?
-            team_index = get_team(self.overall_config, i)
-            if team_index == self.team_index:
-                self.add_agent(overall_index=i)
+            self.add_agent(overall_index=i)
 
     def add_agent(self, overall_index=None):
         """
@@ -49,7 +60,7 @@ class BaseGui:
         if overall_index is None:
             overall_index = self.index_manager.get_new_index()
         else:
-            self.index_manager.mark_used(overall_index)
+            self.index_manager.use_index(overall_index)
         agent = self.agent_class(overall_index)
         self._add_agent(agent)
         self.agents.append(agent)
