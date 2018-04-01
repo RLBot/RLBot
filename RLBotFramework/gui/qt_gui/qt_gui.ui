@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>687</width>
-    <height>546</height>
+    <height>566</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,11 +55,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QListWidget" name="blue_listwidget">
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-           </widget>
+           <widget class="QListWidget" name="blue_listwidget"/>
           </item>
          </layout>
         </widget>
@@ -83,14 +79,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QListWidget" name="orange_listwidget">
-            <property name="selectionMode">
-             <enum>QAbstractItemView::ExtendedSelection</enum>
-            </property>
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-           </widget>
+           <widget class="QListWidget" name="orange_listwidget"/>
           </item>
          </layout>
         </widget>
@@ -137,6 +126,26 @@
                <property name="toolTip">
                 <string>Select bot</string>
                </property>
+               <item>
+                <property name="text">
+                 <string>RLBot</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Psyonix</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Human</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Possessed Human</string>
+                </property>
+               </item>
               </widget>
              </item>
             </layout>
@@ -252,6 +261,9 @@
                </property>
               </widget>
              </item>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="loadout_preset_combobox"/>
+             </item>
              <item row="1" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
@@ -259,8 +271,8 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
-              <widget class="QComboBox" name="loadout_preset_combobox"/>
+             <item row="0" column="1" colspan="2">
+              <widget class="QLineEdit" name="ign_lineedit"/>
              </item>
              <item row="1" column="2">
               <widget class="QToolButton" name="loadout_preset_toolbutton">
@@ -269,25 +281,31 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QLineEdit" name="ign_lineedit"/>
-             </item>
             </layout>
            </widget>
           </item>
           <item>
-           <widget class="Line" name="line_2">
+           <widget class="Line" name="extra_line">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="psyonix_bot_frame">
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
+           <widget class="QFrame" name="rlbot_frame">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,5">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2,1">
              <property name="leftMargin">
               <number>0</number>
              </property>
@@ -303,16 +321,54 @@
              <item>
               <widget class="QLabel" name="label_2">
                <property name="text">
+                <string>Agent Preset:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="agent_preset_combobox"/>
+             </item>
+             <item>
+              <widget class="QToolButton" name="agent_preset_toolbutton">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_4">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,5">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="text">
                 <string>Bot Level:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QSlider" name="bot_level_slider">
+              <widget class="QSlider" name="horizontalSlider">
                <property name="maximum">
-                <number>100</number>
-               </property>
-               <property name="value">
                 <number>100</number>
                </property>
                <property name="orientation">
@@ -330,52 +386,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="agent_bot_frame">
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,2,1">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>Agent:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="agent_lineedit"/>
-             </item>
-             <item row="0" column="2">
-              <widget class="QToolButton" name="agent_toolbutton">
-               <property name="text">
-                <string>...</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="3">
-              <widget class="QCheckBox" name="agent_flip_turning_checkbox">
-               <property name="text">
-                <string>flip_turning</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line_3">
+           <widget class="Line" name="line_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -408,7 +419,14 @@
              <item>
               <widget class="QPushButton" name="add_bot_pushbutton">
                <property name="text">
-                <string>Add bot</string>
+                <string>Add Bot</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_2">
+               <property name="text">
+                <string>Save Bot</string>
                </property>
               </widget>
              </item>
