@@ -16,9 +16,33 @@ MUTATOR_GRAVITY = "Gravity"
 MUTATOR_DEMOLISH = "Demolish"
 MUTATOR_RESPAWN_TIME = "Respawn Time"
 
+
+MATCH_CONFIGURATION_HEADER = 'Match Configuration'
+PARTICIPANT_COUNT_KEY = 'num_participants'
+GAME_MODE = 'game_mode'
+GAME_MAP = 'game_map'
+SKIP_REPLAYS = 'skip_replays'
+INSTANT_START = 'start_without_countdown'
+
+
+def add_match_settings_header(config_object):
+    match_header = config_object.add_header_name(MATCH_CONFIGURATION_HEADER)
+    match_header.add_value(PARTICIPANT_COUNT_KEY, int, default=2,
+                           description='Number of bots/players which will be spawned.  We support up to max 10.')
+    match_header.add_value(GAME_MODE, int, default=0,
+                           description="""What game mode the game should load.
+                           Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble" """)
+    match_header.add_value(GAME_MAP, int, default=1,
+                           description="""What game mode the game should load into. Too many to list.""")
+    match_header.add_value(SKIP_REPLAYS, bool, default=False,
+                           description="""If replays should automatically be skipped.""")
+    match_header.add_value(INSTANT_START, bool, default=False,
+                           description="""True if the kickoff countdown should be skipped.""")
+
+
 def add_mutator_header(config_object):
     mutator_header = config_object.add_header_name(MUTATOR_CONFIGURATION_HEADER)
-    mutator_header.add_value(MUTATOR_MATCH_LENGTH, int, default=5,
+    mutator_header.add_value(MUTATOR_MATCH_LENGTH, int, default=1,
                              description="Changes the length of the match, 0 for unlimited")
     mutator_header.add_value(MUTATOR_MAX_SCORE, int, default=0,
                              description="Changes the number of goals needed to win, 0 for unlimited")
@@ -54,3 +78,44 @@ def add_mutator_header(config_object):
     mutator_header.add_value(MUTATOR_RESPAWN_TIME, float, default=3,
                              description="Time in seconds taken to respawn for demolished players\n"
                                          "use -1 to set Disable Goal Reset")
+
+
+def get_num_players(config):
+    """
+    Returns the number of players specified by the config parser
+    """
+    return config.getint(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
+
+
+def parse_mutator_settings(mutator_settings, config):
+    """
+    Assigns the mutator settings to the settings object for the dll
+    :param mutator_settings:
+    :param config:
+    """
+    mutator_settings.match_length = config.getint(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH)
+
+    boost_options = {
+        "Default": 0,
+        "Unlimied": 1,
+        "Recharge (Slow)": 2,
+        "Recharge (Fast)": 3,
+        "No Boost": 4
+    }
+    mutator_settings.boost_options = boost_options[config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT)]
+
+
+def parse_match_settings(match_settings, config):
+    """
+    Parses the matching settings modifying the match settings object.
+    :param match_settings:
+    :param config:
+    :return:
+    """
+
+    match_settings.game_mode = config.getint(MATCH_CONFIGURATION_HEADER, GAME_MODE)
+    match_settings.game_map = config.getint(MATCH_CONFIGURATION_HEADER, GAME_MAP)
+    match_settings.skip_replays = config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS)
+    match_settings.instant_start = config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START)
+
+    parse_mutator_settings(match_settings.mutator_settings, config)
