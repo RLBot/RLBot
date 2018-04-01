@@ -1,3 +1,4 @@
+import os
 import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 
@@ -36,7 +37,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
     def get_agent_options(self):
         # populate dropdown
-        pass
+        print(os.path.dirname(__file__))
+        agents_folder = os.path.join()
 
     def update_teams_listwidgets(self):
         self.blue_bots = []
