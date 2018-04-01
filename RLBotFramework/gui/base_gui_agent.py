@@ -70,7 +70,7 @@ class BaseGuiAgent:
         pass
 
     def __repr__(self):
-        return 'BaseGuiAgent (%s, %s)' % (self.agent_class.__name__, self.overall_index)
+        return '%s (%s, %s)' % (self.__class__.__name__, self.agent_class.__name__, self.overall_index)
 
     def __str__(self):
         return '%s (%s)' % (self.agent_class.__name__, self.overall_index)
