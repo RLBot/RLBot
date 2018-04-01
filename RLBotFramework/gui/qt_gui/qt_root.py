@@ -21,6 +21,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         super().__init__()
         BaseGui.__init__(self)
         self.setupUi(self)
+
+        # THIS IS VERY HACKY.
+        # reimplmented the dropEvent of these listwidgets to update the lists behind the scenes.
         self.blue_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.blue_listwidget, event)
         self.orange_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.orange_listwidget, event)
 
@@ -45,10 +48,15 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         dragged_listwidget = event.source()
         if dragged_listwidget is dropped_listwidget:
             return
+        # event.pos doesnt really help as it gives the position where the drop occurred
+        # (and the item usually moves up afterward)
         # print("test guess dropped bot", dropped_listwidget.itemAt(event.pos()))
+
         current_blue_items = [self.blue_listwidget.item(i).text() for i in range(self.blue_listwidget.count())]
         current_orange_items = [self.orange_listwidget.item(i).text() for i in range(self.orange_listwidget.count())]
-        print(current_blue_items, current_orange_items)
+
+        # # Note how the dragged bot appears in both lists:
+        # print(current_blue_items, current_orange_items)
 
         dragged_bot_name = None
         for _bot_name in current_blue_items:
@@ -58,6 +66,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         print("Found dragged bot: %s. Bot placed in %s" % (dragged_bot_name, dropped_listwidget.objectName()))
         dragged_bot = self.bot_names_to_agent_dict[dragged_bot_name]
         print(dragged_bot)
+
         # update agent team
         if dropped_listwidget is self.blue_listwidget:
             # TODO: Create the agent set_team stuff.
