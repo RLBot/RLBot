@@ -21,16 +21,51 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         BaseGui.__init__(self)
         self.setupUi(self)
         self.car_customisation = CarCustomisation()
+
         self.connect_functions()
+
+        self.get_agent_options()
         self.update_teams_listwidgets()
+
+
 
     def connect_functions(self):
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
+        self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
+        self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
 
+    def get_agent_options(self):
+        # populate dropdown
+        pass
 
     def update_teams_listwidgets(self):
+        self.blue_bots = []
+        self.orange_bots = []
+        self.blue_bot_names = []
+        self.orange_bot_names = []
         for agent in self.agents:
-            print(agent.get_team_is_blue())
+            if agent.get_team_is_blue():
+                self.blue_bots.append(agent)
+                self.blue_bot_names.append(agent.__str__())
+            else:
+                self.orange_bots.append(agent)
+                self.orange_bot_names.append(agent.__str__())
+
+        self.blue_listwidget.clear()
+        self.blue_listwidget.addItems(self.blue_bot_names)
+        self.orange_listwidget.clear()
+        self.orange_listwidget.addItems(self.orange_bot_names)
+
+
+    def load_selected_bot(self):
+        # deselect the other listbox
+        if self.sender() is self.blue_listwidget:
+            self.orange_listwidget.clearSelection()
+        elif self.sender() is self.orange_listwidget:
+            self.blue_listwidget.clearSelection()
+
+
+
 
     @staticmethod
     def main():

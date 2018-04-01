@@ -73,6 +73,9 @@ class BaseGuiAgent:
     def __repr__(self):
         return 'BaseGuiAgent (%s, %s)' % (self.agent_class.__name__, self.overall_index)
 
+    def __str__(self):
+        return '%s (%s)' % (self.agent_class.__name__, self.overall_index)
+
     def get_agent_config_path(self):
         return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
                                                         PARTICIPANT_CONFIG_KEY, self.overall_index))

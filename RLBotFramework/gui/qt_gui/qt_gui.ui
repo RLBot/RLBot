@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>627</width>
-    <height>360</height>
+    <width>629</width>
+    <height>342</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,11 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QListWidget" name="blue_listwidget"/>
+        <widget class="QListWidget" name="blue_listwidget">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -58,7 +62,14 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QListWidget" name="orange_listwidget"/>
+        <widget class="QListWidget" name="orange_listwidget">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -393,7 +404,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>627</width>
+     <width>629</width>
      <height>21</height>
     </rect>
    </property>
