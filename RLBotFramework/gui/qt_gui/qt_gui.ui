@@ -117,18 +117,21 @@
              <item>
               <widget class="QLabel" name="label">
                <property name="text">
-                <string>Bot:</string>
+                <string>Bot Type:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="bot_combobox">
+              <widget class="QComboBox" name="bot_type_combobox">
                <property name="toolTip">
                 <string>Select bot</string>
                </property>
+               <property name="currentIndex">
+                <number>2</number>
+               </property>
                <item>
                 <property name="text">
-                 <string>RLBot</string>
+                 <string>Human</string>
                 </property>
                </item>
                <item>
@@ -138,7 +141,7 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Human</string>
+                 <string>RLBot</string>
                 </property>
                </item>
                <item>
@@ -339,7 +342,13 @@
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="frame_4">
+           <widget class="QFrame" name="psyonix_bot_frame">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
