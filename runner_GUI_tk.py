@@ -8,8 +8,8 @@ from RLBotFramework.gui.team_frames.base_team_frame_tk import BaseTeamFrame
 from RLBotFramework.gui.agent_frames.agent_frame_tk import AgentFrame
 from RLBotFramework.gui.utils import get_file, IndexManager
 from RLBotFramework.setup_manager import SetupManager
-from RLBotFramework.utils.custom_config import ConfigObject
-from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout
+from RLBotFramework.parsing.custom_config import ConfigObject
+from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout
 
 team_frame_types = {BaseTeamFrame: "default", "default": BaseTeamFrame,
                     NotebookTeamFrame: "notebook", "notebook": NotebookTeamFrame}

@@ -15,6 +15,8 @@ def get_logger(logger_name, log_creation=True):
         logging.getLogger().setLevel(logging_level)
         logger_initialized = True
     logger = logging.getLogger(logger_name)
+    if logger_name == DEFAULT_LOGGER:
+        return logger
     logger.setLevel(logging_level)
     if log_creation:
         curframe = inspect.currentframe()
