@@ -1,4 +1,4 @@
-from RLBotFramework.utils.custom_config import ConfigObject, ConfigHeader
+from RLBotFramework.parsing.custom_config import ConfigObject, ConfigHeader
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures.quick_chats import QuickChats
 

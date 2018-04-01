@@ -1,7 +1,6 @@
 from RLBotFramework.setup_manager import SetupManager
 import configparser
-from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout
-from RLBotFramework.grpcsupport.protobuf import game_data_pb2
+from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout
 from RLBotFramework.utils.logging_utils import log
 from integration_test.history import HistoryIO
 import multiprocessing

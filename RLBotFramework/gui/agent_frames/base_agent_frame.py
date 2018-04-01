@@ -4,7 +4,7 @@ from tkinter import ttk
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
 from RLBotFramework.utils.class_importer import import_agent
-from RLBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
+from RLBotFramework.parsing.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
     PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY, get_bot_config_bundle, BotConfigBundle
 
 

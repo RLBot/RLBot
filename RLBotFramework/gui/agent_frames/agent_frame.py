@@ -5,10 +5,10 @@ import webbrowser
 
 from RLBotFramework.gui.agent_frames.base_agent_frame import BaseAgentFrame
 from RLBotFramework.gui.utils import get_file
-from RLBotFramework.agents.base_agent import BaseAgent, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_CONFIG_MODULE_HEADER, \
+from RLBotFramework.agents.base_agent import PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_CONFIG_MODULE_HEADER, \
     BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER
 from RLBotFramework.utils.class_importer import import_agent, get_base_repo_path
-from RLBotFramework.utils.rlbot_config_parser import get_bot_config_bundle, PARTICIPANT_CONFIGURATION_HEADER, \
+from RLBotFramework.parsing.rlbot_config_parser import get_bot_config_bundle, PARTICIPANT_CONFIGURATION_HEADER, \
     PARTICIPANT_BOT_KEY, PARTICIPANT_TEAM, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY
 
 

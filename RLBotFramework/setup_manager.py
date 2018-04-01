@@ -10,7 +10,7 @@ from RLBotFramework.base_extension import BaseExtension
 from RLBotFramework.utils.class_importer import import_class_with_base, import_agent
 from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from RLBotFramework.utils.process_configuration import configure_processes
-from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
+from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChatManager
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
