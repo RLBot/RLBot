@@ -2,9 +2,9 @@ import os
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
 from RLBotFramework.utils.class_importer import import_agent
-from RLBotFramework.utils.rlbot_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
-    PARTICIPANT_BOT_KEY, PARTICIPANT_RLBOT_KEY, PARTICIPANT_BOT_SKILL_KEY, get_bot_config_bundle, BotConfigBundle
-from RLBotFramework.utils.rlbot_config_parser import get_team
+from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
+    PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, get_bot_config_bundle, BotConfigBundle
+
 
 class BaseGuiAgent:
     config_object = None  # The config that is
@@ -52,7 +52,6 @@ class BaseGuiAgent:
         self.load_agent_configs()
         self.load_fields_from_config()
 
-
     # TODO: The below 3 functions need  to be updated (i think a get_agent_config that returns a dict would be good)
     def write_fields_to_config(self):
         pass
@@ -71,7 +70,7 @@ class BaseGuiAgent:
         pass
 
     def __repr__(self):
-        return 'BaseGuiAgent (%s, %s)' % (self.agent_class.__name__, self.overall_index)
+        return '%s (%s, %s)' % (self.__class__.__name__, self.agent_class.__name__, self.overall_index)
 
     def __str__(self):
         return '%s (%s)' % (self.agent_class.__name__, self.overall_index)
@@ -84,21 +83,12 @@ class BaseGuiAgent:
         self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,
                                       config_path, self.overall_index)
 
-    def is_participant_bot(self):
-        return self.overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY,
-                                              self.overall_index)
+    def get_participant_type(self):
+        return self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, self.overall_index)
 
-    def set_is_participant_bot(self, is_bot):
-        return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_KEY,
-                                             is_bot, self.overall_index)
-
-    def is_participant_custom_bot(self):
-        return self.overall_config.getboolean(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY,
-                                              self.overall_index)
-
-    def set_is_participant_custom_bot(self, is_rlbot):
-        return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_RLBOT_KEY,
-                                             is_rlbot, self.overall_index)
+    def set_participant_type(self, participant_type):
+        return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY,
+                                             participant_type, self.overall_index)
 
     def get_bot_skill(self):
         return self.overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
@@ -109,6 +99,6 @@ class BaseGuiAgent:
                                              bot_skill, self.overall_index)
 
     def get_team_is_blue(self):
-        print(self.overall_index)
-        team_index = get_team(self.overall_config, self.overall_index)
+        team_index = self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM,
+                                                self.overall_index)
         return team_index == 0

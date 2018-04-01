@@ -1,8 +1,8 @@
-from RLBotFramework.utils.rlbot_config_parser import get_num_players, get_team
-from RLBotFramework.utils.custom_config import ConfigObject
+# from RLBotFramework.parsing.agent_config_parser import get_team
+from RLBotFramework.parsing.custom_config import ConfigObject
 from RLBotFramework.gui.index_manager import IndexManager
 from RLBotFramework.gui.base_gui_agent import BaseGuiAgent
-from RLBotFramework.utils.rlbot_config_parser import create_bot_config_layout
+from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout, get_num_players
 
 
 class BaseGui:
@@ -25,7 +25,6 @@ class BaseGui:
 
         self.agents = []
         self.load_agents()
-        print(self.agents)
 
     def load_cfg(self, config_path, teams=False, match_settings=False):
         if self.overall_config is None:
