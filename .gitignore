@@ -58,7 +58,6 @@ test.cpp
 # nuget packages
 packages/
 
-# generated protobuf files
-Protobuf/generated
-
 *.cpp_backup
+
+!lib/**/*

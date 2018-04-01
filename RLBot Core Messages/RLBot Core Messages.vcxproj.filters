@@ -33,6 +33,12 @@
     <Filter Include="Header Files\MessageDefines">
       <UniqueIdentifier>{37ff75d0-5575-4f59-81c9-ef0bb22721fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Protobuf">
+      <UniqueIdentifier>{10365943-e60e-436e-975a-757a947c2d15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Protobuf">
+      <UniqueIdentifier>{54a19714-57d6-493b-8bfe-82bc3ea29b05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Messages.hpp">
@@ -74,6 +80,12 @@
     <ClInclude Include="PacketStructs\MatchSettings.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
+    <ClInclude Include="CapnProto\capnproto.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CapnProto\game_data.capnp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MessageStructs\Message.cpp">
@@ -82,5 +94,13 @@
     <ClCompile Include="FileMappings\FileMappings.cpp">
       <Filter>Source Files\FileMappings</Filter>
     </ClCompile>
+    <ClCompile Include="CapnProto\capnproto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CapnProto\game_data.proto" />
+    <None Include="CapnProto\game_data.capnp" />
+    <None Include="CapnProto\game_data.capnp.cpp" />
   </ItemGroup>
 </Project>

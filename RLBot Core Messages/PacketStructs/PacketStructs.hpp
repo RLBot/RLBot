@@ -35,6 +35,12 @@ struct PlayerInput
 	bool					Handbrake;
 };
 
+struct IndexedPlayerInput
+{
+	int Index;
+	PlayerInput PlayerInput;
+};
+
 //ToDo: Any locking needed here?
 template <unsigned int size>
 class MessageStorageIterator
