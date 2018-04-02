@@ -9,7 +9,7 @@ from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
 from RLBotFramework.gui.qt_gui.car_customisation import Ui_Form
 
 
-class CarCustomisation(QtWidgets.QDialog, Ui_Form):
+class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -23,7 +23,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.setupUi(self)
 
         # THIS IS VERY HACKY.
-        # reimplmented the dropEvent of these listwidgets to update the lists behind the scenes.
+        # reimplemented the dropEvent of these listwidgets to update the lists behind the scenes.
         self.blue_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.blue_listwidget, event)
         self.orange_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.orange_listwidget, event)
 
@@ -32,8 +32,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.blue_bot_names = []
         self.orange_bot_names = []
         self.bot_names_to_agent_dict = {}
+        self.current_bot = None
 
-        self.car_customisation = CarCustomisation()
+        self.car_customisation = CarCustomisationDialog()
 
         self.update_bot_type_combobox()
 
@@ -42,12 +43,22 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.get_agent_options()
         self.update_teams_listwidgets()
 
+        self.statusbar.showMessage("Saved CFG.")
+        print(self.cfg_file_path_lineedit.text(), type(self.cfg_file_path_lineedit.text()))
+        # self.lineEdit.setText("asfasfasfasf *")
+        # myFont = QtGui.QFont()
+        # myFont.setItalic(True)
+        # self.lineEdit.setFont(myFont)
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
-        QtWidgets.QListWidget.dropEvent(dropped_listwidget, event)
         dragged_listwidget = event.source()
         if dragged_listwidget is dropped_listwidget:
+            # do not do dropping into same listwidget.
             return
+        print('dropping')
+        QtWidgets.QListWidget.dropEvent(dropped_listwidget, event)
+        print('dropped')
+
         # event.pos doesnt really help as it gives the position where the drop occurred
         # (and the item usually moves up afterward)
         # print("test guess dropped bot", dropped_listwidget.itemAt(event.pos()))
@@ -69,12 +80,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         # update agent team
         if dropped_listwidget is self.blue_listwidget:
-            # TODO: Create the agent set_team stuff.
-            # dragged_bot.set_team(0)
-            pass
+            dragged_bot.set_team(0)
         else:
-            # dragged_bot.set_team(1)
-            pass
+            dragged_bot.set_team(1)
         # update self.blue_bots, self.blue_bot_names and for orange.
 
         # update all lists according to listwidget. to allow for insertion at any position.
@@ -116,27 +124,24 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 _bot_name = self.blue_listwidget.item(i).text()
                 _bot_agent = self.bot_names_to_agent_dict[_bot_name]
                 if _bot_agent is not dragged_bot:
-
                     self.blue_bot_names.append(_bot_name)
                     self.blue_bots.append(_bot_agent)
-        print('asfsafsfhihihi')
-
-        # for i in range(self.orange_listwidget.count()):
-        #     print('orange', self.orange_listwidget.item(i).text())
-        # for i in range(self.blue_listwidget.count()):
-        #     print('blue', self.blue_listwidget.item(i).text())
-        # self.orange_listwidget.clearSelection()
-        # self.blue_listwidget.clearSelection()
-        # print(event)
-
-        # update self.blue_bots and self.
 
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
-        # self.blue_listwidget.keyPressEvent.connect(self.keypress_on_teams_listwidgets)
+        self.cfg_file_path_lineedit.textEdited.connect(self.textstuff)
+
+        self.blue_plus_toolbutton.clicked.connect(self.gui_add_bot)
+        self.orange_plus_toolbutton.clicked.connect(self.gui_add_bot)
+
+        self.blue_minus_toolbutton.clicked.connect(self.gui_remove_bot)
+        self.orange_minus_toolbutton.clicked.connect(self.gui_remove_bot)
+
+    def textstuff(self):
+        print(self.sender())
 
     def update_bot_type_combobox(self):
         if self.bot_type_combobox.currentText() == 'RLBot':
@@ -156,11 +161,20 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
 
-
     def get_agent_options(self):
         # populate dropdown
         print(os.path.dirname(__file__))
         # agents_folder = os.path.join()
+
+    def enable_disable_on_bot_select_deselect(self):
+        # if no bot selected, disable botconfig groupbox and minus buttons
+        if not self.blue_listwidget.selectedItems() and not self.orange_listwidget.selectedItems():
+            self.bot_config_groupbox.setDisabled(True)
+            self.blue_minus_toolbutton.setDisabled(True)
+            self.orange_minus_toolbutton.setDisabled(True)
+            return
+        else:
+            self.bot_config_groupbox.setDisabled(False)
 
     def update_teams_listwidgets(self):
         self.blue_bots = []
@@ -181,37 +195,42 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.orange_listwidget.clear()
         self.orange_listwidget.addItems(self.orange_bot_names)
 
-    def keypress_on_teams_listwidgets(self):
-        print(self.sender())
+        self.enable_disable_on_bot_select_deselect()
+
+        # if max bot count reached: disable + button
+        if not self.index_manager.has_free_slots():
+            self.blue_plus_toolbutton.setDisabled(True)
+            self.orange_plus_toolbutton.setDisabled(True)
+        else:
+            self.blue_plus_toolbutton.setDisabled(False)
+            self.orange_plus_toolbutton.setDisabled(False)
 
     def load_selected_bot(self):
         # prevent proccing from itself (clearing the other one procs this)
         if not self.sender().selectedItems():
             return
         # deselect the other listbox
+        agent = self.get_selected_bot(self.sender())
+        if agent is None:
+            return
+        if self.current_bot == agent:
+            return
+        else:
+            self.current_bot = agent
+
+        # enable/disable bot config (and maybe [+])
+        self.enable_disable_on_bot_select_deselect()
+        # enable [-] for right listwidget
         if self.sender() is self.blue_listwidget:
-            self.orange_listwidget.clearSelection()
-            agent_name = self.blue_listwidget.currentItem().text()
-            agent_i = self.blue_listwidget.currentRow()
-            try:
-                agent = self.blue_bots[agent_i]
-            except IndexError:
-                import traceback
-                traceback.print_exc()
-                return
+            self.blue_minus_toolbutton.setDisabled(False)
+            self.orange_minus_toolbutton.setDisabled(True)
         elif self.sender() is self.orange_listwidget:
-            self.blue_listwidget.clearSelection()
-            agent_name = self.orange_listwidget.currentItem().text()
-            agent_i = self.orange_listwidget.currentRow()
-            try:
-                agent = self.orange_bots[agent_i]
-            except IndexError:
-                import traceback
-                traceback.print_exc()
-                return
+            self.orange_minus_toolbutton.setDisabled(False)
+            self.blue_minus_toolbutton.setDisabled(True)
+
         # load bot config
         agent_type = agent.get_participant_type()
-        print('Selected Agent:', agent, agent_name, agent_type)
+        print('Selected Agent: %s\t\t(Type: %s)' % (agent, agent_type))
 
         known_types = ['human', 'psyonix', 'rlbot', 'possessed_human']
 
@@ -221,9 +240,62 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.blue_radiobutton.setChecked(True)
         else:
             self.orange_radiobutton.setChecked(True)
-        self.ign_lineedit.setText(agent_name)
+        self.ign_lineedit.setText(str(agent))
 
 
+        self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
+
+    def get_selected_bot(self, sender: QtWidgets.QListWidget, print_err=False):
+        if sender is self.blue_listwidget:
+            bots_list = self.blue_bots
+            self.orange_listwidget.clearSelection()
+        elif sender is self.orange_listwidget:
+            bots_list = self.orange_bots
+            self.blue_listwidget.clearSelection()
+
+        # agent_name = sender.currentItem().text()
+        agent_i = sender.currentRow()
+        try:
+            agent = bots_list[agent_i]
+        except IndexError:
+            if print_err:
+                print("\nI am printing this error manually. It can be hidden easily:")
+                import traceback
+                traceback.print_exc()
+            return
+        # for _i in range(sender.count()):
+        #     if _i != agent_i:
+        #         sender.item(_i).setSelected(False)
+
+        return agent
+
+
+    def gui_add_bot(self):
+        if self.sender() is self.blue_plus_toolbutton:
+            team_index = 0
+        elif self.sender() is self.orange_plus_toolbutton:
+            team_index = 1
+
+        agent = self.add_agent(team_index=team_index)
+        # print(len(self.agents))
+        self.update_teams_listwidgets()
+        self.statusbar.showMessage('Added bot: %s.' % agent, 5000)
+
+    def gui_remove_bot(self):
+        if self.sender() is self.blue_minus_toolbutton:
+            team_index = 0
+            bot_stuff = self.get_selected_bot(self.blue_listwidget)
+            listwidget = self.blue_listwidget
+        elif self.sender() is self.orange_minus_toolbutton:
+            team_index = 1
+            bot_stuff = self.get_selected_bot(self.orange_listwidget)
+            listwidget = self.orange_listwidget
+        print("Deleting bot from %s" % listwidget.objectName())
+        agent = self.get_selected_bot(listwidget)
+        self.remove_agent(agent)
+
+        self.update_teams_listwidgets()
+        self.statusbar.showMessage('Deleted bot: %s.' % agent, 5000)
 
 
     @staticmethod
@@ -233,6 +305,3 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         window.show()
         app.exec_()
 
-
-    def _add_agent(self, agent):
-        pass
