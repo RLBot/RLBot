@@ -132,7 +132,8 @@ def get_bot_options(bot_type):
         is_rlbot = True
         is_bot = False
     else:
-        raise ValueError('participant_type value is not "human", "rlbot", "psyonix", or "possessed_human"')
+        raise ValueError('participant_type value is not "human", "rlbot", "psyonix", ' +
+                         '"party_member_bot", or "controller_passthrough"')
 
     return is_bot, is_rlbot
 
