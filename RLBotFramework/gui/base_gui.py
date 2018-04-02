@@ -6,6 +6,10 @@ from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout,
 
 
 class BaseGui:
+    """
+    Handles GUI functions that should be shared across all GUIs, such as:
+        index_manager, overall_config, add_agent/remove_agent (with index_manager handled)
+    """
     overall_config = None
     agents_frame = None
     add_agent_object = None
@@ -49,10 +53,11 @@ class BaseGui:
         for i in range(num_participants):
             self.add_agent(overall_index=i)
 
-    def add_agent(self, overall_index=None):
+    def add_agent(self, overall_index=None, team_index=None):
         """
         Creates the agent using self.agent_class and adds it to the index manager.
         :param overall_index: The index of the bot in the config file if it already exists.
+        :return agent:
         """
         if not self.index_manager.has_free_slots():
             return
@@ -60,17 +65,11 @@ class BaseGui:
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.use_index(overall_index)
-        agent = self.agent_class(overall_index)
-        self._add_agent(agent)
+        agent = self.agent_class(overall_index=overall_index, team_i=team_index)
         self.agents.append(agent)
 
-    def _add_agent(self, agent):
-        """
-        Called by BaseGui subclasses to handle agent creation in GUI.
-        :param agent:
-        :return:
-        """
-        raise NotImplementedError('Subclasses of BaseGui must override this.')
+        return agent
+
 
     def remove_agent(self, agent):
         """
