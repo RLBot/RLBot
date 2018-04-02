@@ -34,7 +34,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict = {}
 
         self.car_customisation = CarCustomisation()
-        self.combobo
 
         self.update_bot_type_combobox()
 
