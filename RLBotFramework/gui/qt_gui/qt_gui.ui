@@ -6,15 +6,65 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>687</width>
-    <height>566</height>
+    <width>733</width>
+    <height>551</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>RLBot</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,1">
+   <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,1,1">
+    <item>
+     <widget class="QGroupBox" name="groupBox_5">
+      <property name="title">
+       <string>Overall Config</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_9">
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>CFG File Path:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="cfg_file_path_lineedit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cfg_load_pushbutton">
+         <property name="text">
+          <string>Load</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cfg_save_pushbutton">
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cfg_autosave_checkbox">
+         <property name="text">
+          <string>Autosave</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
     <item>
      <widget class="QFrame" name="frame_3">
       <property name="frameShape">
@@ -179,6 +229,9 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox_3">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="title">
           <string>Bot Config</string>
          </property>
@@ -337,7 +390,7 @@
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
-            <layout class="QGridLayout" name="gridLayout" columnstretch="1,2,1">
+            <layout class="QGridLayout" name="gridLayout" columnstretch="2,4,1">
              <property name="leftMargin">
               <number>0</number>
              </property>
@@ -371,7 +424,7 @@
               <widget class="QLineEdit" name="ign_lineedit"/>
              </item>
              <item row="1" column="2">
-              <widget class="QToolButton" name="loadout_preset_toolbutton">
+              <widget class="QPushButton" name="loadout_preset_toolbutton">
                <property name="text">
                 <string>...</string>
                </property>
@@ -401,7 +454,7 @@
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2,1">
+            <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,4,1">
              <property name="leftMargin">
               <number>0</number>
              </property>
@@ -425,7 +478,7 @@
               <widget class="QComboBox" name="agent_preset_combobox"/>
              </item>
              <item>
-              <widget class="QToolButton" name="agent_preset_toolbutton">
+              <widget class="QPushButton" name="agent_preset_toolbutton">
                <property name="text">
                 <string>...</string>
                </property>
@@ -488,13 +541,6 @@
            </widget>
           </item>
           <item>
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QFrame" name="button_frame">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -518,13 +564,6 @@
              <property name="bottomMargin">
               <number>0</number>
              </property>
-             <item>
-              <widget class="QPushButton" name="save_bot_pushbutton">
-               <property name="text">
-                <string>Save Bot</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </widget>
           </item>
@@ -630,12 +669,17 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>687</width>
+     <width>733</width>
      <height>21</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoad_CFG">
+   <property name="text">
+    <string>Load CFG</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

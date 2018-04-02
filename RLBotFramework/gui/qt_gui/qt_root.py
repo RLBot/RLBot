@@ -34,6 +34,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict = {}
 
         self.car_customisation = CarCustomisation()
+        self.combobo
 
         self.update_bot_type_combobox()
 
@@ -42,6 +43,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.get_agent_options()
         self.update_teams_listwidgets()
 
+        self.statusbar.showMessage("Saved CFG.")
+        self.lineEdit.setText("asfasfasfasf *")
+        myFont = QtGui.QFont()
+        myFont.setItalic(True)
+        self.lineEdit.setFont(myFont)
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
         QtWidgets.QListWidget.dropEvent(dropped_listwidget, event)

@@ -6,6 +6,10 @@ from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout,
 
 
 class BaseGui:
+    """
+    Handles GUI functions that should be shared across all GUIs, such as:
+        index_manager, overall_config, add_agent/remove_agent (with index_manager handled)
+    """
     overall_config = None
     agents_frame = None
     add_agent_object = None
