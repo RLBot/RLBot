@@ -119,17 +119,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
                     self.blue_bot_names.append(_bot_name)
                     self.blue_bots.append(_bot_agent)
-        print('asfsafsfhihihi')
 
-        # for i in range(self.orange_listwidget.count()):
-        #     print('orange', self.orange_listwidget.item(i).text())
-        # for i in range(self.blue_listwidget.count()):
-        #     print('blue', self.blue_listwidget.item(i).text())
-        # self.orange_listwidget.clearSelection()
-        # self.blue_listwidget.clearSelection()
-        # print(event)
 
-        # update self.blue_bots and self.
 
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
@@ -180,6 +171,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.blue_listwidget.addItems(self.blue_bot_names)
         self.orange_listwidget.clear()
         self.orange_listwidget.addItems(self.orange_bot_names)
+
 
     def keypress_on_teams_listwidgets(self):
         print(self.sender())
