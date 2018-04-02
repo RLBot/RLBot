@@ -42,7 +42,7 @@ def add_participant_header(config_object):
                                              "team 1 (orange) shoots on negative goal")
 
     participant_header.add_value(PARTICIPANT_TYPE_KEY, str, default='rlbot',
-                                 description="""Accepted values are "human", "rlbot", "psyonix", and "possessed_human"
+                                 description="""Accepted values are "human", "rlbot", "psyonix", "party_member_bot", and "controller_passthrough"
                                              You can have up to 4 local players and they must 
                                              be activated in game or it will crash.
                                              If no player is specified you will be spawned in as spectator!
