@@ -55,19 +55,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         if dragged_listwidget is dropped_listwidget:
             # do not do dropping into same listwidget.
             return
-        print('dropping')
         QtWidgets.QListWidget.dropEvent(dropped_listwidget, event)
-        print('dropped')
-
-        # event.pos doesnt really help as it gives the position where the drop occurred
-        # (and the item usually moves up afterward)
-        # print("test guess dropped bot", dropped_listwidget.itemAt(event.pos()))
 
         current_blue_items = [self.blue_listwidget.item(i).text() for i in range(self.blue_listwidget.count())]
         current_orange_items = [self.orange_listwidget.item(i).text() for i in range(self.orange_listwidget.count())]
-
-        # # Note how the dragged bot appears in both lists:
-        # print(current_blue_items, current_orange_items)
 
         dragged_bot_name = None
         for _bot_name in current_blue_items:
@@ -76,18 +67,30 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         assert dragged_bot_name, "Could not find overlap in dragged bot"
         print("Found dragged bot: %s. Bot placed in %s" % (dragged_bot_name, dropped_listwidget.objectName()))
         dragged_bot = self.bot_names_to_agent_dict[dragged_bot_name]
-        print(dragged_bot)
+        self.switch_team_bot(dropped_listwidget == self.orange_listwidget, dragged_bot)
 
-        # update agent team
-        if dropped_listwidget is self.blue_listwidget:
-            dragged_bot.set_team(0)
+    def move_bot_between_list(self, team_index, bot):
+        if not team_index:
+            from_list = self.blue_listwidget
+            to_list = self.orange_listwidget
         else:
-            dragged_bot.set_team(1)
+            from_list = self.orange_listwidget
+            to_list = self.blue_listwidget
+        item = from_list.takeItem(from_list.row(from_list.selectedItems()[0]))
+        to_list.addItem(item)
+        return item
+
+    def switch_team_bot(self, team_index, bot):
+        # update agent team
+        if team_index:
+            bot.set_team(0)
+        else:
+            bot.set_team(1)
         # update self.blue_bots, self.blue_bot_names and for orange.
 
         # update all lists according to listwidget. to allow for insertion at any position.
         # at this point, the dragged bot exists in both listwidgets for some reason.
-        if dropped_listwidget is self.blue_listwidget:
+        if team_index:
             # update blue totally. update orange barring dragged_bot
             self.blue_bots = []
             self.blue_bot_names = []
@@ -102,7 +105,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             for i in range(self.orange_listwidget.count()):
                 _bot_name = self.orange_listwidget.item(i).text()
                 _bot_agent = self.bot_names_to_agent_dict[_bot_name]
-                if _bot_agent is not dragged_bot:
+                if _bot_agent is not bot:
                     self.orange_bot_names.append(_bot_name)
                     self.orange_bots.append(_bot_agent)
         else:
@@ -123,7 +126,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             for i in range(self.blue_listwidget.count()):
                 _bot_name = self.blue_listwidget.item(i).text()
                 _bot_agent = self.bot_names_to_agent_dict[_bot_name]
-                if _bot_agent is not dragged_bot:
+                if _bot_agent is not bot:
                     self.blue_bot_names.append(_bot_name)
                     self.blue_bots.append(_bot_agent)
 
@@ -132,16 +135,48 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
-        self.cfg_file_path_lineedit.textEdited.connect(self.textstuff)
 
-        self.blue_plus_toolbutton.clicked.connect(self.gui_add_bot)
-        self.orange_plus_toolbutton.clicked.connect(self.gui_add_bot)
+        self.blue_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=0))
+        self.orange_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=1))
 
-        self.blue_minus_toolbutton.clicked.connect(self.gui_remove_bot)
-        self.orange_minus_toolbutton.clicked.connect(self.gui_remove_bot)
+        self.blue_minus_toolbutton.clicked.connect(lambda: self.gui_remove_bot(team_index=0))
+        self.orange_minus_toolbutton.clicked.connect(lambda: self.gui_remove_bot(team_index=1))
 
-    def textstuff(self):
-        print(self.sender())
+        widgets = [self.cfg_file_path_lineedit, self.ign_lineedit, self.bot_level_slider,
+                   self.blue_radiobutton, self.orange_radiobutton,
+                   self.mode_type_combobox]
+
+        for item in widgets:
+            if isinstance(item, QtWidgets.QLineEdit):
+                item.textEdited.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QSlider):
+                item.sliderMoved.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QAbstractSpinBox):
+                item.valueChanged.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QRadioButton):
+                item.toggled.connect(self.edit_event)
+
+    def edit_event(self, value):
+        s = self.sender()
+        agent = self.current_bot
+        if s == self.cfg_file_path_lineedit:
+            print("Verify path")
+        elif s == self.ign_lineedit:
+            print("What to do with this name change?")
+        elif s == self.bot_level_slider:
+            agent.set_bot_skill(value / 100)
+        elif s == self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
+            if agent.get_team() == 1:
+                item = self.move_bot_between_list(1, agent)
+                self.switch_team_bot(1, agent)
+                self.blue_listwidget.setCurrentItem(item)
+        elif s == self.orange_radiobutton and value:
+            if agent.get_team() == 0:
+                item = self.move_bot_between_list(0, agent)
+                self.switch_team_bot(0, agent)
+                self.orange_listwidget.setCurrentItem(item)
+
+
 
     def update_bot_type_combobox(self):
         if self.bot_type_combobox.currentText() == 'RLBot':
@@ -182,7 +217,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.blue_bot_names = []
         self.orange_bot_names = []
         for agent in self.agents:
-            if agent.get_team_is_blue():
+            if not agent.get_team():
                 self.blue_bots.append(agent)
                 self.blue_bot_names.append(agent.__str__())
             else:
@@ -236,7 +271,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         assert agent_type in known_types, 'Bot has unknown type: %s' % agent_type
         self.bot_type_combobox.setCurrentIndex(known_types.index(agent_type))
-        if agent.get_team_is_blue():
+        if not agent.get_team():
             self.blue_radiobutton.setChecked(True)
         else:
             self.orange_radiobutton.setChecked(True)
@@ -269,25 +304,17 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         return agent
 
-
-    def gui_add_bot(self):
-        if self.sender() is self.blue_plus_toolbutton:
-            team_index = 0
-        elif self.sender() is self.orange_plus_toolbutton:
-            team_index = 1
-
+    def gui_add_bot(self, team_index):
         agent = self.add_agent(team_index=team_index)
         # print(len(self.agents))
         self.update_teams_listwidgets()
         self.statusbar.showMessage('Added bot: %s.' % agent, 5000)
 
-    def gui_remove_bot(self):
-        if self.sender() is self.blue_minus_toolbutton:
-            team_index = 0
+    def gui_remove_bot(self, team_index):
+        if not team_index:
             bot_stuff = self.get_selected_bot(self.blue_listwidget)
             listwidget = self.blue_listwidget
-        elif self.sender() is self.orange_minus_toolbutton:
-            team_index = 1
+        else:
             bot_stuff = self.get_selected_bot(self.orange_listwidget)
             listwidget = self.orange_listwidget
         print("Deleting bot from %s" % listwidget.objectName())
