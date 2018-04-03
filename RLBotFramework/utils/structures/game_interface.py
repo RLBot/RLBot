@@ -70,9 +70,6 @@ class GameInterface:
         func = self.game.Free
         func.argtypes = [ctypes.c_void_p]
 
-        func = self.game.ToggleNullRenderer
-        func.argtypes = [ctypes.c_bool]
-
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
