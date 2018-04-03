@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>729</width>
-    <height>551</height>
+    <width>708</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,0,5,0,3">
+    <property name="spacing">
+     <number>15</number>
+    </property>
     <item>
      <widget class="QGroupBox" name="groupBox_5">
       <property name="sizePolicy">
@@ -845,7 +848,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>729</width>
+     <width>708</width>
      <height>21</height>
     </rect>
    </property>
