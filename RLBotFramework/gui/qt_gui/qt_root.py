@@ -9,7 +9,7 @@ from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
 from RLBotFramework.gui.qt_gui.car_customisation import Ui_Form
 
 
-class CarCustomisation(QtWidgets.QDialog, Ui_Form):
+class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -32,8 +32,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.blue_bot_names = []
         self.orange_bot_names = []
         self.bot_names_to_agent_dict = {}
+        self.current_bot = None
 
-        self.car_customisation = CarCustomisation()
+        self.car_customisation = CarCustomisationDialog()
 
         self.update_bot_type_combobox()
 
@@ -41,6 +42,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         self.get_agent_options()
         self.update_teams_listwidgets()
+        self.load_selected_bot()
 
         self.statusbar.showMessage("Saved CFG.")
         print(self.cfg_file_path_lineedit.text(), type(self.cfg_file_path_lineedit.text()))
@@ -50,10 +52,14 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         # self.lineEdit.setFont(myFont)
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
-        QtWidgets.QListWidget.dropEvent(dropped_listwidget, event)
         dragged_listwidget = event.source()
         if dragged_listwidget is dropped_listwidget:
+            # do not do dropping into same listwidget.
             return
+        print('dropping')
+        QtWidgets.QListWidget.dropEvent(dropped_listwidget, event)
+        print('dropped')
+
         # event.pos doesnt really help as it gives the position where the drop occurred
         # (and the item usually moves up afterward)
         # print("test guess dropped bot", dropped_listwidget.itemAt(event.pos()))
@@ -178,32 +184,27 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.orange_listwidget.addItems(self.orange_bot_names)
 
     def load_selected_bot(self):
+        # if no bot selected, disable botconfig groupbox
+        if not self.blue_listwidget.selectedItems() and not self.orange_listwidget.selectedItems():
+            self.bot_config_groupbox.setDisabled(True)
+            return
+        else:
+            self.bot_config_groupbox.setDisabled(False)
+
         # prevent proccing from itself (clearing the other one procs this)
         if not self.sender().selectedItems():
             return
         # deselect the other listbox
-        if self.sender() is self.blue_listwidget:
-            self.orange_listwidget.clearSelection()
-            agent_name = self.blue_listwidget.currentItem().text()
-            agent_i = self.blue_listwidget.currentRow()
-            try:
-                agent = self.blue_bots[agent_i]
-            except IndexError:
-                print("\nI am printing this error manually. It can be hidden easily:")
-                import traceback
-                traceback.print_exc()
-                return
-        elif self.sender() is self.orange_listwidget:
-            self.blue_listwidget.clearSelection()
-            agent_name = self.orange_listwidget.currentItem().text()
-            agent_i = self.orange_listwidget.currentRow()
-            try:
-                agent = self.orange_bots[agent_i]
-            except IndexError:
-                print("\nI am printing this error manually. It can be hidden easily:")
-                import traceback
-                traceback.print_exc()
-                return
+        bot_stuff = self.get_selected_bot(self.sender())
+        if bot_stuff:
+            agent, agent_name = bot_stuff
+        else:
+            return
+        if self.current_bot == agent:
+            return
+        else:
+            self.current_bot = agent
+
         # load bot config
         agent_type = agent.get_participant_type()
         print('Selected Agent:', agent, agent_name, agent_type)
@@ -217,6 +218,30 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         else:
             self.orange_radiobutton.setChecked(True)
         self.ign_lineedit.setText(agent_name)
+
+    def get_selected_bot(self, sender: QtWidgets.QListWidget):
+        if sender is self.blue_listwidget:
+            bots_list = self.blue_bots
+            self.orange_listwidget.clearSelection()
+        elif sender is self.orange_listwidget:
+            bots_list = self.orange_bots
+            self.blue_listwidget.clearSelection()
+
+        agent_name = sender.currentItem().text()
+        agent_i = sender.currentRow()
+        try:
+            agent = bots_list[agent_i]
+        except IndexError:
+            print("\nI am printing this error manually. It can be hidden easily:")
+            import traceback
+            traceback.print_exc()
+            return
+        for _i in range(sender.count()):
+            if _i != agent_i:
+                sender.item(_i).setSelected(False)
+
+        return agent, agent_name
+
 
     @staticmethod
     def main():

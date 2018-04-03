@@ -6,66 +6,167 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>729</width>
-    <height>551</height>
+    <width>823</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>RLBot</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,0,5,0,3">
+   <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,1,1,1,1">
     <item>
-     <widget class="QGroupBox" name="groupBox_5">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+     <widget class="QGroupBox" name="groupBox_4">
       <property name="title">
-       <string>Overall Config</string>
+       <string>Match Settings</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>CFG File Path:</string>
+        <widget class="QFrame" name="frame_7">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3" columnstretch="2,2,1,2,2,1,2,2">
+          <item row="0" column="3">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Skip Replays:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Game Mode:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox"/>
+          </item>
+          <item row="0" column="2" rowspan="2">
+           <widget class="Line" name="line_6">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Instant Start:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Match Length:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Max Score:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="7">
+           <widget class="QSpinBox" name="spinBox_3"/>
+          </item>
+          <item row="0" column="4">
+           <widget class="QCheckBox" name="checkBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>Map:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QCheckBox" name="checkBox_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="comboBox_2"/>
+          </item>
+          <item row="0" column="5" rowspan="2">
+           <widget class="Line" name="line_7">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="7">
+           <widget class="QComboBox" name="comboBox_3"/>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="cfg_file_path_lineedit"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="cfg_load_pushbutton">
-         <property name="text">
-          <string>Load</string>
+        <widget class="QFrame" name="frame_8">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="cfg_save_pushbutton">
-         <property name="text">
-          <string>Save</string>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="cfg_autosave_checkbox">
-         <property name="text">
-          <string>Autosave</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Mutator Options</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCommandLinkButton" name="commandLinkButton">
+            <property name="text">
+             <string>RUN</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
      </widget>
     </item>
     <item>
-     <widget class="Line" name="line_2">
+     <widget class="Line" name="line_3">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -286,9 +387,6 @@
             <property name="defaultDropAction">
              <enum>Qt::MoveAction</enum>
             </property>
-            <property name="selectionMode">
-             <enum>QAbstractItemView::MultiSelection</enum>
-            </property>
            </widget>
           </item>
           <item>
@@ -333,7 +431,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="bot_config_groupbox">
+        <widget class="QGroupBox" name="groupBox_3">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -679,157 +777,50 @@
      </widget>
     </item>
     <item>
-     <widget class="Line" name="line_3">
+     <widget class="Line" name="line_2">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox_4">
+     <widget class="QGroupBox" name="groupBox_5">
       <property name="title">
-       <string>Match Settings</string>
+       <string>Overall Config</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QHBoxLayout" name="horizontalLayout_9">
        <item>
-        <widget class="QFrame" name="frame_7">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>CFG File Path:</string>
          </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3" columnstretch="2,2,1,2,2,1,2,2">
-          <item row="0" column="3">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Skip Replays:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>Game Mode:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboBox"/>
-          </item>
-          <item row="0" column="2" rowspan="2">
-           <widget class="Line" name="line_6">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Instant Start:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="6">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Match Length:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="6">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Max Score:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="7">
-           <widget class="QSpinBox" name="spinBox_3"/>
-          </item>
-          <item row="0" column="4">
-           <widget class="QCheckBox" name="checkBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>Map:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QCheckBox" name="checkBox_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="comboBox_2"/>
-          </item>
-          <item row="0" column="5" rowspan="2">
-           <widget class="Line" name="line_7">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="7">
-           <widget class="QComboBox" name="comboBox_3"/>
-          </item>
-         </layout>
         </widget>
        </item>
        <item>
-        <widget class="QFrame" name="frame_8">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+        <widget class="QLineEdit" name="cfg_file_path_lineedit"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cfg_load_pushbutton">
+         <property name="text">
+          <string>Load</string>
          </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cfg_save_pushbutton">
+         <property name="text">
+          <string>Save</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_10">
-          <item>
-           <widget class="QPushButton" name="pushButton">
-            <property name="text">
-             <string>Mutator Options</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCommandLinkButton" name="commandLinkButton">
-            <property name="text">
-             <string>RUN</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cfg_autosave_checkbox">
+         <property name="text">
+          <string>Autosave</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -842,7 +833,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>729</width>
+     <width>823</width>
      <height>21</height>
     </rect>
    </property>
