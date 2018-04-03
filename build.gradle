@@ -60,13 +60,23 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+def gitignoreToList(File f) {
+    def ignores = []
+    f.eachLine { line ->
+        //ignore comments and empty lines
+        if (!line.startsWith('#') && !line.isEmpty()) {
+            ignores.add(line)
+        }
+    }
+    return ignores
+}
+
 task frameworkZip(type: Zip, dependsOn: processResources) {
     into('/') {
         from(fileTree('src/main/python/'))
         from 'LICENSE.txt'
-    }
-    into ('test') {
-        from(fileTree('src/test/python/'))
+        exclude gitignoreToList(file('.gitignore'))
+        exclude '**/__pycache__'
     }
 }
 
