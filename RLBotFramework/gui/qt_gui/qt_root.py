@@ -209,8 +209,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.orange_plus_toolbutton.setDisabled(False)
 
     def load_selected_bot(self):
-        self.enable_disable_on_bot_select_deselect()
-
         # prevent proccing from itself (clearing the other one procs this)
         if not self.sender().selectedItems():
             return
@@ -224,6 +222,15 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             return
         else:
             self.current_bot = agent
+
+        # enable/disable bot config (and maybe [+])
+        self.enable_disable_on_bot_select_deselect()
+        # enable [-] for right listwidget
+        if self.sender() is self.blue_listwidget:
+            self.blue_minus_toolbutton.setDisabled(False)
+        elif self.sender() is self.orange_listwidget:
+            self.orange_minus_toolbutton.setDisabled(False)
+
 
         # load bot config
         agent_type = agent.get_participant_type()
@@ -278,23 +285,19 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         if self.sender() is self.blue_minus_toolbutton:
             team_index = 0
             bot_stuff = self.get_selected_bot(self.blue_listwidget)
+            listwidget = self.blue_listwidget
         elif self.sender() is self.orange_minus_toolbutton:
             team_index = 1
             bot_stuff = self.get_selected_bot(self.orange_listwidget)
-
-        print(len(self.agents), self.sender())
-
-        bot_stuff = self.get_selected_bot(self.sender())
-        print(len(self.agents))
+            listwidget = self.orange_listwidget
+        print("Deleting bot from %s" % listwidget.objectName())
+        bot_stuff = self.get_selected_bot(listwidget)
 
         if not bot_stuff:
             print("THIS SHOULD NOT HAPPEN (IN gui_remove_bot IN QT ROOT)")
             return
         agent, agent_name = bot_stuff
-
-
         self.remove_agent(agent)
-        print(len(self.agents))
 
         self.update_teams_listwidgets()
 
