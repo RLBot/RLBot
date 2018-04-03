@@ -43,10 +43,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.update_teams_listwidgets()
 
         self.statusbar.showMessage("Saved CFG.")
-        self.lineEdit.setText("asfasfasfasf *")
-        myFont = QtGui.QFont()
-        myFont.setItalic(True)
-        self.lineEdit.setFont(myFont)
+        print(self.cfg_file_path_lineedit.text(), type(self.cfg_file_path_lineedit.text()))
+        # self.lineEdit.setText("asfasfasfasf *")
+        # myFont = QtGui.QFont()
+        # myFont.setItalic(True)
+        # self.lineEdit.setFont(myFont)
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
         QtWidgets.QListWidget.dropEvent(dropped_listwidget, event)
@@ -121,18 +122,18 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 _bot_name = self.blue_listwidget.item(i).text()
                 _bot_agent = self.bot_names_to_agent_dict[_bot_name]
                 if _bot_agent is not dragged_bot:
-
                     self.blue_bot_names.append(_bot_name)
                     self.blue_bots.append(_bot_agent)
-
-
 
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
-        # self.blue_listwidget.keyPressEvent.connect(self.keypress_on_teams_listwidgets)
+        self.cfg_file_path_lineedit.textEdited.connect(self.textstuff)
+
+    def textstuff(self):
+        print(self.sender())
 
     def update_bot_type_combobox(self):
         if self.bot_type_combobox.currentText() == 'RLBot':
@@ -151,7 +152,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
-
 
     def get_agent_options(self):
         # populate dropdown
@@ -176,10 +176,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.blue_listwidget.addItems(self.blue_bot_names)
         self.orange_listwidget.clear()
         self.orange_listwidget.addItems(self.orange_bot_names)
-
-
-    def keypress_on_teams_listwidgets(self):
-        print(self.sender())
 
     def load_selected_bot(self):
         # prevent proccing from itself (clearing the other one procs this)
@@ -220,16 +216,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.orange_radiobutton.setChecked(True)
         self.ign_lineedit.setText(agent_name)
 
-
-
-
     @staticmethod
     def main():
         app = QtWidgets.QApplication(sys.argv)
         window = RLBotQTGui()
         window.show()
         app.exec_()
-
 
     def _add_agent(self, agent):
         pass
