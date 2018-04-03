@@ -72,6 +72,7 @@ class BaseGui:
         """
         Creates the agent using self.agent_class and adds it to the index manager.
         :param overall_index: The index of the bot in the config file if it already exists.
+        :return agent:
         """
         if not self.index_manager.has_free_slots():
             return
@@ -81,6 +82,8 @@ class BaseGui:
             self.index_manager.use_index(overall_index)
         agent = self.agent_class(overall_index=overall_index, team_i=team_index)
         self.agents.append(agent)
+
+        return agent
 
 
     def remove_agent(self, agent):

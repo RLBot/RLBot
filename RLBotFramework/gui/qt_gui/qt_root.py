@@ -23,7 +23,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.setupUi(self)
 
         # THIS IS VERY HACKY.
-        # reimplmented the dropEvent of these listwidgets to update the lists behind the scenes.
+        # reimplemented the dropEvent of these listwidgets to update the lists behind the scenes.
         self.blue_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.blue_listwidget, event)
         self.orange_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.orange_listwidget, event)
 
@@ -80,12 +80,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         # update agent team
         if dropped_listwidget is self.blue_listwidget:
-            # TODO: Create the agent set_team stuff.
-            # dragged_bot.set_team(0)
-            pass
+            dragged_bot.set_team(0)
         else:
-            # dragged_bot.set_team(1)
-            pass
+            dragged_bot.set_team(1)
         # update self.blue_bots, self.blue_bot_names and for orange.
 
         # update all lists according to listwidget. to allow for insertion at any position.
@@ -209,25 +206,31 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.orange_plus_toolbutton.setDisabled(False)
 
     def load_selected_bot(self):
-        self.enable_disable_on_bot_select_deselect()
-
         # prevent proccing from itself (clearing the other one procs this)
         if not self.sender().selectedItems():
             return
         # deselect the other listbox
-        bot_stuff = self.get_selected_bot(self.sender())
-        if bot_stuff:
-            agent, agent_name = bot_stuff
-        else:
+        agent = self.get_selected_bot(self.sender())
+        if agent is None:
             return
         if self.current_bot == agent:
             return
         else:
             self.current_bot = agent
 
+        # enable/disable bot config (and maybe [+])
+        self.enable_disable_on_bot_select_deselect()
+        # enable [-] for right listwidget
+        if self.sender() is self.blue_listwidget:
+            self.blue_minus_toolbutton.setDisabled(False)
+            self.orange_minus_toolbutton.setDisabled(True)
+        elif self.sender() is self.orange_listwidget:
+            self.orange_minus_toolbutton.setDisabled(False)
+            self.blue_minus_toolbutton.setDisabled(True)
+
         # load bot config
         agent_type = agent.get_participant_type()
-        print('Selected Agent:', agent, agent_name, agent_type)
+        print('Selected Agent: %s\t\t(Type: %s)' % (agent, agent_type))
 
         known_types = ['human', 'psyonix', 'rlbot', 'possessed_human']
 
@@ -237,7 +240,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.blue_radiobutton.setChecked(True)
         else:
             self.orange_radiobutton.setChecked(True)
-        self.ign_lineedit.setText(agent_name)
+        self.ign_lineedit.setText(str(agent))
+
+
+        self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
 
     def get_selected_bot(self, sender: QtWidgets.QListWidget, print_err=False):
         if sender is self.blue_listwidget:
@@ -247,7 +253,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             bots_list = self.orange_bots
             self.blue_listwidget.clearSelection()
 
-        agent_name = sender.currentItem().text()
+        # agent_name = sender.currentItem().text()
         agent_i = sender.currentRow()
         try:
             agent = bots_list[agent_i]
@@ -261,7 +267,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         #     if _i != agent_i:
         #         sender.item(_i).setSelected(False)
 
-        return agent, agent_name
+        return agent
 
 
     def gui_add_bot(self):
@@ -270,33 +276,26 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         elif self.sender() is self.orange_plus_toolbutton:
             team_index = 1
 
-        self.add_agent(team_index=team_index)
+        agent = self.add_agent(team_index=team_index)
         # print(len(self.agents))
         self.update_teams_listwidgets()
+        self.statusbar.showMessage('Added bot: %s.' % agent, 5000)
 
     def gui_remove_bot(self):
         if self.sender() is self.blue_minus_toolbutton:
             team_index = 0
             bot_stuff = self.get_selected_bot(self.blue_listwidget)
+            listwidget = self.blue_listwidget
         elif self.sender() is self.orange_minus_toolbutton:
             team_index = 1
             bot_stuff = self.get_selected_bot(self.orange_listwidget)
-
-        print(len(self.agents), self.sender())
-
-        bot_stuff = self.get_selected_bot(self.sender())
-        print(len(self.agents))
-
-        if not bot_stuff:
-            print("THIS SHOULD NOT HAPPEN (IN gui_remove_bot IN QT ROOT)")
-            return
-        agent, agent_name = bot_stuff
-
-
+            listwidget = self.orange_listwidget
+        print("Deleting bot from %s" % listwidget.objectName())
+        agent = self.get_selected_bot(listwidget)
         self.remove_agent(agent)
-        print(len(self.agents))
 
         self.update_teams_listwidgets()
+        self.statusbar.showMessage('Deleted bot: %s.' % agent, 5000)
 
 
     @staticmethod
