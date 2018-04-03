@@ -1,4 +1,5 @@
 import os
+from PyQt5.QtCore import QTimer
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
 from RLBotFramework.utils.class_importer import import_agent
@@ -11,9 +12,6 @@ class BaseGuiAgent:
     overall_config = None  # The config that is shared by all agent frames.
     # overall_index = -1  # The index that grabs data from the overall_config
     # team_index = -1  # The index representing what team the agent belongs to.
-    agent_config_path = None  # The config path for the agent config file
-    agent_config = None
-    looks_config = None
     config_bundle = None
 
     def __init__(self, overall_index, team_i=None):
@@ -25,9 +23,36 @@ class BaseGuiAgent:
         self.overall_index = overall_index
         self.load_config(self.overall_config, overall_index)
 
+        self.agent_config_path = None
+        self.loadout_config_path = None
+        self.agent_config = None
+        self.looks_config = None
+
         if team_i is not None:
             self.team_index = team_i
             self.set_team(team_i)
+
+    def save_agent_config(self):
+        def save():
+            if not os.path.exists(self.agent_config_path):
+                return
+            with open(self.agent_config_path, "w") as f:
+                f.write(str(self.agent_config))
+        if self.save_agent_timer is None:
+            self.save_agent_timer = QTimer()
+            self.save_agent_timer.timeout.connect(save)
+        self.save_agent_timer.start(5)  # Time-out for timer over here
+
+    def save_loadout_config(self):
+        def save():
+            if not os.path.exists(self.loadout_config_path):
+                return
+            with open(self.loadout_config_path, "w") as f:
+                f.write(str(self.looks_config))
+        if self.save_loadout_timer is None:
+            self.save_loadout_timer = QTimer()
+            self.save_loadout_timer.timeout.connect(save)
+        self.save_loadout_timer.start(5)  # Time-out for timer over here
 
     def load_agent_configs(self):
         """
@@ -102,10 +127,8 @@ class BaseGuiAgent:
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
                                              bot_skill, self.overall_index)
 
-    def get_team_is_blue(self):
-        team_index = self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM,
-                                                self.overall_index)
-        return team_index == 0
+    def get_team(self):
+        return self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, self.overall_index)
 
     def set_team(self, team_i):
         # sets team to team_i, where 0 is blue, 1 is orange

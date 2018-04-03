@@ -1,3 +1,6 @@
+import os
+from PyQt5.QtCore import QTimer
+
 # from RLBotFramework.parsing.agent_config_parser import get_team
 from RLBotFramework.parsing.custom_config import ConfigObject
 from RLBotFramework.gui.index_manager import IndexManager
@@ -19,6 +22,7 @@ class BaseGui:
 
     def __init__(self, overall_config=None):
         self.overall_config = overall_config
+        self.overall_config_path = None
         self.agent_class.overall_config = overall_config
 
         self.index_manager = self.index_manager(10)
@@ -41,6 +45,17 @@ class BaseGui:
         if match_settings:
             self.match_settings.load_match_settings(self.overall_config)
         self.agent_class.overall_config = self.overall_config
+
+    def save_overall_config(self):
+        def save():
+            if not os.path.exists(self.overall_config_path):
+                return
+            with open(self.overall_config_path, "w") as f:
+                f.write(str(self.overall_config))
+        if self.overall_config_timer is None:
+            self.overall_config_timer = QTimer()
+            self.overall_config_timer.timeout.connect(save)
+        self.overall_config_timer.start(5)  # Time-out for timer over here
 
     def load_agents(self, config_file=None):
         """
