@@ -26,16 +26,18 @@ dependencies {
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'
 }
 
+def pythonRoot = './src/main/python/'
+
 task assembleProto(type: Copy) {
     from findFile('game_data.py')
-    into 'protobuf'
+    into pythonRoot + 'protobuf'
     rename { String file ->
         'game_data_pb2.py'
     }
 }
 
 clean {
-    delete fileTree('protobuf') {
+    delete fileTree(pythonRoot + 'protobuf') {
         include '**/*pb2.py'
     }
 }
@@ -44,7 +46,7 @@ def findFile(suffix) {
     configurations.compile.filter { it.name.endsWith(suffix) }
 }
 
-def pythonRoot = './src/main/python/'
+
 
 task pipInstallRequirements(type: Exec) {
     commandLine "pip", "install", "-r", pythonRoot + "requirements.txt"
@@ -75,13 +77,6 @@ publishing {
             groupId group
             artifactId 'RLBotFramework'
             version version
-//            pom.withXml {
-//                def root = asNode()
-//                root.appendNode('description', 'RLBot framework for running custom bots in Rocket League.')
-//                root.appendNode('name', 'RLBot Framework')
-//                root.appendNode('url', 'https://github.com/RLBot/RLBot')
-//                root.children().last() + pomConfig
-//            }
         }
     }
 }
