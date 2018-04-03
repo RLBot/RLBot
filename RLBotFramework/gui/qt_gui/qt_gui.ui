@@ -741,13 +741,6 @@
           <item row="1" column="7">
            <widget class="QSpinBox" name="spinBox_3"/>
           </item>
-          <item row="0" column="7">
-           <widget class="QSpinBox" name="spinBox_4">
-            <property name="value">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="4">
            <widget class="QCheckBox" name="checkBox">
             <property name="sizePolicy">
@@ -790,6 +783,9 @@
              <enum>Qt::Vertical</enum>
             </property>
            </widget>
+          </item>
+          <item row="0" column="7">
+           <widget class="QComboBox" name="comboBox_3"/>
           </item>
          </layout>
         </widget>

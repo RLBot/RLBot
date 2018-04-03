@@ -189,6 +189,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             try:
                 agent = self.blue_bots[agent_i]
             except IndexError:
+                print("\nI am printing this error manually. It can be hidden easily:")
                 import traceback
                 traceback.print_exc()
                 return
@@ -199,6 +200,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             try:
                 agent = self.orange_bots[agent_i]
             except IndexError:
+                print("\nI am printing this error manually. It can be hidden easily:")
                 import traceback
                 traceback.print_exc()
                 return
