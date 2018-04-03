@@ -228,8 +228,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         # enable [-] for right listwidget
         if self.sender() is self.blue_listwidget:
             self.blue_minus_toolbutton.setDisabled(False)
+            self.orange_minus_toolbutton.setDisabled(True)
         elif self.sender() is self.orange_listwidget:
             self.orange_minus_toolbutton.setDisabled(False)
+            self.blue_minus_toolbutton.setDisabled(True)
 
 
         # load bot config
