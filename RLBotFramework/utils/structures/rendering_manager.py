@@ -45,6 +45,8 @@ class RenderingManager:
         self.game.EndRendering()
 
     def draw_line_2d(self, x1, y1, x2, y2, color):
+        if color is None:
+            raise ValueError('wtf color is not valid')
         self.game.DrawLine2D(x1, y1, x2, y2, color)
 
     def draw_line_3d(self, vec1, vec2, color):
@@ -94,5 +96,5 @@ class RenderingManager:
 
     def create_dynamic_function(self, bounded_function):
         def temp_function(*args):
-            bounded_function(*args)
+            return bounded_function(*args)
         return temp_function
