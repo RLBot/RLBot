@@ -1,8 +1,4 @@
-import math
-
 from agents.protoBot.protoBot import ProtoAtba
-from RLBotFramework.utils.structures.quick_chats import QuickChats
-from RLBotFramework.utils.structures.game_data_struct import Touch
 from integration_test.history import HistoryIO
 
 # from quicktracer import trace

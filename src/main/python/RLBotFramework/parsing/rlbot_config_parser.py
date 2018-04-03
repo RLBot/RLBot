@@ -36,7 +36,7 @@ def create_bot_config_layout():
     return config_object
 
 
-def parse_configurations(start_match_configuration, config_parser, config_bundle_overrides, looks_configs):
+def parse_configurations(start_match_configuration, config_parser, config_location, config_bundle_overrides, looks_configs):
     bot_names = []
     bot_teams = []
     python_files = []
@@ -47,7 +47,7 @@ def parse_configurations(start_match_configuration, config_parser, config_bundle
     parse_match_settings(start_match_configuration, config_parser)
 
     # Retrieve bot config files
-    config_bundles = get_bot_config_bundles(num_participants, config_parser, config_bundle_overrides)
+    config_bundles = get_bot_config_bundles(num_participants, config_parser, config_location, config_bundle_overrides)
 
     # Create empty lists
 

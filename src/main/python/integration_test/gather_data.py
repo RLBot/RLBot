@@ -5,8 +5,9 @@ from RLBotFramework.utils.logging_utils import log
 from integration_test.history import HistoryIO
 import multiprocessing
 import psutil
+import os
 
-RLBOT_CONFIG_FILE = 'integration_test/rlbot.cfg'
+RLBOT_CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'rlbot.cfg')
 
 
 def record_atba():
@@ -17,7 +18,7 @@ def record_atba():
 
     manager = SetupManager()
     manager.startup()
-    manager.load_config(framework_config=framework_config)
+    manager.load_config(framework_config=framework_config, config_location=RLBOT_CONFIG_FILE)
     manager.launch_bot_processes()
     manager.run()
 
@@ -48,7 +49,7 @@ def gather_data(timeout=20.0):
     ensure_dll_is_injected()
 
     proc = multiprocessing.Process(target=record_atba)
-    log("Starting data gethering process...")
+    log("Starting data gathering process...")
     proc.start()
     proc.join(timeout)
     if proc.is_alive():

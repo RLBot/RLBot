@@ -91,11 +91,12 @@ def get_bot_config_bundle(bot_config_path):
     return BotConfigBundle(config_directory, raw_bot_config)
 
 
-def get_bot_config_bundles(num_participants, config, config_bundle_overrides):
+def get_bot_config_bundles(num_participants, config, config_location, config_bundle_overrides):
     """
     Adds all the config files or config objects.
     :param num_participants:
     :param config:
+    :param config_location: The location of the rlbot.cfg file
     :param config_bundle_overrides: These are configs that have been loaded from the gui, they get assigned a bot index.
     :return:
     """
@@ -105,7 +106,8 @@ def get_bot_config_bundles(num_participants, config, config_bundle_overrides):
             config_bundles.append(config_bundle_overrides[i])
             logger.debug("Config available")
         else:
-            bot_config_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
+            bot_config_relative_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
+            bot_config_path = os.path.join(os.path.dirname(config_location), bot_config_relative_path)
             config_bundles.append(get_bot_config_bundle(bot_config_path))
             logger.debug("Reading raw config")
 

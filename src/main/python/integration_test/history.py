@@ -1,5 +1,5 @@
 from collections import namedtuple
-from RLBotFramework.grpcsupport.protobuf import game_data_pb2
+from protobuf import game_data_pb2
 import os
 
 # I/O adapted from https://www.datadoghq.com/blog/engineering/protobuf-parsing-in-python/

@@ -1,5 +1,5 @@
 from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotFramework.grpcsupport.protobuf import game_data_pb2
+from protobuf import game_data_pb2
 
 
 class BaseProtoAgent(BaseAgent):

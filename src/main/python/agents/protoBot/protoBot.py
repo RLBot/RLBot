@@ -1,7 +1,7 @@
 import math
 
 from RLBotFramework.agents.base_proto_agent import BaseProtoAgent
-from RLBotFramework.grpcsupport.protobuf import game_data_pb2
+from protobuf import game_data_pb2
 
 
 class ProtoAtba(BaseProtoAgent):

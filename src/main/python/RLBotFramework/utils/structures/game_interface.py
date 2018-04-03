@@ -4,7 +4,7 @@ import subprocess
 import sys
 import time
 
-from RLBotFramework.grpcsupport.protobuf import game_data_pb2
+from protobuf import game_data_pb2
 from RLBotFramework.utils.class_importer import get_base_repo_path
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer

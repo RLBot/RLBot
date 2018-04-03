@@ -52,13 +52,14 @@ class SetupManager:
 
         self.has_started = True
 
-    def load_config(self, framework_config=None, bot_configs=None, looks_configs=None):
+    def load_config(self, framework_config=None, config_location=None, bot_configs=None, looks_configs=None):
         self.logger.debug('reading the configs')
 
         # Set up RLBot.cfg
         if framework_config is None:
             raw_config_parser = configparser.RawConfigParser()
             raw_config_parser.read(RLBOT_CONFIG_FILE)
+            config_location = RLBOT_CONFIG_FILE
 
             framework_config = create_bot_config_layout()
             framework_config.parse_file(raw_config_parser, max_index=10)
@@ -71,7 +72,7 @@ class SetupManager:
         self.start_match_configuration = MatchSettings()
 
         self.num_participants, self.names, self.teams, self.python_files, self.parameters = parse_configurations(
-            self.start_match_configuration, framework_config, bot_configs, looks_configs)
+            self.start_match_configuration, framework_config, config_location, bot_configs, looks_configs)
 
         self.game_interface.participants = self.num_participants
         self.game_interface.start_match_configuration = self.start_match_configuration

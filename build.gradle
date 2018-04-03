@@ -61,9 +61,12 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 task frameworkZip(type: Zip, dependsOn: processResources) {
-    from fileTree('src/main/python/')
-    from ('/') {
-        include 'LICENSE.txt'
+    into('/') {
+        from(fileTree('src/main/python/'))
+        from 'LICENSE.txt'
+    }
+    into ('test') {
+        from(fileTree('src/test/python/'))
     }
 }
 
