@@ -64,7 +64,7 @@ class BaseGui:
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.use_index(overall_index)
-        agent = self.agent_class(overall_index, team_index)
+        agent = self.agent_class(overall_index=overall_index, team_i=team_index)
         self.agents.append(agent)
 
 

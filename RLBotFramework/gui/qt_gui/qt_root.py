@@ -271,7 +271,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             team_index = 1
 
         self.add_agent(team_index=team_index)
-        print(len(self.agents))
+        # print(len(self.agents))
         self.update_teams_listwidgets()
 
     def gui_remove_bot(self):

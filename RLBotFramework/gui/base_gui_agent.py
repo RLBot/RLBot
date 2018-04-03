@@ -9,14 +9,14 @@ from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION
 class BaseGuiAgent:
     config_object = None  # The config that is
     overall_config = None  # The config that is shared by all agent frames.
-    overall_index = -1  # The index that grabs data from the overall_config
-    team_index = -1  # The index representing what team the agent belongs to.
+    # overall_index = -1  # The index that grabs data from the overall_config
+    # team_index = -1  # The index representing what team the agent belongs to.
     agent_config_path = None  # The config path for the agent config file
     agent_config = None
     looks_config = None
     config_bundle = None
 
-    def __init__(self, overall_index, team_index=None):
+    def __init__(self, overall_index, team_i=None):
         """
         Creates a new agent frame, loads config data if needed.
         :param overall_index: An optional value if the overall index of this agent is already specified.
@@ -25,9 +25,9 @@ class BaseGuiAgent:
         self.overall_index = overall_index
         self.load_config(self.overall_config, overall_index)
 
-        if team_index:
-            self.team_index = team_index
-            self.set_team(team_index)
+        if team_i is not None:
+            self.team_index = team_i
+            self.set_team(team_i)
 
     def load_agent_configs(self):
         """
@@ -109,4 +109,5 @@ class BaseGuiAgent:
 
     def set_team(self, team_i):
         # sets team to team_i, where 0 is blue, 1 is orange
-        pass
+        return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, team_i,
+                                             self.overall_index)
