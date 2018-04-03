@@ -33,6 +33,10 @@ class Atba(BaseAgent):
         if turn == -1.0:
             self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
 
+        self.renderer.begin_rendering()
+        self.renderer.draw_line_2d(50, 100, 100, 50, self.renderer.black())
+        self.renderer.end_rendering()
+
         return [
             1.0,  # throttle
             turn,  # steer
