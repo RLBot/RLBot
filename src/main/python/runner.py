@@ -1,6 +1,7 @@
 from RLBotFramework.setup_manager import SetupManager
 
 if __name__ == '__main__':
+    print("starting")
     manager = SetupManager()
     manager.startup()
     manager.load_config()

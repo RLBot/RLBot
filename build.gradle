@@ -11,6 +11,7 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 repositories {
     jcenter()
@@ -43,16 +44,57 @@ def findFile(suffix) {
     configurations.compile.filter { it.name.endsWith(suffix) }
 }
 
+def pythonRoot = './src/main/python/'
+
 task pipInstallRequirements(type: Exec) {
-    commandLine "pip", "install", "-r", "requirements.txt"
+    commandLine "pip", "install", "-r", pythonRoot + "requirements.txt"
 }
 
 task run(type: Exec) {
-    commandLine "python", "runner.py"
+    commandLine "python", pythonRoot + "runner.py"
+}
+
+task gui(type: Exec) {
+    commandLine "python", pythonRoot + "runner_GUI.py"
 }
 
 run.dependsOn build
 processResources.dependsOn pipInstallRequirements
 processResources.dependsOn assembleProto
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
+task frameworkZip(type: Zip, dependsOn: processResources) {
+    from '/'
+    include 'RLBotFramework/**/*'
+    include 'LICENSE.txt'
+}
+
+// Create the publication with the pom configuration:
+publishing {
+    publications {
+        Main(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact('src/main/proto/game_data.proto') {
+                classifier = 'game_data'
+            }
+            artifact('build/generated/source/proto/main/python/game_data_pb2.py') {
+                classifier = 'game_data'
+            }
+            groupId group
+            artifactId 'rlbot-framework'
+            version version
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'RLBot framework for running custom bots in Rocket League.')
+                root.appendNode('name', 'RLBot Framework')
+                root.appendNode('url', 'https://github.com/RLBot/RLBot')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
