@@ -1,13 +1,14 @@
 import configparser
 import msvcrt
 import multiprocessing as mp
+import os
 import queue
 
 import time
 
 from RLBotFramework.agents import bot_manager
 from RLBotFramework.base_extension import BaseExtension
-from RLBotFramework.utils.class_importer import import_class_with_base, import_agent
+from RLBotFramework.utils.class_importer import import_class_with_base, import_agent, get_python_root
 from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from RLBotFramework.utils.process_configuration import configure_processes
 from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
@@ -15,7 +16,7 @@ from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChatManager
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
 
-RLBOT_CONFIG_FILE = 'rlbot.cfg'
+RLBOT_CONFIG_FILE = os.path.join(get_python_root(), 'rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 

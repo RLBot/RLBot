@@ -1,6 +1,7 @@
 from RLBotFramework.setup_manager import SetupManager
 
-if __name__ == '__main__':
+
+def main():
     print("starting")
     manager = SetupManager()
     manager.startup()
@@ -8,3 +9,7 @@ if __name__ == '__main__':
     manager.launch_bot_processes()
     manager.run()  # Runs forever until interrupted
     manager.shut_down()
+
+
+if __name__ == '__main__':
+    main()

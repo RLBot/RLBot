@@ -83,6 +83,6 @@ def extract_class(containing_module, base_class):
     return valid_classes[0]
 
 
-def get_base_repo_path():
+def get_python_root():
     """Gets the path of the RLBot directory"""
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))

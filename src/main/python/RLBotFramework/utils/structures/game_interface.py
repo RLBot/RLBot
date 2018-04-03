@@ -5,7 +5,7 @@ import sys
 import time
 
 from protobuf import game_data_pb2
-from RLBotFramework.utils.class_importer import get_base_repo_path
+from RLBotFramework.utils.class_importer import get_python_root
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
@@ -152,7 +152,7 @@ class GameInterface:
             sys.exit()
 
     def get_dll_path(self):
-        return os.path.join(get_base_repo_path(), 'RLBotFramework', 'dll')
+        return os.path.join(get_python_root(), 'RLBotFramework', 'dll')
 
     def countdown(self, countdown_timer):
         for i in range(countdown_timer):
