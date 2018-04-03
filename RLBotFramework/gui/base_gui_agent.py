@@ -16,7 +16,7 @@ class BaseGuiAgent:
     looks_config = None
     config_bundle = None
 
-    def __init__(self, overall_index):
+    def __init__(self, overall_index, team_index=None):
         """
         Creates a new agent frame, loads config data if needed.
         :param overall_index: An optional value if the overall index of this agent is already specified.
@@ -24,6 +24,9 @@ class BaseGuiAgent:
         """
         self.overall_index = overall_index
         self.load_config(self.overall_config, overall_index)
+
+        if team_index:
+            self.team_index = team_index
 
     def load_agent_configs(self):
         """

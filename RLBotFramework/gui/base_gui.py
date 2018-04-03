@@ -53,7 +53,7 @@ class BaseGui:
         for i in range(num_participants):
             self.add_agent(overall_index=i)
 
-    def add_agent(self, overall_index=None):
+    def add_agent(self, overall_index=None, team_index=None):
         """
         Creates the agent using self.agent_class and adds it to the index manager.
         :param overall_index: The index of the bot in the config file if it already exists.
@@ -64,17 +64,9 @@ class BaseGui:
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.use_index(overall_index)
-        agent = self.agent_class(overall_index)
-        self._add_agent(agent)
+        agent = self.agent_class(overall_index, team_index)
         self.agents.append(agent)
 
-    def _add_agent(self, agent):
-        """
-        Called by BaseGui subclasses to handle agent creation in GUI.
-        :param agent:
-        :return:
-        """
-        raise NotImplementedError('Subclasses of BaseGui must override this.')
 
     def remove_agent(self, agent):
         """
