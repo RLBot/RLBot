@@ -1,6 +1,7 @@
 from RLBotFramework.parsing.custom_config import ConfigObject, ConfigHeader
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures.quick_chats import QuickChats
+from RLBotFramework.utils.structures.rendering_manager import RenderingManager
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
@@ -19,6 +20,7 @@ class BaseAgent:
     # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.gamecars
     index = None
     quick_chat_func = None
+    renderer = None
 
     def __init__(self, name, team, index):
         self.name = name
@@ -91,6 +93,9 @@ class BaseAgent:
 
     def retire(self):
         """Called after the game ends"""
+
+    def set_renderer(self, renderer: RenderingManager):
+        self.renderer = renderer
 
     @staticmethod
     def create_agent_configurations() -> ConfigObject:

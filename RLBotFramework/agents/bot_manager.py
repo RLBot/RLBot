@@ -74,11 +74,13 @@ class BotManager:
             self.logger.debug('quick chat disabled for %s', MAX_CHAT_RATE - time_since_last_chat)
 
     def load_agent(self, agent_wrapper: ExternalClassWrapper):
+        render_functions = self.game_interface.renderer.get_render_functions()
         agent_class = agent_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
         agent.logger = self.logger
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
         agent.initialize_agent()
+        agent.set_renderer(render_functions)
 
         self.update_metadata_queue(agent)
         agent_class_file = self.agent_class_wrapper.python_file
