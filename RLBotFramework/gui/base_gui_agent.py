@@ -27,6 +27,7 @@ class BaseGuiAgent:
 
         if team_index:
             self.team_index = team_index
+            self.set_team(team_index)
 
     def load_agent_configs(self):
         """

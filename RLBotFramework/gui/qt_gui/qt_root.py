@@ -137,8 +137,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.cfg_file_path_lineedit.textEdited.connect(self.textstuff)
 
-        self.blue_plus_toolbutton.clicked.connect(self.gui_add_agent)
-        self.orange_plus_toolbutton.clicked.connect(self.gui_add_agent)
+        self.blue_plus_toolbutton.clicked.connect(self.gui_add_bot)
+        self.orange_plus_toolbutton.clicked.connect(self.gui_add_bot)
+
+        self.blue_minus_toolbutton.clicked.connect(self.gui_remove_bot)
+        self.orange_minus_toolbutton.clicked.connect(self.gui_remove_bot)
 
     def textstuff(self):
         print(self.sender())
@@ -166,6 +169,16 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         print(os.path.dirname(__file__))
         # agents_folder = os.path.join()
 
+    def enable_disable_on_bot_select_deselect(self):
+        # if no bot selected, disable botconfig groupbox and minus buttons
+        if not self.blue_listwidget.selectedItems() and not self.orange_listwidget.selectedItems():
+            self.bot_config_groupbox.setDisabled(True)
+            self.blue_minus_toolbutton.setDisabled(True)
+            self.orange_minus_toolbutton.setDisabled(True)
+            return
+        else:
+            self.bot_config_groupbox.setDisabled(False)
+
     def update_teams_listwidgets(self):
         self.blue_bots = []
         self.orange_bots = []
@@ -185,14 +198,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.orange_listwidget.clear()
         self.orange_listwidget.addItems(self.orange_bot_names)
 
-        # if no bot selected, disable botconfig groupbox
-        if not self.blue_listwidget.selectedItems() and not self.orange_listwidget.selectedItems():
-            self.bot_config_groupbox.setDisabled(True)
-        else:
-            self.bot_config_groupbox.setDisabled(False)
+        self.enable_disable_on_bot_select_deselect()
 
         # if max bot count reached: disable + button
-        if not self.index_manager.has_free_slots:
+        if not self.index_manager.has_free_slots():
             self.blue_plus_toolbutton.setDisabled(True)
             self.orange_plus_toolbutton.setDisabled(True)
         else:
@@ -200,12 +209,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.orange_plus_toolbutton.setDisabled(False)
 
     def load_selected_bot(self):
-        # if no bot selected, disable botconfig groupbox
-        if not self.blue_listwidget.selectedItems() and not self.orange_listwidget.selectedItems():
-            self.bot_config_groupbox.setDisabled(True)
-            return
-        else:
-            self.bot_config_groupbox.setDisabled(False)
+        self.enable_disable_on_bot_select_deselect()
 
         # prevent proccing from itself (clearing the other one procs this)
         if not self.sender().selectedItems():
@@ -260,7 +264,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         return agent, agent_name
 
 
-    def gui_add_agent(self):
+    def gui_add_bot(self):
         if self.sender() is self.blue_plus_toolbutton:
             team_index = 0
         elif self.sender() is self.orange_plus_toolbutton:
@@ -269,6 +273,31 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.add_agent(team_index=team_index)
         print(len(self.agents))
         self.update_teams_listwidgets()
+
+    def gui_remove_bot(self):
+        if self.sender() is self.blue_minus_toolbutton:
+            team_index = 0
+            bot_stuff = self.get_selected_bot(self.blue_listwidget)
+        elif self.sender() is self.orange_minus_toolbutton:
+            team_index = 1
+            bot_stuff = self.get_selected_bot(self.orange_listwidget)
+
+        print(len(self.agents), self.sender())
+
+        bot_stuff = self.get_selected_bot(self.sender())
+        print(len(self.agents))
+
+        if not bot_stuff:
+            print("THIS SHOULD NOT HAPPEN (IN gui_remove_bot IN QT ROOT)")
+            return
+        agent, agent_name = bot_stuff
+
+
+        self.remove_agent(agent)
+        print(len(self.agents))
+
+        self.update_teams_listwidgets()
+
 
     @staticmethod
     def main():
