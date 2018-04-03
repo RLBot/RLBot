@@ -23,7 +23,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.setupUi(self)
 
         # THIS IS VERY HACKY.
-        # reimplmented the dropEvent of these listwidgets to update the lists behind the scenes.
+        # reimplemented the dropEvent of these listwidgets to update the lists behind the scenes.
         self.blue_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.blue_listwidget, event)
         self.orange_listwidget.dropEvent = lambda event: self.listwidget_dropEvent(self.orange_listwidget, event)
 
@@ -80,12 +80,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         # update agent team
         if dropped_listwidget is self.blue_listwidget:
-            # TODO: Create the agent set_team stuff.
-            # dragged_bot.set_team(0)
-            pass
+            dragged_bot.set_team(0)
         else:
-            # dragged_bot.set_team(1)
-            pass
+            dragged_bot.set_team(1)
         # update self.blue_bots, self.blue_bot_names and for orange.
 
         # update all lists according to listwidget. to allow for insertion at any position.
