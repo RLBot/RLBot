@@ -42,14 +42,15 @@ def add_participant_header(config_object):
                                              "team 1 (orange) shoots on negative goal")
 
     participant_header.add_value(PARTICIPANT_TYPE_KEY, str, default='rlbot',
-                                 description="""Accepted values are "human", "rlbot", "psyonix", and "possessed_human"
+                                 description="""Accepted values are "human", "rlbot", "psyonix", "party_member_bot", and "controller_passthrough"
                                              You can have up to 4 local players and they must 
                                              be activated in game or it will crash.
                                              If no player is specified you will be spawned in as spectator!
                                              human - not controlled by the framework
                                              rlbot - controlled by the framework
                                              psyonix - default bots (skill level can be changed with participant_bot_skill
-                                             possessed_human - controlled by the framework but the game detects it as a human""")
+                                             party_member_bot - controlled by an rlbot but the game detects it as a human
+                                             controller_passthrough - controlled by a human but runs through the framework""")
 
     participant_header.add_value(PARTICIPANT_BOT_SKILL_KEY, float, default=1.0,
                                  description='If participant is a bot and not RLBot controlled,' +
@@ -121,17 +122,18 @@ def get_bot_options(bot_type):
     elif bot_type == 'psyonix':
         is_bot = True
         is_rlbot = False
-    elif bot_type == 'human_bot':
+    elif bot_type == 'controller_passthrough':
         # this is an rlbot but a very specific rlbot
         is_bot = True
         is_rlbot = True
-    elif bot_type == 'bot_human':
+    elif bot_type == 'party_member_bot':
         # this is a bot running under a human
-        
+
         is_rlbot = True
         is_bot = False
     else:
-        raise ValueError('participant_type value is not "human", "rlbot", "psyonix", or "possessed_human"')
+        raise ValueError('participant_type value is not "human", "rlbot", "psyonix", ' +
+                         '"party_member_bot", or "controller_passthrough"')
 
     return is_bot, is_rlbot
 
