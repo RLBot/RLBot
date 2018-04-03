@@ -1,86 +1,58 @@
 group 'RLBot'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'com.jfrog.bintray'
-// apply plugin: 'de.undercouch.download'
-apply plugin: 'ru.vyarus.use-python'
-apply plugin: 'groovy'
-apply plugin: 'java'
-
-def apiFile = new File('apikey')
-def apikey = ''
-if (apiFile.exists()) {
-    apikey = apiFile.text
-}
-
-def protoDir = 'RLBotFramework/proto'
-def destinationDir  = protoDir
 
 buildscript {
-  println('buildscript')
     repositories {
         jcenter()
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'org.apache.ivy:ivy:2.3.0'
-        classpath 'de.undercouch:gradle-download-task:3.4.1'
-        classpath 'ru.vyarus:gradle-use-python-plugin:1.0.1'
-        classpath 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2'
     }
 }
 
-task copyProto(type: Copy) {
-  def homePath = System.properties['user.home']
-  def cpfrom = homePath + '\\' + '.gradle\\caches\\modules-2\\files-2.1\\rlbotofficial.RLBotProtoMaven\\proto-interface\\0.0.2'
-  from cpfrom
-  into protoDir
+apply plugin: 'java'
+
+repositories {
+    jcenter()
 }
 
-// python {
-//     pip 'psutil:5.4.3'
-//     pip 'grpcio:1.00.0'
-// }
+dependencies {
+    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2:game_data@py'
+    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2'
+    compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'
+    compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.1.0'
+    compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'
+}
 
-// task gui(type:Exec) {
-//   println('gui')
-//     workingDir System.getProperty  ("user.dir")
-//     commandLine 'python', 'runner_GUI.py'
-// }
-
-bintray {
-    user = 'rlbotofficial'
-    key = apikey
-    pkg {
-        repo = 'RLBot'
-        name = 'framework'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/RLBot/RLBotProtobuf.git'
-        version {
-            name = '0.0.1-Initial'
-            released = new Date()
-            vcsTag = '0.0.1'
-        }
-    }
-    filesSpec {
-        from('.') {
-            include '*.py'
-        }
-        from 'RLBotFramework'
-        into 'RLBotFramework'
+task assembleProto(type: Copy) {
+    from findFile('game_data.py')
+    into 'protobuf'
+    rename { String file ->
+        'game_data_pb2.py'
     }
 }
 
-
-// task download(type: Download) {
-//     src 'https://dl.bintray.com/rlbotofficial/RLBotProto/generated/python/game_data_pb2.py'
-//     dest buildDir
-// }
-
-
-task setup {
-    println('installing tools')
+clean {
+    delete fileTree('protobuf') {
+        include '**/*pb2.py'
+    }
 }
 
-setup.dependsOn pipInstall
-build.dependsOn copyProto
+def findFile(suffix) {
+    configurations.compile.filter { it.name.endsWith(suffix) }
+}
+
+task pipInstallRequirements(type: Exec) {
+    commandLine "pip", "install", "-r", "requirements.txt"
+}
+
+task run(type: Exec) {
+    commandLine "python", "runner.py"
+}
+
+run.dependsOn build
+processResources.dependsOn pipInstallRequirements
+processResources.dependsOn assembleProto
+
+
