@@ -7,7 +7,7 @@ import multiprocessing
 import psutil
 import os
 
-RLBOT_CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'rlbot.cfg')
+RLBOT_CONFIG_FILE = os.path.realpath(os.path.join(os.path.dirname(__file__), 'rlbot.cfg'))
 
 
 def record_atba():

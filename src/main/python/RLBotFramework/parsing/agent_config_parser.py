@@ -12,8 +12,6 @@ PARTICIPANT_CONFIG_KEY = 'participant_config'
 PARTICIPANT_BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICIPANT_TYPE_KEY = 'participant_type'
 PARTICIPANT_TEAM = 'participant_team'
-RLBOT_CONFIG_FILE = 'rlbot.cfg'
-
 
 logger = get_logger('rlbot')
 

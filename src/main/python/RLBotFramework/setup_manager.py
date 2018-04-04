@@ -16,7 +16,8 @@ from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChatManager
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
 
-RLBOT_CONFIG_FILE = os.path.join(get_python_root(), 'rlbot.cfg')
+# By default, look for rlbot.cfg in the current working directory.
+DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 
@@ -53,14 +54,19 @@ class SetupManager:
 
         self.has_started = True
 
-    def load_config(self, framework_config=None, config_location=None, bot_configs=None, looks_configs=None):
+    def load_config(self, framework_config=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None, looks_configs=None):
+        """
+        :param framework_config: A config object that indicates what bots to run. May come from parsing a rlbot.cfg.
+        :param config_location: The location of the rlbot.cfg file, which will be used to resolve relative paths.
+        :param bot_configs: Overrides for bot configurations.
+        :param looks_configs: Overrides for looks configurations.
+        """
         self.logger.debug('reading the configs')
 
         # Set up RLBot.cfg
         if framework_config is None:
             raw_config_parser = configparser.RawConfigParser()
-            raw_config_parser.read(RLBOT_CONFIG_FILE)
-            config_location = RLBOT_CONFIG_FILE
+            raw_config_parser.read(config_location)
 
             framework_config = create_bot_config_layout()
             framework_config.parse_file(raw_config_parser, max_index=10)

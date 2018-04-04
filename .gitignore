@@ -119,7 +119,7 @@ ENV/
 apikey
 
 # Generated integration test data
-/src/main/python/integration_test/history.pb.bin
+/src/test/python/integration_test/history.pb.bin
 
 # Protobuf files copied from dependencies
 /src/main/python/protobuf
