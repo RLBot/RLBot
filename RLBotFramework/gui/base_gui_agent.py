@@ -12,8 +12,6 @@ class BaseGuiAgent:
     overall_config = None  # The config that is shared by all agent frames.
     # overall_index = -1  # The index that grabs data from the overall_config
     # team_index = -1  # The index representing what team the agent belongs to.
-    agent_config = None
-    looks_config = None
     config_bundle = None
 
     def __init__(self, overall_index, team_i=None):
@@ -27,6 +25,8 @@ class BaseGuiAgent:
 
         self.agent_config_path = None
         self.loadout_config_path = None
+        self.agent_config = None
+        self.looks_config = None
 
         if team_i is not None:
             self.team_index = team_i

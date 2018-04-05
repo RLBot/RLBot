@@ -132,16 +132,43 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
-        self.cfg_file_path_lineedit.textEdited.connect(self.textstuff)
 
-        self.blue_plus_toolbutton.clicked.connect(self.gui_add_bot)
-        self.orange_plus_toolbutton.clicked.connect(self.gui_add_bot)
+        self.blue_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=0))
+        self.orange_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=1))
 
         self.blue_minus_toolbutton.clicked.connect(self.gui_remove_bot)
         self.orange_minus_toolbutton.clicked.connect(self.gui_remove_bot)
 
-    def textstuff(self):
-        print(self.sender())
+        widgets = [self.cfg_file_path_lineedit, self.ign_lineedit, self.bot_level_slider,
+                   self.blue_radiobutton, self.orange_radiobutton,
+                   self.mode_type_combobox]
+
+        for item in widgets:
+            if isinstance(item, QtWidgets.QLineEdit):
+                item.textEdited.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QSlider):
+                item.sliderMoved.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QAbstractSpinBox):
+                item.valueChanged.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QRadioButton):
+                item.toggled.connect(self.edit_event)
+
+    def edit_event(self, value):
+        s = self.sender()
+        agent = self.current_bot
+        if s == self.cfg_file_path_lineedit:
+            print("Verify path")
+        elif s == self.ign_lineedit:
+
+            print("What to do with this name change?")
+        elif s == self.bot_level_slider:
+            agent.set_bot_skill(value / 100)
+        elif s == self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
+            print("Move to blue (if not there already (!))")
+        elif s == self.orange_radiobutton and value:
+            print("Move the bot to orange (if not there already (!))")
+
+
 
     def update_bot_type_combobox(self):
         if self.bot_type_combobox.currentText() == 'RLBot':
@@ -269,13 +296,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         return agent
 
-
-    def gui_add_bot(self):
-        if self.sender() is self.blue_plus_toolbutton:
-            team_index = 0
-        elif self.sender() is self.orange_plus_toolbutton:
-            team_index = 1
-
+    def gui_add_bot(self, team_index):
         agent = self.add_agent(team_index=team_index)
         # print(len(self.agents))
         self.update_teams_listwidgets()
