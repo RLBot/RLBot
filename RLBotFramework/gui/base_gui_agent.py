@@ -127,10 +127,8 @@ class BaseGuiAgent:
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
                                              bot_skill, self.overall_index)
 
-    def get_team_is_blue(self):
-        team_index = self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM,
-                                                self.overall_index)
-        return team_index == 0
+    def get_team(self):
+        return self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, self.overall_index)
 
     def set_team(self, team_i):
         # sets team to team_i, where 0 is blue, 1 is orange
