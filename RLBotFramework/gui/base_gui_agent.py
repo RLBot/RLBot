@@ -12,8 +12,6 @@ class BaseGuiAgent:
     overall_config = None  # The config that is shared by all agent frames.
     # overall_index = -1  # The index that grabs data from the overall_config
     # team_index = -1  # The index representing what team the agent belongs to.
-    agent_config = None
-    looks_config = None
     config_bundle = None
 
     def __init__(self, overall_index, team_i=None):
@@ -27,6 +25,8 @@ class BaseGuiAgent:
 
         self.agent_config_path = None
         self.loadout_config_path = None
+        self.agent_config = None
+        self.looks_config = None
 
         self.save_agent_timer = None
 
@@ -129,10 +129,8 @@ class BaseGuiAgent:
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
                                              bot_skill, self.overall_index)
 
-    def get_team_is_blue(self):
-        team_index = self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM,
-                                                self.overall_index)
-        return team_index == 0
+    def get_team(self):
+        return self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, self.overall_index)
 
     def set_team(self, team_i):
         # sets team to team_i, where 0 is blue, 1 is orange

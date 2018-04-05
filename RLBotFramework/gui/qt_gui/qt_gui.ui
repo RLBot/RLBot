@@ -142,7 +142,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="QLineEdit" name="blue_name_lineedit">
                <property name="text">
                 <string>Blue</string>
                </property>
@@ -156,7 +156,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QSpinBox" name="spinBox_5"/>
+              <widget class="QSpinBox" name="blue_color_spinbox"/>
              </item>
             </layout>
            </widget>
@@ -265,7 +265,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEdit_4">
+              <widget class="QLineEdit" name="orange_name_lineedit">
                <property name="text">
                 <string>Orange</string>
                </property>
@@ -279,7 +279,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QSpinBox" name="spinBox_6"/>
+              <widget class="QSpinBox" name="orange_color_spinbox"/>
              </item>
             </layout>
            </widget>
@@ -345,6 +345,9 @@
          </property>
          <property name="title">
           <string>Bot Config</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
@@ -634,8 +637,14 @@
              </item>
              <item>
               <widget class="QSlider" name="bot_level_slider">
+               <property name="locale">
+                <locale language="Dutch" country="Netherlands"/>
+               </property>
                <property name="maximum">
                 <number>100</number>
+               </property>
+               <property name="tracking">
+                <bool>false</bool>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -724,7 +733,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="comboBox"/>
+           <widget class="QComboBox" name="mode_type_combobox"/>
           </item>
           <item row="0" column="2" rowspan="2">
            <widget class="Line" name="line_6">
@@ -761,10 +770,10 @@
            </widget>
           </item>
           <item row="1" column="7">
-           <widget class="QSpinBox" name="spinBox_3"/>
+           <widget class="QSpinBox" name="max_score_spinbox"/>
           </item>
           <item row="0" column="4">
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="skip_replays_checkbox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -781,7 +790,7 @@
            </widget>
           </item>
           <item row="1" column="4">
-           <widget class="QCheckBox" name="checkBox_2">
+           <widget class="QCheckBox" name="instant_start_checkbox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -791,7 +800,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QComboBox" name="comboBox_2"/>
+           <widget class="QComboBox" name="map_type_combobox"/>
           </item>
           <item row="0" column="5" rowspan="2">
            <widget class="Line" name="line_7">
@@ -807,7 +816,7 @@
            </widget>
           </item>
           <item row="0" column="7">
-           <widget class="QComboBox" name="comboBox_3"/>
+           <widget class="QComboBox" name="match_length_conbobox"/>
           </item>
          </layout>
         </widget>
@@ -822,14 +831,17 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="mutator_options_button">
             <property name="text">
              <string>Mutator Options</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCommandLinkButton" name="commandLinkButton">
+           <widget class="QCommandLinkButton" name="run_button">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>RUN</string>
             </property>
@@ -854,11 +866,6 @@
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionLoad_CFG">
-   <property name="text">
-    <string>Load CFG</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>
