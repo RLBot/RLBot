@@ -28,6 +28,8 @@ class BaseGuiAgent:
         self.agent_config_path = None
         self.loadout_config_path = None
 
+        self.save_agent_timer = None
+
         if team_i is not None:
             self.team_index = team_i
             self.set_team(team_i)
