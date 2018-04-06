@@ -26,8 +26,7 @@ class BaseGuiAgent:
         self.loadout_config_path = None
         self.agent_config = None
         self.looks_config = None
-
-        self.save_agent_timer = None
+        self.ingame_name = "Atba (" + str(overall_index) + ")"
 
         if team_i is not None:
             self.team_index = team_i
@@ -69,7 +68,7 @@ class BaseGuiAgent:
         return '%s (%s, %s)' % (self.__class__.__name__, self.agent_class.__name__, self.overall_index)
 
     def __str__(self):
-        return '%s (%s)' % ("Atba", self.overall_index)  # TODO fix this up again
+        return '%s' % (self.ingame_name)  # TODO fix this up again
 
     def get_agent_config_path(self):
         return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,

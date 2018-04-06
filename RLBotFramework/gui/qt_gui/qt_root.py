@@ -168,6 +168,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             else:
                 listwidget = self.orange_listwidget
             listwidget.selectedItems()[0].setText(value)
+            del self.bot_names_to_agent_dict[self.current_bot.ingame_name]
+            self.current_bot.ingame_name = value
+            self.bot_names_to_agent_dict[value] = agent
         elif s == self.bot_level_slider:
             agent.set_bot_skill(value / 100)
         elif s == self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
