@@ -176,8 +176,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 self.switch_team_bot(0, agent)
                 self.orange_listwidget.setCurrentItem(item)
 
-
-
     def update_bot_type_combobox(self):
         if self.bot_type_combobox.currentText() == 'RLBot':
             self.rlbot_frame.setHidden(False)
@@ -248,6 +246,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         agent = self.get_selected_bot(self.sender())
         if agent is None:
             return
+        print('hiadfafra')
         if self.current_bot == agent:
             return
         else:
@@ -280,14 +279,13 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
 
-    def get_selected_bot(self, sender: QtWidgets.QListWidget, print_err=False):
+    def get_selected_bot(self, sender: QtWidgets.QListWidget, print_err=True):
         if sender is self.blue_listwidget:
             bots_list = self.blue_bots
             self.orange_listwidget.clearSelection()
         elif sender is self.orange_listwidget:
             bots_list = self.orange_bots
             self.blue_listwidget.clearSelection()
-
         # agent_name = sender.currentItem().text()
         agent_i = sender.currentRow()
         try:
