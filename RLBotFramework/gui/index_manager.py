@@ -2,7 +2,6 @@ from itertools import count, filterfalse
 
 
 class IndexManager:
-
     def __init__(self, size):
         self.numbers = set()
         self.size = size

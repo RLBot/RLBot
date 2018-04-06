@@ -36,19 +36,18 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         self.car_customisation = CarCustomisationDialog()
 
-        self.update_bot_type_combobox()
+        for item in self.loadout_presets.keys():
+            self.loadout_preset_combobox.addItem(item)
+        for item in self.agent_presets.keys():
+            self.agent_preset_combobox.addItem(item)
+
 
         self.connect_functions()
 
-        self.get_agent_options()
         self.update_teams_listwidgets()
+        self.update_bot_type_combobox()
 
         self.statusbar.showMessage("Saved CFG.")
-        print(self.cfg_file_path_lineedit.text(), type(self.cfg_file_path_lineedit.text()))
-        # self.lineEdit.setText("asfasfasfasf *")
-        # myFont = QtGui.QFont()
-        # myFont.setItalic(True)
-        # self.lineEdit.setFont(myFont)
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
         dragged_listwidget = event.source()
@@ -148,7 +147,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         for item in widgets:
             if isinstance(item, QtWidgets.QLineEdit):
-                item.textEdited.connect(self.edit_event)
+                item.editingFinished.connect(self.edit_event)
             elif isinstance(item, QtWidgets.QSlider):
                 item.sliderMoved.connect(self.edit_event)
             elif isinstance(item, QtWidgets.QAbstractSpinBox):
@@ -156,18 +155,32 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             elif isinstance(item, QtWidgets.QRadioButton):
                 item.toggled.connect(self.edit_event)
 
-    def edit_event(self, value):
+    def edit_event(self, value=None):
         s = self.sender()
         agent = self.current_bot
         if s == self.cfg_file_path_lineedit:
-            print("Verify path")
+            value = self.cfg_file_path_lineedit.text()
+            print(value)
         elif s == self.ign_lineedit:
-            # TODO check for duplicates
             if not self.current_bot.get_team():
                 listwidget = self.blue_listwidget
             else:
                 listwidget = self.orange_listwidget
+            value = self.ign_lineedit.text()
+            if value in self.bot_names_to_agent_dict and self.bot_names_to_agent_dict[value] is not agent:
+                i = 0
+                while True:
+                    if value + " (" + str(i) + ")" in self.bot_names_to_agent_dict and \
+                            self.bot_names_to_agent_dict[value + " (" + str(i) + ")"] is not agent:
+                        i += 1
+                    else:
+                        value = value + " (" + str(i) + ")"
+                        self.ign_lineedit.setText(value)
+                        break
             listwidget.selectedItems()[0].setText(value)
+            del self.bot_names_to_agent_dict[self.current_bot.ingame_name]
+            self.current_bot.ingame_name = value
+            self.bot_names_to_agent_dict[value] = agent
         elif s == self.bot_level_slider:
             agent.set_bot_skill(value / 100)
         elif s == self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
@@ -182,27 +195,29 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 self.orange_listwidget.setCurrentItem(item)
 
     def update_bot_type_combobox(self):
+        if not self.bot_type_combobox.isEnabled():
+            return
+
         if self.bot_type_combobox.currentText() == 'RLBot':
             self.rlbot_frame.setHidden(False)
             self.extra_line.setHidden(False)
             self.psyonix_bot_frame.setHidden(True)
+            self.current_bot.set_participant_type("rlbot")
         elif self.bot_type_combobox.currentText() == 'Human':
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
+            self.current_bot.set_participant_type("human")
         elif self.bot_type_combobox.currentText() == 'Psyonix':
             self.psyonix_bot_frame.setHidden(False)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(False)
+            self.current_bot.set_participant_type("psyonix")
         elif self.bot_type_combobox.currentText() == 'Possessed Human':
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
-
-    def get_agent_options(self):
-        # populate dropdown
-        print(os.path.dirname(__file__))
-        # agents_folder = os.path.join()
+            self.current_bot.set_participant_type("party_member_bot")
 
     def enable_disable_on_bot_select_deselect(self):
         # if no bot selected, disable botconfig groupbox and minus buttons
@@ -272,14 +287,17 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         print('Selected Agent: %s\t\t(Type: %s)' % (agent, agent_type))
 
         known_types = ['human', 'psyonix', 'rlbot', 'possessed_human']
-
         assert agent_type in known_types, 'Bot has unknown type: %s' % agent_type
+
         self.bot_type_combobox.setCurrentIndex(known_types.index(agent_type))
         if not agent.get_team():
             self.blue_radiobutton.setChecked(True)
         else:
             self.orange_radiobutton.setChecked(True)
         self.ign_lineedit.setText(str(agent))
+        print(agent.loadout_preset)
+        self.loadout_preset_combobox.addItem(agent.loadout_preset)
+        self.agent_preset_combobox.setCurrentText(agent.agent_preset)
 
 
         self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
