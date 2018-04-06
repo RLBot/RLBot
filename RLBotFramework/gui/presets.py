@@ -1,12 +1,16 @@
 import os
-import PyQt5.QtCore.QTimer
+from PyQt5.QtCore import QTimer
 
 from RLBotFramework.agents.base_agent import BaseAgent
 
-class LoadoutPreset:
-    def __init__(self, file_path=None):
-        self.config = BaseAgent.create_looks_configurations()
+
+class Preset:
+    def __init__(self, config, file_path=None):
+        self.config = config
         self.config_path = file_path
+        self.name = os.path.basename(file_path).strip(".cfg")
+        if file_path is not None:
+            self.load(file_path)
 
     def load(self, file_path=None):
         if file_path is None:
@@ -28,7 +32,22 @@ class LoadoutPreset:
                 return
             with open(self.config_path, "w") as f:
                 f.write(str(self.config))
+
         if self.save_loadout_timer is None:
-            self.save_loadout_timer = PyQt5.QtCore.QTimer()
+            self.save_loadout_timer = QTimer()
             self.save_loadout_timer.timeout.connect(save)
         self.save_loadout_timer.start(time_out)  # Time-out for timer over here
+
+    def get_name(self):
+        return self.name
+
+
+class LoadoutPreset(Preset):
+    def __init__(self, file_path=None):
+        super().__init__(BaseAgent.create_looks_configurations(), file_path)
+
+
+class AgentPreset(Preset):
+    def __init__(self, file_path=None):
+        super().__init__(BaseAgent.create_agent_configurations(), file_path)
+        self.name = os.path.basename(file_path).strip(".cfg")
