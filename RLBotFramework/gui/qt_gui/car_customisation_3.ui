@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>792</width>
-    <height>450</height>
+    <width>660</width>
+    <height>495</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Preset Loadout Customiser</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,3,1">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,5">
    <item>
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
-      <string>Presets</string>
+      <string>Loadout presets</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
@@ -27,410 +27,366 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Preset Loadout</string>
+    <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,1">
+     <property name="bottomMargin">
+      <number>0</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="2,1,1,2,1,1,2">
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item row="2" column="5" colspan="2">
-       <widget class="QSpinBox" name="spinBox_18"/>
-      </item>
-      <item row="6" column="6">
-       <widget class="QComboBox" name="comboBox_18"/>
-      </item>
-      <item row="10" column="3">
-       <widget class="QComboBox" name="comboBox_8"/>
-      </item>
-      <item row="10" column="6">
-       <widget class="QComboBox" name="comboBox_20"/>
-      </item>
-      <item row="8" column="6">
-       <widget class="QComboBox" name="comboBox_21"/>
-      </item>
-      <item row="13" column="6">
-       <widget class="QComboBox" name="comboBox_15"/>
-      </item>
-      <item row="4" column="6">
-       <widget class="QComboBox" name="comboBox_12"/>
-      </item>
-      <item row="1" column="5" colspan="2">
-       <widget class="QSpinBox" name="spinBox_24"/>
-      </item>
-      <item row="5" column="6">
-       <widget class="QComboBox" name="comboBox_22"/>
-      </item>
-      <item row="4" column="3">
-       <widget class="QComboBox" name="comboBox_2"/>
-      </item>
-      <item row="8" column="3">
-       <widget class="QComboBox" name="comboBox_6"/>
-      </item>
-      <item row="5" column="3">
-       <widget class="QComboBox" name="comboBox_3"/>
-      </item>
-      <item row="6" column="3">
-       <widget class="QComboBox" name="comboBox_4"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Primary color:</string>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Preset Config</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>Preset name:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>File path:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="11">
+         <widget class="QPushButton" name="preset_save_pushbutton">
+          <property name="text">
+           <string>Save</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="10">
+         <widget class="QPushButton" name="preset_load_pushbutton">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="12">
+         <widget class="QCheckBox" name="preset_autosave_checkbox">
+          <property name="text">
+           <string>Autosave</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" colspan="12">
+         <widget class="QLineEdit" name="preset_path_lineedit"/>
+        </item>
+        <item row="5" column="1" colspan="9">
+         <widget class="QLineEdit" name="preset_name_lineedit"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Preset Loadout</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1,2,1,1,2,0">
+        <property name="topMargin">
+         <number>0</number>
         </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Secondary color:</string>
+        <property name="bottomMargin">
+         <number>8</number>
         </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Wheels:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="6">
-       <widget class="QComboBox" name="comboBox_13"/>
-      </item>
-      <item row="3" column="2">
-       <widget class="QSpinBox" name="spinBox_3"/>
-      </item>
-      <item row="3" column="5">
-       <widget class="QSpinBox" name="spinBox_19"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Car:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Decal:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="5">
-       <widget class="QSpinBox" name="spinBox_23"/>
-      </item>
-      <item row="4" column="2">
-       <widget class="QSpinBox" name="spinBox_4"/>
-      </item>
-      <item row="3" column="3">
-       <widget class="QComboBox" name="comboBox"/>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Boost:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="5">
-       <widget class="QSpinBox" name="spinBox_16"/>
-      </item>
-      <item row="7" column="6">
-       <widget class="QComboBox" name="comboBox_14"/>
-      </item>
-      <item row="6" column="2">
-       <widget class="QSpinBox" name="spinBox_6"/>
-      </item>
-      <item row="7" column="2">
-       <widget class="QSpinBox" name="spinBox_7"/>
-      </item>
-      <item row="7" column="3">
-       <widget class="QComboBox" name="comboBox_5"/>
-      </item>
-      <item row="5" column="5">
-       <widget class="QSpinBox" name="spinBox_17"/>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Antenna:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="5">
-       <widget class="QSpinBox" name="spinBox_14"/>
-      </item>
-      <item row="5" column="2">
-       <widget class="QSpinBox" name="spinBox_5"/>
-      </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Hat:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="5">
-       <widget class="QSpinBox" name="spinBox_22"/>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Paint finish:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="2">
-       <widget class="QSpinBox" name="spinBox_9"/>
-      </item>
-      <item row="9" column="5">
-       <widget class="QSpinBox" name="spinBox_26"/>
-      </item>
-      <item row="9" column="3">
-       <widget class="QComboBox" name="comboBox_7"/>
-      </item>
-      <item row="8" column="2">
-       <widget class="QSpinBox" name="spinBox_8"/>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Custom finish:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="2">
-       <widget class="QSpinBox" name="spinBox_10"/>
-      </item>
-      <item row="10" column="5">
-       <widget class="QSpinBox" name="spinBox_25"/>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Engine audio:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="2">
-       <widget class="QSpinBox" name="spinBox_11"/>
-      </item>
-      <item row="11" column="5">
-       <widget class="QSpinBox" name="spinBox_21"/>
-      </item>
-      <item row="12" column="3">
-       <widget class="QComboBox" name="comboBox_10"/>
-      </item>
-      <item row="12" column="2">
-       <widget class="QSpinBox" name="spinBox_12"/>
-      </item>
-      <item row="12" column="5">
-       <widget class="QSpinBox" name="spinBox_15"/>
-      </item>
-      <item row="11" column="6">
-       <widget class="QComboBox" name="comboBox_19"/>
-      </item>
-      <item row="12" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>Trails:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="6">
-       <widget class="QComboBox" name="comboBox_16"/>
-      </item>
-      <item row="11" column="3">
-       <widget class="QComboBox" name="comboBox_9"/>
-      </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="label_13">
-        <property name="text">
-         <string>Goal explosion:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="6">
-       <widget class="QComboBox" name="comboBox_17"/>
-      </item>
-      <item row="13" column="3">
-       <widget class="QComboBox" name="comboBox_11"/>
-      </item>
-      <item row="13" column="2">
-       <widget class="QSpinBox" name="spinBox_13"/>
-      </item>
-      <item row="13" column="5">
-       <widget class="QSpinBox" name="spinBox_20"/>
-      </item>
-      <item row="0" column="5" colspan="2">
-       <widget class="QLabel" name="label_15">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Orange</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" colspan="2">
-       <widget class="QLabel" name="label_14">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Blue</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" rowspan="14">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4" rowspan="14">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" colspan="2">
-       <widget class="QSpinBox" name="spinBox"/>
-      </item>
-      <item row="2" column="2" colspan="2">
-       <widget class="QSpinBox" name="spinBox_2"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Preset Config</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QFrame" name="frame">
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="3">
-          <widget class="QLineEdit" name="lineEdit"/>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>idk what else:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEdit_2"/>
-         </item>
-         <item row="1" column="3">
-          <widget class="QToolButton" name="toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QFrame" name="frame_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>Save Preset</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+        <item row="0" column="2" colspan="2">
+         <widget class="QLabel" name="label_14">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Blue</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5" colspan="2">
+         <widget class="QLabel" name="label_15">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Orange</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Primary color:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" colspan="2">
+         <widget class="QSpinBox" name="blue_primary_spinbox"/>
+        </item>
+        <item row="1" column="5" colspan="2">
+         <widget class="QSpinBox" name="orange_primary_spinbox"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Secondary color:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Car:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5" colspan="2">
+         <widget class="QSpinBox" name="orange_secondary_spinbox"/>
+        </item>
+        <item row="2" column="2" colspan="2">
+         <widget class="QSpinBox" name="blue_secondary_spinbox"/>
+        </item>
+        <item row="3" column="2">
+         <widget class="QSpinBox" name="blue_car_spinbox"/>
+        </item>
+        <item row="3" column="5">
+         <widget class="QSpinBox" name="orange_car_spinbox"/>
+        </item>
+        <item row="3" column="6">
+         <widget class="QComboBox" name="orange_car_combobox"/>
+        </item>
+        <item row="3" column="3">
+         <widget class="QComboBox" name="blue_car_combobox"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Decal:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QSpinBox" name="blue_decal_spinbox"/>
+        </item>
+        <item row="4" column="3">
+         <widget class="QComboBox" name="blue_decal_combobox"/>
+        </item>
+        <item row="4" column="5">
+         <widget class="QSpinBox" name="orange_decal_spinbox"/>
+        </item>
+        <item row="5" column="2">
+         <widget class="QSpinBox" name="blue_wheels_spinbox"/>
+        </item>
+        <item row="5" column="3">
+         <widget class="QComboBox" name="blue_wheels_combobox"/>
+        </item>
+        <item row="5" column="5">
+         <widget class="QSpinBox" name="orange_wheels_spinbox"/>
+        </item>
+        <item row="4" column="6">
+         <widget class="QComboBox" name="orange_decal_combobox"/>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Wheels:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="5">
+         <widget class="QSpinBox" name="orange_boost_spinbox"/>
+        </item>
+        <item row="6" column="3">
+         <widget class="QComboBox" name="blue_boost_combobox"/>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Boost:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="6">
+         <widget class="QComboBox" name="orange_wheels_combobox"/>
+        </item>
+        <item row="6" column="2">
+         <widget class="QSpinBox" name="blue_boost_spinbox"/>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Antenna:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="3">
+         <widget class="QComboBox" name="blue_antenna_combobox"/>
+        </item>
+        <item row="7" column="2">
+         <widget class="QSpinBox" name="blue_antenna_spinbox"/>
+        </item>
+        <item row="7" column="5">
+         <widget class="QSpinBox" name="orange_antenna_spinbox"/>
+        </item>
+        <item row="6" column="6">
+         <widget class="QComboBox" name="orange_boost_combobox"/>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Hat:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="2">
+         <widget class="QSpinBox" name="blue_hat_spinbox"/>
+        </item>
+        <item row="8" column="3">
+         <widget class="QComboBox" name="blue_hat_combobox"/>
+        </item>
+        <item row="8" column="5">
+         <widget class="QSpinBox" name="orange_hat_spinbox"/>
+        </item>
+        <item row="7" column="6">
+         <widget class="QComboBox" name="orange_antenna_combobox"/>
+        </item>
+        <item row="8" column="6">
+         <widget class="QComboBox" name="orange_hat_combobox"/>
+        </item>
+        <item row="9" column="2">
+         <widget class="QSpinBox" name="blue_paint_finish_spinbox"/>
+        </item>
+        <item row="9" column="3">
+         <widget class="QComboBox" name="blue_paint_finish_combobox"/>
+        </item>
+        <item row="9" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Paint finish:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Custom finish:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="3">
+         <widget class="QComboBox" name="blue_custom_finish_combobox"/>
+        </item>
+        <item row="9" column="6">
+         <widget class="QComboBox" name="orange_paint_finish_combobox"/>
+        </item>
+        <item row="10" column="2">
+         <widget class="QSpinBox" name="blue_custom_finish_spinbox"/>
+        </item>
+        <item row="9" column="5">
+         <widget class="QSpinBox" name="orange_paint_finish_spinbox"/>
+        </item>
+        <item row="11" column="2">
+         <widget class="QSpinBox" name="blue_engine_spinbox"/>
+        </item>
+        <item row="11" column="3">
+         <widget class="QComboBox" name="blue_engine_combobox"/>
+        </item>
+        <item row="11" column="5">
+         <widget class="QSpinBox" name="orange_engine_spinbox"/>
+        </item>
+        <item row="10" column="5">
+         <widget class="QSpinBox" name="orange_custom_finish_spinbox"/>
+        </item>
+        <item row="11" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Engine audio:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="6">
+         <widget class="QComboBox" name="orange_custom_finish_combobox"/>
+        </item>
+        <item row="11" column="6">
+         <widget class="QComboBox" name="orange_engine_combobox"/>
+        </item>
+        <item row="12" column="3">
+         <widget class="QComboBox" name="blue_trails_combobox"/>
+        </item>
+        <item row="12" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Trails:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="2">
+         <widget class="QSpinBox" name="blue_trails_spinbox"/>
+        </item>
+        <item row="12" column="5">
+         <widget class="QSpinBox" name="orange_trails_spinbox"/>
+        </item>
+        <item row="12" column="6">
+         <widget class="QComboBox" name="orange_trails_combobox"/>
+        </item>
+        <item row="13" column="0">
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>Goal explosion:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="2">
+         <widget class="QSpinBox" name="blue_goal_explosion_spinbox"/>
+        </item>
+        <item row="13" column="3">
+         <widget class="QComboBox" name="blue_goal_explosion_combobox"/>
+        </item>
+        <item row="13" column="6">
+         <widget class="QComboBox" name="orange_goal_explosion_combobox"/>
+        </item>
+        <item row="13" column="5">
+         <widget class="QSpinBox" name="orange_goal_explosion_spinbox"/>
+        </item>
+        <item row="1" column="1" rowspan="13">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4" rowspan="13">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
