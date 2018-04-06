@@ -2,7 +2,6 @@ import os
 from PyQt5.QtCore import QTimer
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
-from RLBotFramework.utils.class_importer import import_agent
 from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
     PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, get_bot_config_bundle, BotConfigBundle
 
@@ -34,28 +33,6 @@ class BaseGuiAgent:
             self.team_index = team_i
             self.set_team(team_i)
 
-    def save_agent_config(self):
-        def save():
-            if not os.path.exists(self.agent_config_path):
-                return
-            with open(self.agent_config_path, "w") as f:
-                f.write(str(self.agent_config))
-        if self.save_agent_timer is None:
-            self.save_agent_timer = QTimer()
-            self.save_agent_timer.timeout.connect(save)
-        self.save_agent_timer.start(5)  # Time-out for timer over here
-
-    def save_loadout_config(self):
-        def save():
-            if not os.path.exists(self.loadout_config_path):
-                return
-            with open(self.loadout_config_path, "w") as f:
-                f.write(str(self.looks_config))
-        if self.save_loadout_timer is None:
-            self.save_loadout_timer = QTimer()
-            self.save_loadout_timer.timeout.connect(save)
-        self.save_loadout_timer.start(5)  # Time-out for timer over here
-
     def load_agent_configs(self):
         """
         Loads the config specific to the agent.
@@ -64,17 +41,9 @@ class BaseGuiAgent:
         :return:
         """
 
-        config_bundle = get_bot_config_bundle(self.get_agent_config_path())
-        python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
-        self.agent_class = import_agent(python_file).get_loaded_class()
-
-        self.agent_config = self.agent_class.create_agent_configurations()
-        self.agent_config.parse_file(config_bundle.config_obj)
-        self.config_bundle = BotConfigBundle(config_bundle.config_directory, self.agent_config)
-
-        looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-        self.looks_config = BaseAgent.create_looks_configurations()
-        self.looks_config.parse_file(looks_path)
+        # looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
+        # self.looks_config = BaseAgent.create_looks_configurations()
+        # self.looks_config.parse_file(looks_path)
 
     def load_config(self, overall_config_file, overall_index):
         """Loads the config data into the agent"""
@@ -83,15 +52,11 @@ class BaseGuiAgent:
         self.load_agent_configs()
         self.load_fields_from_config()
 
-    # TODO: The below 3 functions need  to be updated (i think a get_agent_config that returns a dict would be good)
-    def write_fields_to_config(self):
-        pass
-
     def load_fields_from_config(self):
         pass
 
     def get_config(self):
-        self.write_fields_to_config()
+
         return self.overall_index, self.config_bundle, self.looks_config
 
     def remove(self):
@@ -104,7 +69,7 @@ class BaseGuiAgent:
         return '%s (%s, %s)' % (self.__class__.__name__, self.agent_class.__name__, self.overall_index)
 
     def __str__(self):
-        return '%s (%s)' % (self.agent_class.__name__, self.overall_index)
+        return '%s (%s)' % ("Atba", self.overall_index)  # TODO fix this up again
 
     def get_agent_config_path(self):
         return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,

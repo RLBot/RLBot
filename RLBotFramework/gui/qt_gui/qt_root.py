@@ -162,7 +162,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         if s == self.cfg_file_path_lineedit:
             print("Verify path")
         elif s == self.ign_lineedit:
-            print("What to do with this name change?")
+            # TODO check for duplicates
+            if not self.current_bot.get_team():
+                listwidget = self.blue_listwidget
+            else:
+                listwidget = self.orange_listwidget
+            listwidget.selectedItems()[0].setText(value)
         elif s == self.bot_level_slider:
             agent.set_bot_skill(value / 100)
         elif s == self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
