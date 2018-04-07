@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtCore import QTimer
-
+from RLBotFramework.utils.class_importer import import_agent
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
 from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
     PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, get_bot_config_bundle, BotConfigBundle
@@ -9,8 +9,6 @@ from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION
 class BaseGuiAgent:
     config_object = None  # The config that is
     overall_config = None  # The config that is shared by all agent frames.
-    # overall_index = -1  # The index that grabs data from the overall_config
-    # team_index = -1  # The index representing what team the agent belongs to.
     config_bundle = None
 
     def __init__(self, overall_index, team_i=None):
@@ -26,7 +24,7 @@ class BaseGuiAgent:
         self.loadout_config_path = None
         self.loadout_preset = ""
         self.agent_preset = ""
-        self.ingame_name = "Atba (" + str(overall_index) + ")"
+        self.ingame_name = "Atba (" + str(overall_index) + ")"  # TODO: Change to use config's ingame name
 
         if team_i is not None:
             self.team_index = team_i
@@ -39,7 +37,11 @@ class BaseGuiAgent:
         :param agent_class: If passed in and there is not a config file this agent is used.
         :return:
         """
+        config_bundle = get_bot_config_bundle(self.get_agent_config_path())
+        python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+        self.agent_class = import_agent(python_file).get_loaded_class()
 
+        pass
         # looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
         # self.looks_config = BaseAgent.create_looks_configurations()
         # self.looks_config.parse_file(looks_path)
@@ -65,10 +67,11 @@ class BaseGuiAgent:
         pass
 
     def __repr__(self):
+        print(self.agent_class, 'dsdfsfsdfsd')
         return '%s (%s, %s)' % (self.__class__.__name__, self.agent_class.__name__, self.overall_index)
 
     def __str__(self):
-        return '%s' % (self.ingame_name)  # TODO fix this up again
+        return '%s (%s)' % (self.ingame_name, self.__class__.__name__)  # TODO fix this up again
 
     def get_agent_config_path(self):
         return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
