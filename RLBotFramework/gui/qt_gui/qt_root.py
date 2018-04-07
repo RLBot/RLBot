@@ -66,10 +66,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         assert dragged_bot_name, "Could not find overlap in dragged bot"
         print("Found dragged bot: %s. Bot placed in %s" % (dragged_bot_name, dropped_listwidget.objectName()))
         dragged_bot = self.bot_names_to_agent_dict[dragged_bot_name]
-        self.switch_team_bot(dropped_listwidget == self.orange_listwidget, dragged_bot)
+        old_team_index = dragged_listwidget is self.orange_listwidget
+        self.switch_team_bot(old_team_index, dragged_bot)
 
-    def move_bot_between_list(self, team_index, bot):
-        if not team_index:
+    def move_bot_between_list(self, old_team_index, bot):
+        if not old_team_index:
             from_list = self.blue_listwidget
             to_list = self.orange_listwidget
         else:
