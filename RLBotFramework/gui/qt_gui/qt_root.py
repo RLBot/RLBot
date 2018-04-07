@@ -8,12 +8,7 @@ from RLBotFramework.gui.base_gui_agent import BaseGuiAgent
 from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
 from RLBotFramework.gui.qt_gui.car_customisation import Ui_Form
 
-
-class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
-
+from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
@@ -34,13 +29,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict = {}
         self.current_bot = None
 
-        self.car_customisation = CarCustomisationDialog()
+        self.car_customisation = CarCustomisationDialog(self)
 
         for item in self.loadout_presets.keys():
             self.loadout_preset_combobox.addItem(item)
         for item in self.agent_presets.keys():
             self.agent_preset_combobox.addItem(item)
-
 
         self.connect_functions()
 
@@ -66,10 +60,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         assert dragged_bot_name, "Could not find overlap in dragged bot"
         print("Found dragged bot: %s. Bot placed in %s" % (dragged_bot_name, dropped_listwidget.objectName()))
         dragged_bot = self.bot_names_to_agent_dict[dragged_bot_name]
-        self.switch_team_bot(dropped_listwidget == self.orange_listwidget, dragged_bot)
+        old_team_index = dragged_listwidget is self.orange_listwidget
+        self.switch_team_bot(old_team_index, dragged_bot)
 
-    def move_bot_between_list(self, team_index, bot):
-        if not team_index:
+    def move_bot_between_list(self, old_team_index, bot):
+        if not old_team_index:
             from_list = self.blue_listwidget
             to_list = self.orange_listwidget
         else:
@@ -237,12 +232,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         for agent in self.agents:
             if not agent.get_team():
                 self.blue_bots.append(agent)
-                self.blue_bot_names.append(agent.__str__())
+                self.blue_bot_names.append(agent.ingame_name)
             else:
                 self.orange_bots.append(agent)
-                self.orange_bot_names.append(agent.__str__())
+                self.orange_bot_names.append(agent.ingame_name)
 
-            self.bot_names_to_agent_dict[agent.__str__()] = agent
+            self.bot_names_to_agent_dict[agent.ingame_name] = agent
         self.blue_listwidget.clear()
         self.blue_listwidget.addItems(self.blue_bot_names)
         self.orange_listwidget.clear()
@@ -266,7 +261,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         agent = self.get_selected_bot(self.sender())
         if agent is None:
             return
-        print('hiadfafra')
         if self.current_bot == agent:
             return
         else:
@@ -294,9 +288,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.blue_radiobutton.setChecked(True)
         else:
             self.orange_radiobutton.setChecked(True)
-        self.ign_lineedit.setText(str(agent))
-        print(agent.loadout_preset)
-        self.loadout_preset_combobox.addItem(agent.loadout_preset)
+        self.ign_lineedit.setText(agent.ingame_name)
+
+        # TODO: select agent.loadout_preset in self.loadout_preset_combobox
         self.agent_preset_combobox.setCurrentText(agent.agent_preset)
 
 
@@ -313,6 +307,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         agent_i = sender.currentRow()
         try:
             agent = bots_list[agent_i]
+            print(agent)
         except IndexError:
             if print_err:
                 print("\nI am printing this error manually. It can be hidden easily:")
