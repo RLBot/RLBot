@@ -61,3 +61,4 @@ packages/
 # generated protobuf files
 Protobuf/generated
 
+*.cpp_backup
