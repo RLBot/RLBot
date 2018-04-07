@@ -24,8 +24,8 @@ class BaseGuiAgent:
 
         self.agent_config_path = None
         self.loadout_config_path = None
-        self.agent_config = None
-        self.looks_config = None
+        self.loadout_preset = ""
+        self.agent_preset = ""
         self.ingame_name = "Atba (" + str(overall_index) + ")"
 
         if team_i is not None:
