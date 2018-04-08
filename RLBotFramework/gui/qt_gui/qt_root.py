@@ -10,10 +10,80 @@ from RLBotFramework.gui.qt_gui.car_customisation import Ui_Form
 
 
 class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
-    def __init__(self):
+
+
+    def __init__(self, qt_gui):
         super().__init__()
         self.setupUi(self)
+        self.qt_gui = qt_gui
 
+        # this new variable is not a copy. it's the same dict.
+        self.loadout_presets = self.qt_gui.loadout_presets
+
+        self.create_config_headers_dicts()
+        self.connect_functions()
+
+        self.update_presets_listwidget()
+
+    def create_config_headers_dicts(self):
+        self.config_headers_to_objects = {
+            # blue stuff
+            'Bot Loadout': {
+                'team_color_id': self.blue_primary_spinbox,
+                'custom_color_id': self.blue_secondary_spinbox,
+                'car_id': (self.blue_car_spinbox, self.blue_car_combobox),
+                'decal_id': (self.blue_decal_spinbox, self.blue_decal_combobox),
+                'wheels_id': (self.blue_wheels_spinbox, self.blue_wheels_combobox),
+                'boost_id': (self.blue_boost_spinbox, self.blue_boost_combobox),
+                'antenna_id': (self.blue_antenna_spinbox, self.blue_antenna_combobox),
+                'hat_id': (self.blue_hat_spinbox, self.blue_hat_combobox),
+                'paint_finish_id': (self.blue_paint_finish_spinbox, self.blue_paint_finish_combobox),
+                'custom_finish_id': (self.blue_custom_finish_spinbox, self.blue_custom_finish_combobox),
+                'engine_audio_id': (self.blue_engine_spinbox, self.blue_engine_combobox),
+                'trails_id': (self.blue_trails_spinbox, self.blue_trails_combobox),
+                'goal_explosion_id': (self.blue_goal_explosion_spinbox, self.blue_goal_explosion_combobox)
+            },
+            'Bot Loadout Orange': {
+                'team_color_id': self.orange_primary_spinbox,
+                'custom_color_id': self.orange_secondary_spinbox,
+                'car_id': (self.orange_car_spinbox, self.orange_car_combobox),
+                'decal_id': (self.orange_decal_spinbox, self.orange_decal_combobox),
+                'wheels_id': (self.orange_wheels_spinbox, self.orange_wheels_combobox),
+                'boost_id': (self.orange_boost_spinbox, self.orange_boost_combobox),
+                'antenna_id': (self.orange_antenna_spinbox, self.orange_antenna_combobox),
+                'hat_id': (self.orange_hat_spinbox, self.orange_hat_combobox),
+                'paint_finish_id': (self.orange_paint_finish_spinbox, self.orange_paint_finish_combobox),
+                'custom_finish_id': (self.orange_custom_finish_spinbox, self.orange_custom_finish_combobox),
+                'engine_audio_id': (self.orange_engine_spinbox, self.orange_engine_combobox),
+                'trails_id': (self.orange_trails_spinbox, self.orange_trails_combobox),
+                'goal_explosion_id': (self.orange_goal_explosion_spinbox, self.orange_goal_explosion_combobox)
+            },
+        }
+        self.config_objects_to_headers = {}
+        for header_1, _field_dict in self.config_headers_to_objects.items():
+            for header_2, _objects in _field_dict.items():
+                if isinstance(_objects, tuple):
+                    for _object in _objects:
+                        self.config_objects_to_headers[_object] = (header_1, header_2)
+                else:
+                    self.config_objects_to_headers[_objects] = (header_1, header_2)
+
+
+    def connect_functions(self):
+
+        pass
+
+
+    def load_loadout_preset(self):
+        pass
+
+    def update_presets_listwidget(self):
+        loadout_presets_names = self.loadout_presets
+
+        for loadout_preset_name, loadout_preset in self.loadout_presets.items():
+            print('loadouts:', loadout_preset_name, str(loadout_preset))
+            print(str(loadout_preset.config))
+            # print(loadout_preset.config.sections)
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
@@ -34,13 +104,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict = {}
         self.current_bot = None
 
-        self.car_customisation = CarCustomisationDialog()
+        self.car_customisation = CarCustomisationDialog(self)
 
         for item in self.loadout_presets.keys():
             self.loadout_preset_combobox.addItem(item)
         for item in self.agent_presets.keys():
             self.agent_preset_combobox.addItem(item)
-
 
         self.connect_functions()
 
@@ -238,12 +307,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         for agent in self.agents:
             if not agent.get_team():
                 self.blue_bots.append(agent)
-                self.blue_bot_names.append(agent.__str__())
+                self.blue_bot_names.append(agent.ingame_name)
             else:
                 self.orange_bots.append(agent)
-                self.orange_bot_names.append(agent.__str__())
+                self.orange_bot_names.append(agent.ingame_name)
 
-            self.bot_names_to_agent_dict[agent.__str__()] = agent
+            self.bot_names_to_agent_dict[agent.ingame_name] = agent
         self.blue_listwidget.clear()
         self.blue_listwidget.addItems(self.blue_bot_names)
         self.orange_listwidget.clear()
@@ -267,7 +336,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         agent = self.get_selected_bot(self.sender())
         if agent is None:
             return
-        print('hiadfafra')
         if self.current_bot == agent:
             return
         else:
@@ -295,9 +363,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.blue_radiobutton.setChecked(True)
         else:
             self.orange_radiobutton.setChecked(True)
-        self.ign_lineedit.setText(str(agent))
-        print(agent.loadout_preset)
-        self.loadout_preset_combobox.addItem(agent.loadout_preset)
+        self.ign_lineedit.setText(agent.ingame_name)
+
+        # TODO: select agent.loadout_preset in self.loadout_preset_combobox
         self.agent_preset_combobox.setCurrentText(agent.agent_preset)
 
 
@@ -314,6 +382,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         agent_i = sender.currentRow()
         try:
             agent = bots_list[agent_i]
+            print(agent)
         except IndexError:
             if print_err:
                 print("\nI am printing this error manually. It can be hidden easily:")
