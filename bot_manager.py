@@ -92,7 +92,6 @@ class BotManager:
 
         # Temporarily modify the sys.path while we load the module so that the module can use import statements naturally
         sys.path.insert(0, dir_name)
-        print(self.module_path)
         agent_module = importlib.import_module(module_name)
         agent = self.load_agent(agent_module)
 
