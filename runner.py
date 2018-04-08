@@ -60,10 +60,11 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
-def run_agent(terminate_event, callback_event, config_file, name, team, index, module_name, agent_telemetry_queue):
+def run_agent(terminate_event, callback_event, config_file, name, team, index, module_path, agent_telemetry_queue):
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
-                                index, module_name, agent_telemetry_queue)
+                                index, module_path, agent_telemetry_queue)
     bm.run()
+
 
 def injectDLL():
     """
@@ -75,10 +76,11 @@ def injectDLL():
     """
     # Inject DLL
     injector_dir = os.path.join(os.path.dirname(__file__), "RLBot_Injector.exe")
-    incode=subprocess.call([injector_dir, 'hidden'])
-    injector_codes=['INJECTION_SUCCESSFUL','INJECTION_FAILED','MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND','RLBOT_DLL_ALREADY_INJECTED','RLBOT_DLL_NOT_FOUND','MULTIPLE_RLBOT_DLL_FILES_FOUND']
-    injector_valid_codes=['INJECTION_SUCCESSFUL','RLBOT_DLL_ALREADY_INJECTED']
-    injection_status=injector_codes[incode]
+    incode = subprocess.call([injector_dir, 'hidden'])
+    injector_codes = ['INJECTION_SUCCESSFUL', 'INJECTION_FAILED', 'MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND',
+                      'RLBOT_DLL_ALREADY_INJECTED', 'RLBOT_DLL_NOT_FOUND', 'MULTIPLE_RLBOT_DLL_FILES_FOUND']
+    injector_valid_codes = ['INJECTION_SUCCESSFUL', 'RLBOT_DLL_ALREADY_INJECTED']
+    injection_status = injector_codes[incode]
     print(injection_status)
     if injection_status in injector_valid_codes:
         return injection_status
@@ -110,7 +112,7 @@ def main():
     # Create empty lists
     bot_names = []
     bot_teams = []
-    bot_modules = []
+    bot_module_paths = []
     processes = []
     callbacks = []
     bot_parameter_list = []
@@ -121,7 +123,6 @@ def main():
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
         bot_config_path = participant_configs[i]
-        sys.path.append(os.path.dirname(bot_config_path))
         bot_config = configparser.RawConfigParser()
         bot_config.read(bot_config_path)
 
@@ -172,9 +173,11 @@ def main():
         bot_names.append(bot_config.get(loadout_header, 'name'))
         bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
-            bot_modules.append(bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module'))
+            module_name = bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
+            module_path = os.path.join(os.path.dirname(bot_config_path), str(module_name).replace(".", "\\") + ".py")
+            bot_module_paths.append(module_path)
         else:
-            bot_modules.append('NO_MODULE_FOR_PARTICIPANT')
+            bot_module_paths.append('NO_MODULE_FOR_PARTICIPANT')
 
     # Create Quit event
     quit_event = mp.Event()
@@ -190,7 +193,7 @@ def main():
             process = mp.Process(target=run_agent,
                                  args=(quit_event, callback, bot_parameter_list[i],
                                        str(gameInputPacket.sPlayerConfiguration[i].wName),
-                                       bot_teams[i], i, bot_modules[i], agent_metadata_queue))
+                                       bot_teams[i], i, bot_module_paths[i], agent_metadata_queue))
             process.start()
 
     print("Successfully configured bots. Setting flag for injected dll.")
@@ -252,7 +255,7 @@ def configure_processes(agent_metadata_map):
 
     for player_index, data in agent_metadata_map.items():
         team = data['team']
-        if not team in team_pids_map:
+        if team not in team_pids_map:
             team_pids_map[team] = set()
         team_pids_map[team].update(data['pids'])
 
@@ -289,6 +292,7 @@ def configure_processes(agent_metadata_map):
     for pid in shared_pids:
         p = psutil.Process(pid)  # Allow the process to run at high priority
         p.nice(psutil.HIGH_PRIORITY_CLASS)
+
 
 if __name__ == '__main__':
     main()

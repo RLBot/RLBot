@@ -20,7 +20,7 @@ MAX_CARS = 10
 
 class BotManager:
     def __init__(self, terminate_request_event, termination_complete_event, bot_parameters, name, team, index,
-                 modulename, agent_metadata_queue):
+                 module_path, agent_metadata_queue):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -39,7 +39,7 @@ class BotManager:
         self.name = name
         self.team = team
         self.index = index
-        self.module_name = modulename
+        self.module_path = module_path
         self.agent_metadata_queue = agent_metadata_queue
 
     def load_agent(self, agent_module):
@@ -86,8 +86,23 @@ class BotManager:
                 continue
 
         # Get bot module
-        agent_module = importlib.import_module(self.module_name)
+        dir_name = os.path.dirname(self.module_path)
+        module_name = os.path.splitext(os.path.basename(self.module_path))[0]
+        keys_before = set(sys.modules.keys())
+
+        # Temporarily modify the sys.path while we load the module so that the module can use import statements naturally
+        sys.path.insert(0, dir_name)
+        print(self.module_path)
+        agent_module = importlib.import_module(module_name)
         agent = self.load_agent(agent_module)
+
+        # Clean up the changes to sys.path and sys.modules to avoid collisions with other external classes and to
+        # prepare for the next reload.
+        added = set(sys.modules.keys()).difference(keys_before)
+        del sys.path[0]
+        for key in added:
+            del sys.modules[key]
+
         last_module_modification_time = os.stat(agent_module.__file__).st_mtime
 
         # Run until main process tells to stop
