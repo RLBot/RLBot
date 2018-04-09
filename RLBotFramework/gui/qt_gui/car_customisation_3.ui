@@ -95,7 +95,7 @@
        <property name="title">
         <string>Preset Loadout</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1,2,1,1,2,0">
+       <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1,2,1,1,2">
         <property name="topMargin">
          <number>0</number>
         </property>
@@ -142,10 +142,18 @@
          </widget>
         </item>
         <item row="1" column="2" colspan="2">
-         <widget class="QSpinBox" name="blue_primary_spinbox"/>
+         <widget class="QSpinBox" name="blue_primary_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="1" column="5" colspan="2">
-         <widget class="QSpinBox" name="orange_primary_spinbox"/>
+         <widget class="QSpinBox" name="orange_primary_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_2">
@@ -162,16 +170,32 @@
          </widget>
         </item>
         <item row="2" column="5" colspan="2">
-         <widget class="QSpinBox" name="orange_secondary_spinbox"/>
+         <widget class="QSpinBox" name="orange_secondary_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="2" column="2" colspan="2">
-         <widget class="QSpinBox" name="blue_secondary_spinbox"/>
+         <widget class="QSpinBox" name="blue_secondary_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QSpinBox" name="blue_car_spinbox"/>
+         <widget class="QSpinBox" name="blue_car_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="3" column="5">
-         <widget class="QSpinBox" name="orange_car_spinbox"/>
+         <widget class="QSpinBox" name="orange_car_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="3" column="6">
          <widget class="QComboBox" name="orange_car_combobox"/>
@@ -187,22 +211,38 @@
          </widget>
         </item>
         <item row="4" column="2">
-         <widget class="QSpinBox" name="blue_decal_spinbox"/>
+         <widget class="QSpinBox" name="blue_decal_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="4" column="3">
          <widget class="QComboBox" name="blue_decal_combobox"/>
         </item>
         <item row="4" column="5">
-         <widget class="QSpinBox" name="orange_decal_spinbox"/>
+         <widget class="QSpinBox" name="orange_decal_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="5" column="2">
-         <widget class="QSpinBox" name="blue_wheels_spinbox"/>
+         <widget class="QSpinBox" name="blue_wheels_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="5" column="3">
          <widget class="QComboBox" name="blue_wheels_combobox"/>
         </item>
         <item row="5" column="5">
-         <widget class="QSpinBox" name="orange_wheels_spinbox"/>
+         <widget class="QSpinBox" name="orange_wheels_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="4" column="6">
          <widget class="QComboBox" name="orange_decal_combobox"/>
@@ -215,7 +255,11 @@
          </widget>
         </item>
         <item row="6" column="5">
-         <widget class="QSpinBox" name="orange_boost_spinbox"/>
+         <widget class="QSpinBox" name="orange_boost_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="6" column="3">
          <widget class="QComboBox" name="blue_boost_combobox"/>
@@ -231,7 +275,11 @@
          <widget class="QComboBox" name="orange_wheels_combobox"/>
         </item>
         <item row="6" column="2">
-         <widget class="QSpinBox" name="blue_boost_spinbox"/>
+         <widget class="QSpinBox" name="blue_boost_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="7" column="0">
          <widget class="QLabel" name="label_7">
@@ -244,10 +292,18 @@
          <widget class="QComboBox" name="blue_antenna_combobox"/>
         </item>
         <item row="7" column="2">
-         <widget class="QSpinBox" name="blue_antenna_spinbox"/>
+         <widget class="QSpinBox" name="blue_antenna_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="7" column="5">
-         <widget class="QSpinBox" name="orange_antenna_spinbox"/>
+         <widget class="QSpinBox" name="orange_antenna_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="6" column="6">
          <widget class="QComboBox" name="orange_boost_combobox"/>
@@ -260,13 +316,21 @@
          </widget>
         </item>
         <item row="8" column="2">
-         <widget class="QSpinBox" name="blue_hat_spinbox"/>
+         <widget class="QSpinBox" name="blue_hat_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="8" column="3">
          <widget class="QComboBox" name="blue_hat_combobox"/>
         </item>
         <item row="8" column="5">
-         <widget class="QSpinBox" name="orange_hat_spinbox"/>
+         <widget class="QSpinBox" name="orange_hat_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="7" column="6">
          <widget class="QComboBox" name="orange_antenna_combobox"/>
@@ -275,7 +339,11 @@
          <widget class="QComboBox" name="orange_hat_combobox"/>
         </item>
         <item row="9" column="2">
-         <widget class="QSpinBox" name="blue_paint_finish_spinbox"/>
+         <widget class="QSpinBox" name="blue_paint_finish_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="9" column="3">
          <widget class="QComboBox" name="blue_paint_finish_combobox"/>
@@ -301,22 +369,42 @@
          <widget class="QComboBox" name="orange_paint_finish_combobox"/>
         </item>
         <item row="10" column="2">
-         <widget class="QSpinBox" name="blue_custom_finish_spinbox"/>
+         <widget class="QSpinBox" name="blue_custom_finish_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="9" column="5">
-         <widget class="QSpinBox" name="orange_paint_finish_spinbox"/>
+         <widget class="QSpinBox" name="orange_paint_finish_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="11" column="2">
-         <widget class="QSpinBox" name="blue_engine_spinbox"/>
+         <widget class="QSpinBox" name="blue_engine_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="11" column="3">
          <widget class="QComboBox" name="blue_engine_combobox"/>
         </item>
         <item row="11" column="5">
-         <widget class="QSpinBox" name="orange_engine_spinbox"/>
+         <widget class="QSpinBox" name="orange_engine_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="10" column="5">
-         <widget class="QSpinBox" name="orange_custom_finish_spinbox"/>
+         <widget class="QSpinBox" name="orange_custom_finish_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="11" column="0">
          <widget class="QLabel" name="label_11">
@@ -342,10 +430,18 @@
          </widget>
         </item>
         <item row="12" column="2">
-         <widget class="QSpinBox" name="blue_trails_spinbox"/>
+         <widget class="QSpinBox" name="blue_trails_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="12" column="5">
-         <widget class="QSpinBox" name="orange_trails_spinbox"/>
+         <widget class="QSpinBox" name="orange_trails_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="12" column="6">
          <widget class="QComboBox" name="orange_trails_combobox"/>
@@ -358,7 +454,11 @@
          </widget>
         </item>
         <item row="13" column="2">
-         <widget class="QSpinBox" name="blue_goal_explosion_spinbox"/>
+         <widget class="QSpinBox" name="blue_goal_explosion_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="13" column="3">
          <widget class="QComboBox" name="blue_goal_explosion_combobox"/>
@@ -367,7 +467,11 @@
          <widget class="QComboBox" name="orange_goal_explosion_combobox"/>
         </item>
         <item row="13" column="5">
-         <widget class="QSpinBox" name="orange_goal_explosion_spinbox"/>
+         <widget class="QSpinBox" name="orange_goal_explosion_spinbox">
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+         </widget>
         </item>
         <item row="1" column="1" rowspan="13">
          <widget class="Line" name="line_2">
