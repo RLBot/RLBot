@@ -19,22 +19,22 @@ class BaseGui:
     def __init__(self, overall_config=None):
         self.overall_config = overall_config
         self.overall_config_path = None
+        self.overall_config_timer = None
         self.agent_class.overall_config = overall_config
 
         self.index_manager = self.index_manager_class(10)
         self.loadout_presets = {}
         self.agent_presets = {}
-
-        self.load_cfg("rlbot.cfg")
-
         self.agents = []
-        self.load_agents()
 
     def load_cfg(self, config_path):
+        self.overall_config_path = config_path
         if self.overall_config is None:
             self.overall_config = create_bot_config_layout()
         self.overall_config.parse_file(config_path, 10)
         self.agent_class.overall_config = self.overall_config
+        self.load_agents()
+        self.update_overall_config_stuff()
 
     def save_overall_config(self):
         def save():
@@ -44,8 +44,9 @@ class BaseGui:
                 f.write(str(self.overall_config))
         if self.overall_config_timer is None:
             self.overall_config_timer = QTimer()
+            self.overall_config_timer.setSingleShot(True)
             self.overall_config_timer.timeout.connect(save)
-        self.overall_config_timer.start(5)  # Time-out for timer over here
+        self.overall_config_timer.start(5000)  # Time-out for timer over here
 
     def load_agents(self, config_file=None):
         """
@@ -54,6 +55,7 @@ class BaseGui:
         """
         if config_file is not None:
             self.overall_config = config_file
+        self.agents.clear()
         num_participants = get_num_players(self.overall_config)
         for i in range(num_participants):
             agent = self.add_agent(overall_index=i)
@@ -105,6 +107,9 @@ class BaseGui:
         Called by BaseGui subclasses to handle agent removal in GUI.
         :param agent: An instance of BaseGuiAgent
         """
+        raise NotImplementedError('Subclasses of BaseGui must override this.')
+
+    def update_overall_config_stuff(self):
         raise NotImplementedError('Subclasses of BaseGui must override this.')
 
     @staticmethod
