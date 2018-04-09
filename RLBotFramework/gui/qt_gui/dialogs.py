@@ -6,7 +6,6 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from RLBotFramework.gui.qt_gui.car_customisation import Ui_Form
 
 
-
 class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
 
     def __init__(self, qt_gui):
@@ -15,7 +14,6 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
         self.qt_gui = qt_gui
         # this new variable is not a copy. it's the same dict.
         self.loadout_presets = self.qt_gui.loadout_presets
-
 
         self.create_config_headers_dicts()
         self.item_dicts = self.get_item_dicts()
@@ -121,8 +119,6 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
                 config_category = self.config_headers_to_categories[config_headers[1]]
                 widget.addItems(self.item_dicts['categorised_items'][config_category])
 
-
-
     def connect_functions(self):
         for config_widget in self.config_widgets_to_headers:
             if isinstance(config_widget, QtWidgets.QComboBox):
@@ -175,9 +171,7 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
         pass
 
     def update_presets_listwidget(self):
-        loadout_presets_names = self.loadout_presets
-
-        for loadout_preset_name, loadout_preset in self.loadout_presets.items():
+        for loadout_preset_name, loadout_preset in self.loadout_presets.items():  # Essentially the same as
             print('loadouts:', loadout_preset_name, str(loadout_preset))
             # print(str(loadout_preset.config))
             # print(loadout_preset.config.sections)
