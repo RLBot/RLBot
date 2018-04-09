@@ -57,7 +57,6 @@ task pipInstallRequirements(type: Exec) {
 
 // Establish some task dependencies so that some tasks always run before others.
 // processResources is a task built in to the java plugin that runs early on during a build.
-processResources.dependsOn pipInstallRequirements
 processResources.dependsOn assembleProto
 
 // This task creates a jar file which contains the java source files.

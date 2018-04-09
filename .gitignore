@@ -116,8 +116,6 @@ ENV/
 # Gradle
 .gradle
 
-apikey
-
 # Generated integration test data
 /src/test/python/integration_test/history.pb.bin
 
