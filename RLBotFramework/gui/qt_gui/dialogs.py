@@ -104,6 +104,7 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
             except KeyError:
                 # item['Category'] not in categorised_items yet.
                 categorised_items[item['Category']] = [item['LongLabel']]
+
         dicts = {
             'id_to_items': id_to_items,
             'longlabels_to_id': longlabels_to_id,
