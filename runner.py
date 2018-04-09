@@ -1,9 +1,8 @@
-from RLBotFramework.setup_manager import SetupManager
+import sys
+sys.path.insert(0, './src/main/python/')
+from src.main.python import runner as framework_runner
 
 if __name__ == '__main__':
-    manager = SetupManager()
-    manager.startup()
-    manager.load_config()
-    manager.launch_bot_processes()
-    manager.run()  # Runs forever until interrupted
-    manager.shut_down()
+    framework_runner.main()
+
+
