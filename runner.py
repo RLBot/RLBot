@@ -60,6 +60,12 @@ def get_sanitized_bot_name(dict, name):
     return new_name
 
 
+def get_file_path(modulename):
+    # Converting a module name to a file path, e.g. mybot.util -> mybot\util.py.
+    # We're doing it this way to be backwards-compatible with existing bot configs.
+    return str(modulename).replace(".", "\\") + ".py"
+
+
 def run_agent(terminate_event, callback_event, config_file, name, team, index, module_path, agent_telemetry_queue):
     bm = bot_manager.BotManager(terminate_event, callback_event, config_file, name, team,
                                 index, module_path, agent_telemetry_queue)
@@ -174,7 +180,7 @@ def main():
         bot_teams.append(framework_config.getint(PARTICPANT_CONFIGURATION_HEADER, PARTICPANT_TEAM_PREFIX + str(i)))
         if gameInputPacket.sPlayerConfiguration[i].bRLBotControlled:
             module_name = bot_config.get(BOT_CONFIG_MODULE_HEADER, 'agent_module')
-            module_path = os.path.join(os.path.dirname(bot_config_path), str(module_name).replace(".", "\\") + ".py")
+            module_path = os.path.join(os.path.dirname(bot_config_path), get_file_path(module_name))
             bot_module_paths.append(module_path)
         else:
             bot_module_paths.append('NO_MODULE_FOR_PARTICIPANT')
