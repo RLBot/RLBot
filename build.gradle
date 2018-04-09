@@ -10,20 +10,20 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
+apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
+apply plugin: 'maven-publish'  // Needed to get jitpack to work.
 
 repositories {
     jcenter()
 }
 
 dependencies {
-    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2:game_data@py'
-    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2'
-    compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'
-    compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'
-    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.1.0'
-    compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'
+    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2:game_data@py'  // Fetch our protobuf python file
+    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2'  // Depend on our protobuf java jar
+    compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
+    compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.1.0'  // Allows the java bot manager to use protobuf
+    compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
 }
 
 def pythonRoot = './src/main/python/'
@@ -36,30 +36,37 @@ task assembleProto(type: Copy) {
     }
 }
 
+// You can use the clean task to remove build output.
 clean {
+    // In addition to the normal clean behavior, also remove the generated protobuf python file(s).
     delete fileTree(pythonRoot + 'protobuf') {
         include '**/*pb2.py'
     }
 }
 
+// Find a file that got downloaded via the compile dependencies which ends with the given suffix.
 def findFile(suffix) {
     configurations.compile.filter { it.name.endsWith(suffix) }
 }
 
-
-
+// Use pip, which is the python package manager, to install all requirements listed in requirements.txt.
+// Python and pip must already be installed for this to work.
 task pipInstallRequirements(type: Exec) {
     commandLine "pip", "install", "-r", pythonRoot + "requirements.txt"
 }
 
+// Establish some task dependencies so that some tasks always run before others.
+// processResources is a task built in to the java plugin that runs early on during a build.
 processResources.dependsOn pipInstallRequirements
 processResources.dependsOn assembleProto
 
+// This task creates a jar file which contains the java source files.
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
+// Parses a .gitignore file and attempts to build a list of file paths that can be used by gradle.
 def gitignoreToList(File f) {
     def ignores = []
     f.eachLine { line ->
@@ -71,16 +78,18 @@ def gitignoreToList(File f) {
     return ignores
 }
 
+// Creates a zip file with all the python files needed for running rlbot. Custom bot repositories should be able to
+// depend on this zip instead of keeping a local copy of framework files.
 task pythonZip(type: Zip, dependsOn: processResources) {
     into('/') {
-        from(fileTree('src/main/python/'))
-        from 'LICENSE.txt'
-        exclude gitignoreToList(file('.gitignore'))
-        exclude '**/__pycache__'
+        from(fileTree('src/main/python/'))   // Grab all the files in the src/main/python folder and add them at the root level
+        from 'LICENSE.txt'   // Also grab the license
+        exclude gitignoreToList(file('.gitignore'))  // Avoid putting any git-ignored files in the zip
+        exclude '**/__pycache__'   // Explicitly exclude __pycache__ folders because the gitignoreToList trick doesn't cover this
     }
 }
 
-// Create the publication with the pom configuration:
+// This is associated with the maven-publish plugin. It's needed for jitpack to work properly.
 publishing {
     publications {
         Main(MavenPublication) {
