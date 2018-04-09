@@ -1,14 +1,12 @@
-import os
 import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from RLBotFramework.gui.base_gui import BaseGui
-from RLBotFramework.gui.base_gui_agent import BaseGuiAgent
 
 from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
-from RLBotFramework.gui.qt_gui.car_customisation import Ui_Form
 
 from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog
+
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
@@ -41,7 +39,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.update_teams_listwidgets()
         self.update_bot_type_combobox()
 
-        self.statusbar.showMessage("Saved CFG.")
+        self.load_cfg("rlbot.cfg")
+        self.statusbar.showMessage("Loaded CFG.")
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
         dragged_listwidget = event.source()
@@ -129,6 +128,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
+        self.cfg_save_pushbutton.clicked.connect(lambda e: self.save_overall_config())
 
         self.blue_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=0))
         self.orange_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=1))
@@ -189,10 +189,13 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 self.switch_team_bot(0, agent)
                 self.orange_listwidget.setCurrentItem(item)
 
+    def update_overall_config_stuff(self):
+        self.update_teams_listwidgets()
+        self.cfg_file_path_lineedit.setText(self.overall_config_path)
+
     def update_bot_type_combobox(self):
         if not self.bot_type_combobox.isEnabled():
             return
-
         if self.bot_type_combobox.currentText() == 'RLBot':
             self.rlbot_frame.setHidden(False)
             self.extra_line.setHidden(False)
@@ -225,10 +228,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.bot_config_groupbox.setDisabled(False)
 
     def update_teams_listwidgets(self):
-        self.blue_bots = []
-        self.orange_bots = []
-        self.blue_bot_names = []
-        self.orange_bot_names = []
+        self.blue_bots.clear()
+        self.orange_bots.clear()
+        self.blue_bot_names.clear()
+        self.orange_bot_names.clear()
+        self.bot_names_to_agent_dict.clear()
         for agent in self.agents:
             if not agent.get_team():
                 self.blue_bots.append(agent)
