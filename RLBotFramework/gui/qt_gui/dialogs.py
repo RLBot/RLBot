@@ -307,7 +307,7 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
             if _value_type is int:
                 print("INT")
                 value_widget = QtWidgets.QSpinBox(parent)
-                value_widget.setChecked(int(value))
+                value_widget.setValue(int(value))
             elif _value_type is bool:
                 print("BOOL")
                 value_widget = QtWidgets.QCheckBox(parent)
