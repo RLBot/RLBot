@@ -177,6 +177,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                         value = value + " (" + str(i) + ")"
                         self.ign_lineedit.setText(value)
                         break
+            if not listwidget.selectedItems():
+                # happens when you 'finish editing' by click delete [-]
+                # listwidget.selectedItems() returns []
+                return
             listwidget.selectedItems()[0].setText(value)
             del self.bot_names_to_agent_dict[self.current_bot.ingame_name]
             self.current_bot.ingame_name = value
@@ -200,27 +204,44 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
     def update_bot_type_combobox(self):
         if not self.bot_type_combobox.isEnabled():
-            return
-        if self.bot_type_combobox.currentText() == 'RLBot':
-            self.rlbot_frame.setHidden(False)
-            self.extra_line.setHidden(False)
-            self.psyonix_bot_frame.setHidden(True)
-            self.current_bot.set_participant_type("rlbot")
-        elif self.bot_type_combobox.currentText() == 'Human':
-            self.psyonix_bot_frame.setHidden(True)
-            self.rlbot_frame.setHidden(True)
-            self.extra_line.setHidden(True)
-            self.current_bot.set_participant_type("human")
-        elif self.bot_type_combobox.currentText() == 'Psyonix':
-            self.psyonix_bot_frame.setHidden(False)
-            self.rlbot_frame.setHidden(True)
-            self.extra_line.setHidden(False)
-            self.current_bot.set_participant_type("psyonix")
-        elif self.bot_type_combobox.currentText() == 'Possessed Human':
-            self.psyonix_bot_frame.setHidden(True)
-            self.rlbot_frame.setHidden(True)
-            self.extra_line.setHidden(True)
-            self.current_bot.set_participant_type("party_member_bot")
+            # same as below except no self.current_bot
+            if self.bot_type_combobox.currentText() == 'RLBot':
+                self.rlbot_frame.setHidden(False)
+                self.extra_line.setHidden(False)
+                self.psyonix_bot_frame.setHidden(True)
+            elif self.bot_type_combobox.currentText() == 'Human':
+                self.psyonix_bot_frame.setHidden(True)
+                self.rlbot_frame.setHidden(True)
+                self.extra_line.setHidden(True)
+            elif self.bot_type_combobox.currentText() == 'Psyonix':
+                self.psyonix_bot_frame.setHidden(False)
+                self.rlbot_frame.setHidden(True)
+                self.extra_line.setHidden(False)
+            elif self.bot_type_combobox.currentText() == 'Possessed Human':
+                self.psyonix_bot_frame.setHidden(True)
+                self.rlbot_frame.setHidden(True)
+                self.extra_line.setHidden(True)
+        else:
+            if self.bot_type_combobox.currentText() == 'RLBot':
+                self.rlbot_frame.setHidden(False)
+                self.extra_line.setHidden(False)
+                self.psyonix_bot_frame.setHidden(True)
+                self.current_bot.set_participant_type("rlbot")
+            elif self.bot_type_combobox.currentText() == 'Human':
+                self.psyonix_bot_frame.setHidden(True)
+                self.rlbot_frame.setHidden(True)
+                self.extra_line.setHidden(True)
+                self.current_bot.set_participant_type("human")
+            elif self.bot_type_combobox.currentText() == 'Psyonix':
+                self.psyonix_bot_frame.setHidden(False)
+                self.rlbot_frame.setHidden(True)
+                self.extra_line.setHidden(False)
+                self.current_bot.set_participant_type("psyonix")
+            elif self.bot_type_combobox.currentText() == 'Possessed Human':
+                self.psyonix_bot_frame.setHidden(True)
+                self.rlbot_frame.setHidden(True)
+                self.extra_line.setHidden(True)
+                self.current_bot.set_participant_type("party_member_bot")
 
     def enable_disable_on_bot_select_deselect(self):
         # if no bot selected, disable botconfig groupbox and minus buttons
@@ -315,7 +336,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         agent_i = sender.currentRow()
         try:
             agent = bots_list[agent_i]
-            print(agent)
+            # print(agent)
         except IndexError:
             if print_err:
                 print("\nI am printing this error manually. It can be hidden easily:")
@@ -344,7 +365,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         print("Deleting bot from %s" % listwidget.objectName())
         agent = self.get_selected_bot(listwidget)
         self.remove_agent(agent)
-
         self.update_teams_listwidgets()
         self.statusbar.showMessage('Deleted bot: %s.' % agent, 5000)
 

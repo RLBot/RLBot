@@ -286,7 +286,7 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
 
         parent = self.agent_parameters_groupbox
         for row_no, (key, value) in enumerate(params):
-            label = QtWidgets.QLabel(str(key), parent)
+            label = QtWidgets.QLabel(str(key) + ':', parent)
             label.setObjectName("label_%s" % key)
             self.grid_layout.addWidget(label, row_no, 0)
 
@@ -325,7 +325,8 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
 
         self.grid_layout.setContentsMargins(15, 15, 15, 15)
         # print(self.grid_layout.geometry().height(), self.grid_layout.geometry().width())
-        self.grid_layout.setColumnStretch(1, 1)
+        self.grid_layout.setColumnStretch(0, 1)
+        self.grid_layout.setColumnStretch(1, 2)
         self.resize(self.minimumSizeHint())
 
 
