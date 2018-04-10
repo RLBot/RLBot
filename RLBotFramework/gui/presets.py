@@ -50,4 +50,4 @@ class LoadoutPreset(Preset):
 class AgentPreset(Preset):
     def __init__(self, file_path=None):
         super().__init__(BaseAgent.create_agent_configurations(), file_path)
-        self.name = os.path.basename(file_path).strip(".cfg")
+        # self.name = os.path.basename(file_path).strip(".cfg")

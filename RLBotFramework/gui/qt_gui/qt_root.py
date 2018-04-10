@@ -5,8 +5,7 @@ from RLBotFramework.gui.base_gui import BaseGui
 
 from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
 
-from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog
-
+from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog, AgentCustomisationDialog
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
@@ -31,6 +30,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         self.load_loadout_and_agent_presets()
         self.car_customisation = CarCustomisationDialog(self)
+        self.agent_customisation = AgentCustomisationDialog(self)
 
         self.connect_functions()
 
@@ -130,6 +130,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
+        self.agent_preset_toolbutton.clicked.connect(self.agent_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.cfg_save_pushbutton.clicked.connect(lambda e: self.save_overall_config())
@@ -300,7 +301,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         # TODO: select agent.loadout_preset in self.loadout_preset_combobox
         self.agent_preset_combobox.setCurrentText(agent.agent_preset)
-
 
         self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
 
