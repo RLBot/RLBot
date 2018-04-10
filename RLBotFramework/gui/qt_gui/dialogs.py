@@ -3,10 +3,10 @@ import sys
 import json
 from PyQt5 import QtWidgets, QtCore, QtGui
 
-from RLBotFramework.gui.qt_gui.car_customisation import Ui_Form
+from RLBotFramework.gui.qt_gui.car_customisation import Ui_LoadoutPresetCustomiser
+from RLBotFramework.gui.qt_gui.agent_customisation import Ui_AgentPresetCustomiser
 
-
-class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
+class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
 
     def __init__(self, qt_gui):
         super().__init__()
@@ -22,16 +22,21 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
 
         self.update_presets_listwidget()
 
+        # TESTING
+        # TODO: Remove the testing bit.
+        self.presets_listwidget.setCurrentRow(0)
+        # self.load_selected_loadout_preset()
+
     def create_config_headers_dicts(self):
         """
-        Creates the config_headers_to_widgets and config_widgets_to_headers dicts
+        Creates the config_headers_to_widgets and config_widgets_to_headers and config_headers_to_categories dicts
         :return:
         """
         self.config_headers_to_widgets = {
             # blue stuff
             'Bot Loadout': {
-                'team_color_id': (self.blue_primary_spinbox, ),
-                'custom_color_id': (self.blue_secondary_spinbox, ),
+                'team_color_id': (self.blue_primary_spinbox,),
+                'custom_color_id': (self.blue_secondary_spinbox,),
                 'car_id': (self.blue_car_spinbox, self.blue_car_combobox),
                 'decal_id': (self.blue_decal_spinbox, self.blue_decal_combobox),
                 'wheels_id': (self.blue_wheels_spinbox, self.blue_wheels_combobox),
@@ -45,8 +50,8 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
                 'goal_explosion_id': (self.blue_goal_explosion_spinbox, self.blue_goal_explosion_combobox)
             },
             'Bot Loadout Orange': {
-                'team_color_id': (self.orange_primary_spinbox, ),
-                'custom_color_id': (self.orange_secondary_spinbox, ),
+                'team_color_id': (self.orange_primary_spinbox,),
+                'custom_color_id': (self.orange_secondary_spinbox,),
                 'car_id': (self.orange_car_spinbox, self.orange_car_combobox),
                 'decal_id': (self.orange_decal_spinbox, self.orange_decal_combobox),
                 'wheels_id': (self.orange_wheels_spinbox, self.orange_wheels_combobox),
@@ -79,7 +84,6 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
             'trails_id': 'Trails',
             'goal_explosion_id': 'GoalExplosions'
         }
-
 
     def get_item_dicts(self):
         """
@@ -117,15 +121,19 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
             if isinstance(widget, QtWidgets.QComboBox):
                 config_headers = self.config_widgets_to_headers[widget]
                 config_category = self.config_headers_to_categories[config_headers[1]]
-                widget.addItems(self.item_dicts['categorised_items'][config_category])
+                widget.addItems(self.item_dicts['categorised_items'][config_category] + ['Unknown'])
 
     def connect_functions(self):
         for config_widget in self.config_widgets_to_headers:
             if isinstance(config_widget, QtWidgets.QComboBox):
                 config_widget.currentIndexChanged.connect(self.update_spinbox_and_combobox)
             elif isinstance(config_widget, QtWidgets.QAbstractSpinBox):
-                config_widget.editingFinished.connect(self.update_spinbox_and_combobox)
-        pass
+                # config_widget.editingFinished.connect(self.update_spinbox_and_combobox)
+                config_widget.valueChanged.connect(self.update_spinbox_and_combobox)
+        self.presets_listwidget.itemSelectionChanged.connect(self.load_selected_loadout_preset)
+        self.preset_new_pushbutton.clicked.connect(self.add_new_preset)
+        self.preset_load_pushbutton.clicked.connect(self.load_preset_cfg)
+        self.preset_save_pushbutton.clicked.connect(self.save_preset)
 
     def update_spinbox_and_combobox(self):
         # Updates the corresponding widget (ie update spinbox if combobox edited)
@@ -167,11 +175,183 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
                 item_id = self.item_dicts['longlabels_to_id'][item_longlabel]
                 widget_to_update.setValue(item_id)
 
-    def load_loadout_preset(self):
+    def load_selected_loadout_preset(self):
+        preset_name = self.presets_listwidget.currentItem().text()
+        preset = self.loadout_presets[preset_name]
+
+        # print(preset)
+        # print(str(preset.config))
+        # print(preset.config.headers.values)
+        for _key, config_header in preset.config.headers.items():
+            # print(_key)
+            # print(config_header.values)
+
+            # for config_header in config, update widget value
+            for config_header_key in config_header.values:
+                try:
+                    widgets = self.config_headers_to_widgets[_key][config_header_key]
+                    try:
+                        for widget in widgets:
+                            # only update spinboxes - let comboboxes update.
+                            if isinstance(widget, QtWidgets.QAbstractSpinBox):
+                                # widget.setValue(config_header_value.value)
+                                widget.setValue(config_header.get(config_header_key))
+                    except:
+                        import traceback
+                        traceback.print_exc()
+                except KeyError:
+                    print('Unknown loadout config header entry: %s' % config_header_key)
+
+        # update file path manually
+        self.preset_path_lineedit.setText(preset.config_path)
+        # print(header.values)
+
+    def add_new_preset(self):
+        # TODO: Something. Maybe let user create file?
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Loadout CFG', '', 'Config Files (*.cfg)')
+        print(file_name)
         pass
 
+    def load_preset_cfg(self):
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Loadout CFG', '', 'Config Files (*.cfg)')
+        print(file_name)
+        # TODO: Add selected preset to self.loadout_presets then refresh listwidget
+
+    def save_preset(self):
+        preset_name = self.presets_listwidget.currentItem().text()
+        preset = self.loadout_presets[preset_name]
+        print('save to %s' % preset.config_path)
+        print('Is preset cfg path same as the path in lineconfig?')
+        print('%s' % self.preset_path_lineedit.text() == preset.config_path)
+        # TODO: Save preset. idk what you want to do if lineedit.text != preset.config_path.
+
     def update_presets_listwidget(self):
-        for loadout_preset_name, loadout_preset in self.loadout_presets.items():  # Essentially the same as
-            print('loadouts:', loadout_preset_name, str(loadout_preset))
-            # print(str(loadout_preset.config))
-            # print(loadout_preset.config.sections)
+        # for loadout_preset_name, loadout_preset in self.loadout_presets.items():  # Essentially the same as
+        # print('loadouts:', loadout_preset_name, str(loadout_preset))
+
+        self.presets_listwidget.clear()
+        self.presets_listwidget.addItems(list(self.loadout_presets.keys()))
+        # print(list(self.loadout_presets.keys()))
+
+
+class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
+
+    def __init__(self, qt_gui):
+        super().__init__()
+        self.setupUi(self)
+        self.grid_layout = QtWidgets.QGridLayout(self.agent_parameters_groupbox)
+
+        self.qt_gui = qt_gui
+        self.agent_presets = self.qt_gui.agent_presets
+        self.extra_parameter_widgets = []
+
+        self.update_presets_listwidget()
+
+        # TEST STUFF
+        self.presets_listwidget.setCurrentRow(0)
+        self.load_selected_agent_preset()
+
+
+
+    def connect_functions(self):
+        self.presets_listwidget.itemSelectionChanged.connect(self.load_selected_agent_preset)
+
+        self.preset_new_pushbutton.clicked.connect(self.add_new_preset)
+        self.preset_load_pushbutton.clicked.connect(self.load_preset_cfg)
+        self.preset_save_pushbutton.clicked.connect(self.save_preset)
+
+    def load_selected_agent_preset(self):
+        preset_name = self.presets_listwidget.currentItem().text()
+        preset = self.agent_presets[preset_name]
+        print(preset)
+        print(preset.config.get_header('Locations').get('python_file'))
+
+        self.preset_path_lineedit.setText(preset.config_path)
+        self.preset_python_file_lineedit.setText(preset.config.get_header('Locations').get('python_file'))
+
+        bot_parameters = preset.config.raw_config_parser['Bot Parameters']
+
+        self.add_parameters_to_gui(bot_parameters)
+
+    def add_parameters_to_gui(self, bot_parameters):
+        # clear layout
+        while self.grid_layout.count():
+            child_widget = self.grid_layout.takeAt(0).widget()
+            self.grid_layout.removeWidget(child_widget)
+            child_widget.setParent(None)
+            child_widget.deleteLater()
+
+        params = list(bot_parameters.items())
+        params_count = len(params)
+
+        parent = self.agent_parameters_groupbox
+        for row_no, (key, value) in enumerate(params):
+            label = QtWidgets.QLabel(str(key) + ':', parent)
+            label.setObjectName("label_%s" % key)
+            self.grid_layout.addWidget(label, row_no, 0)
+
+            self.extra_parameter_widgets.append(label)
+            try:
+                bot_parameters.getint(key)
+                _value_type = int
+            except ValueError:
+                try:
+                    bot_parameters.getboolean(key)
+                    _value_type = bool
+                except ValueError:
+                    try:
+                        bot_parameters.getfloat(key)
+                        _value_type = float
+                    except ValueError:
+                        print("Unknown value type for %s (key: %s)" % value, key)
+            if _value_type is int:
+                print("INT")
+                value_widget = QtWidgets.QSpinBox(parent)
+                value_widget.setValue(int(value))
+            elif _value_type is bool:
+                print("BOOL")
+                value_widget = QtWidgets.QCheckBox(parent)
+                value_widget.setChecked(bool(value))
+            elif _value_type is float:
+                print("FLOAT")
+                value_widget = QtWidgets.QDoubleSpinBox(parent)
+                value_widget.setValue(float(value))
+
+            value_widget.setObjectName('value_%s' % key)
+            self.grid_layout.addWidget(value_widget, row_no, 1)
+
+            # print(value.type, 'asfaasf')
+
+
+        self.grid_layout.setContentsMargins(15, 15, 15, 15)
+        # print(self.grid_layout.geometry().height(), self.grid_layout.geometry().width())
+        self.grid_layout.setColumnStretch(0, 1)
+        self.grid_layout.setColumnStretch(1, 2)
+        self.resize(self.minimumSizeHint())
+
+
+
+    def update_presets_listwidget(self):
+        self.presets_listwidget.clear()
+        self.presets_listwidget.addItems(list(self.agent_presets.keys()))
+
+
+    def add_new_preset(self):
+        # TODO: Something. Maybe let user create file?
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Agent CFG', '', 'Config Files (*.cfg)')
+        print(file_name)
+        pass
+
+    def load_preset_cfg(self):
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent CFG', '', 'Config Files (*.cfg)')
+        print(file_name)
+        # TODO: Add selected preset to self.agent_presets then refresh listwidget
+
+    def save_preset(self):
+        preset_name = self.presets_listwidget.currentItem().text()
+        preset = self.agent_presets[preset_name]
+        print('save to %s' % preset.config_path)
+        print('Is preset cfg path same as the path in lineconfig?')
+        print('%s' % self.preset_path_lineedit.text() == preset.config_path)
+        # TODO: Save preset. idk what you want to do if lineedit.text != preset.config_path.
+

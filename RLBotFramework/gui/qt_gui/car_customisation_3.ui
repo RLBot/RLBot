@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>LoadoutPresetCustomiser</class>
+ <widget class="QWidget" name="LoadoutPresetCustomiser">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,17 +11,52 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Preset Loadout Customiser</string>
+   <string>Loadout Preset Customiser</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,5">
    <item>
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
-      <string>Loadout presets</string>
+      <string>Loadout Presets</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QListWidget" name="presets_listwidget"/>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="preset_new_pushbutton">
+           <property name="text">
+            <string>New</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="preset_load_pushbutton">
+           <property name="text">
+            <string>Load</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -43,36 +78,25 @@
         <property name="title">
          <string>Preset Config</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Preset name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
           <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>File path:</string>
+            <string>File Path:</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="11">
+         <item>
+          <widget class="QLineEdit" name="preset_path_lineedit"/>
+         </item>
+         <item>
           <widget class="QPushButton" name="preset_save_pushbutton">
            <property name="text">
             <string>Save</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="10">
-          <widget class="QPushButton" name="preset_load_pushbutton">
-           <property name="text">
-            <string>Load</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="12">
+         <item>
           <widget class="QCheckBox" name="preset_autosave_checkbox">
            <property name="text">
             <string>Autosave</string>
@@ -82,19 +106,13 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1" colspan="12">
-          <widget class="QLineEdit" name="preset_path_lineedit"/>
-         </item>
-         <item row="5" column="1" colspan="9">
-          <widget class="QLineEdit" name="preset_name_lineedit"/>
-         </item>
         </layout>
        </widget>
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
-         <string>Preset Loadout</string>
+         <string>Loadout</string>
         </property>
         <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1,2,1,1,2">
          <property name="topMargin">
@@ -138,7 +156,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Primary color:</string>
+            <string>Primary Colour:</string>
            </property>
           </widget>
          </item>
@@ -165,7 +183,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Secondary color:</string>
+            <string>Secondary Colour:</string>
            </property>
           </widget>
          </item>
@@ -494,14 +512,14 @@
          <item row="9" column="0">
           <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>Paint finish:</string>
+            <string>Paint Finish:</string>
            </property>
           </widget>
          </item>
          <item row="10" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Custom finish:</string>
+            <string>Custom Finish:</string>
            </property>
           </widget>
          </item>
@@ -588,7 +606,7 @@
          <item row="11" column="0">
           <widget class="QLabel" name="label_11">
            <property name="text">
-            <string>Engine audio:</string>
+            <string>Engine Audio:</string>
            </property>
           </widget>
          </item>
@@ -625,7 +643,7 @@
          <item row="12" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>Trails:</string>
+            <string>Trail:</string>
            </property>
           </widget>
          </item>
@@ -662,7 +680,7 @@
          <item row="13" column="0">
           <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>Goal explosion:</string>
+            <string>Goal Explosion:</string>
            </property>
           </widget>
          </item>
