@@ -19,9 +19,44 @@
      <property name="title">
       <string>Loadout presets</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QListWidget" name="presets_listwidget"/>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="preset_new_pushbutton">
+           <property name="text">
+            <string>New</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="preset_load_pushbutton">
+           <property name="text">
+            <string>Load</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -44,10 +79,27 @@
          <string>Preset Config</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="5" column="11">
+          <widget class="QCheckBox" name="preset_autosave_checkbox">
+           <property name="text">
+            <string>Autosave</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_16">
            <property name="text">
             <string>Preset name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="10">
+          <widget class="QPushButton" name="preset_save_pushbutton">
+           <property name="text">
+            <string>Save</string>
            </property>
           </widget>
          </item>
@@ -58,31 +110,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="11">
-          <widget class="QPushButton" name="preset_save_pushbutton">
-           <property name="text">
-            <string>Save</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="10">
-          <widget class="QPushButton" name="preset_load_pushbutton">
-           <property name="text">
-            <string>Load</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="12">
-          <widget class="QCheckBox" name="preset_autosave_checkbox">
-           <property name="text">
-            <string>Autosave</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" colspan="12">
+         <item row="3" column="1" colspan="11">
           <widget class="QLineEdit" name="preset_path_lineedit"/>
          </item>
          <item row="5" column="1" colspan="9">

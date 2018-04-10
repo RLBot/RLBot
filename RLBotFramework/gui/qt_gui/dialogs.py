@@ -22,14 +22,19 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
 
         self.update_presets_listwidget()
 
+        # TESTING
+        self.presets_listwidget.setCurrentRow(0)
+        # self.load_selected_loadout_preset()
+
     def create_config_headers_dicts(self):
         """
-        Creates the config_headers_to_widgets and config_widgets_to_headers dicts
+        Creates the config_headers_to_widgets and config_widgets_to_headers and config_headers_to_categories dicts
         :return:
         """
         self.config_headers_to_widgets = {
             # blue stuff
             'Bot Loadout': {
+                'name': (self.preset_name_lineedit, ),
                 'team_color_id': (self.blue_primary_spinbox, ),
                 'custom_color_id': (self.blue_secondary_spinbox, ),
                 'car_id': (self.blue_car_spinbox, self.blue_car_combobox),
@@ -45,6 +50,7 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
                 'goal_explosion_id': (self.blue_goal_explosion_spinbox, self.blue_goal_explosion_combobox)
             },
             'Bot Loadout Orange': {
+                'name': (self.preset_name_lineedit,),
                 'team_color_id': (self.orange_primary_spinbox, ),
                 'custom_color_id': (self.orange_secondary_spinbox, ),
                 'car_id': (self.orange_car_spinbox, self.orange_car_combobox),
@@ -117,15 +123,18 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
             if isinstance(widget, QtWidgets.QComboBox):
                 config_headers = self.config_widgets_to_headers[widget]
                 config_category = self.config_headers_to_categories[config_headers[1]]
-                widget.addItems(self.item_dicts['categorised_items'][config_category])
+                widget.addItems(self.item_dicts['categorised_items'][config_category] + ['Unknown'])
 
     def connect_functions(self):
         for config_widget in self.config_widgets_to_headers:
             if isinstance(config_widget, QtWidgets.QComboBox):
                 config_widget.currentIndexChanged.connect(self.update_spinbox_and_combobox)
             elif isinstance(config_widget, QtWidgets.QAbstractSpinBox):
-                config_widget.editingFinished.connect(self.update_spinbox_and_combobox)
-        pass
+                # config_widget.editingFinished.connect(self.update_spinbox_and_combobox)
+                config_widget.valueChanged.connect(self.update_spinbox_and_combobox)
+        self.presets_listwidget.itemSelectionChanged.connect(self.load_selected_loadout_preset)
+        self.preset_new_pushbutton.clicked.connect(self.add_new_preset)
+        self.preset_load_pushbutton.clicked.connect(self.load_preset_cfg)
 
     def update_spinbox_and_combobox(self):
         # Updates the corresponding widget (ie update spinbox if combobox edited)
@@ -167,11 +176,55 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_Form):
                 item_id = self.item_dicts['longlabels_to_id'][item_longlabel]
                 widget_to_update.setValue(item_id)
 
-    def load_loadout_preset(self):
+    def load_selected_loadout_preset(self):
+        preset_name = self.presets_listwidget.currentItem().text()
+        preset = self.loadout_presets[preset_name]
+
+        # print(preset)
+        # print(str(preset.config))
+        # print(preset.config.headers.values)
+        for _key, config_header in preset.config.headers.items():
+            print(_key)
+            # print(config_header.values)
+
+            # for config_header in config, update widget value
+            for config_header_key in config_header.values:
+                try:
+                    widgets = self.config_headers_to_widgets[_key][config_header_key]
+                    try:
+                        for widget in widgets:
+                            # only update spinboxes - let comboboxes update.
+                            if isinstance(widget, QtWidgets.QAbstractSpinBox):
+                                # widget.setValue(config_header_value.value)
+                                widget.setValue(config_header.get(config_header_key))
+                            elif widget is self.preset_name_lineedit:
+                                # update name manually
+                                widget.setText(config_header.get(config_header_key))
+                    except:
+                        import traceback
+                        traceback.print_exc()
+                except KeyError:
+                    print('Unknown config header entry: %s' % config_header_key)
+
+            # update file path manually
+        self.preset_path_lineedit.setText(preset.config_path)
+        # print(header.values)
+
+    def add_new_preset(self):
+        # TODO: Something. Maybe let user create file?
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Loadout CFG', '', 'Config Files (*.cfg)')
+        print(file_name)
         pass
 
+    def load_preset_cfg(self):
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Loadout CFG', '', 'Config Files (*.cfg)')
+        print(file_name)
+        # TODO: Add selected preset to self.loadout_presets then refresh listwidget
+
     def update_presets_listwidget(self):
-        for loadout_preset_name, loadout_preset in self.loadout_presets.items():  # Essentially the same as
-            print('loadouts:', loadout_preset_name, str(loadout_preset))
-            # print(str(loadout_preset.config))
-            # print(loadout_preset.config.sections)
+        # for loadout_preset_name, loadout_preset in self.loadout_presets.items():  # Essentially the same as
+            # print('loadouts:', loadout_preset_name, str(loadout_preset))
+
+        self.presets_listwidget.clear()
+        self.presets_listwidget.addItems(list(self.loadout_presets.keys()))
+        # print(list(self.loadout_presets.keys()))

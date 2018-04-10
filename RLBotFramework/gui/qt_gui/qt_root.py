@@ -27,19 +27,16 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict = {}
         self.current_bot = None
 
-        self.car_customisation = CarCustomisationDialog(self)
+        self.load_cfg("rlbot.cfg")
 
-        for item in self.loadout_presets.keys():
-            self.loadout_preset_combobox.addItem(item)
-        for item in self.agent_presets.keys():
-            self.agent_preset_combobox.addItem(item)
+        self.load_loadout_and_agent_presets()
+        self.car_customisation = CarCustomisationDialog(self)
 
         self.connect_functions()
 
         self.update_teams_listwidgets()
         self.update_bot_type_combobox()
 
-        self.load_cfg("rlbot.cfg")
         self.statusbar.showMessage("Loaded CFG.")
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
@@ -122,6 +119,13 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 if _bot_agent is not bot:
                     self.blue_bot_names.append(_bot_name)
                     self.blue_bots.append(_bot_agent)
+
+    def load_loadout_and_agent_presets(self):
+        for item in self.loadout_presets.keys():
+            self.loadout_preset_combobox.addItem(item)
+        for item in self.agent_presets.keys():
+            self.agent_preset_combobox.addItem(item)
+
 
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
