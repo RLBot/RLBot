@@ -1,6 +1,6 @@
 import math
 
-from RLBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
 from RLBotFramework.utils.structures.quick_chats import QuickChats
 
 URotationToRadians = math.pi / float(32768)
@@ -50,8 +50,12 @@ class Atba(BaseAgent):
     @staticmethod
     def create_agent_configurations():
         config = super(Atba, Atba).create_agent_configurations()
-        config.add_header_name('Bot Parameters').add_value('flip_turning', bool, default=False,
-                                                           description='if true bot will turn opposite way')
+        config.get_header(BOT_CONFIG_AGENT_HEADER).add_value('flip_turning', bool, default=False,
+                                                             description='if true bot will turn opposite way')\
+            .add_value('some_testing_value', str, default="TestTestTest",
+                       description='if true bot will turn opposite way')\
+            .add_value('another_testing_value', int, default=92,
+                       description='if true bot will turn opposite way')
         return config
 
 

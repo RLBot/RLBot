@@ -1,9 +1,7 @@
 import sys
-import os.path
+import os
 sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/src/main/python/'))
-from src.main.python import runner as framework_runner
+from src.main.python.RLBotFramework.gui.qt_root import RLBotQTGui
 
 if __name__ == '__main__':
-    framework_runner.main()
-
-
+    RLBotQTGui.main()

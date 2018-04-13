@@ -12,6 +12,7 @@ PARTICIPANT_CONFIG_KEY = 'participant_config'
 PARTICIPANT_BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICIPANT_TYPE_KEY = 'participant_type'
 PARTICIPANT_TEAM = 'participant_team'
+PARTICIPANT_LOADOUT_CONFIG_KEY = 'participant_loadout_config'
 RLBOT_CONFIG_FILE = 'rlbot.cfg'
 
 
@@ -56,6 +57,10 @@ def add_participant_header(config_object):
                                              ' this value will be used to set bot skill.\n' +
                                              '0.0 is Rookie, 0.5 is pro, 1.0 is all-star. ' +
                                              ' You can set values in-between as well.')
+
+    participant_header.add_value(PARTICIPANT_LOADOUT_CONFIG_KEY, str, default="None",
+                                 description="""A path to a loadout config file which will override the path in the agent config
+                                             Use None to extract the path from the agent config""")
 
 
 def get_sanitized_bot_name(dict, name):
@@ -127,7 +132,7 @@ def get_bot_options(bot_type):
         is_rlbot = True
     elif bot_type == 'bot_human':
         # this is a bot running under a human
-        
+
         is_rlbot = True
         is_bot = False
     else:
@@ -163,7 +168,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
     # Setting up the bots name
-    bot_name = looks_config_object.get(loadout_header, 'name')
+    bot_name = config_bundle.config_obj.get(BOT_CONFIG_MODULE_HEADER, 'name')
     bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
 
     BaseAgent.parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)

@@ -37,25 +37,22 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame">
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="preset_new_pushbutton">
+          <property name="text">
+           <string>New</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="preset_load_pushbutton">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -67,7 +64,7 @@
        <number>1</number>
       </property>
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="preset_config_groupbox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -78,6 +75,23 @@
          <string>Preset Config</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Preset Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1" colspan="3">
+          <widget class="QLineEdit" name="preset_python_file_lineedit">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
          <item row="6" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
@@ -85,8 +99,18 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="1" colspan="3">
+          <widget class="QLineEdit" name="preset_name_lineedit"/>
+         </item>
          <item row="3" column="1" colspan="3">
-          <widget class="QLineEdit" name="preset_path_lineedit"/>
+          <widget class="QLineEdit" name="preset_path_lineedit">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>Currently not stored on disk</string>
+           </property>
+          </widget>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_17">
@@ -95,39 +119,19 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QPushButton" name="preset_new_pushbutton">
+         <item row="8" column="0" colspan="2">
+          <widget class="QPushButton" name="python_file_select_button">
            <property name="text">
-            <string>New</string>
+            <string>Select Agent File</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
-          <widget class="QPushButton" name="preset_load_pushbutton">
-           <property name="text">
-            <string>Load</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="3">
-          <widget class="QCheckBox" name="preset_autosave_checkbox">
-           <property name="text">
-            <string>Autosave</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="2">
+         <item row="8" column="2" colspan="2">
           <widget class="QPushButton" name="preset_save_pushbutton">
            <property name="text">
-            <string>Save</string>
+            <string>Save Preset</string>
            </property>
           </widget>
-         </item>
-         <item row="6" column="1" colspan="3">
-          <widget class="QLineEdit" name="preset_python_file_lineedit"/>
          </item>
         </layout>
        </widget>
