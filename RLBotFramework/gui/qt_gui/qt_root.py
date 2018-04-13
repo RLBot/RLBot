@@ -126,7 +126,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         for item in self.agent_presets.keys():
             self.agent_preset_combobox.addItem(item)
 
-
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
@@ -166,17 +165,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 listwidget = self.blue_listwidget
             else:
                 listwidget = self.orange_listwidget
-            value = self.ign_lineedit.text()
-            if value in self.bot_names_to_agent_dict and self.bot_names_to_agent_dict[value] is not agent:
-                i = 0
-                while True:
-                    if value + " (" + str(i) + ")" in self.bot_names_to_agent_dict and \
-                            self.bot_names_to_agent_dict[value + " (" + str(i) + ")"] is not agent:
-                        i += 1
-                    else:
-                        value = value + " (" + str(i) + ")"
-                        self.ign_lineedit.setText(value)
-                        break
+            value = self.validate_name(self.ign_lineedit.text(), agent)
+            self.ign_lineedit.setText(value)
             if not listwidget.selectedItems():
                 # happens when you 'finish editing' by click delete [-]
                 # listwidget.selectedItems() returns []
@@ -197,6 +187,18 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 item = self.move_bot_between_list(0, agent)
                 self.switch_team_bot(0, agent)
                 self.orange_listwidget.setCurrentItem(item)
+
+    def validate_name(self, name, agent):
+        if name in self.bot_names_to_agent_dict and self.bot_names_to_agent_dict[name] is not agent:
+            i = 0
+            while True:
+                if name + " (" + str(i) + ")" in self.bot_names_to_agent_dict and \
+                        self.bot_names_to_agent_dict[name + " (" + str(i) + ")"] is not agent:
+                    i += 1
+                else:
+                    value = name + " (" + str(i) + ")"
+                    return value
+
 
     def update_overall_config_stuff(self):
         self.update_teams_listwidgets()
@@ -297,6 +299,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.current_bot = agent
 
         # enable/disable bot config (and maybe [+])
+        print("Got here")
         self.enable_disable_on_bot_select_deselect()
         # enable [-] for right listwidget
         if self.sender() is self.blue_listwidget:
@@ -321,7 +324,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.ign_lineedit.setText(agent.ingame_name)
 
         # TODO: select agent.loadout_preset in self.loadout_preset_combobox
-        self.agent_preset_combobox.setCurrentText(agent.agent_preset)
+        self.agent_preset_combobox.setCurrentText(agent.agent_preset.get_name())
 
         self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
 

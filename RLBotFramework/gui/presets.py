@@ -1,7 +1,10 @@
 import os
 from PyQt5.QtCore import QTimer
+from configparser import RawConfigParser
 
 from RLBotFramework.agents.base_agent import BaseAgent
+from RLBotFramework.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
+from RLBotFramework.utils.class_importer import import_agent
 
 
 class Preset:
@@ -49,5 +52,9 @@ class LoadoutPreset(Preset):
 
 class AgentPreset(Preset):
     def __init__(self, file_path=None):
-        super().__init__(BaseAgent.create_agent_configurations(), file_path)
-        # self.name = os.path.basename(file_path).strip(".cfg")
+        raw_config_parser = RawConfigParser()
+        raw_config_parser.read(file_path)
+        python_file_path = os.path.realpath(os.path.join(os.path.dirname(
+            os.path.realpath(file_path)), raw_config_parser.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)))
+        self.agent_class = import_agent(python_file_path).get_loaded_class()
+        super().__init__(self.agent_class.create_agent_configurations(), file_path)

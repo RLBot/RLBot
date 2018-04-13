@@ -5,6 +5,7 @@ from RLBotFramework.gui.index_manager import IndexManager
 from RLBotFramework.gui.base_gui_agent import BaseGuiAgent
 from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout, get_num_players
 from RLBotFramework.gui.presets import LoadoutPreset, AgentPreset
+from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY
 
 
 class BaseGui:
@@ -59,10 +60,15 @@ class BaseGui:
         num_participants = get_num_players(self.overall_config)
         for i in range(num_participants):
             agent = self.add_agent(overall_index=i)
-            loadout_preset = self.add_loadout_preset(agent.get_agent_config_path())
-            agent.loadout_preset = loadout_preset.get_name()
+
             agent_preset = self.add_agent_preset(agent.get_agent_config_path())
-            agent.agent_preset = agent_preset.get_name()
+            agent.set_agent_preset(agent_preset)
+
+            loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, i)
+            print("Ill be crashing here, fix is coming later, line 69 in base_gui")
+            loadout_file = agent_preset.config.get() if loadout_file == "None" or loadout_file is None else loadout_file
+            loadout_preset = self.add_loadout_preset(loadout_file)
+            agent.set_loadout_preset(loadout_preset)
 
     def add_agent(self, overall_index=None, team_index=None):
         """
@@ -82,15 +88,17 @@ class BaseGui:
         return agent
 
     def add_loadout_preset(self, file_path):
+        if os.path.basename(file_path).strip(".cfg") in self.loadout_presets:
+            return self.loadout_presets[os.path.basename(file_path).strip(".cfg")]
         preset = LoadoutPreset(file_path)
-        print(preset.get_name())
         self.loadout_presets[preset.get_name()] = preset
         return preset
 
     def add_agent_preset(self, file_path):
+        if os.path.basename(file_path).strip(".cfg") in self.agent_presets:
+            return self.agent_presets[os.path.basename(file_path).strip(".cfg")]
         preset = AgentPreset(file_path)
-        preset_name = os.path.basename(file_path)
-        self.agent_presets[preset_name] = preset
+        self.agent_presets[preset.get_name()] = preset
         return preset
 
     def remove_agent(self, agent):

@@ -1,70 +1,58 @@
 import os
-from PyQt5.QtCore import QTimer
-from RLBotFramework.utils.class_importer import import_agent
-from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
+from RLBotFramework.agents.base_agent import BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, BOT_NAME_KEY
 from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
     PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, get_bot_config_bundle, BotConfigBundle
 
 
 class BaseGuiAgent:
-    config_object = None  # The config that is
     overall_config = None  # The config that is shared by all agent frames.
-    config_bundle = None
 
-    def __init__(self, overall_index, team_i=None):
+    def __init__(self, overall_index, team_i=None, loadout_preset=None, agent_preset=None):
         """
-        Creates a new agent frame, loads config data if needed.
+        Creates a class containing the info needed to extract by the GUI
         :param overall_index: An optional value if the overall index of this agent is already specified.
         :return: an instance of BaseAgentFrame
         """
         self.overall_index = overall_index
-        self.load_config(self.overall_config, overall_index)
 
         self.agent_config_path = None
         self.loadout_config_path = None
-        self.loadout_preset = ""
-        self.agent_preset = ""
-        self.ingame_name = "Atba (" + str(overall_index) + ")"  # TODO: Change to use config's ingame name
+        self.loadout_preset = loadout_preset
+        self.agent_preset = agent_preset
+        self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY) if agent_preset is not None \
+            else None
 
         if team_i is not None:
             self.team_index = team_i
             self.set_team(team_i)
 
-    def load_agent_configs(self):
+    def get_configs(self):
         """
-        Loads the config specific to the agent.
-        This only happens if the frame is for a custom agent otherwise this method is skipped
-        :param agent_class: If passed in and there is not a config file this agent is used.
-        :return:
+        :return: A tuple in the shape of (overall index, agent config, loadout config)
         """
-        config_bundle = get_bot_config_bundle(self.get_agent_config_path())
-        python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
-        self.agent_class = import_agent(python_file).get_loaded_class()
+        agent_config = self.agent_preset.config.copy()
+        agent_config.set_value(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, self.ingame_name)
 
-        pass
-        # looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-        # self.looks_config = BaseAgent.create_looks_configurations()
-        # self.looks_config.parse_file(looks_path)
+        return self.overall_index, agent_config, self.loadout_preset.config
 
-    def load_config(self, overall_config_file, overall_index):
-        """Loads the config data into the agent"""
-        self.overall_config = overall_config_file
-        self.overall_index = overall_index
-        self.load_agent_configs()
-        self.load_fields_from_config()
+    def set_name(self, name):
+        self.ingame_name = name
 
-    def load_fields_from_config(self):
-        pass
+    def get_name(self):
+        return self.ingame_name
 
-    def get_config(self):
+    def set_loadout_preset(self, loadout_preset):
+        self.loadout_preset = loadout_preset
 
-        return self.overall_index, self.config_bundle, self.looks_config
+    def get_loadout_preset(self):
+        return self.loadout_preset
 
-    def remove(self):
-        """
-        Removes the agent. Called by the GUI.
-        """
-        pass
+    def set_agent_preset(self, agent_preset):
+        self.agent_preset = agent_preset
+        self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
+
+    def get_agent_preset(self):
+        return self.agent_preset
 
     def __repr__(self):
         print(self.agent_class, 'dsdfsfsdfsd')
