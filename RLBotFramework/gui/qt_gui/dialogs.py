@@ -5,6 +5,8 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 
 from RLBotFramework.gui.qt_gui.car_customisation import Ui_LoadoutPresetCustomiser
 from RLBotFramework.gui.qt_gui.agent_customisation import Ui_AgentPresetCustomiser
+from RLBotFramework.gui.presets import LoadoutPreset, AgentPreset
+
 
 class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
 
@@ -141,6 +143,9 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         # print(updated_widget.objectName())
         config_headers = self.config_widgets_to_headers[updated_widget]
 
+        if self.preset_autosave_checkbox.isChecked():
+            self.save_preset(5000)
+
         widget_list = self.config_headers_to_widgets[config_headers[0]][config_headers[1]]
         if len(widget_list) == 1:
             # there is no associated thing to update (e.g. team_color_id)
@@ -167,11 +172,13 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
                         # traceback.print_exc()
                 except KeyError:
                     # unknown item selected
-                    print('Unknown item ID entered (%s)' % item_id)
+                    print('Unknown item ID entered (%s) in %s' % (item_id, widget_to_update.objectName()))
                     widget_to_update.setCurrentText('Unknown')
             elif isinstance(widget_to_update, QtWidgets.QAbstractSpinBox):
                 # update spinbox by widget.setValue(item_id where label = label)
                 item_longlabel = updated_widget.currentText()
+                if item_longlabel == "Unknown":
+                    return
                 item_id = self.item_dicts['longlabels_to_id'][item_longlabel]
                 widget_to_update.setValue(item_id)
 
@@ -207,23 +214,39 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         # print(header.values)
 
     def add_new_preset(self):
-        # TODO: Something. Maybe let user create file?
-        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Loadout CFG', '', 'Config Files (*.cfg)')
-        print(file_name)
-        pass
+        file_path = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Loadout CFG', '', 'Config Files (*.cfg)', options=QtWidgets.QFileDialog.DontConfirmOverwrite)[0]
+        if not file_path:
+            return
+        if os.path.exists(file_path):
+            if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
+                return
+            preset = LoadoutPreset(file_path)
+            self.loadout_presets[preset.get_name()] = preset
+            self.update_presets_listwidget()
+        else:
+            if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
+                return
+            preset = LoadoutPreset(file_path)
+            self.loadout_presets[preset.get_name()] = preset
+            self.update_presets_listwidget()
+
+
+
 
     def load_preset_cfg(self):
-        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Loadout CFG', '', 'Config Files (*.cfg)')
-        print(file_name)
-        # TODO: Add selected preset to self.loadout_presets then refresh listwidget
+        file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Loadout CFG', '', 'Config Files (*.cfg)')[0]
+        if not os.path.exists(file_path):
+            return
+        if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
+            return
+        preset = LoadoutPreset(file_path)
+        self.loadout_presets[preset.get_name()] = preset
+        self.update_presets_listwidget()
 
-    def save_preset(self):
+    def save_preset(self, time_out=5000):
         preset_name = self.presets_listwidget.currentItem().text()
         preset = self.loadout_presets[preset_name]
-        print('save to %s' % preset.config_path)
-        print('Is preset cfg path same as the path in lineconfig?')
-        print('%s' % self.preset_path_lineedit.text() == preset.config_path)
-        # TODO: Save preset. idk what you want to do if lineedit.text != preset.config_path.
+        preset.save_loadout_config(time_out=time_out)
 
     def update_presets_listwidget(self):
         # for loadout_preset_name, loadout_preset in self.loadout_presets.items():  # Essentially the same as

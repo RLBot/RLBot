@@ -39,17 +39,18 @@ class BaseGui:
         self.load_agents()
         self.update_overall_config_stuff()
 
-    def save_overall_config(self):
+    def save_overall_config(self, time_out=5000):
         def save():
             if not os.path.exists(self.overall_config_path):
                 return
             with open(self.overall_config_path, "w") as f:
                 f.write(str(self.overall_config))
+            self.show_status_message("Saved the overall config")
         if self.overall_config_timer is None:
             self.overall_config_timer = QTimer()
             self.overall_config_timer.setSingleShot(True)
             self.overall_config_timer.timeout.connect(save)
-        self.overall_config_timer.start(5000)  # Time-out for timer over here
+        self.overall_config_timer.start(time_out)  # Time-out for timer over here
 
     def load_agents(self, config_file=None):
         """
@@ -96,15 +97,15 @@ class BaseGui:
         return agent
 
     def add_loadout_preset(self, file_path):
-        if os.path.basename(file_path).strip(".cfg") in self.loadout_presets:
-            return self.loadout_presets[os.path.basename(file_path).strip(".cfg")]
+        if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
+            return self.loadout_presets[os.path.basename(file_path).replace(".cfg", "")]
         preset = LoadoutPreset(file_path)
         self.loadout_presets[preset.get_name()] = preset
         return preset
 
     def add_agent_preset(self, file_path):
-        if os.path.basename(file_path).strip(".cfg") in self.agent_presets:
-            return self.agent_presets[os.path.basename(file_path).strip(".cfg")]
+        if os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
+            return self.agent_presets[os.path.basename(file_path).replace(".cfg", "")]
         preset = AgentPreset(file_path)
         self.agent_presets[preset.get_name()] = preset
         return preset
@@ -117,6 +118,9 @@ class BaseGui:
         self.index_manager.free_index(agent.overall_index)
         self.agents.remove(agent)
         agent.remove()
+
+    def show_status_message(self, message):
+        raise NotImplementedError('Subclasses of BaseGui must override this.')
 
     def _remove_agent(self, agent):
         """

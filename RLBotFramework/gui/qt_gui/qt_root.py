@@ -1,11 +1,12 @@
 import sys
+import os
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from RLBotFramework.gui.base_gui import BaseGui
-
 from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
-
 from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog, AgentCustomisationDialog
+from RLBotFramework.utils.class_importer import get_base_repo_path
+from RLBotFramework.parsing.rlbot_config_parser import TEAM_CONFIGURATION_HEADER
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
@@ -26,7 +27,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict = {}
         self.current_bot = None
 
-        self.load_cfg("rlbot.cfg")
+        self.load_cfg(os.path.join(get_base_repo_path(), "rlbot.cfg"))
 
         self.load_loadout_and_agent_presets()
         self.car_customisation = CarCustomisationDialog(self)
@@ -132,7 +133,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.agent_preset_toolbutton.clicked.connect(self.agent_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
-        self.cfg_save_pushbutton.clicked.connect(lambda e: self.save_overall_config())
+        self.cfg_save_pushbutton.clicked.connect(lambda e: self.save_overall_config(0))
 
         self.blue_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=0))
         self.orange_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=1))
@@ -142,6 +143,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         widgets = [self.cfg_file_path_lineedit, self.ign_lineedit, self.bot_level_slider,
                    self.blue_radiobutton, self.orange_radiobutton,
+                   self.blue_name_lineedit, self.blue_color_spinbox,
+                   self.orange_name_lineedit, self.orange_color_spinbox,
                    self.mode_type_combobox]
 
         for item in widgets:
@@ -155,34 +158,58 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 item.toggled.connect(self.edit_event)
 
     def edit_event(self, value=None):
+        def auto_save():
+            if self.cfg_autosave_checkbox.isChecked():
+                self.save_overall_config(time_out=5000)
+
         s = self.sender()
+        if isinstance(s, QtWidgets.QLineEdit):
+            value = s.text()
+
         agent = self.current_bot
-        if s == self.cfg_file_path_lineedit:
-            value = self.cfg_file_path_lineedit.text()
-            print(value)
-        elif s == self.ign_lineedit:
+        if s is self.cfg_file_path_lineedit:
+            if not os.path.exists(value):
+                self.cfg_file_path_lineedit.setText(self.overall_config_path)
+            else:
+                self.load_cfg(value)
+
+        elif s is self.blue_name_lineedit or s is self.orange_name_lineedit:
+            team = "Blue" if s is self.blue_name_lineedit else "Orange"
+            self.overall_config.set_value(TEAM_CONFIGURATION_HEADER, "Team " + team + " Name", value)
+            auto_save()
+        elif s is self.blue_color_spinbox or s is self.orange_color_spinbox:
+            team = "Blue" if s is self.blue_color_spinbox else "Orange"
+            self.overall_config.set_value(TEAM_CONFIGURATION_HEADER, "Team " + team + " Color", value)
+            auto_save()
+
+        elif s is self.ign_lineedit:
             if not self.current_bot.get_team():
                 listwidget = self.blue_listwidget
             else:
                 listwidget = self.orange_listwidget
-            value = self.validate_name(self.ign_lineedit.text(), agent)
-            self.ign_lineedit.setText(value)
+            name = self.validate_name(value, agent)
+            old_name = self.validate_name(agent.ingame_name, agent)
+            self.ign_lineedit.setText(name)
             if not listwidget.selectedItems():
                 # happens when you 'finish editing' by click delete [-]
                 # listwidget.selectedItems() returns []
                 return
-            listwidget.selectedItems()[0].setText(value)
-            del self.bot_names_to_agent_dict[self.current_bot.ingame_name]
-            self.current_bot.ingame_name = value
-            self.bot_names_to_agent_dict[value] = agent
-        elif s == self.bot_level_slider:
+            listwidget.selectedItems()[0].setText(name)
+            del self.bot_names_to_agent_dict[old_name]
+            agent.set_name(value)
+            self.bot_names_to_agent_dict[name] = agent
+            self.update_bot_names_listwidgets()
+
+        elif s is self.bot_level_slider:
             agent.set_bot_skill(value / 100)
-        elif s == self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
+
+        elif s is self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
             if agent.get_team() == 1:
                 item = self.move_bot_between_list(1, agent)
                 self.switch_team_bot(1, agent)
                 self.blue_listwidget.setCurrentItem(item)
-        elif s == self.orange_radiobutton and value:
+
+        elif s is self.orange_radiobutton and value:
             if agent.get_team() == 0:
                 item = self.move_bot_between_list(0, agent)
                 self.switch_team_bot(0, agent)
@@ -198,7 +225,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 else:
                     value = name + " (" + str(i) + ")"
                     return value
-        return name
+        else:
+            return name
 
     def update_overall_config_stuff(self):
         self.update_teams_listwidgets()
@@ -255,6 +283,16 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         else:
             self.bot_config_groupbox.setDisabled(False)
 
+    def update_bot_names_listwidgets(self):
+        for agent_name, agent in self.bot_names_to_agent_dict.items():
+            list_name = self.validate_name(agent.ingame_name, agent)
+            if agent_name != list_name:
+                del self.bot_names_to_agent_dict[agent_name]
+                self.bot_names_to_agent_dict[list_name] = agent
+                list_widget = self.blue_listwidget if not agent.get_team() else self.orange_listwidget
+                list_widget.findItems(agent_name, QtCore.Qt.MatchExactly)[0].setText(list_name)
+
+
     def update_teams_listwidgets(self):
         self.blue_bots.clear()
         self.orange_bots.clear()
@@ -263,7 +301,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict.clear()
         for agent in self.agents:
             name = self.validate_name(agent.ingame_name, agent)
-            print(name)
             if not agent.get_team():
                 self.blue_bots.append(agent)
                 self.blue_bot_names.append(name)
@@ -292,6 +329,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         if not self.sender().selectedItems():
             return
         # deselect the other listbox
+        item_name = self.sender().selectedItems()[0].text()
         agent = self.get_selected_bot(self.sender())
         if agent is None:
             return
@@ -327,7 +365,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.loadout_preset_combobox.setCurrentText(agent.get_loadout_preset().get_name())
         self.agent_preset_combobox.setCurrentText(agent.get_agent_preset().get_name())
 
-        self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
+        self.statusbar.showMessage("Selected bot '%s' with ingame name '%s'" % (agent.get_name(), item_name), 2000)
 
     def get_selected_bot(self, sender: QtWidgets.QListWidget, print_err=True):
         if sender is self.blue_listwidget:
@@ -371,6 +409,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.update_teams_listwidgets()
         self.statusbar.showMessage('Deleted bot: %s.' % agent, 5000)
 
+    def show_status_message(self, message):
+        self.statusbar.showMessage(message)
 
     @staticmethod
     def main():
