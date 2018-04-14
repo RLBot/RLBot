@@ -6,6 +6,8 @@ from RLBotFramework.gui.base_gui_agent import BaseGuiAgent
 from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout, get_num_players
 from RLBotFramework.gui.presets import LoadoutPreset, AgentPreset
 from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY
+from RLBotFramework.agents.base_agent import BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY
+from RLBotFramework.utils.class_importer import get_base_repo_path
 
 
 class BaseGui:
@@ -65,8 +67,14 @@ class BaseGui:
             agent.set_agent_preset(agent_preset)
 
             loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, i)
-            print("Ill be crashing here, fix is coming later, line 69 in base_gui")
-            loadout_file = agent_preset.config.get() if loadout_file == "None" or loadout_file is None else loadout_file
+            if loadout_file == "None" or loadout_file is None:
+                directory = os.path.dirname(os.path.realpath(agent.get_agent_config_path()))
+                file_path = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
+                loadout_file = os.path.realpath(os.path.join(directory, file_path))
+            else:
+                directory = get_base_repo_path()
+                file_path = loadout_file
+                loadout_file = os.path.realpath(os.path.join(directory, file_path))
             loadout_preset = self.add_loadout_preset(loadout_file)
             agent.set_loadout_preset(loadout_preset)
 

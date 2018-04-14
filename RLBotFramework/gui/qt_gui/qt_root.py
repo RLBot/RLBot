@@ -34,7 +34,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         self.connect_functions()
 
-        self.update_teams_listwidgets()
+        # self.update_teams_listwidgets() (already gets called with load_cfg)
         self.update_bot_type_combobox()
 
         self.statusbar.showMessage("Loaded CFG.")
@@ -198,7 +198,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 else:
                     value = name + " (" + str(i) + ")"
                     return value
-
+        return name
 
     def update_overall_config_stuff(self):
         self.update_teams_listwidgets()
@@ -262,14 +262,16 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.orange_bot_names.clear()
         self.bot_names_to_agent_dict.clear()
         for agent in self.agents:
+            name = self.validate_name(agent.ingame_name, agent)
+            print(name)
             if not agent.get_team():
                 self.blue_bots.append(agent)
-                self.blue_bot_names.append(agent.ingame_name)
+                self.blue_bot_names.append(name)
             else:
                 self.orange_bots.append(agent)
-                self.orange_bot_names.append(agent.ingame_name)
+                self.orange_bot_names.append(name)
 
-            self.bot_names_to_agent_dict[agent.ingame_name] = agent
+            self.bot_names_to_agent_dict[name] = agent
         self.blue_listwidget.clear()
         self.blue_listwidget.addItems(self.blue_bot_names)
         self.orange_listwidget.clear()
@@ -299,7 +301,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.current_bot = agent
 
         # enable/disable bot config (and maybe [+])
-        print("Got here")
         self.enable_disable_on_bot_select_deselect()
         # enable [-] for right listwidget
         if self.sender() is self.blue_listwidget:
@@ -323,8 +324,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.orange_radiobutton.setChecked(True)
         self.ign_lineedit.setText(agent.ingame_name)
 
-        # TODO: select agent.loadout_preset in self.loadout_preset_combobox
-        self.agent_preset_combobox.setCurrentText(agent.agent_preset.get_name())
+        self.loadout_preset_combobox.setCurrentText(agent.get_loadout_preset().get_name())
+        self.agent_preset_combobox.setCurrentText(agent.get_agent_preset().get_name())
 
         self.statusbar.showMessage("Loaded bot config for bot: %s" % agent, 2000)
 
@@ -354,7 +355,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
     def gui_add_bot(self, team_index):
         agent = self.add_agent(team_index=team_index)
-        # print(len(self.agents))
         self.update_teams_listwidgets()
         self.statusbar.showMessage('Added bot: %s.' % agent, 5000)
 
