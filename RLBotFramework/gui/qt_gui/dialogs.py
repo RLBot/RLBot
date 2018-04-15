@@ -279,7 +279,8 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
 
         self.preset_new_pushbutton.clicked.connect(self.add_new_preset)
         self.preset_load_pushbutton.clicked.connect(self.load_preset_cfg)
-        self.preset_save_pushbutton.clicked.connect(self.save_preset)
+        self.preset_save_pushbutton.clicked.connect(lambda v: self.save_preset(time_out=0))
+        self.python_file_select_button.clicked.connect(self.load_python_file)
 
     def load_selected_agent_preset(self):
         # Prevent unnecessary save by loading the values
@@ -359,6 +360,20 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         self.qt_gui.agent_preset_combobox.clear()
         self.qt_gui.agent_preset_combobox.addItems(list(self.agent_presets.keys()))
 
+    def load_python_file(self):
+        file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent Class', '', 'Python Files (*.py)')[0]
+        if not file_path or not os.path.exists(file_path) or self.get_current_preset().python_file_path == file_path:
+            return
+        preset = self.get_current_preset()
+        preset.load_agent_class(file_path)
+        preset.load()
+        rel_path = os.path.relpath(file_path, os.path.dirname(preset.config_path))
+        preset.config.set_value("Locations", "python_file", rel_path)
+        self.preset_python_file_lineedit.setText(rel_path)
+
+        bot_parameters = preset.config["Bot Parameters"]
+        self.add_parameters_to_gui(bot_parameters)
+
     def add_new_preset(self):
         # First item of list is path, second is selected file type, which is always .cfg in our case
         file_path = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Agent CFG', '', 'Config Files (*.cfg)', options=QtWidgets.QFileDialog.DontConfirmOverwrite)[0]
@@ -367,6 +382,7 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         preset = AgentPreset(file_path)
         self.agent_presets[preset.get_name()] = preset
         self.update_presets_widgets()
+        # TODO: set the freshly added item here
 
     def load_preset_cfg(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent CFG', '', 'Config Files (*.cfg)')[0]
@@ -381,6 +397,5 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
     def save_preset(self, preset=None, time_out=5000):
         if preset is None:
             preset = self.get_current_preset()
-        print("Scheduling save in ", time_out)
         preset.save_config(time_out=time_out)
 
