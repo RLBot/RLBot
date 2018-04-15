@@ -37,25 +37,22 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame">
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="preset_new_pushbutton">
+          <property name="text">
+           <string>New</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="preset_load_pushbutton">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -85,9 +82,6 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1" colspan="3">
-          <widget class="QLineEdit" name="preset_path_lineedit"/>
-         </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_17">
            <property name="text">
@@ -95,21 +89,10 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QPushButton" name="preset_new_pushbutton">
-           <property name="text">
-            <string>New</string>
-           </property>
-          </widget>
+         <item row="6" column="1" colspan="4">
+          <widget class="QLineEdit" name="preset_python_file_lineedit"/>
          </item>
-         <item row="7" column="1">
-          <widget class="QPushButton" name="preset_load_pushbutton">
-           <property name="text">
-            <string>Load</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="3">
+         <item row="7" column="4">
           <widget class="QCheckBox" name="preset_autosave_checkbox">
            <property name="text">
             <string>Autosave</string>
@@ -119,15 +102,22 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="2">
+         <item row="7" column="2" colspan="2">
           <widget class="QPushButton" name="preset_save_pushbutton">
            <property name="text">
-            <string>Save</string>
+            <string>Save Preset</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1" colspan="3">
-          <widget class="QLineEdit" name="preset_python_file_lineedit"/>
+         <item row="7" column="0" colspan="2">
+          <widget class="QPushButton" name="python_file_select_button">
+           <property name="text">
+            <string>Select Agent File</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="4">
+          <widget class="QLineEdit" name="preset_path_lineedit"/>
          </item>
         </layout>
        </widget>

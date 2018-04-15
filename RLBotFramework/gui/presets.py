@@ -25,13 +25,12 @@ class Preset:
         self.config.parse_file(self.config_path)
         return self.config
 
-    def save_loadout_config(self, file_path=None, time_out=0):
+    def save_config(self, file_path=None, time_out=0):
         if file_path is not None:
             self.config_path = file_path
 
         def save():
             with open(self.config_path, "w") as f:
-                print(self.config)
                 f.write(str(self.config))
 
         if self.save_loadout_timer is None:
@@ -51,9 +50,13 @@ class LoadoutPreset(Preset):
 
 class AgentPreset(Preset):
     def __init__(self, file_path=None):
-        raw_config_parser = RawConfigParser()
-        raw_config_parser.read(file_path)
-        python_file_path = os.path.realpath(os.path.join(os.path.dirname(
-            os.path.realpath(file_path)), raw_config_parser.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)))
-        self.agent_class = import_agent(python_file_path).get_loaded_class()
+        if file_path is not None and os.path.exists(file_path):
+            print("wrong thing")
+            raw_config_parser = RawConfigParser()
+            raw_config_parser.read(file_path)
+            python_file_path = os.path.realpath(os.path.join(os.path.dirname(
+                os.path.realpath(file_path)), raw_config_parser.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)))
+            self.agent_class = import_agent(python_file_path).get_loaded_class()
+        else:
+            self.agent_class = BaseAgent
         super().__init__(self.agent_class.create_agent_configurations(), file_path)

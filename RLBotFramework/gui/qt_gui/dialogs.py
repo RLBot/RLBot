@@ -14,6 +14,8 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         super().__init__()
         self.setupUi(self)
         self.qt_gui = qt_gui
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
         # this new variable is not a copy. it's the same dict.
         self.loadout_presets = self.qt_gui.loadout_presets
 
@@ -22,7 +24,7 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         self.prefill_boxes()
         self.connect_functions()
 
-        self.update_presets_listwidget()
+        self.update_presets_widgets()
 
         # TESTING
         # TODO: Remove the testing bit.
@@ -32,7 +34,6 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
     def create_config_headers_dicts(self):
         """
         Creates the config_headers_to_widgets and config_widgets_to_headers and config_headers_to_categories dicts
-        :return:
         """
         self.config_headers_to_widgets = {
             # blue stuff
@@ -140,47 +141,53 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
     def update_spinbox_and_combobox(self):
         # Updates the corresponding widget (ie update spinbox if combobox edited)
         updated_widget = self.sender()
-        # print(updated_widget.objectName())
+        # config_headers contains the config_header (team) and the config_item (ie decal)
         config_headers = self.config_widgets_to_headers[updated_widget]
 
-        if self.preset_autosave_checkbox.isChecked():
-            self.save_preset(5000)
-
+        # widget_list contains the spinbox and combobox (if it exists) associated with that item
         widget_list = self.config_headers_to_widgets[config_headers[0]][config_headers[1]]
-        if len(widget_list) == 1:
-            # there is no associated thing to update (e.g. team_color_id)
-            return
-        for widget_to_update in widget_list:
-            if widget_to_update is updated_widget:
-                # don't bother updating yourself
-                continue
-            if isinstance(widget_to_update, QtWidgets.QComboBox):
-                # update combobox by selecting decal_labels.index(self.categorised_items[updated_widget.value()])
-                try:
-                    # try to get item name from id in self.item_dicts
+
+        if len(widget_list) != 1:
+            # there is a widget to update
+            for widget_to_update in widget_list:
+                if widget_to_update is updated_widget:
+                    # no need to update itself, therefore continue
+                    continue
+                if isinstance(widget_to_update, QtWidgets.QComboBox):
+                    # update combobox by selecting decal_labels.index(self.categorised_items[updated_widget.value()])
                     item_id = updated_widget.value()
-                    item_name = self.item_dicts['id_to_items'][item_id]['LongLabel']
                     try:
-                        # try to select item in combobox
-                        config_headers = self.config_widgets_to_headers[widget_to_update]
-                        category = self.config_headers_to_categories[config_headers[1]]
-                        _index = self.item_dicts['categorised_items'][category].index(item_name)
-                        widget_to_update.setCurrentIndex(_index)
-                    except ValueError:
-                        print('Error: Item ID entered does not belong in this category. (%s)' % item_name)
-                        # import traceback
-                        # traceback.print_exc()
-                except KeyError:
-                    # unknown item selected
-                    print('Unknown item ID entered (%s) in %s' % (item_id, widget_to_update.objectName()))
-                    widget_to_update.setCurrentText('Unknown')
-            elif isinstance(widget_to_update, QtWidgets.QAbstractSpinBox):
-                # update spinbox by widget.setValue(item_id where label = label)
-                item_longlabel = updated_widget.currentText()
-                if item_longlabel == "Unknown":
-                    return
-                item_id = self.item_dicts['longlabels_to_id'][item_longlabel]
-                widget_to_update.setValue(item_id)
+                        # try to get item name from id in self.item_dicts
+                        item_name = self.item_dicts['id_to_items'][item_id]['LongLabel']
+                        try:
+                            # try to select item in combobox
+                            config_headers = self.config_widgets_to_headers[widget_to_update]
+                            category = self.config_headers_to_categories[config_headers[1]]
+                            _index = self.item_dicts['categorised_items'][category].index(item_name)
+                            widget_to_update.setCurrentIndex(_index)
+                        except ValueError:
+                            print('Error: Item ID entered does not belong in this category. (%s)' % item_name)
+                    except KeyError:
+                        # unknown item selected, the id exists in no category
+                        print('Unknown item ID entered (%s) in %s' % (item_id, widget_to_update.objectName()))
+                        widget_to_update.setCurrentText('Unknown')
+
+                elif isinstance(widget_to_update, QtWidgets.QAbstractSpinBox):
+                    # update spinbox by widget.setValue(item_id where label = label)
+                    item_longlabel = updated_widget.currentText()
+                    if item_longlabel == "Unknown":
+                        item_id = 0
+                        continue
+                    item_id = self.item_dicts['longlabels_to_id'][item_longlabel]
+                    widget_to_update.setValue(item_id)
+        else:
+            item_id = updated_widget.value()
+        preset_name = self.presets_listwidget.currentItem().text()
+        preset = self.loadout_presets[preset_name]
+        preset.config.set_value(config_headers[0], config_headers[1], item_id)
+
+        if self.preset_autosave_checkbox.isChecked():
+            self.save_preset(preset, 5000)
 
     def load_selected_loadout_preset(self):
         preset_name = self.presets_listwidget.currentItem().text()
@@ -222,16 +229,13 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
                 return
             preset = LoadoutPreset(file_path)
             self.loadout_presets[preset.get_name()] = preset
-            self.update_presets_listwidget()
+            self.update_presets_widgets()
         else:
             if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
                 return
             preset = LoadoutPreset(file_path)
             self.loadout_presets[preset.get_name()] = preset
-            self.update_presets_listwidget()
-
-
-
+            self.update_presets_widgets()
 
     def load_preset_cfg(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Loadout CFG', '', 'Config Files (*.cfg)')[0]
@@ -241,20 +245,22 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
             return
         preset = LoadoutPreset(file_path)
         self.loadout_presets[preset.get_name()] = preset
-        self.update_presets_listwidget()
+        self.update_presets_widgets()
 
-    def save_preset(self, time_out=5000):
-        preset_name = self.presets_listwidget.currentItem().text()
-        preset = self.loadout_presets[preset_name]
-        preset.save_loadout_config(time_out=time_out)
+    def save_preset(self, preset=None, time_out=5000):
+        if preset is None:
+            preset_name = self.presets_listwidget.currentItem().text()
+            preset = self.loadout_presets[preset_name]
+        preset.save_config(time_out=time_out)
 
-    def update_presets_listwidget(self):
-        # for loadout_preset_name, loadout_preset in self.loadout_presets.items():  # Essentially the same as
-        # print('loadouts:', loadout_preset_name, str(loadout_preset))
-
+    def update_presets_widgets(self):
+        # Resets the listwidget and then adds the items from the dictionary
         self.presets_listwidget.clear()
         self.presets_listwidget.addItems(list(self.loadout_presets.keys()))
-        # print(list(self.loadout_presets.keys()))
+
+        # Also updates the combobox which you can select the loadout preset for the bot through
+        self.qt_gui.loadout_preset_combobox.clear()
+        self.qt_gui.loadout_preset_combobox.addItems(list(self.loadout_presets.keys()))
 
 
 class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
@@ -263,18 +269,18 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         super().__init__()
         self.setupUi(self)
         self.grid_layout = QtWidgets.QGridLayout(self.agent_parameters_groupbox)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.qt_gui = qt_gui
         self.agent_presets = self.qt_gui.agent_presets
         self.extra_parameter_widgets = []
+        self.connect_functions()
 
-        self.update_presets_listwidget()
+        self.update_presets_widgets()
 
-        # TEST STUFF
         self.presets_listwidget.setCurrentRow(0)
         self.load_selected_agent_preset()
-
-
 
     def connect_functions(self):
         self.presets_listwidget.itemSelectionChanged.connect(self.load_selected_agent_preset)
@@ -286,13 +292,11 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
     def load_selected_agent_preset(self):
         preset_name = self.presets_listwidget.currentItem().text()
         preset = self.agent_presets[preset_name]
-        print(preset)
-        print(preset.config.get_header('Locations').get('python_file'))
 
         self.preset_path_lineedit.setText(preset.config_path)
-        self.preset_python_file_lineedit.setText(preset.config.get_header('Locations').get('python_file'))
+        self.preset_python_file_lineedit.setText(preset.config.get('Locations', 'python_file'))
 
-        bot_parameters = preset.config.raw_config_parser['Bot Parameters']
+        bot_parameters = preset.config["Bot Parameters"]
 
         self.add_parameters_to_gui(bot_parameters)
 
@@ -304,47 +308,36 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
             child_widget.setParent(None)
             child_widget.deleteLater()
 
-        params = list(bot_parameters.items())
-        params_count = len(params)
+        config_values = bot_parameters.values
 
         parent = self.agent_parameters_groupbox
-        for row_no, (key, value) in enumerate(params):
+        for row_no, (key, config_value) in enumerate(list(config_values.items())):
             label = QtWidgets.QLabel(str(key) + ':', parent)
             label.setObjectName("label_%s" % key)
             self.grid_layout.addWidget(label, row_no, 0)
 
             self.extra_parameter_widgets.append(label)
-            try:
-                bot_parameters.getint(key)
-                _value_type = int
-            except ValueError:
-                try:
-                    bot_parameters.getboolean(key)
-                    _value_type = bool
-                except ValueError:
-                    try:
-                        bot_parameters.getfloat(key)
-                        _value_type = float
-                    except ValueError:
-                        print("Unknown value type for %s (key: %s)" % value, key)
-            if _value_type is int:
-                print("INT")
+            if config_value.type is int:
                 value_widget = QtWidgets.QSpinBox(parent)
-                value_widget.setValue(int(value))
-            elif _value_type is bool:
-                print("BOOL")
+                value_widget.setValue(int(config_values.get_value()))
+
+            elif config_value.type is bool:
                 value_widget = QtWidgets.QCheckBox(parent)
-                value_widget.setChecked(bool(value))
-            elif _value_type is float:
-                print("FLOAT")
+                value_widget.setChecked(bool(config_value.get_value()))
+
+            elif config_value.type is float:
                 value_widget = QtWidgets.QDoubleSpinBox(parent)
-                value_widget.setValue(float(value))
+                value_widget.setValue(float(config_values.get_value()))
+
+            else:
+                # handle everything else as a string
+                value_widget = QtWidgets.QLineEdit(parent)
+                value_widget.setText(config_values.get_value())
 
             value_widget.setObjectName('value_%s' % key)
+            label.setToolTip(config_value.description)
+            value_widget.setToolTip(config_value.description)
             self.grid_layout.addWidget(value_widget, row_no, 1)
-
-            # print(value.type, 'asfaasf')
-
 
         self.grid_layout.setContentsMargins(15, 15, 15, 15)
         # print(self.grid_layout.geometry().height(), self.grid_layout.geometry().width())
@@ -352,29 +345,45 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         self.grid_layout.setColumnStretch(1, 2)
         self.resize(self.minimumSizeHint())
 
-
-
-    def update_presets_listwidget(self):
+    def update_presets_widgets(self):
         self.presets_listwidget.clear()
         self.presets_listwidget.addItems(list(self.agent_presets.keys()))
 
+        # Also updates the combobox which you can select the agent preset for the bot through
+        self.qt_gui.agent_preset_combobox.clear()
+        self.qt_gui.agent_preset_combobox.addItems(list(self.agent_presets.keys()))
 
     def add_new_preset(self):
-        # TODO: Something. Maybe let user create file?
-        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Agent CFG', '', 'Config Files (*.cfg)')
-        print(file_name)
-        pass
+        # First item of list is path, second is selected file type, which is always .cfg in our case
+        file_path = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Agent CFG', '', 'Config Files (*.cfg)', options=QtWidgets.QFileDialog.DontConfirmOverwrite)[0]
+        if not file_path:
+            return
+        if os.path.exists(file_path):
+            if os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
+                return
+            preset = AgentPreset(file_path)
+            self.agent_presets[preset.get_name()] = preset
+            self.update_presets_widgets()
+        else:
+            if os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
+                return
+            preset = AgentPreset(file_path)
+            self.agent_presets[preset.get_name()] = preset
+            self.update_presets_widgets()
 
     def load_preset_cfg(self):
-        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent CFG', '', 'Config Files (*.cfg)')
-        print(file_name)
-        # TODO: Add selected preset to self.agent_presets then refresh listwidget
+        file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent CFG', '', 'Config Files (*.cfg)')[0]
+        if not os.path.exists(file_path):
+            return
+        if os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
+            return
+        preset = AgentPreset(file_path)
+        self.agent_presets[preset.get_name()] = preset
+        self.update_presets_widgets()
 
-    def save_preset(self):
-        preset_name = self.presets_listwidget.currentItem().text()
-        preset = self.agent_presets[preset_name]
-        print('save to %s' % preset.config_path)
-        print('Is preset cfg path same as the path in lineconfig?')
-        print('%s' % self.preset_path_lineedit.text() == preset.config_path)
-        # TODO: Save preset. idk what you want to do if lineedit.text != preset.config_path.
+    def save_preset(self, preset=None, time_out=5000):
+        if preset is None:
+            preset_name = self.presets_listwidget.currentItem().text()
+            preset = self.agent_presets[preset_name]
+        preset.save_config(time_out=time_out)
 
