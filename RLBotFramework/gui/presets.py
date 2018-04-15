@@ -13,6 +13,7 @@ class Preset:
         self.config_path = file_path
         self.name = os.path.basename(file_path).replace(".cfg", "")
         self.save_loadout_timer = None
+        self.auto_save = True
         if file_path is not None:
             self.load(file_path)
 
@@ -39,6 +40,9 @@ class Preset:
             self.save_loadout_timer.timeout.connect(save)
         self.save_loadout_timer.start(time_out)  # Time-out for timer over here
 
+    def set_auto_save(self, auto_save):
+        self.auto_save = auto_save
+
     def get_name(self):
         return self.name
 
@@ -51,7 +55,6 @@ class LoadoutPreset(Preset):
 class AgentPreset(Preset):
     def __init__(self, file_path=None):
         if file_path is not None and os.path.exists(file_path):
-            print("wrong thing")
             raw_config_parser = RawConfigParser()
             raw_config_parser.read(file_path)
             python_file_path = os.path.realpath(os.path.join(os.path.dirname(

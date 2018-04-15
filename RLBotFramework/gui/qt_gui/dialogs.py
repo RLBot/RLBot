@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 from PyQt5 import QtWidgets, QtCore, QtGui
 
@@ -119,6 +118,9 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         }
         return dicts
 
+    def get_current_preset(self):
+        return self.loadout_presets[self.presets_listwidget.currentItem().text()]
+
     def prefill_boxes(self):
         for widget, config_headers in self.config_widgets_to_headers.items():
             if isinstance(widget, QtWidgets.QComboBox):
@@ -190,52 +192,38 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
             self.save_preset(preset, 5000)
 
     def load_selected_loadout_preset(self):
-        preset_name = self.presets_listwidget.currentItem().text()
-        preset = self.loadout_presets[preset_name]
+        self.preset_autosave_checkbox.setChecked(False)
 
-        # print(preset)
-        # print(str(preset.config))
-        # print(preset.config.headers.values)
-        for _key, config_header in preset.config.headers.items():
-            # print(_key)
-            # print(config_header.values)
+        preset = self.get_current_preset()
 
+        for config_header_key, config_header in preset.config.headers.items():
             # for config_header in config, update widget value
-            for config_header_key in config_header.values:
+            for config_value_key in config_header.values:
                 try:
-                    widgets = self.config_headers_to_widgets[_key][config_header_key]
+                    widgets = self.config_headers_to_widgets[config_header_key][config_value_key]
                     try:
                         for widget in widgets:
-                            # only update spinboxes - let comboboxes update.
+                            # only update spinboxes - let comboboxes update through spinbox update detection.
                             if isinstance(widget, QtWidgets.QAbstractSpinBox):
                                 # widget.setValue(config_header_value.value)
-                                widget.setValue(config_header.get(config_header_key))
+                                widget.setValue(config_header.get(config_value_key))
                     except:
                         import traceback
                         traceback.print_exc()
                 except KeyError:
-                    print('Unknown loadout config header entry: %s' % config_header_key)
+                    print('Unknown loadout config header entry: %s' % config_value_key)
 
         # update file path manually
         self.preset_path_lineedit.setText(preset.config_path)
-        # print(header.values)
+        self.preset_autosave_checkbox.setChecked(preset.auto_save)
 
     def add_new_preset(self):
         file_path = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Loadout CFG', '', 'Config Files (*.cfg)', options=QtWidgets.QFileDialog.DontConfirmOverwrite)[0]
-        if not file_path:
+        if not file_path or os.path.exists(file_path) or os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
             return
-        if os.path.exists(file_path):
-            if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
-                return
-            preset = LoadoutPreset(file_path)
-            self.loadout_presets[preset.get_name()] = preset
-            self.update_presets_widgets()
-        else:
-            if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
-                return
-            preset = LoadoutPreset(file_path)
-            self.loadout_presets[preset.get_name()] = preset
-            self.update_presets_widgets()
+        preset = LoadoutPreset(file_path)
+        self.loadout_presets[preset.get_name()] = preset
+        self.update_presets_widgets()
 
     def load_preset_cfg(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Loadout CFG', '', 'Config Files (*.cfg)')[0]
@@ -280,18 +268,24 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         self.update_presets_widgets()
 
         self.presets_listwidget.setCurrentRow(0)
-        self.load_selected_agent_preset()
+
+    def get_current_preset(self):
+        return self.agent_presets[self.presets_listwidget.currentItem().text()]
 
     def connect_functions(self):
         self.presets_listwidget.itemSelectionChanged.connect(self.load_selected_agent_preset)
+
+        self.preset_autosave_checkbox.clicked.connect(lambda e: self.get_current_preset().set_auto_save(e))
 
         self.preset_new_pushbutton.clicked.connect(self.add_new_preset)
         self.preset_load_pushbutton.clicked.connect(self.load_preset_cfg)
         self.preset_save_pushbutton.clicked.connect(self.save_preset)
 
     def load_selected_agent_preset(self):
-        preset_name = self.presets_listwidget.currentItem().text()
-        preset = self.agent_presets[preset_name]
+        # Prevent unnecessary save by loading the values
+        self.preset_autosave_checkbox.setChecked(False)
+
+        preset = self.get_current_preset()
 
         self.preset_path_lineedit.setText(preset.config_path)
         self.preset_python_file_lineedit.setText(preset.config.get('Locations', 'python_file'))
@@ -299,6 +293,8 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         bot_parameters = preset.config["Bot Parameters"]
 
         self.add_parameters_to_gui(bot_parameters)
+
+        self.preset_autosave_checkbox.setChecked(preset.auto_save)
 
     def add_parameters_to_gui(self, bot_parameters):
         # clear layout
@@ -311,28 +307,38 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         config_values = bot_parameters.values
 
         parent = self.agent_parameters_groupbox
-        for row_no, (key, config_value) in enumerate(list(config_values.items())):
+        for row_no, (key, config_value) in enumerate(config_values.items()):
             label = QtWidgets.QLabel(str(key) + ':', parent)
             label.setObjectName("label_%s" % key)
             self.grid_layout.addWidget(label, row_no, 0)
 
             self.extra_parameter_widgets.append(label)
+
+            def update_event(new_value, config_item=config_value):
+                config_item.set_value(new_value)
+                if self.preset_autosave_checkbox.isChecked():
+                    self.save_preset()
+
             if config_value.type is int:
                 value_widget = QtWidgets.QSpinBox(parent)
-                value_widget.setValue(int(config_values.get_value()))
+                value_widget.setValue(int(config_value.get_value()))
+                value_widget.valueChanged.connect(update_event)
 
             elif config_value.type is bool:
                 value_widget = QtWidgets.QCheckBox(parent)
                 value_widget.setChecked(bool(config_value.get_value()))
+                value_widget.clicked.connect(update_event)
 
             elif config_value.type is float:
                 value_widget = QtWidgets.QDoubleSpinBox(parent)
-                value_widget.setValue(float(config_values.get_value()))
+                value_widget.setValue(float(config_value.get_value()))
+                value_widget.valueChanged.connect(update_event)
 
             else:
                 # handle everything else as a string
                 value_widget = QtWidgets.QLineEdit(parent)
-                value_widget.setText(config_values.get_value())
+                value_widget.setText(config_value.get_value())
+                value_widget.textChanged.connect(update_event)
 
             value_widget.setObjectName('value_%s' % key)
             label.setToolTip(config_value.description)
@@ -356,20 +362,11 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
     def add_new_preset(self):
         # First item of list is path, second is selected file type, which is always .cfg in our case
         file_path = QtWidgets.QFileDialog.getSaveFileName(self, 'Create Agent CFG', '', 'Config Files (*.cfg)', options=QtWidgets.QFileDialog.DontConfirmOverwrite)[0]
-        if not file_path:
+        if not file_path or os.path.exists(file_path) or os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
             return
-        if os.path.exists(file_path):
-            if os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
-                return
-            preset = AgentPreset(file_path)
-            self.agent_presets[preset.get_name()] = preset
-            self.update_presets_widgets()
-        else:
-            if os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
-                return
-            preset = AgentPreset(file_path)
-            self.agent_presets[preset.get_name()] = preset
-            self.update_presets_widgets()
+        preset = AgentPreset(file_path)
+        self.agent_presets[preset.get_name()] = preset
+        self.update_presets_widgets()
 
     def load_preset_cfg(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent CFG', '', 'Config Files (*.cfg)')[0]
@@ -383,7 +380,7 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
 
     def save_preset(self, preset=None, time_out=5000):
         if preset is None:
-            preset_name = self.presets_listwidget.currentItem().text()
-            preset = self.agent_presets[preset_name]
+            preset = self.get_current_preset()
+        print("Scheduling save in ", time_out)
         preset.save_config(time_out=time_out)
 
