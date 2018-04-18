@@ -30,6 +30,12 @@ public class RLBotDll {
     }
 
     private static Memory getMemory(byte[] protoBytes) {
+        if (protoBytes.length == 0) {
+            // The empty controller state is actually 0 bytes, so this can happen.
+            // You're not allowed to pass 0 bytes to the Memory constructor, so do this.
+            return new Memory(1);
+        }
+
         final Memory mem = new Memory(protoBytes.length);
         mem.write(0, protoBytes, 0, protoBytes.length);
         return mem;

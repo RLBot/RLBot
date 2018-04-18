@@ -24,6 +24,7 @@ dependencies {
     compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.1.0'  // Allows the java bot manager to use protobuf
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
+    testRuntime files('src/main/python/RLBotFramework/dll')
 }
 
 def pythonRoot = './src/main/python/'
