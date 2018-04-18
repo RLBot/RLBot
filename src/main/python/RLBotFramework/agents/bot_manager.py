@@ -248,7 +248,11 @@ class BotManagerIndependent(BotManager):
     def run(self):
         # Get bot module
         agent, agent_class_file = self.load_agent(self.agent_class_wrapper)
-        agent.run_independently()
+        agent.run_independently(self.terminate_request_event)
+        if hasattr(agent, 'retire'):
+            agent.retire()
+        # If terminated, send callback
+        self.termination_complete_event.set()
 
     def call_agent(self, agent, agent_class):
         pass
