@@ -42,14 +42,30 @@ class BotManager:
         self.module_path = module_path
         self.agent_metadata_queue = agent_metadata_queue
 
-    def load_agent(self, agent_module):
+    def load_agent(self):
+
+        dir_name = os.path.dirname(self.module_path)
+        module_name = os.path.splitext(os.path.basename(self.module_path))[0]
+        keys_before = set(sys.modules.keys())
+
+        # Temporarily modify the sys.path while we load the module so that the module can use import statements naturally
+        sys.path.insert(0, dir_name)
+        agent_module = importlib.import_module(module_name)
+
         try:
             agent = agent_module.Agent(self.name, self.team, self.index, bot_parameters=self.bot_parameters)
         except TypeError:
             agent = agent_module.Agent(self.name, self.team, self.index)
 
+        # Clean up the changes to sys.path and sys.modules to avoid collisions with other external classes and to
+        # prepare for the next reload.
+        added = set(sys.modules.keys()).difference(keys_before)
+        del sys.path[0]
+        for key in added:
+            del sys.modules[key]
+
         self.update_metadata_queue(agent)
-        return agent
+        return agent, agent_module
 
     def update_metadata_queue(self, agent):
         pids = set()
@@ -85,22 +101,7 @@ class BotManager:
                 self.index = i
                 continue
 
-        # Get bot module
-        dir_name = os.path.dirname(self.module_path)
-        module_name = os.path.splitext(os.path.basename(self.module_path))[0]
-        keys_before = set(sys.modules.keys())
-
-        # Temporarily modify the sys.path while we load the module so that the module can use import statements naturally
-        sys.path.insert(0, dir_name)
-        agent_module = importlib.import_module(module_name)
-        agent = self.load_agent(agent_module)
-
-        # Clean up the changes to sys.path and sys.modules to avoid collisions with other external classes and to
-        # prepare for the next reload.
-        added = set(sys.modules.keys()).difference(keys_before)
-        del sys.path[0]
-        for key in added:
-            del sys.modules[key]
+        agent, agent_module = self.load_agent()
 
         last_module_modification_time = os.stat(agent_module.__file__).st_mtime
 
@@ -131,9 +132,8 @@ class BotManager:
                     if new_module_modification_time != last_module_modification_time:
                         last_module_modification_time = new_module_modification_time
                         print('Reloading Agent: ' + agent_module.__file__)
-                        importlib.reload(agent_module)
                         old_agent = agent
-                        agent = self.load_agent(agent_module)
+                        agent, agent_module = self.load_agent()
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
