@@ -50,12 +50,14 @@ namespace ProtoConversions {
 
 	void setupPlayerInfo(PlayerInfo car, rlbot::api::PlayerInfo* protoCar) {
 		protoCar->set_name(convertString(car.Name));
+		protoCar->set_team(car.Team);
 		protoCar->set_boost(car.Boost);
 		protoCar->set_allocated_rotation(convertRotation(car.Rotation));
 		protoCar->set_allocated_angular_velocity(convertVector(car.AngularVelocity));
 		protoCar->set_allocated_location(convertVector(car.Location));
 		protoCar->set_allocated_score_info(convertScoreInfo(car.Score));
 		protoCar->set_allocated_velocity(convertVector(car.Velocity));
+		protoCar->set_jumped(car.Jumped);
 		protoCar->set_double_jumped(car.DoubleJumped);
 		protoCar->set_is_bot(car.Bot);
 		protoCar->set_is_demolished(car.Demolished);
