@@ -117,5 +117,7 @@ ENV/
 .gradle
 
 # Generated integration test data
-/integration_test/history.pb.bin
-test.py
+/src/test/python/integration_test/history.pb.bin
+
+# Protobuf files copied from dependencies
+/src/main/python/protobuf

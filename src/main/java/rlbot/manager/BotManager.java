@@ -7,6 +7,8 @@ import rlbot.cpp.RLBotDll;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public class BotManager {
 
@@ -17,26 +19,29 @@ public class BotManager {
     private final Object dinnerBell = new Object();
     private  GameData.GameTickPacket latestPacket;
 
-    public void registerBot(final int index, final Bot bot) {
+    public void ensureBotRegistered(final int index, final Supplier<Bot> botSupplier) {
         if (botProcesses.containsKey(index)) {
             return;
         }
 
+        final Bot bot = botSupplier.get();
+
         botProcesses.computeIfAbsent(index, (idx) -> {
-            Thread botThread = new Thread(() -> doRunBot(bot));
+            final AtomicBoolean runFlag = new AtomicBoolean(true);
+            Thread botThread = new Thread(() -> doRunBot(bot, index, runFlag));
             botThread.start();
-            return new BotProcess(bot, botThread);
+            return new BotProcess(bot, botThread, runFlag);
         });
     }
 
-    private void doRunBot(Bot bot) {
-        while (keepRunning) {
+    private void doRunBot(final Bot bot, final int index, final AtomicBoolean runFlag) {
+        while (keepRunning && runFlag.get()) {
             try {
                 synchronized (dinnerBell) {
                     dinnerBell.wait(1000);
                 }
                 GameData.ControllerState controllerState = bot.processInput(latestPacket);
-                RLBotDll.setControllerState(controllerState, bot.getIndex());
+                RLBotDll.setControllerState(controllerState, index);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -44,11 +49,7 @@ public class BotManager {
         bot.retire();
     }
 
-    private void retireBots() {
-        botProcesses.clear();
-    }
-
-    public void start() {
+    public void ensureStarted() {
         if (keepRunning) {
             return; // Already started
         }
@@ -79,8 +80,16 @@ public class BotManager {
         }
     }
 
-    public void retire() {
+    public void shutDown() {
         keepRunning = false;
-        retireBots();
+        botProcesses.clear();
+    }
+
+    public void retireBot(int index) {
+        BotProcess process = botProcesses.get(index);
+        if (process != null) {
+            process.stop();
+            botProcesses.remove(index);
+        }
     }
 }
