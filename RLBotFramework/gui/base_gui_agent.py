@@ -7,7 +7,7 @@ from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION
 class BaseGuiAgent:
     overall_config = None  # The config that is shared by all agent frames.
 
-    def __init__(self, overall_index, team_i=None, loadout_preset=None, agent_preset=None):
+    def __init__(self, overall_index, loadout_preset=None, agent_preset=None):
         """
         Creates a class containing the info needed to extract by the GUI
         :param overall_index: An optional value if the overall index of this agent is already specified.
@@ -21,10 +21,6 @@ class BaseGuiAgent:
         self.agent_preset = agent_preset
         self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY) if agent_preset is not None \
             else None
-
-        if team_i is not None:
-            self.team_index = team_i
-            self.set_team(team_i)
 
     def get_configs(self):
         """

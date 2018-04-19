@@ -224,6 +224,7 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         preset = LoadoutPreset(file_path)
         self.loadout_presets[preset.get_name()] = preset
         self.update_presets_widgets()
+        self.presets_listwidget.setCurrentItem((self.presets_listwidget.findItems(preset.get_name(), QtCore.Qt.MatchExactly)[0]))
 
     def load_preset_cfg(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Loadout CFG', '', 'Config Files (*.cfg)')[0]
@@ -234,6 +235,7 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         preset = LoadoutPreset(file_path)
         self.loadout_presets[preset.get_name()] = preset
         self.update_presets_widgets()
+        self.presets_listwidget.setCurrentItem((self.presets_listwidget.findItems(preset.get_name(), QtCore.Qt.MatchExactly)[0]))
 
     def save_preset(self, preset=None, time_out=5000):
         if preset is None:
@@ -357,8 +359,10 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         self.presets_listwidget.addItems(list(self.agent_presets.keys()))
 
         # Also updates the combobox which you can select the agent preset for the bot through
+        current_preset = self.qt_gui.agent_preset_combobox.currentText()
         self.qt_gui.agent_preset_combobox.clear()
         self.qt_gui.agent_preset_combobox.addItems(list(self.agent_presets.keys()))
+        self.qt_gui.agent_preset_combobox.setCurrentText(current_preset)
 
     def load_python_file(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent Class', '', 'Python Files (*.py)')[0]
@@ -382,7 +386,7 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         preset = AgentPreset(file_path)
         self.agent_presets[preset.get_name()] = preset
         self.update_presets_widgets()
-        # TODO: set the freshly added item here
+        self.presets_listwidget.setCurrentItem((self.presets_listwidget.findItems(preset.get_name(), QtCore.Qt.MatchExactly)[0]))
 
     def load_preset_cfg(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent CFG', '', 'Config Files (*.cfg)')[0]
@@ -393,6 +397,7 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         preset = AgentPreset(file_path)
         self.agent_presets[preset.get_name()] = preset
         self.update_presets_widgets()
+        self.presets_listwidget.setCurrentItem(self.presets_listwidget.findItems(preset.get_name(), QtCore.Qt.MatchExactly)[0])
 
     def save_preset(self, preset=None, time_out=5000):
         if preset is None:

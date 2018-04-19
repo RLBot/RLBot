@@ -4,9 +4,11 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 
 from RLBotFramework.gui.base_gui import BaseGui
 from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
+from RLBotFramework.setup_manager import SetupManager
 from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog, AgentCustomisationDialog
 from RLBotFramework.utils.class_importer import get_base_repo_path
 from RLBotFramework.parsing.rlbot_config_parser import TEAM_CONFIGURATION_HEADER
+from RLBotFramework.parsing.match_settings_config_parser import *
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
@@ -32,6 +34,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.load_loadout_and_agent_presets()
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
+
+        self.init_match_settings()
 
         self.connect_functions()
 
@@ -60,7 +64,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         old_team_index = dragged_listwidget is self.orange_listwidget
         self.switch_team_bot(old_team_index, dragged_bot)
 
-    def move_bot_between_list(self, old_team_index, bot):
+    def move_bot_between_list(self, old_team_index):
         if not old_team_index:
             from_list = self.blue_listwidget
             to_list = self.orange_listwidget
@@ -127,6 +131,63 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         for item in self.agent_presets.keys():
             self.agent_preset_combobox.addItem(item)
 
+    def init_match_settings(self):
+        self.match_mode_types_list = [
+            "Soccer",
+            "Rumble",
+            "Dropshot",
+            "Snow Day",
+            "Hoops",
+        ]
+
+        self.mode_type_combobox.addItems(self.match_mode_types_list)  # TODO: get the items in here
+
+        self.map_types_dict = {
+            "AquaDome": 0,
+            "Beckwith Park": 0,
+            "Beckwith Park (Midnight)": 0,
+            "Beckwith Park (Stormy)": 0,
+            "Champions Field": 0,
+            "Champions Field (Day)": 0,
+            "DFH Stadium": 0,
+            "DFH Stadium (Day)": 0,
+            "DFH Stadium (Snowy)": 0,
+            "DFH Stadium (Stormy)": 0,
+            "Mannfield": 0,
+            "Mannfield (Night)": 0,
+            "Mannfield (Snowy)": 0,
+            "Neo Tokyo": 0,
+            "Starbase ARC": 0,
+            "Urban Central": 0,
+            "Urban Central (Dawn)": 0,
+            "Urban Central (Night)": 0,
+            "Utopia Coliseum": 0,
+            "Utopia Coliseum (Dusk)": 0,
+            "Utopia Coliseum (Snowy)": 0,
+            "Wasteland": 0,
+            "Farmstead": 0,
+            "ARCtagon": 0,
+            "Badlands": 0,
+            "Badlands Night": 0,
+            "Core 707": 0,
+            "Dunk House": 0,
+            "Tokyo Underpass": 0
+        }
+
+        self.map_type_combobox.addItems(self.map_types_dict.keys())
+
+        self.match_length_dict = {
+            "5 Minutes": 0,
+            "10 Minutes": 1,
+            "20 Minutes": 2,
+            "Unlimited": 3
+        }
+
+        self.match_length_combobox.addItems(self.match_length_dict.keys())
+
+    def load_match_settings(self):
+        print("Test")
+
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
@@ -145,7 +206,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                    self.blue_radiobutton, self.orange_radiobutton,
                    self.blue_name_lineedit, self.blue_color_spinbox,
                    self.orange_name_lineedit, self.orange_color_spinbox,
-                   self.mode_type_combobox]
+                   self.loadout_preset_combobox, self.agent_preset_combobox,
+                   self.mode_type_combobox, self.map_type_combobox, self.skip_replays_checkbox,
+                   self.instant_start_checkbox, self.match_length_combobox, self.max_score_spinbox]
 
         for item in widgets:
             if isinstance(item, QtWidgets.QLineEdit):
@@ -156,6 +219,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 item.valueChanged.connect(self.edit_event)
             elif isinstance(item, QtWidgets.QRadioButton):
                 item.toggled.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QComboBox):
+                item.currentTextChanged.connect(self.edit_event)
 
     def edit_event(self, value=None):
         def auto_save():
@@ -187,13 +252,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 listwidget = self.blue_listwidget
             else:
                 listwidget = self.orange_listwidget
+            if not listwidget.selectedItems():  # happens when you 'finish editing' by click delete [-]
+                return
             name = self.validate_name(value, agent)
             old_name = self.validate_name(agent.ingame_name, agent)
-            self.ign_lineedit.setText(name)
-            if not listwidget.selectedItems():
-                # happens when you 'finish editing' by click delete [-]
-                # listwidget.selectedItems() returns []
-                return
             listwidget.selectedItems()[0].setText(name)
             del self.bot_names_to_agent_dict[old_name]
             agent.set_name(value)
@@ -205,15 +267,35 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         elif s is self.blue_radiobutton and value:  # 'and value' check to make sure that one got selected
             if agent.get_team() == 1:
-                item = self.move_bot_between_list(1, agent)
+                item = self.move_bot_between_list(1)
                 self.switch_team_bot(1, agent)
                 self.blue_listwidget.setCurrentItem(item)
 
         elif s is self.orange_radiobutton and value:
             if agent.get_team() == 0:
-                item = self.move_bot_between_list(0, agent)
+                item = self.move_bot_between_list(0)
                 self.switch_team_bot(0, agent)
                 self.orange_listwidget.setCurrentItem(item)
+
+        elif s is self.loadout_preset_combobox:
+            if self.loadout_preset_combobox.count() == self.loadout_presets.__len__():
+                self.current_bot.set_loadout_preset(self.loadout_presets[value])
+        elif s is self.agent_preset_combobox:
+            if self.agent_preset_combobox.count() == self.agent_presets.__len__():
+                self.current_bot.set_agent_preset(self.agent_presets[value])
+
+        elif s is self.mode_type_combobox:
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, GAME_MODE, value)
+        elif s is self.map_type_combobox:
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, GAME_MAP, self.map_types_dict[value])
+        elif s is self.skip_replays_checkbox:
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS, value)
+        elif s is self.instant_start_checkbox:
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, INSTANT_START, value)
+        elif s is self.match_length_combobox:
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, self.match_length_dict[value])
+        elif s is self.max_score_spinbox:
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, MUTATOR_MAX_SCORE, value)
 
     def validate_name(self, name, agent):
         if name in self.bot_names_to_agent_dict and self.bot_names_to_agent_dict[name] is not agent:
@@ -292,7 +374,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 list_widget = self.blue_listwidget if not agent.get_team() else self.orange_listwidget
                 list_widget.findItems(agent_name, QtCore.Qt.MatchExactly)[0].setText(list_name)
 
-
     def update_teams_listwidgets(self):
         self.blue_bots.clear()
         self.orange_bots.clear()
@@ -350,9 +431,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         # load bot config
         agent_type = agent.get_participant_type()
-        print('Selected Agent: %s\t\t(Type: %s)' % (agent, agent_type))
+        # print('Selected Agent: %s\t\t(Type: %s)' % (agent, agent_type))
 
-        known_types = ['human', 'psyonix', 'rlbot', 'possessed_human']
+        known_types = ['human', 'psyonix', 'rlbot', 'party_member_bot']
         assert agent_type in known_types, 'Bot has unknown type: %s' % agent_type
 
         self.bot_type_combobox.setCurrentIndex(known_types.index(agent_type))
@@ -392,19 +473,25 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         return agent
 
     def gui_add_bot(self, team_index):
-        agent = self.add_agent(team_index=team_index)
-        self.update_teams_listwidgets()
-        self.statusbar.showMessage('Added bot: %s.' % agent, 5000)
+        agent = self.load_agent()
+        if agent is None:
+            # All 10 agent slots filled already
+            self.statusbar.showMessage("Could not add bot, already ten bots", 5000)
+        else:
+            agent.set_team(team_index)
+            print(agent.overall_index)
+            bot_name = self.validate_name(agent.get_name(), agent)
+            self.bot_names_to_agent_dict[bot_name] = agent
+            self.update_teams_listwidgets()
+            self.statusbar.showMessage('Added bot: %s.' % agent, 5000)
 
     def gui_remove_bot(self, team_index):
         if not team_index:
-            bot_stuff = self.get_selected_bot(self.blue_listwidget)
             listwidget = self.blue_listwidget
         else:
-            bot_stuff = self.get_selected_bot(self.orange_listwidget)
             listwidget = self.orange_listwidget
-        print("Deleting bot from %s" % listwidget.objectName())
         agent = self.get_selected_bot(listwidget)
+        print(agent.overall_index)
         self.remove_agent(agent)
         self.update_teams_listwidgets()
         self.statusbar.showMessage('Deleted bot: %s.' % agent, 5000)

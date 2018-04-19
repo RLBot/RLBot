@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt_gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.10
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -403,9 +403,9 @@ class Ui_MainWindow(object):
         self.line_7.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_7.setObjectName("line_7")
         self.gridLayout_3.addWidget(self.line_7, 0, 5, 2, 1)
-        self.match_length_conbobox = QtWidgets.QComboBox(self.frame_7)
-        self.match_length_conbobox.setObjectName("match_length_conbobox")
-        self.gridLayout_3.addWidget(self.match_length_conbobox, 0, 7, 1, 1)
+        self.match_length_combobox = QtWidgets.QComboBox(self.frame_7)
+        self.match_length_combobox.setObjectName("match_length_combobox")
+        self.gridLayout_3.addWidget(self.match_length_combobox, 0, 7, 1, 1)
         self.gridLayout_3.setColumnStretch(0, 2)
         self.gridLayout_3.setColumnStretch(1, 2)
         self.gridLayout_3.setColumnStretch(2, 1)

@@ -62,22 +62,32 @@ class BaseGui:
         self.agents.clear()
         num_participants = get_num_players(self.overall_config)
         for i in range(num_participants):
-            agent = self.add_agent(overall_index=i)
+            self.load_agent(i)
 
-            agent_preset = self.add_agent_preset(agent.get_agent_config_path())
-            agent.set_agent_preset(agent_preset)
+    def load_agent(self, overall_index=None):
+        if not self.index_manager.has_free_slots():
+            return None
+        if overall_index is None:
+            overall_index = self.index_manager.get_new_index()
+        else:
+            self.index_manager.use_index(overall_index)
+        agent = self.add_agent(overall_index=overall_index)
 
-            loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, i)
-            if loadout_file == "None" or loadout_file is None:
-                directory = os.path.dirname(os.path.realpath(agent.get_agent_config_path()))
-                file_path = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-                loadout_file = os.path.realpath(os.path.join(directory, file_path))
-            else:
-                directory = get_base_repo_path()
-                file_path = loadout_file
-                loadout_file = os.path.realpath(os.path.join(directory, file_path))
-            loadout_preset = self.add_loadout_preset(loadout_file)
-            agent.set_loadout_preset(loadout_preset)
+        agent_preset = self.add_agent_preset(agent.get_agent_config_path())
+        agent.set_agent_preset(agent_preset)
+
+        loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, overall_index)
+        if loadout_file == "None" or loadout_file is None:
+            directory = os.path.dirname(os.path.realpath(agent.get_agent_config_path()))
+            file_path = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
+            loadout_file = os.path.realpath(os.path.join(directory, file_path))
+        else:
+            directory = get_base_repo_path()
+            file_path = loadout_file
+            loadout_file = os.path.realpath(os.path.join(directory, file_path))
+        loadout_preset = self.add_loadout_preset(loadout_file)
+        agent.set_loadout_preset(loadout_preset)
+        return agent
 
     def add_agent(self, overall_index=None, team_index=None):
         """
@@ -92,7 +102,10 @@ class BaseGui:
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.use_index(overall_index)
-        agent = self.agent_class(overall_index=overall_index, team_i=team_index)
+        agent = self.agent_class(overall_index=overall_index)
+        if team_index is not None:
+            agent.set_team(team_index)
+
         self.agents.append(agent)
         return agent
 
@@ -117,7 +130,6 @@ class BaseGui:
         """
         self.index_manager.free_index(agent.overall_index)
         self.agents.remove(agent)
-        agent.remove()
 
     def show_status_message(self, message):
         raise NotImplementedError('Subclasses of BaseGui must override this.')
