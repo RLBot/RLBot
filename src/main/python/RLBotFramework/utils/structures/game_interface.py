@@ -9,6 +9,7 @@ from RLBotFramework.utils.class_importer import get_python_root
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
+from RLBotFramework.utils.structures.rendering_manager import RenderingManager
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
 
 
@@ -30,6 +31,7 @@ class GameInterface:
     def __init__(self, logger):
         self.logger = logger
         self.dll_path = os.path.join(self.get_dll_path(), 'RLBot_Core_Interface.dll')
+        self.renderer = RenderingManager()
         # wait for the dll to load
 
     def setup_function_types(self):
@@ -63,6 +65,12 @@ class GameInterface:
         func = self.game.SendChat
         func.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_bool, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
+
+        # not implemented in dll yet
+        # func = self.game.ToggleNullRenderer
+        # func.argtypes = [ctypes.c_bool]
+
+        self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
         # free the memory at the given pointer
@@ -190,3 +198,6 @@ class GameInterface:
         self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
         self.game_status(None, "Success")
         return packet
+
+    def toggle_null_renderer(self, should_enable):
+        self.game.ToggleNullRenderer(should_enable)
