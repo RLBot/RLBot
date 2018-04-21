@@ -1,6 +1,8 @@
 import re
 from configparser import RawConfigParser
 
+import os
+
 
 class ConfigObject:
     """
@@ -62,6 +64,8 @@ class ConfigObject:
         :return: None
         """
         if isinstance(config, str):
+            if not os.path.isfile(config):
+                raise FileNotFoundError(config)
             self.raw_config_parser = RawConfigParser()
             self.raw_config_parser.read(config)
             config = self.raw_config_parser

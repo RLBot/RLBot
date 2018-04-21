@@ -1,6 +1,7 @@
 import configparser
 
-from RLBotFramework.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header
+from RLBotFramework.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header, \
+    get_looks_config
 from RLBotFramework.parsing.match_settings_config_parser import add_mutator_header, get_num_players, \
     add_match_settings_header, parse_match_settings
 from RLBotFramework.parsing.custom_config import ConfigObject
@@ -58,15 +59,14 @@ def parse_configurations(start_match_configuration, config_parser, config_locati
 
     player_configuration_list = get_player_configuration_list(start_match_configuration)
 
+
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
 
         config_bundle = config_bundles[i]
 
         if i not in looks_configs:
-            looks_path = config_bundle.get_absolute_path("Locations", "looks_config")
-            looks_config_object = configparser.RawConfigParser()
-            looks_config_object.read(looks_path)
+            looks_config_object = get_looks_config(config_bundle)
         else:
             looks_config_object = looks_configs[i]
 
