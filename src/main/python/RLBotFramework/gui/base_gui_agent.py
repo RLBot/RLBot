@@ -51,7 +51,6 @@ class BaseGuiAgent:
         return self.agent_preset
 
     def __repr__(self):
-        print(self.agent_class, 'dsdfsfsdfsd')
         return '%s (%s, %s)' % (self.__class__.__name__, self.agent_class.__name__, self.overall_index)
 
     def __str__(self):

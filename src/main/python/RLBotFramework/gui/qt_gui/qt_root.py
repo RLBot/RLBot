@@ -1,12 +1,10 @@
 import sys
 import os
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 
 from RLBotFramework.gui.base_gui import BaseGui
-from RLBotFramework.gui.qt_gui.qt_gui import Ui_MainWindow
-from RLBotFramework.setup_manager import SetupManager
+from RLBotFramework.gui.qt_gui.design.qt_gui import Ui_MainWindow
 from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog, AgentCustomisationDialog
-from RLBotFramework.utils.class_importer import get_base_repo_path
 from RLBotFramework.parsing.rlbot_config_parser import TEAM_CONFIGURATION_HEADER
 from RLBotFramework.parsing.match_settings_config_parser import *
 
@@ -29,9 +27,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.bot_names_to_agent_dict = {}
         self.current_bot = None
 
-        self.load_cfg(os.path.join(get_base_repo_path(), "rlbot.cfg"))
+        try:
+            self.load_overall_config("rlbotads.cfg")
+            self.statusbar.showMessage("Loaded CFG.")
+        except FileNotFoundError:
+            self.statusbar.showMessage("Unable to load overall config")
 
-        self.load_loadout_and_agent_presets()
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
 
@@ -40,9 +41,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.connect_functions()
 
         # self.update_teams_listwidgets() (already gets called with load_cfg)
+        self.enable_disable_on_bot_select_deselect()
         self.update_bot_type_combobox()
-
-        self.statusbar.showMessage("Loaded CFG.")
 
     def listwidget_dropEvent(self, dropped_listwidget, event):
         dragged_listwidget = event.source()
@@ -125,12 +125,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                     self.blue_bot_names.append(_bot_name)
                     self.blue_bots.append(_bot_agent)
 
-    def load_loadout_and_agent_presets(self):
-        for item in self.loadout_presets.keys():
-            self.loadout_preset_combobox.addItem(item)
-        for item in self.agent_presets.keys():
-            self.agent_preset_combobox.addItem(item)
-
     def init_match_settings(self):
         self.match_mode_types_list = [
             "Soccer",
@@ -194,6 +188,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.agent_preset_toolbutton.clicked.connect(self.agent_customisation.show)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
+
+        self.cfg_load_pushbutton.clicked.connect(lambda e: self.load_overall_config())
         self.cfg_save_pushbutton.clicked.connect(lambda e: self.save_overall_config(0))
 
         self.blue_plus_toolbutton.clicked.connect(lambda: self.gui_add_bot(team_index=0))
@@ -222,6 +218,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             elif isinstance(item, QtWidgets.QComboBox):
                 item.currentTextChanged.connect(self.edit_event)
 
+    def save_overall_config(self, time_out=5000):
+        super().save_overall_config(time_out)
+        self.cfg_file_path_lineedit.setText(self.overall_config_path)
+
     def edit_event(self, value=None):
         def auto_save():
             if self.cfg_autosave_checkbox.isChecked():
@@ -236,7 +236,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             if not os.path.exists(value):
                 self.cfg_file_path_lineedit.setText(self.overall_config_path)
             else:
-                self.load_cfg(value)
+                self.load_overall_config(value)
 
         elif s is self.blue_name_lineedit or s is self.orange_name_lineedit:
             team = "Blue" if s is self.blue_name_lineedit else "Orange"
@@ -279,10 +279,18 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         elif s is self.loadout_preset_combobox:
             if self.loadout_preset_combobox.count() == self.loadout_presets.__len__():
-                self.current_bot.set_loadout_preset(self.loadout_presets[value])
+                if self.current_bot is not None:
+                    self.current_bot.set_loadout_preset(self.loadout_presets[value])
+            else:  # Box is out of sync, gotta update
+                for item in self.loadout_presets.keys():
+                    self.loadout_preset_combobox.addItem(item)
         elif s is self.agent_preset_combobox:
             if self.agent_preset_combobox.count() == self.agent_presets.__len__():
-                self.current_bot.set_agent_preset(self.agent_presets[value])
+                if self.current_bot is not None:
+                    self.current_bot.set_agent_preset(self.agent_presets[value])
+            else:  # Box is out of sync, gotta update
+                for item in self.agent_presets.keys():
+                    self.agent_preset_combobox.addItem(item)
 
         elif s is self.mode_type_combobox:
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, GAME_MODE, value)
@@ -315,7 +323,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.cfg_file_path_lineedit.setText(self.overall_config_path)
 
     def update_bot_type_combobox(self):
-        if not self.bot_type_combobox.isEnabled():
+        if not self.bot_config_groupbox.isEnabled():
             # same as below except no self.current_bot
             if self.bot_type_combobox.currentText() == 'RLBot':
                 self.rlbot_frame.setHidden(False)
@@ -405,6 +413,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.blue_plus_toolbutton.setDisabled(False)
             self.orange_plus_toolbutton.setDisabled(False)
 
+    def load_overall_config(self, config_path=None):
+        super().load_overall_config(config_path)
+        self.car_customisation.update_presets_widgets()
+        self.agent_customisation.update_presets_widgets()
+
     def load_selected_bot(self):
         # prevent proccing from itself (clearing the other one procs this)
         if not self.sender().selectedItems():
@@ -466,9 +479,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 import traceback
                 traceback.print_exc()
             return
-        # for _i in range(sender.count()):
-        #     if _i != agent_i:
-        #         sender.item(_i).setSelected(False)
 
         return agent
 
@@ -479,7 +489,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.statusbar.showMessage("Could not add bot, already ten bots", 5000)
         else:
             agent.set_team(team_index)
-            print(agent.overall_index)
             bot_name = self.validate_name(agent.get_name(), agent)
             self.bot_names_to_agent_dict[bot_name] = agent
             self.update_teams_listwidgets()
@@ -491,7 +500,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         else:
             listwidget = self.orange_listwidget
         agent = self.get_selected_bot(listwidget)
-        print(agent.overall_index)
         self.remove_agent(agent)
         self.update_teams_listwidgets()
         self.statusbar.showMessage('Deleted bot: %s.' % agent, 5000)

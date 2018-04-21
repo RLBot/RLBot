@@ -1,9 +1,9 @@
 import os
 import json
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 
-from RLBotFramework.gui.qt_gui.car_customisation import Ui_LoadoutPresetCustomiser
-from RLBotFramework.gui.qt_gui.agent_customisation import Ui_AgentPresetCustomiser
+from RLBotFramework.gui.qt_gui.design.car_customisation import Ui_LoadoutPresetCustomiser
+from RLBotFramework.gui.qt_gui.design.agent_customisation import Ui_AgentPresetCustomiser
 from RLBotFramework.gui.presets import LoadoutPreset, AgentPreset
 
 

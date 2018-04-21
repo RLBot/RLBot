@@ -4,11 +4,12 @@ from configparser import RawConfigParser
 
 from RLBotFramework.agents.base_agent import BaseAgent
 from RLBotFramework.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
-from RLBotFramework.utils.class_importer import import_agent, get_base_repo_path
+from RLBotFramework.utils.class_importer import import_agent, get_python_root
 
 
 class Preset:
     def __init__(self, config, file_path):
+        print(file_path)
         self.config = config
         self.config_path = file_path
         self.name = os.path.basename(file_path).replace(".cfg", "")
@@ -57,21 +58,21 @@ class AgentPreset(Preset):
         file_path = os.path.realpath(file_path)
         basic_config = BaseAgent.create_agent_configurations()
 
-        if os.path.exists(file_path):
+        if os.path.isfile(file_path):
             basic_config.parse_file(file_path)
         else:
-            atba_file_path = os.path.join(get_base_repo_path(), "agents", "atba", "atba.py")
-            rel_path = os.path.relpath(atba_file_path, os.path.dirname(file_path))
+            base_agent_path = os.path.join(get_python_root(), "agents", "base_agent.py")
+            rel_path = os.path.relpath(base_agent_path, os.path.dirname(file_path))
             basic_config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, rel_path)
 
         python_file_path = os.path.realpath(os.path.join(os.path.dirname(
             os.path.realpath(file_path)), basic_config.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)))
         self.agent_class = import_agent(python_file_path).get_loaded_class()
 
-        super(AgentPreset, self).__init__(self.agent_class.create_agent_configurations(), file_path)
+        super().__init__(self.agent_class.create_agent_configurations(), file_path)
         # Make sure the path to the python file actually gets set to that path, even if there was no config at file_path
         self.config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, basic_config.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY))
 
     def load(self, file_path=None):
         self.config = self.agent_class.create_agent_configurations()
-        super(AgentPreset, self).load(file_path)
+        super().load(file_path)

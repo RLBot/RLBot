@@ -1,5 +1,7 @@
 import os
 from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QFileDialog
+import sys
 
 from RLBotFramework.gui.index_manager import IndexManager
 from RLBotFramework.gui.base_gui_agent import BaseGuiAgent
@@ -7,7 +9,7 @@ from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout,
 from RLBotFramework.gui.presets import LoadoutPreset, AgentPreset
 from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY
 from RLBotFramework.agents.base_agent import BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY
-from RLBotFramework.utils.class_importer import get_base_repo_path
+from RLBotFramework.utils.class_importer import get_python_root
 
 
 class BaseGui:
@@ -30,12 +32,19 @@ class BaseGui:
         self.agent_presets = {}
         self.agents = []
 
-    def load_cfg(self, config_path):
-        self.overall_config_path = config_path
+    def load_overall_config(self, config_path=None):
         if self.overall_config is None:
             self.overall_config = create_bot_config_layout()
-        self.overall_config.parse_file(config_path, 10)
         self.agent_class.overall_config = self.overall_config
+        if config_path is None:
+            config_path = QFileDialog.getOpenFileName(self, "Load Overall Config", "", "Config Files (*.cfg)")[0]
+            if not config_path:
+                self.show_status_message("No file selected, not loading config")
+                return
+        if not os.path.isfile(config_path):
+            raise FileNotFoundError("The file " + config_path + " does not exist, not loading config")
+        self.overall_config_path = config_path
+        self.overall_config.parse_file(config_path, 10)
         self.load_agents()
         self.update_overall_config_stuff()
 
@@ -50,6 +59,13 @@ class BaseGui:
             self.overall_config_timer = QTimer()
             self.overall_config_timer.setSingleShot(True)
             self.overall_config_timer.timeout.connect(save)
+        save_path = self.overall_config_path
+        if save_path is None or not os.path.exists(save_path):
+            save_path = QFileDialog.getSaveFileName(self, "Save Overall Config", "", "Config Files (*.cfg)")[0]
+            if not save_path:
+                self.show_status_message("Unable to save a config without location")
+                return
+            self.overall_config_path = save_path
         self.overall_config_timer.start(time_out)  # Time-out for timer over here
 
     def load_agents(self, config_file=None):
@@ -77,12 +93,12 @@ class BaseGui:
         agent.set_agent_preset(agent_preset)
 
         loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, overall_index)
-        if loadout_file == "None" or loadout_file is None:
+        if loadout_file is None or loadout_file == "None":
             directory = os.path.dirname(os.path.realpath(agent.get_agent_config_path()))
             file_path = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
             loadout_file = os.path.realpath(os.path.join(directory, file_path))
         else:
-            directory = get_base_repo_path()
+            directory = get_python_root()
             file_path = loadout_file
             loadout_file = os.path.realpath(os.path.join(directory, file_path))
         loadout_preset = self.add_loadout_preset(loadout_file)
@@ -132,18 +148,18 @@ class BaseGui:
         self.agents.remove(agent)
 
     def show_status_message(self, message):
-        raise NotImplementedError('Subclasses of BaseGui must override this.')
+        raise NotImplementedError("Subclasses of BaseGui must override this.")
 
     def _remove_agent(self, agent):
         """
         Called by BaseGui subclasses to handle agent removal in GUI.
         :param agent: An instance of BaseGuiAgent
         """
-        raise NotImplementedError('Subclasses of BaseGui must override this.')
+        raise NotImplementedError("Subclasses of BaseGui must override this.")
 
     def update_overall_config_stuff(self):
-        raise NotImplementedError('Subclasses of BaseGui must override this.')
+        raise NotImplementedError("Subclasses of BaseGui must override this.")
 
     @staticmethod
     def main():
-        raise NotImplementedError('Subclasses of BaseGui must override this.')
+        raise NotImplementedError("Subclasses of BaseGui must override this.")
