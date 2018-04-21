@@ -1,6 +1,8 @@
+import msvcrt
 import os
-
 import time
+
+import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
 
@@ -50,7 +52,15 @@ class BaseJavaAgent(BaseIndependentAgent):
         Gets the list of process ids that should be marked as high priority.
         :return: A list of process ids that are used by this bot in addition to the ones inside the python process.
         """
-        return []
+        while True:
+            if msvcrt.kbhit():
+                return []
+            for proc in psutil.process_iter():
+                for conn in proc.connections():
+                    if conn.laddr.port == self.port:
+                        self.logger.debug('py4j server for {} appears to have pid {}'.format(self.name, proc.pid))
+                        return [proc.pid]
+            time.sleep(1)
 
     def retire(self):
         try:
