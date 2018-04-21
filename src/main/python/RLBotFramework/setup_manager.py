@@ -82,7 +82,7 @@ class SetupManager:
         self.game_interface.start_match_configuration = self.start_match_configuration
 
         extension_path = framework_config.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
-        if extension_path is not None:
+        if extension_path is not None and extension_path != "None":
             self.load_extension(extension_path)
 
     def launch_bot_processes(self):

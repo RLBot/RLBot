@@ -182,7 +182,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
     # Setting up the bots name
-    bot_name = config_bundle.config_obj.get(loadout_header, 'name')
+    bot_name = config_bundle.config_obj.get(BOT_CONFIG_MODULE_HEADER, 'name')
     bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
 
     BaseAgent.parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)

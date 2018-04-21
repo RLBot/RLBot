@@ -1,11 +1,12 @@
 import sys
 import os
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 from RLBotFramework.gui.base_gui import BaseGui
 from RLBotFramework.gui.qt_gui.design.qt_gui import Ui_MainWindow
 from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog, AgentCustomisationDialog
 from RLBotFramework.parsing.rlbot_config_parser import TEAM_CONFIGURATION_HEADER
+from RLBotFramework.setup_manager import SetupManager
 from RLBotFramework.parsing.match_settings_config_parser import *
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
@@ -14,6 +15,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         super().__init__()
         BaseGui.__init__(self)
         self.setupUi(self)
+        self.setWindowIcon(QtGui.QIcon("images/RLBot_logo.png"))
 
         # THIS IS VERY HACKY.
         # reimplemented the dropEvent of these listwidgets to update the lists behind the scenes.
@@ -28,7 +30,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.current_bot = None
 
         try:
-            self.load_overall_config("rlbotads.cfg")
+            super().load_overall_config("rlbot.cfg")
             self.statusbar.showMessage("Loaded CFG.")
         except FileNotFoundError:
             self.statusbar.showMessage("Unable to load overall config")
@@ -36,7 +38,11 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
 
+        self.car_customisation.update_presets_widgets()
+        self.agent_customisation.update_presets_widgets()
+
         self.init_match_settings()
+        self.update_match_settings()
 
         self.connect_functions()
 
@@ -126,61 +132,17 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                     self.blue_bots.append(_bot_agent)
 
     def init_match_settings(self):
-        self.match_mode_types_list = [
-            "Soccer",
-            "Rumble",
-            "Dropshot",
-            "Snow Day",
-            "Hoops",
-        ]
+        self.mode_type_combobox.addItems(game_mode_types)
+        self.map_type_combobox.addItems(map_types)
+        self.match_length_combobox.addItems(match_length_types)
+        # TODO: add the boost type combobox instead of the max goals combobox
 
-        self.mode_type_combobox.addItems(self.match_mode_types_list)  # TODO: get the items in here
-
-        self.map_types_dict = {
-            "AquaDome": 0,
-            "Beckwith Park": 0,
-            "Beckwith Park (Midnight)": 0,
-            "Beckwith Park (Stormy)": 0,
-            "Champions Field": 0,
-            "Champions Field (Day)": 0,
-            "DFH Stadium": 0,
-            "DFH Stadium (Day)": 0,
-            "DFH Stadium (Snowy)": 0,
-            "DFH Stadium (Stormy)": 0,
-            "Mannfield": 0,
-            "Mannfield (Night)": 0,
-            "Mannfield (Snowy)": 0,
-            "Neo Tokyo": 0,
-            "Starbase ARC": 0,
-            "Urban Central": 0,
-            "Urban Central (Dawn)": 0,
-            "Urban Central (Night)": 0,
-            "Utopia Coliseum": 0,
-            "Utopia Coliseum (Dusk)": 0,
-            "Utopia Coliseum (Snowy)": 0,
-            "Wasteland": 0,
-            "Farmstead": 0,
-            "ARCtagon": 0,
-            "Badlands": 0,
-            "Badlands Night": 0,
-            "Core 707": 0,
-            "Dunk House": 0,
-            "Tokyo Underpass": 0
-        }
-
-        self.map_type_combobox.addItems(self.map_types_dict.keys())
-
-        self.match_length_dict = {
-            "5 Minutes": 0,
-            "10 Minutes": 1,
-            "20 Minutes": 2,
-            "Unlimited": 3
-        }
-
-        self.match_length_combobox.addItems(self.match_length_dict.keys())
-
-    def load_match_settings(self):
-        print("Test")
+    def update_match_settings(self):
+        self.mode_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
+        self.map_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
+        self.skip_replays_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS))
+        self.instant_start_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START))
+        self.match_length_combobox.setCurrentText(self.overall_config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
 
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
@@ -198,6 +160,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.blue_minus_toolbutton.clicked.connect(lambda: self.gui_remove_bot(team_index=0))
         self.orange_minus_toolbutton.clicked.connect(lambda: self.gui_remove_bot(team_index=1))
 
+        self.run_button.clicked.connect(lambda e: self.start_match())
+
         widgets = [self.cfg_file_path_lineedit, self.ign_lineedit, self.bot_level_slider,
                    self.blue_radiobutton, self.orange_radiobutton,
                    self.blue_name_lineedit, self.blue_color_spinbox,
@@ -214,6 +178,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             elif isinstance(item, QtWidgets.QAbstractSpinBox):
                 item.valueChanged.connect(self.edit_event)
             elif isinstance(item, QtWidgets.QRadioButton):
+                item.toggled.connect(self.edit_event)
+            elif isinstance(item, QtWidgets.QCheckBox):
                 item.toggled.connect(self.edit_event)
             elif isinstance(item, QtWidgets.QComboBox):
                 item.currentTextChanged.connect(self.edit_event)
@@ -295,15 +261,15 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         elif s is self.mode_type_combobox:
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, GAME_MODE, value)
         elif s is self.map_type_combobox:
-            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, GAME_MAP, self.map_types_dict[value])
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, GAME_MAP, value)
         elif s is self.skip_replays_checkbox:
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS, value)
         elif s is self.instant_start_checkbox:
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, INSTANT_START, value)
         elif s is self.match_length_combobox:
-            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, self.match_length_dict[value])
+            self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, value)
         elif s is self.max_score_spinbox:
-            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, MUTATOR_MAX_SCORE, value)
+            self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MAX_SCORE, value)
 
     def validate_name(self, name, agent):
         if name in self.bot_names_to_agent_dict and self.bot_names_to_agent_dict[name] is not agent:
@@ -506,6 +472,22 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
     def show_status_message(self, message):
         self.statusbar.showMessage(message)
+
+    def start_match(self):
+        agent_configs = []
+        loadout_configs = []
+        for agent in self.agents:
+            i, agent_config, loadout_config = agent.get_configs()
+            agent_configs.insert(i, agent_config)
+            loadout_configs.insert(i, loadout_config)
+        manager = SetupManager()
+        manager.startup()
+        manager.load_config(self.overall_config, self.overall_config_path, agent_configs)
+        manager.launch_bot_processes()
+        manager.run()
+        manager.shut_down()
+
+
 
     @staticmethod
     def main():

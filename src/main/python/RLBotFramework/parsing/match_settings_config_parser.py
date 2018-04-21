@@ -24,26 +24,88 @@ GAME_MAP = 'game_map'
 SKIP_REPLAYS = 'skip_replays'
 INSTANT_START = 'start_without_countdown'
 
+game_mode_types = [
+    "Soccer",
+    "Hoops",
+    "Dropshot",
+    "Hockey",
+    "Rumble",
+]
+
+map_types = [
+    "DFHStadium",
+    "Mannfield",
+    "ChampionsField",
+    "UrbanCentral",
+    "BeckwithPark",
+    "UtopiaColiseum",
+    "Wasteland",
+    "NeoTokyo",
+    "AquaDome",
+    "StarbaseArc",
+    "Farmstead",
+    "DFHStadium_Stormy",
+    "DFHStadium_Day",
+    "Mannfield_Stormy",
+    "Mannfield_Night",
+    "ChampionsField_Day",
+    "BeckwithPark_Stormy",
+    "BeckwithPark_Midnight",
+    "UrbanCentral_Night",
+    "UrbanCentral_Dawn",
+    "UtopiaColiseum_Dusk",
+    "DFHStadium_Snowy",
+    "Mannfield_Snowy",
+    "UtopiaColiseum_Snowy",
+    "Badlands",
+    "Badlands_Night",
+    "TokyoUnderpass",
+    "Arctagon",
+    "Pillars",
+    "Cosmic",
+    "DoubleGoal",
+    "Octagon",
+    "Underpass",
+    "UtopiaRetro",
+    "Hoops_DunkHouse",
+    "DropShot_Core707"
+]
+
+match_length_types = [
+    "5 Minutes",
+    "10 Minutes",
+    "20 Minutes",
+    "Unlimited"
+]
+
+boost_types = [
+    "Default",
+    "Unlimied",
+    "Recharge (Slow)",
+    "Recharge (Fast)",
+    "No Boost"
+]
+
 
 def add_match_settings_header(config_object):
     match_header = config_object.add_header_name(MATCH_CONFIGURATION_HEADER)
     match_header.add_value(PARTICIPANT_COUNT_KEY, int, default=2,
                            description='Number of bots/players which will be spawned.  We support up to max 10.')
-    match_header.add_value(GAME_MODE, int, default=0,
+    match_header.add_value(GAME_MODE, str, default="Hoops",
                            description="""What game mode the game should load.
                            Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble" """)
-    match_header.add_value(GAME_MAP, int, default=1,
+    match_header.add_value(GAME_MAP, str, default="DFHStadium",
                            description="""What game mode the game should load into. Too many to list.""")
     match_header.add_value(SKIP_REPLAYS, bool, default=False,
-                           description="""If replays should automatically be skipped.""")
+                           description="""Automatically skip replays after a goal.""")
     match_header.add_value(INSTANT_START, bool, default=False,
-                           description="""True if the kickoff countdown should be skipped.""")
+                           description="""Skip the kickoff countdown""")
 
 
 def add_mutator_header(config_object):
     mutator_header = config_object.add_header_name(MUTATOR_CONFIGURATION_HEADER)
-    mutator_header.add_value(MUTATOR_MATCH_LENGTH, int, default=1,
-                             description="Changes the length of the match, 0 for unlimited")
+    mutator_header.add_value(MUTATOR_MATCH_LENGTH, str, default="Unlimited",
+                             description="Changes the length of the match, 3 for unlimited")
     mutator_header.add_value(MUTATOR_MAX_SCORE, int, default=0,
                              description="Changes the number of goals needed to win, 0 for unlimited")
     mutator_header.add_value(MUTATOR_GAME_SPEED, str, default="Default",
@@ -93,16 +155,9 @@ def parse_mutator_settings(mutator_settings, config):
     :param mutator_settings:
     :param config:
     """
-    mutator_settings.match_length = config.getint(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH)
+    mutator_settings.match_length = match_length_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
 
-    boost_options = {
-        "Default": 0,
-        "Unlimied": 1,
-        "Recharge (Slow)": 2,
-        "Recharge (Fast)": 3,
-        "No Boost": 4
-    }
-    mutator_settings.boost_options = boost_options[config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT)]
+    mutator_settings.boost_options = boost_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
 
 
 def parse_match_settings(match_settings, config):
@@ -113,8 +168,8 @@ def parse_match_settings(match_settings, config):
     :return:
     """
 
-    match_settings.game_mode = config.getint(MATCH_CONFIGURATION_HEADER, GAME_MODE)
-    match_settings.game_map = config.getint(MATCH_CONFIGURATION_HEADER, GAME_MAP)
+    match_settings.game_mode = game_mode_types.index(config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
+    match_settings.game_map = map_types.index(config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
     match_settings.skip_replays = config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS)
     match_settings.instant_start = config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START)
 
