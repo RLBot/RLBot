@@ -11,7 +11,7 @@ public class SamplePythonInterface extends DefaultPythonInterface {
     }
 
     @Override
-    protected Bot initBot(int index, String botType) {
+    protected Bot initBot(int index, String botType, int team) {
         return new SampleBot(index);
     }
 }
