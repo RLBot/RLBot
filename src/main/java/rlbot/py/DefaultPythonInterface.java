@@ -22,13 +22,13 @@ public abstract class DefaultPythonInterface implements PythonInterface {
         botManager.shutDown();
     }
 
-    public void ensureBotRegistered(final int index, final String botType) {
-        botManager.ensureBotRegistered(index, () -> initBot(index, botType));
+    public void ensureBotRegistered(final int index, final String botType, final int team) {
+        botManager.ensureBotRegistered(index, () -> initBot(index, botType, team));
     }
 
     public void retireBot(final int index) {
         botManager.retireBot(index);
     }
 
-    protected abstract Bot initBot(final int index, final String botType);
+    protected abstract Bot initBot(final int index, final String botType, final int team);
 }
