@@ -138,7 +138,7 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         self.presets_listwidget.itemSelectionChanged.connect(self.load_selected_loadout_preset)
         self.preset_new_pushbutton.clicked.connect(self.add_new_preset)
         self.preset_load_pushbutton.clicked.connect(self.load_preset_cfg)
-        self.preset_save_pushbutton.clicked.connect(self.save_preset)
+        self.preset_save_pushbutton.clicked.connect(lambda e: self.save_preset(time_out=0))
 
     def update_spinbox_and_combobox(self):
         # Updates the corresponding widget (ie update spinbox if combobox edited)
@@ -249,8 +249,15 @@ class CarCustomisationDialog(QtWidgets.QDialog, Ui_LoadoutPresetCustomiser):
         self.presets_listwidget.addItems(list(self.loadout_presets.keys()))
 
         # Also updates the combobox which you can select the loadout preset for the bot through
-        self.qt_gui.loadout_preset_combobox.clear()
-        self.qt_gui.loadout_preset_combobox.addItems(list(self.loadout_presets.keys()))
+        current_index = self.qt_gui.loadout_preset_combobox.currentIndex()
+        current_text = self.qt_gui.loadout_preset_combobox.currentText()
+        for i in range(self.qt_gui.loadout_preset_combobox.count()):
+            if i != current_index:
+                self.qt_gui.loadout_preset_combobox.removeItem(i)
+        for s in self.loadout_presets:
+            if s != current_text:
+                self.qt_gui.loadout_preset_combobox.addItem(s)
+
 
 
 class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):

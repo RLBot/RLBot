@@ -244,12 +244,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 self.orange_listwidget.setCurrentItem(item)
 
         elif s is self.loadout_preset_combobox:
-            if self.loadout_preset_combobox.count() == self.loadout_presets.__len__():
-                if self.current_bot is not None:
-                    self.current_bot.set_loadout_preset(self.loadout_presets[value])
-            else:  # Box is out of sync, gotta update
-                for item in self.loadout_presets.keys():
-                    self.loadout_preset_combobox.addItem(item)
+            if self.current_bot is not None:
+                self.current_bot.set_loadout_preset(self.loadout_presets[value])
         elif s is self.agent_preset_combobox:
             if self.agent_preset_combobox.count() == self.agent_presets.__len__():
                 if self.current_bot is not None:
@@ -458,6 +454,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             bot_name = self.validate_name(agent.get_name(), agent)
             self.bot_names_to_agent_dict[bot_name] = agent
             self.update_teams_listwidgets()
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, self.agents.__len__())
             self.statusbar.showMessage('Added bot: %s.' % agent, 5000)
 
     def gui_remove_bot(self, team_index):
@@ -468,6 +465,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         agent = self.get_selected_bot(listwidget)
         self.remove_agent(agent)
         self.update_teams_listwidgets()
+        self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, self.agents.__len__())
         self.statusbar.showMessage('Deleted bot: %s.' % agent, 5000)
 
     def show_status_message(self, message):
@@ -482,7 +480,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             loadout_configs.insert(i, loadout_config)
         manager = SetupManager()
         manager.startup()
-        manager.load_config(self.overall_config, self.overall_config_path, agent_configs)
+        manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
         manager.launch_bot_processes()
         manager.run()
         manager.shut_down()
