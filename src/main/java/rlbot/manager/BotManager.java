@@ -5,6 +5,7 @@ import rlbot.Bot;
 import rlbot.api.GameData;
 import rlbot.cpp.RLBotDll;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,8 +41,10 @@ public class BotManager {
                 synchronized (dinnerBell) {
                     dinnerBell.wait(1000);
                 }
-                GameData.ControllerState controllerState = bot.processInput(latestPacket);
-                RLBotDll.setControllerState(controllerState, index);
+                if (latestPacket != null) {
+                    GameData.ControllerState controllerState = bot.processInput(latestPacket);
+                    RLBotDll.setControllerState(controllerState, index);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -67,8 +70,7 @@ public class BotManager {
                 synchronized (dinnerBell) {
                     dinnerBell.notifyAll();
                 }
-
-            } catch (InvalidProtocolBufferException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 

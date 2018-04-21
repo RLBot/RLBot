@@ -40,7 +40,7 @@ class BaseJavaAgent(BaseIndependentAgent):
             # This is useful for re-engaging the java server if it gets restarted during development.
             try:
                 self.javaInterface.ensureStarted()
-                self.javaInterface.ensureBotRegistered(self.index, self.name)
+                self.javaInterface.ensureBotRegistered(self.index, self.name, self.team)
             except Exception as e:
                 self.logger.warn(str(e))
             time.sleep(1)

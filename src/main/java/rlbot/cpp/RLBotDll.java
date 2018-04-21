@@ -1,10 +1,11 @@
 package rlbot.cpp;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import rlbot.api.GameData;
+
+import java.io.IOException;
 
 public class RLBotDll {
 
@@ -15,17 +16,19 @@ public class RLBotDll {
         Native.register("RLBot_Core_Interface");
     }
 
-    public static GameData.GameTickPacket getProtoPacket() throws InvalidProtocolBufferException {
-        ByteBufferStruct struct = UpdateLiveDataPacketProto();
-        byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
-        GameData.GameTickPacket packet = GameData.GameTickPacket.parseFrom(protoBytes);
-
-        return packet;
+    public static GameData.GameTickPacket getProtoPacket() throws IOException {
+        try {
+            final ByteBufferStruct struct = UpdateLiveDataPacketProto();
+            final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            return GameData.GameTickPacket.parseFrom(protoBytes);
+        } catch (final Error error) {
+            throw new IOException(error);
+        }
     }
 
     public static void setControllerState(GameData.ControllerState controllerState, int playerIndex) {
-        byte[] protoBytes = controllerState.toByteArray();
-        Memory memory = getMemory(protoBytes);
+        final byte[] protoBytes = controllerState.toByteArray();
+        final Memory memory = getMemory(protoBytes);
         UpdatePlayerInputProto(memory, protoBytes.length, playerIndex);
     }
 
