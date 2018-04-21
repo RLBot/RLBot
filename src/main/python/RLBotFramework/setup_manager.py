@@ -65,11 +65,8 @@ class SetupManager:
 
         # Set up RLBot.cfg
         if framework_config is None:
-            raw_config_parser = configparser.RawConfigParser()
-            raw_config_parser.read(config_location)
-
             framework_config = create_bot_config_layout()
-            framework_config.parse_file(raw_config_parser, max_index=10)
+            framework_config.parse_file(config_location, max_index=10)
         if bot_configs is None:
             bot_configs = {}
         if looks_configs is None:
