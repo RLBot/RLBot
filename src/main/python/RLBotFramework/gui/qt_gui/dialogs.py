@@ -366,10 +366,14 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         self.presets_listwidget.addItems(list(self.agent_presets.keys()))
 
         # Also updates the combobox which you can select the agent preset for the bot through
-        current_preset = self.qt_gui.agent_preset_combobox.currentText()
-        self.qt_gui.agent_preset_combobox.clear()
-        self.qt_gui.agent_preset_combobox.addItems(list(self.agent_presets.keys()))
-        self.qt_gui.agent_preset_combobox.setCurrentText(current_preset)
+        current_index = self.qt_gui.agent_preset_combobox.currentIndex()
+        current_text = self.qt_gui.agent_preset_combobox.currentText()
+        for i in range(self.qt_gui.agent_preset_combobox.count()):
+            if i != current_index:
+                self.qt_gui.agent_preset_combobox.removeItem(i)
+        for s in self.agent_presets:
+            if s != current_text:
+                self.qt_gui.agent_preset_combobox.addItem(s)
 
     def load_python_file(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Agent Class', '', 'Python Files (*.py)')[0]
@@ -378,6 +382,7 @@ class AgentCustomisationDialog(QtWidgets.QDialog, Ui_AgentPresetCustomiser):
         preset = self.get_current_preset()
         preset.load_agent_class(file_path)
         preset.load()
+        # TODO: fix the unable to find base_agent here
         rel_path = os.path.relpath(file_path, os.path.dirname(preset.config_path))
         preset.config.set_value("Locations", "python_file", rel_path)
         self.preset_python_file_lineedit.setText(rel_path)

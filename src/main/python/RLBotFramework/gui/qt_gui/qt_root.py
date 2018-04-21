@@ -247,12 +247,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             if self.current_bot is not None:
                 self.current_bot.set_loadout_preset(self.loadout_presets[value])
         elif s is self.agent_preset_combobox:
-            if self.agent_preset_combobox.count() == self.agent_presets.__len__():
-                if self.current_bot is not None:
-                    self.current_bot.set_agent_preset(self.agent_presets[value])
-            else:  # Box is out of sync, gotta update
-                for item in self.agent_presets.keys():
-                    self.agent_preset_combobox.addItem(item)
+            if self.current_bot is not None:
+                self.current_bot.set_agent_preset(self.agent_presets[value])
 
         elif s is self.mode_type_combobox:
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, GAME_MODE, value)
