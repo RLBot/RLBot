@@ -3,7 +3,7 @@ import configparser
 import os
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
-    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY
+    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
 from RLBotFramework.utils.class_importer import import_agent
 from RLBotFramework.utils.logging_utils import get_logger
 
@@ -20,9 +20,11 @@ class BotConfigBundle:
     def __init__(self, config_directory, config_obj):
         self.config_directory = config_directory
         self.config_obj = config_obj
+        self.base_agent_config = BaseAgent.create_agent_configurations()
+        self.base_agent_config.parse_file(self.config_obj)
 
     def get_absolute_path(self, header, key):
-        joined = os.path.join(self.config_directory, self.config_obj.get(header, key))
+        joined = os.path.join(self.config_directory, self.base_agent_config.get(header, key))
         return os.path.realpath(joined)
 
 
@@ -55,6 +57,16 @@ def add_participant_header(config_object):
                                              ' this value will be used to set bot skill.\n' +
                                              '0.0 is Rookie, 0.5 is pro, 1.0 is all-star. ' +
                                              ' You can set values in-between as well.')
+
+
+def get_looks_config(config_bundle):
+    """
+    Creates a looks config from the config bundle
+    :param config_bundle:
+    :return:
+    """
+    looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
+    return BaseAgent.create_looks_configurations().parse_file(looks_path)
 
 
 def get_sanitized_bot_name(dict, name):
