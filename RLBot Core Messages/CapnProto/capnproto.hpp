@@ -5,6 +5,7 @@
 
 #include "..\PacketStructs\LiveDataPacket.hpp"
 #include "..\PacketStructs\PacketStructs.hpp"
+#include "..\MessageStructs\GameMessages.hpp"
 #include "..\ErrorCodes\ErrorCodes.hpp"
 #include <kj\windows-sanity.h>
 #undef VOID // One of the windows headers defines this and it screws up capnproto.
@@ -17,12 +18,6 @@ typedef void* CompiledControllerState;
 typedef void* CompiledDesiredGameState;
 
 namespace CapnConversions {
-
-	struct ByteBuffer
-	{
-		void* ptr;
-		int size;
-	};
 
 	// Convert 
 	ByteBuffer liveDataPacketToBuffer(LiveDataPacket* pLiveData);

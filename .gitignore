@@ -46,8 +46,6 @@ RLBot Core Messages/Bin/
 RLBot Core Messages/Obj/
 RLBot Core SDK/Bin/
 RLBot Core SDK/Obj/
-Protobuf/Bin/
-Protobuf/Obj/
 *.vcxproj.user
 *.VC.VC.opendb
 *.VC.db
@@ -62,3 +60,4 @@ packages/
 
 !lib/**/*
 !RLBot\ Core/RLBot\ Core\ Messages/CapnProto/*
+!RLBot\ Core/RLBot\ Core\ Messages/Protobuf/*

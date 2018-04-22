@@ -86,6 +86,12 @@
     <ClInclude Include="CapnProto\game_data.capnp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Protobuf\ProtoConversions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Protobuf\game_data.pb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MessageStructs\Message.cpp">
@@ -97,10 +103,21 @@
     <ClCompile Include="CapnProto\capnproto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Protobuf\ProtoConversions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Protobuf\game_data.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="CapnProto\game_data.proto" />
     <None Include="CapnProto\game_data.capnp" />
     <None Include="CapnProto\game_data.capnp.cpp" />
+    <None Include="packages.config" />
+    <None Include="Protobuf\game_data.proto" />
+    <None Include="Protobuf\generate.bat">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

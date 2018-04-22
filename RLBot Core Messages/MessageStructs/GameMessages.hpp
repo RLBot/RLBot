@@ -78,4 +78,10 @@ struct SetGameStateMessage : public Message<SetGameStateMessageType, true>
 	LiveDataPacket	GameState;
 };
 
+struct ByteBuffer
+{
+	void* ptr;
+	int size;
+};
+
 #endif

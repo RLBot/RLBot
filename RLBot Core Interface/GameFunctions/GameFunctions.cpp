@@ -1,10 +1,19 @@
 #include <CapnProto\capnproto.hpp>
+#include <Protobuf\ProtoConversions.hpp>
 #include <boost\interprocess\ipc\message_queue.hpp>
 
 #include "GameFunctions.hpp"
 
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 
+/*
+This typedef is advice from one of the boost maintainers on how to make message queues work between 32 and 64 bit processes.
+It looks pretty janky. I believe the reason it's not "fixed" in the library is that it can't be done consistently on windows vs linux.
+
+"In general I regret putting message_queue in Interprocess, as IMHO it's not good enough to be in the library. Some people find it useful, though."
+https://lists.boost.org/Archives/boost/2014/06/214746.php
+*/
+typedef boost::interprocess::message_queue_t< boost::interprocess::offset_ptr<void, boost::int32_t, boost::uint64_t>> interop_message_queue;
 
 
 #define BEGIN_GAME_FUNCTION(structName, name)	GameInput* pGameInput = FileMappings::GetGameInput(); \
@@ -113,46 +122,75 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" CapnConversions::ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketProto()
+	{
+		LiveDataPacket packet = LiveDataPacket();
+		UpdateLiveDataPacket(&packet);
+
+		rlbot::api::GameTickPacket* protoResult = ProtoConversions::convert(&packet);
+		int byte_size = protoResult->ByteSize();
+		CompiledGameTickPacket proto_binary = malloc(byte_size);
+		protoResult->SerializeToArray(proto_binary, byte_size);
+
+		ByteBuffer byteBuffer;
+		byteBuffer.ptr = proto_binary;
+		byteBuffer.size = byte_size;
+
+		return byteBuffer;
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
+	{
+		rlbot::api::GameTickPacket* protoResult = &rlbot::api::GameTickPacket();
+		protoResult->ParseFromArray(gameTickPacket, protoSize);
+		LiveDataPacket* packet = &LiveDataPacket();
+		UpdateLiveDataPacket(packet);
+		RLBotCoreStatus status = ProtoConversions::convert(protoResult, packet);
+
+		if (status != RLBotCoreStatus::Success)
+			return status;
+
+		BEGIN_GAME_FUNCTION(SetGameStateMessage, pSetGameData);
+		REGISTER_CALLBACK(pSetGameData, callback, pID);
+
+		pSetGameData->GameState = *packet;
+
+		END_GAME_FUNCTION;
+		return RLBotCoreStatus::Success;
+	}
+
+	static interop_message_queue protobufPlayerInput(boost::interprocess::open_only, "protobuf_player_update_queue");
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledControllerState playerInputBinary, int protoSize)
+	{
+		// TODO: instead of sending protobuf directly, translate to capnproto first.
+
+		bool sent = protobufPlayerInput.try_send(playerInputBinary, protoSize, 0);
+		if (!sent) {
+			DEBUG_LOG("Failed to send player input protobuf!\n", sent);
+			return RLBotCoreStatus::BufferOverfilled;
+		}
+		
+		return RLBotCoreStatus::Success;
+	}
+
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
 	{
 		LiveDataPacket packet = LiveDataPacket();
 		UpdateLiveDataPacket(&packet);
 		return CapnConversions::liveDataPacketToBuffer(&packet);
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledDesiredGameState gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
+	static interop_message_queue capnpPlayerInput(boost::interprocess::open_only, "capnp_player_update_queue");
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(CompiledControllerState controllerState, int protoSize)
 	{
-		LiveDataPacket* packet = &LiveDataPacket();
-
-		CapnConversions::ByteBuffer buf;
-		buf.ptr = gameTickPacket;
-		buf.size = protoSize;
-
-		// TODO: validate the desired game state
-
-		// TODO: send the data to the game via a boost queue
-
+		bool sent = capnpPlayerInput.try_send(controllerState, protoSize, 0);
+		if (!sent) {
+			DEBUG_LOG("Failed to send player input capnproto!\n", sent);
+			return RLBotCoreStatus::BufferOverfilled;
+		}
 		return RLBotCoreStatus::Success;
-	}
-
-	static boost::interprocess::message_queue playerInput(boost::interprocess::create_only, "proto_player_update_queue", 100, 8);
-
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(CompiledControllerState controllerState, int protoSize, int playerIndex)
-	{
-
-		// We only need one technique. Doing both in parallel right now for experimentation.
-
-		// Technique 1
-		playerInput.send(controllerState, protoSize, 0);
-
-
-		// Technique 2
-		CapnConversions::ByteBuffer buf;
-		buf.ptr = controllerState;
-		buf.size = protoSize;
-		IndexedPlayerInput* playerInput = CapnConversions::bufferToPlayerInput(buf);
-
-		return UpdatePlayerInput(playerInput->PlayerInput, playerIndex);
 	}
 
 	extern "C" void RLBOT_CORE_API Free(void* ptr)
@@ -190,6 +228,8 @@ namespace GameFunctions
 
 		if (status != RLBotCoreStatus::Success)
 			return status;
+
+		// TODO: Translate to capnproto and use a boost message queue instead.
 
 		BEGIN_GAME_FUNCTION(UpdatePlayerInputMessage, pUpdatePlayerInput);
 		pUpdatePlayerInput->PlayerInput = playerInput;
