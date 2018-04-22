@@ -61,3 +61,4 @@ packages/
 *.cpp_backup
 
 !lib/**/*
+!RLBot\ Core/RLBot\ Core\ Messages/CapnProto/*
