@@ -129,7 +129,7 @@ namespace GameFunctions
 
 		rlbot::api::GameTickPacket* protoResult = ProtoConversions::convert(&packet);
 		int byte_size = protoResult->ByteSize();
-		CompiledGameTickPacket proto_binary = malloc(byte_size);
+		void* proto_binary = malloc(byte_size);
 		protoResult->SerializeToArray(proto_binary, byte_size);
 
 		ByteBuffer byteBuffer;
@@ -139,7 +139,7 @@ namespace GameFunctions
 		return byteBuffer;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
 	{
 		rlbot::api::GameTickPacket* protoResult = &rlbot::api::GameTickPacket();
 		protoResult->ParseFromArray(gameTickPacket, protoSize);
@@ -161,7 +161,7 @@ namespace GameFunctions
 
 	static interop_message_queue protobufPlayerInput(boost::interprocess::open_only, "protobuf_player_update_queue");
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledControllerState playerInputBinary, int protoSize)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(void* playerInputBinary, int protoSize)
 	{
 		// TODO: instead of sending protobuf directly, translate to capnproto first.
 
@@ -183,7 +183,7 @@ namespace GameFunctions
 
 	static interop_message_queue capnpPlayerInput(boost::interprocess::open_only, "capnp_player_update_queue");
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(CompiledControllerState controllerState, int protoSize)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
 	{
 		bool sent = capnpPlayerInput.try_send(controllerState, protoSize, 0);
 		if (!sent) {

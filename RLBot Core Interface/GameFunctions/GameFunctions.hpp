@@ -6,8 +6,6 @@
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "..\InterfaceBase\InterfaceBase.hpp"
 
-#include <CapnProto\capnproto.hpp>
-
 
 #ifdef __cplusplus
 extern "C"
@@ -23,11 +21,11 @@ extern "C"
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback = nullptr, unsigned int* pID = nullptr);
 
         DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketProto();
-        DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SetGameState(CompiledGameTickPacket gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID);
-        DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(CompiledControllerState controllerState, int protoSize);
+        DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID);
+        DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(void* controllerState, int protoSize);
 		DLL_EXPORT void RLBOT_CORE_API Free(void* ptr);
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp();
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(CompiledControllerState controllerState, int protoSize);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize);
 	}
 
 #ifdef __cplusplus

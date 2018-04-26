@@ -13,10 +13,6 @@
 #include <capnp\serialize.h>
 #include <capnp\message.h>
 
-typedef void* CompiledGameTickPacket;
-typedef void* CompiledControllerState;
-typedef void* CompiledDesiredGameState;
-
 namespace CapnConversions {
 
 	// Convert 
