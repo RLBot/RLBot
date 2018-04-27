@@ -1,8 +1,6 @@
 #ifndef GAMEMESSAGES_HPP
 #define GAMEMESSAGES_HPP
 
-#include <SDK.hpp>
-
 #include "Message.hpp"
 
 #include "../PacketStructs/PacketStructs.hpp"
@@ -10,12 +8,6 @@
 struct StartMatchMessage : public Message<StartMatchMessageType, true>
 {
 	MatchSettings		MatchSettings;
-};
-
-struct UpdatePlayerInputMessage : public Message<UpdatePlayerInputMessageType, false>
-{
-	PlayerInput			PlayerInput;
-	int					PlayerIndex;
 };
 
 enum QuickChatPreset

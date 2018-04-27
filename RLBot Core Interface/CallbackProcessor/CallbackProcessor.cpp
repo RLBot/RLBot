@@ -1,5 +1,5 @@
 #include "CallbackProcessor.hpp"
-
+#include <DebugHelper.hpp>
 #include <unordered_map>
 #include <Windows.h>
 

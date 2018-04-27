@@ -29,7 +29,7 @@ namespace RenderFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawLine2D(int x1, int y1, int x2, int y2, const Color& color)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawLine2D(int x1, int y1, int x2, int y2, const PyStruct::Color& color)
 	{
 		BEGIN_RENDER_FUNCTION(DrawLine2DMessage, pLine2D);
 		pLine2D->X1 = x1;
@@ -42,7 +42,7 @@ namespace RenderFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawLine3D(const Vector3& vec1, const Vector3& vec2, const Color& color)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawLine3D(const PyStruct::Vector3& vec1, const PyStruct::Vector3& vec2, const PyStruct::Color& color)
 	{
 		BEGIN_RENDER_FUNCTION(DrawLine3DMessage, pLine3D);
 		pLine3D->Vec1 = vec1;
@@ -53,7 +53,7 @@ namespace RenderFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawLine2D_3D(int x, int y, const Vector3& vec, const Color& color)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawLine2D_3D(int x, int y, const PyStruct::Vector3& vec, const PyStruct::Color& color)
 	{
 		BEGIN_RENDER_FUNCTION(DrawLine2D_3DMessage, pLine2D_3D);
 		pLine2D_3D->X = x;
@@ -65,7 +65,7 @@ namespace RenderFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawRect2D(int x, int y, int width, int height, bool filled, const Color& color)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawRect2D(int x, int y, int width, int height, bool filled, const PyStruct::Color& color)
 	{
 		BEGIN_RENDER_FUNCTION(DrawRect2DMessage, pRect2D);
 		pRect2D->X = x;
@@ -79,7 +79,7 @@ namespace RenderFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawRect3D(const Vector3& vec, int width, int height, bool filled, const Color& color)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawRect3D(const PyStruct::Vector3& vec, int width, int height, bool filled, const PyStruct::Color& color)
 	{
 		BEGIN_RENDER_FUNCTION(DrawRect3DMessage, pRect3D);
 		pRect3D->Vec = vec;
@@ -92,7 +92,7 @@ namespace RenderFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawString2D(int x, int y, float scaleX, float scaleY, const Color& color, wchar_t* pString)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawString2D(int x, int y, float scaleX, float scaleY, const PyStruct::Color& color, wchar_t* pString)
 	{
 		BEGIN_RENDER_FUNCTION(DrawString2DMessage, pString2D);
 		pString2D->X = x;
@@ -106,7 +106,7 @@ namespace RenderFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawString3D(const Vector3& vec, float scaleX, float scaleY, const Color& color, wchar_t* pString)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API DrawString3D(const PyStruct::Vector3& vec, float scaleX, float scaleY, const PyStruct::Color& color, wchar_t* pString)
 	{
 		BEGIN_RENDER_FUNCTION(DrawString3DMessage, pString3D);
 		pString3D->Vec = vec;

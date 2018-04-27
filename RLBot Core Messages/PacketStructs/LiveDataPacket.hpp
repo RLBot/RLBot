@@ -1,7 +1,6 @@
 #ifndef LIVEDATAPACKET_HPP
 #define LIVEDATAPACKET_HPP
 
-#include <SDK.hpp>
 
 #define CONST_MaxBoosts		50
 #define CONST_MaxPlayers	10
@@ -17,12 +16,37 @@ struct ScoreInfo
 	int 					Demolitions;
 };
 
+namespace PyStruct 
+{
+	struct Vector3
+	{
+		float X;
+		float Y;
+		float Z;
+	};
+
+	struct Rotator
+	{
+		int Pitch;
+		int Yaw;
+		int Roll;
+	};
+
+	struct Color
+	{
+		unsigned char B;
+		unsigned char G;
+		unsigned char R;
+		unsigned char A;
+	};
+}
+
 struct PlayerInfo
 {
-	Vector3 				Location;
-	Rotator 				Rotation;
-	Vector3					Velocity;
-	Vector3					AngularVelocity;
+	PyStruct::Vector3 		Location;
+	PyStruct::Rotator 		Rotation;
+	PyStruct::Vector3		Velocity;
+	PyStruct::Vector3		AngularVelocity;
 	ScoreInfo 				Score;
 	bool					Demolished;
 	bool					OnGround;
@@ -37,7 +61,7 @@ struct PlayerInfo
 
 struct BoostInfo
 {
-	Vector3 				Location;
+	PyStruct::Vector3 		Location;
 	bool 					Active;
 	float 					Timer;
 };
@@ -46,17 +70,17 @@ struct Touch
 {
 	wchar_t					PlayerName[32];
 	float					TimeSeconds;
-	Vector3					HitLocation;
-	Vector3					HitNormal;
+	PyStruct::Vector3		HitLocation;
+	PyStruct::Vector3		HitNormal;
 };
 
 struct BallInfo
 {
-	Vector3 				Location;
-	Rotator 				Rotation;
-	Vector3 				Velocity;
-	Vector3 				AngularVelocity;
-	Vector3 				Acceleration;
+	PyStruct::Vector3 		Location;
+	PyStruct::Rotator 		Rotation;
+	PyStruct::Vector3 		Velocity;
+	PyStruct::Vector3 		AngularVelocity;
+	PyStruct::Vector3 		Acceleration;
 	Touch					LatestTouch;
 };
 

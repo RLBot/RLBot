@@ -1,5 +1,6 @@
 #include <CapnProto\capnproto.hpp>
 #include <Protobuf\ProtoConversions.hpp>
+#include <DebugHelper.hpp>
 #include <boost\interprocess\ipc\message_queue.hpp>
 
 #include "GameFunctions.hpp"
@@ -159,19 +160,33 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	static interop_message_queue protobufPlayerInput(boost::interprocess::open_only, "protobuf_player_update_queue");
-
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(void* playerInputBinary, int protoSize)
 	{
-		// TODO: instead of sending protobuf directly, translate to capnproto first.
+		rlbot::api::PlayerInput protoInput = rlbot::api::PlayerInput();
+		protoInput.ParseFromArray(playerInputBinary, protoSize);
+		rlbot::api::ControllerState protoState = protoInput.controller_state();
 
-		bool sent = protobufPlayerInput.try_send(playerInputBinary, protoSize, 0);
-		if (!sent) {
-			DEBUG_LOG("Failed to send player input protobuf!\n", sent);
-			return RLBotCoreStatus::BufferOverfilled;
-		}
+		::capnp::MallocMessageBuilder message;
+		rlbot::PlayerInput::Builder capnInput = message.initRoot<rlbot::PlayerInput>();
+		capnInput.setPlayerIndex(protoInput.player_index());
 		
-		return RLBotCoreStatus::Success;
+		rlbot::ControllerState::Builder capnState = capnInput.initControllerState();
+		capnState.setBoost(protoState.boost());
+		capnState.setHandbrake(protoState.handbrake());
+		capnState.setJump(protoState.jump());
+		capnState.setPitch(protoState.pitch());
+		capnState.setRoll(protoState.roll());
+		capnState.setSteer(protoState.steer());
+		capnState.setThrottle(protoState.throttle());
+		capnState.setYaw(protoState.yaw());
+
+		ByteBuffer buf = CapnConversions::toBuf(&message);
+
+		RLBotCoreStatus status = UpdatePlayerInputCapnp(buf.ptr, buf.size);
+
+		delete[] buf.ptr;
+
+		return status;
 	}
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
@@ -229,14 +244,25 @@ namespace GameFunctions
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		// TODO: Translate to capnproto and use a boost message queue instead.
+		::capnp::MallocMessageBuilder message;
+		rlbot::PlayerInput::Builder capnInput = message.initRoot<rlbot::PlayerInput>();
+		capnInput.setPlayerIndex(playerIndex);
 
-		BEGIN_GAME_FUNCTION(UpdatePlayerInputMessage, pUpdatePlayerInput);
-		pUpdatePlayerInput->PlayerInput = playerInput;
-		pUpdatePlayerInput->PlayerIndex = playerIndex;
-		END_GAME_FUNCTION;
+		rlbot::ControllerState::Builder capnState = capnInput.initControllerState();
+		capnState.setBoost(playerInput.Boost);
+		capnState.setHandbrake(playerInput.Handbrake);
+		capnState.setJump(playerInput.Jump);
+		capnState.setPitch(playerInput.Pitch);
+		capnState.setRoll(playerInput.Roll);
+		capnState.setSteer(playerInput.Steer);
+		capnState.setThrottle(playerInput.Throttle);
+		capnState.setYaw(playerInput.Yaw);
 
-		return RLBotCoreStatus::Success;
+		ByteBuffer buf = CapnConversions::toBuf(&message);
+		status = UpdatePlayerInputCapnp(buf.ptr, buf.size);
+
+		delete[] buf.ptr;
+		return status;
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback, unsigned int* pID)

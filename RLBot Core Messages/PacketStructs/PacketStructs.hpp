@@ -1,8 +1,6 @@
 #ifndef PACKETSTRUCTS_HPP
 #define PACKETSTRUCTS_HPP
 
-#include <SDK.hpp>
-
 template <unsigned int size>
 class MessageStorage;
 

@@ -28,7 +28,7 @@ namespace ProtoConversions {
 		return rotation * M_PI / 32768;
 	}
 
-	rlbot::api::Rotator* convertRotation(Rotator rot) {
+	rlbot::api::Rotator* convertRotation(PyStruct::Rotator rot) {
 		auto protoRot = new rlbot::api::Rotator();
 		protoRot->set_pitch(convertURot(rot.Pitch));
 		protoRot->set_yaw(convertURot(rot.Yaw));
@@ -37,7 +37,7 @@ namespace ProtoConversions {
 		return protoRot;
 	}
 
-	rlbot::api::Vector3* convertVector(Vector3 vec) {
+	rlbot::api::Vector3* convertVector(PyStruct::Vector3 vec) {
 		auto protoVec = new rlbot::api::Vector3();
 		protoVec->set_x(vec.X);
 		protoVec->set_y(vec.Y);

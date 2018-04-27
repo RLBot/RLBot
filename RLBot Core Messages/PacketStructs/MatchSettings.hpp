@@ -1,8 +1,6 @@
 #ifndef MATCHSETTINGS_STRUCTS_HPP
 #define MATCHSETTINGS_STRUCTS_HPP
 
-#include <SDK.hpp>
-
 struct PlayerConfiguration
 {
 	bool					Bot;

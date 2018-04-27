@@ -5,13 +5,13 @@ namespace CapnConversions {
 
     
 
-	void populateVector3(rlbot::Vector3::Builder capnVec, Vector3 structVec) {
+	void populateVector3(rlbot::Vector3::Builder capnVec, PyStruct::Vector3 structVec) {
 		capnVec.setX(structVec.X);
 		capnVec.setY(structVec.Y);
 		capnVec.setZ(structVec.Z);
 	}
 
-	void populateRotation(rlbot::Rotator::Builder capnRot, Rotator structRot) {
+	void populateRotation(rlbot::Rotator::Builder capnRot, PyStruct::Rotator structRot) {
 		capnRot.setPitch(structRot.Pitch);
 		capnRot.setYaw(structRot.Yaw);
 		capnRot.setRoll(structRot.Roll);
@@ -83,11 +83,15 @@ namespace CapnConversions {
 
     ByteBuffer toBuf(capnp::MallocMessageBuilder* message) {
         kj::Array<capnp::word> words = capnp::messageToFlatArray(*message);
-        auto bytes = words.asBytes();
+		kj::ArrayPtr<kj::byte> bytes = words.asBytes();
+
+		// Copy to an allocated buffer
+		unsigned char *buffer = new unsigned char[bytes.size()];
+		memcpy(buffer, bytes.begin(), bytes.size());
 
         ByteBuffer buf;
-        buf.ptr = bytes.begin();
-        buf.size = bytes.size() * sizeof(capnp::word);
+		buf.ptr = buffer;
+        buf.size = bytes.size();
         return buf;
     }
 

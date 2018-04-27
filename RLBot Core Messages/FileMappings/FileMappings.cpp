@@ -1,4 +1,5 @@
 #include "FileMappings.hpp"
+#include "..\DebugHelper.hpp"
 
 #include <wtshintapi.h>
 

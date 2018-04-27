@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="CapnProto\capnproto.hpp" />
     <ClInclude Include="CapnProto\game_data.capnp.h" />
+    <ClInclude Include="DebugHelper.hpp" />
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
     <ClInclude Include="FileMappings\FileMappings.hpp" />
     <ClInclude Include="MessageDefines\MessageDefines.hpp" />
@@ -61,14 +62,8 @@
     <ClCompile Include="Protobuf\ProtoConversions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RLBot Core SDK\RLBot Core SDK.vcxproj">
-      <Project>{4bd8caf2-42ae-4fdd-91da-c638f4d4f813}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="CapnProto\game_data.capnp" />
     <None Include="CapnProto\game_data.capnp.cpp" />
-    <None Include="CapnProto\game_data.proto" />
     <None Include="packages.config" />
     <None Include="Protobuf\game_data.proto" />
     <None Include="Protobuf\generate.bat" />
@@ -167,7 +162,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -175,11 +170,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -187,11 +182,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-SDK|Win32'">
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -199,11 +194,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-SDK|x64'">
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -211,11 +206,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -223,11 +218,11 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.lib</TargetExt>
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -235,10 +230,10 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|Win32'">
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -246,10 +241,10 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDK|x64'">
-    <IncludePath>$(SolutionDir)\RLBot Core SDK;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -257,7 +252,7 @@
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>$(SolutionDir)\RLBot Core SDK\Bin\$(Platform)\$(Configuration);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

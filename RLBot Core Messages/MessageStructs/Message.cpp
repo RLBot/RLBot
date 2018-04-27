@@ -9,7 +9,6 @@ static size_t ConstantSize(size_t size, MessageBase* pMessage) { return pMessage
 std::function<size_t(MessageBase*)> MessageBase::GetSizeFunctions[MaxMessageType] = {
 	std::bind(ConstantSize, sizeof(CallbackMessage), std::placeholders::_1),
 	std::bind(ConstantSize, sizeof(StartMatchMessage), std::placeholders::_1),
-	std::bind(ConstantSize, sizeof(UpdatePlayerInputMessage), std::placeholders::_1),
 	std::bind(ConstantSize, sizeof(SendChatMessage), std::placeholders::_1),
 	std::bind(ConstantSize, sizeof(DrawLine2DMessage), std::placeholders::_1),
 	std::bind(ConstantSize, sizeof(DrawLine3DMessage), std::placeholders::_1),

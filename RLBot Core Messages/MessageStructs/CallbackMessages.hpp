@@ -1,8 +1,6 @@
 #ifndef CALLBACKMESSAGES_HPP
 #define CALLBACKMESSAGES_HPP
 
-#include <SDK.hpp>
-
 #include "Message.hpp"
 
 #include "..\ErrorCodes\ErrorCodes.hpp"
