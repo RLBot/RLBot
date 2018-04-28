@@ -1,0 +1,100 @@
+syntax = "proto2";
+ 
+package rlbot.api;
+
+message ControllerState {
+  required float throttle = 1; // -1 for full reverse, 1 for full forward
+  required float steer = 2; // -1 for full left, 1 for full right
+  required float pitch = 3; // -1 for nose down, 1 for nose up
+  required float yaw = 4; // -1 for full left, 1 for full right
+  required float roll = 5; // -1 for roll left, 1 for roll right
+  required bool jump = 6;
+  required bool boost = 7;
+  required bool handbrake = 8;
+}
+
+message PlayerInput {
+  required int32 player_index = 1;
+  required ControllerState controller_state = 2;
+}
+
+// Values are in "unreal units"
+message Vector3 {
+  required float x = 1;
+  required float y = 2;
+  required float z = 3;
+}
+
+// Values are in radians
+message Rotator {
+  required float pitch = 1;
+  required float yaw = 2;
+  required float roll = 3;
+}
+
+message Touch {
+  required string player_name = 1;
+  required float game_seconds = 2;  // Seconds elapsed since the beginning of the game at the time of the touch
+  required Vector3 location = 3;
+  required Vector3 normal = 4;
+}
+
+message ScoreInfo {
+  required int32 score = 1;
+  required int32 goals = 2;
+  required int32 own_goals = 3;
+  required int32 assists = 4;
+  required int32 saves = 5;
+  required int32 shots = 6;
+  required int32 demolitions = 7;
+}
+
+message PlayerInfo {
+  required Vector3 location = 1;
+  required Rotator rotation = 2;
+  required Vector3 velocity = 3;
+  required Vector3 angular_velocity = 4;
+  required ScoreInfo score_info = 5;
+  required bool is_demolished = 6;
+  required bool is_midair = 7;
+  required bool is_supersonic = 8;
+  required bool is_bot = 9;
+  required bool jumped = 10;
+  required bool double_jumped = 11;
+  required string name = 12;
+  required int32 team = 13;
+  required int32 boost = 14;
+}
+
+message BallInfo {
+  required Vector3 location = 1;
+  required Rotator rotation = 2;
+  required Vector3 velocity = 3;
+  required Vector3 angular_velocity = 4;
+  required Vector3 acceleration = 5;
+  required Touch latest_touch = 6;
+}
+
+message BoostInfo {
+  required Vector3 location = 1;
+  required bool is_active = 2;
+  required float timer = 3;
+}
+
+message GameInfo {
+  required float seconds_elapsed = 1;
+  required float game_time_remaining = 2;
+  required bool is_overtime = 3;
+  required bool is_unlimited_time = 4;
+  required bool is_round_active = 5;
+  required bool is_kickoff_pause = 6;
+  required bool is_match_ended = 7;
+}
+
+message GameTickPacket {
+  repeated PlayerInfo players = 1;
+  required int32 player_index = 2;
+  repeated BoostInfo boost_pads = 3;
+  required BallInfo ball = 4;
+  required GameInfo game_info = 5;
+}
