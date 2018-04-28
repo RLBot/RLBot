@@ -38,14 +38,10 @@
 .idea
 *.iml
 .vs/
-RLBot Core/Bin/
-RLBot Core/Obj/
-RLBot Core Interface/Bin/
-RLBot Core Interface/Obj/
-RLBot Core Messages/Bin/
-RLBot Core Messages/Obj/
-RLBot Core SDK/Bin/
-RLBot Core SDK/Obj/
+RLBotInterface/Bin/
+RLBotInterface/Obj/
+RLBotMessages/Bin/
+RLBotMessages/Obj/
 *.vcxproj.user
 *.VC.VC.opendb
 *.VC.db
@@ -59,6 +55,5 @@ packages/
 *.cpp_backup
 
 !lib/**/*
-!RLBot\ Core/RLBot\ Core\ Messages/CapnProto/*
-!RLBot\ Core/RLBot\ Core\ Messages/Protobuf/*
-Protobuf
+!RLBotMessages/CapnProto/*
+!RLBotMessages/Protobuf/*
