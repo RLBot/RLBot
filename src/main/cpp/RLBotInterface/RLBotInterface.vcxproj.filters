@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\RenderFunctions">
+      <UniqueIdentifier>{1bb190e6-0ba9-45e2-8b1b-12777603bb40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameFunctions">
+      <UniqueIdentifier>{35f06ed4-f816-46ae-8a01-b8cda33d78bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RenderFunctions">
+      <UniqueIdentifier>{c4ea07dd-f3f7-40c6-8dc0-a1e0debeb224}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameFunctions">
+      <UniqueIdentifier>{8e9d7ac2-d41d-43a3-a0a7-a4ad50e5db45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\InterfaceBase">
+      <UniqueIdentifier>{6bc5fa9a-6ee3-4003-be6a-e82afc6ab03d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CallbackProcessor">
+      <UniqueIdentifier>{1cd2c4e4-a878-4f28-a933-a0bdb16aa31e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CallbackProcessor">
+      <UniqueIdentifier>{4084497e-ca6e-40b9-9172-0ff6f2eb5ae9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFunctions\GameFunctions.cpp">
+      <Filter>Source Files\GameFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderFunctions\RenderFunctions.cpp">
+      <Filter>Source Files\RenderFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="CallbackProcessor\CallbackProcessor.cpp">
+      <Filter>Source Files\CallbackProcessor</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameFunctions\GameFunctions.hpp">
+      <Filter>Header Files\GameFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderFunctions\RenderFunctions.hpp">
+      <Filter>Header Files\RenderFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceBase\InterfaceBase.hpp">
+      <Filter>Header Files\InterfaceBase</Filter>
+    </ClInclude>
+    <ClInclude Include="CallbackProcessor\CallbackProcessor.hpp">
+      <Filter>Header Files\CallbackProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
