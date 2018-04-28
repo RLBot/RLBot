@@ -1,7 +1,7 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
-#include <SDK.hpp>
+#include <DebugHelper.hpp>
 
 #include "GameFunctions\GameFunctions.hpp"
 #include "RenderFunctions\RenderFunctions.hpp"
