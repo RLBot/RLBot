@@ -61,3 +61,4 @@ packages/
 !lib/**/*
 !RLBot\ Core/RLBot\ Core\ Messages/CapnProto/*
 !RLBot\ Core/RLBot\ Core\ Messages/Protobuf/*
+Protobuf
