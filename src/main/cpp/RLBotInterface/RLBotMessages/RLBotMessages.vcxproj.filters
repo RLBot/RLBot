@@ -86,20 +86,20 @@
     <ClInclude Include="PacketStructs\MatchSettings.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
-    <ClInclude Include="Protobuf\game_data.pb.h">
-      <Filter>Header Files\Protobuf</Filter>
-    </ClInclude>
     <ClInclude Include="Protobuf\ProtoConversions.hpp">
       <Filter>Header Files\Protobuf</Filter>
     </ClInclude>
     <ClInclude Include="CapnProto\capnproto.hpp">
       <Filter>Header Files\CapnProto</Filter>
     </ClInclude>
-    <ClInclude Include="CapnProto\game_data.capnp.h">
-      <Filter>Header Files\CapnProto</Filter>
-    </ClInclude>
     <ClInclude Include="DebugHelper.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.h">
+      <Filter>Header Files\CapnProto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.h">
+      <Filter>Header Files\Protobuf</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -109,29 +109,20 @@
     <ClCompile Include="FileMappings\FileMappings.cpp">
       <Filter>Source Files\FileMappings</Filter>
     </ClCompile>
-    <ClCompile Include="Protobuf\game_data.pb.cc">
-      <Filter>Source Files\Protobuf</Filter>
-    </ClCompile>
     <ClCompile Include="CapnProto\capnproto.cpp">
       <Filter>Source Files\CapnProto</Filter>
     </ClCompile>
     <ClCompile Include="Protobuf\ProtoConversions.cpp">
       <Filter>Source Files\Protobuf</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.cpp">
+      <Filter>Source Files\CapnProto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.cc">
+      <Filter>Source Files\Protobuf</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Protobuf\generate.bat">
-      <Filter>Source Files\Protobuf</Filter>
-    </None>
-    <None Include="CapnProto\game_data.capnp">
-      <Filter>Source Files\CapnProto</Filter>
-    </None>
-    <None Include="CapnProto\game_data.capnp.cpp">
-      <Filter>Source Files\CapnProto</Filter>
-    </None>
-    <None Include="Protobuf\game_data.proto">
-      <Filter>Source Files\Protobuf</Filter>
-    </None>
   </ItemGroup>
 </Project>

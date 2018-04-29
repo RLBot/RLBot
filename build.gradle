@@ -7,10 +7,12 @@ buildscript {
         jcenter()
     }
     dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.4'
     }
 }
 
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
+apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'  // Needed to get jitpack to work.
 
 repositories {
@@ -18,23 +20,94 @@ repositories {
 }
 
 dependencies {
-    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2:game_data@py'  // Fetch our protobuf python file
-    compile 'rlbotofficial.RLBotProtoMaven:proto-interface:0.0.2'  // Depend on our protobuf java jar
     compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.1.0'  // Allows the java bot manager to use protobuf
+    compile 'org.capnproto:runtime:0.1.3' // Allows java bot manager to use capnproto
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
     testRuntime files('src/main/python/RLBotFramework/dll')
 }
 
 def pythonRoot = './src/main/python/'
+def protoVersion = '2.6.1'
 
-task assembleProto(type: Copy) {
-    from findFile('game_data.py')
-    into pythonRoot + 'protobuf'
-    rename { String file ->
-        'game_data_pb2.py'
+
+protobuf {
+    // Configure the protoc executable
+    protoc {
+        // Download from repositories
+        artifact = 'com.google.protobuf:protoc:' + protoVersion
     }
+    generateProtoTasks {
+        // all() returns the collection of all protoc tasks
+        all().each {
+            task ->
+                task.builtins {
+                    python { }
+                    cpp {}
+                    java {}
+                }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            // This is the default location where java protobuf classes are generated
+            srcDirs = ['src/main/java', 'build/generated/source/proto/main/java']
+        }
+    }
+}
+
+task generateCapnproto(type: Exec) {
+    commandLine "./src/main/capnp/generate.bat"
+}
+
+task copyCapnpJava(type: Copy) {
+    dependsOn 'generateCapnproto'
+    from file('src/main/capnp/Capnp.java')
+    into 'build/generated/source/proto/main/java/rlbot'
+}
+
+task copyCapnpCpp(type: Copy) {
+    dependsOn 'generateCapnproto'
+    from files('src/main/capnp/game_data.capnp.c++', 'src/main/capnp/game_data.capnp.h')
+    into 'build/generated/source/proto/main/cpp'
+    rename('game_data.capnp.c\\+\\+', 'game_data.capnp.cpp')
+}
+
+task deleteCapnp(type: Delete) {
+    delete 'src/main/capnp/game_data.capnp.c++', 'src/main/capnp/game_data.capnp.h', 'src/main/capnp/Capnp.java'
+}
+
+task assembleCapnp(dependsOn: ['generateCapnproto', 'copyCapnpJava', 'copyCapnpCpp', 'deleteCapnp']) {
+    dependsOn 'copyCapnpJava'
+    dependsOn 'copyCapnpCpp'
+    dependsOn 'deleteCapnp'
+    tasks.findByName('deleteCapnp').mustRunAfter 'copyCapnpCpp'
+    tasks.findByName('deleteCapnp').mustRunAfter 'copyCapnpJava'
+
+}
+
+task copyProtoPython(type: Copy) {
+    dependsOn 'generateProto'
+    from file('build/generated/source/proto/main/python/game_data_pb2.py')
+    into pythonRoot + 'protobuf'
+}
+
+// Useful standalone task for setting up visual studio development environment
+task assembleProtos {
+    dependsOn 'copyProtoPython'
+    dependsOn 'assempbleCapnp'
+}
+
+task copyDlls(type: Copy) {
+    from files('src/main/cpp/RLBotInterface/RLBotInterface/Bin/x64/Debug/RLBotInterface.dll',
+            '../rlbot-core/RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll')
+    into pythonRoot + 'RLBotFramework/dll'
+    rename('RLBot Core.dll', 'RLBot_Core.dll')
+    rename('RLBotInterface.dll', 'RLBot_Core_Interface.dll')
 }
 
 // You can use the clean task to remove build output.
@@ -45,11 +118,6 @@ clean {
     }
 }
 
-// Find a file that got downloaded via the compile dependencies which ends with the given suffix.
-def findFile(suffix) {
-    configurations.compile.filter { it.name.endsWith(suffix) }
-}
-
 // Use pip, which is the python package manager, to install all requirements listed in requirements.txt.
 // Python and pip must already be installed for this to work.
 task pipInstallRequirements(type: Exec) {
@@ -58,7 +126,9 @@ task pipInstallRequirements(type: Exec) {
 
 // Establish some task dependencies so that some tasks always run before others.
 // processResources is a task built in to the java plugin that runs early on during a build.
-processResources.dependsOn assembleProto
+compileJava.dependsOn assembleCapnp
+processResources.dependsOn copyProtoPython
+
 
 // This task creates a jar file which contains the java source files.
 task sourcesJar(type: Jar, dependsOn: classes) {

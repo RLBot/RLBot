@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.h" />
+    <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.h" />
     <ClInclude Include="CapnProto\capnproto.hpp" />
-    <ClInclude Include="CapnProto\game_data.capnp.h" />
     <ClInclude Include="DebugHelper.hpp" />
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
     <ClInclude Include="FileMappings\FileMappings.hpp" />
@@ -35,22 +36,18 @@
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />
     <ClInclude Include="PacketStructs\MatchSettings.hpp" />
     <ClInclude Include="PacketStructs\PacketStructs.hpp" />
-    <ClInclude Include="Protobuf\game_data.pb.h" />
     <ClInclude Include="Protobuf\ProtoConversions.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.cpp" />
+    <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.cc" />
     <ClCompile Include="CapnProto\capnproto.cpp" />
     <ClCompile Include="FileMappings\FileMappings.cpp" />
     <ClCompile Include="MessageStructs\Message.cpp" />
-    <ClCompile Include="Protobuf\game_data.pb.cc" />
     <ClCompile Include="Protobuf\ProtoConversions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CapnProto\game_data.capnp" />
-    <None Include="CapnProto\game_data.capnp.cpp" />
     <None Include="packages.config" />
-    <None Include="Protobuf\game_data.proto" />
-    <None Include="Protobuf\generate.bat" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{075F4B01-013A-4200-9720-95051226D748}</ProjectGuid>
@@ -93,15 +90,19 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -183,7 +184,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -258,7 +259,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -330,7 +331,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
@@ -396,7 +397,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(SolutionDir)lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
