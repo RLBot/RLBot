@@ -14,8 +14,8 @@ message ControllerState {
 }
 
 message PlayerInput {
-  required int32 player_index = 1;
-  required ControllerState controller_state = 2;
+  optional int32 player_index = 1;
+  optional ControllerState controller_state = 2;
 }
 
 // Values are in "unreal units"
@@ -33,61 +33,61 @@ message Rotator {
 }
 
 message Touch {
-  required string player_name = 1;
-  required float game_seconds = 2;  // Seconds elapsed since the beginning of the game at the time of the touch
-  required Vector3 location = 3;
-  required Vector3 normal = 4;
+  optional string player_name = 1;
+  optional float game_seconds = 2;  // Seconds elapsed since the beginning of the game at the time of the touch
+  optional Vector3 location = 3;
+  optional Vector3 normal = 4;
 }
 
 message ScoreInfo {
-  required int32 score = 1;
-  required int32 goals = 2;
-  required int32 own_goals = 3;
-  required int32 assists = 4;
-  required int32 saves = 5;
-  required int32 shots = 6;
-  required int32 demolitions = 7;
+  optional int32 score = 1;
+  optional int32 goals = 2;
+  optional int32 own_goals = 3;
+  optional int32 assists = 4;
+  optional int32 saves = 5;
+  optional int32 shots = 6;
+  optional int32 demolitions = 7;
 }
 
 message Physics {
-  required Vector3 location = 1;
-  required Rotator rotation = 2;
-  required Vector3 velocity = 3;
-  required Vector3 angular_velocity = 4;
+  optional Vector3 location = 1;
+  optional Rotator rotation = 2;
+  optional Vector3 velocity = 3;
+  optional Vector3 angular_velocity = 4;
 }
 
 message PlayerInfo {
-  required Physics physics = 1;
-  required ScoreInfo score_info = 2;
-  required bool is_demolished = 3;
-  required bool has_wheel_contact = 4;
-  required bool is_supersonic = 5;
-  required bool is_bot = 6;
-  required bool jumped = 7;
-  required bool double_jumped = 8;
-  required string name = 9;
-  required int32 team = 10;
-  required int32 boost = 11;
+  optional Physics physics = 1;
+  optional ScoreInfo score_info = 2;
+  optional bool is_demolished = 3;
+  optional bool has_wheel_contact = 4;
+  optional bool is_supersonic = 5;
+  optional bool is_bot = 6;
+  optional bool jumped = 7;
+  optional bool double_jumped = 8;
+  optional string name = 9;
+  optional int32 team = 10;
+  optional int32 boost = 11;
 }
 
 message BallInfo {
-  required Physics physics = 1;
+  optional Physics physics = 1;
   optional Touch latest_touch = 2;
 }
 
 message BoostPadState {
-  required bool is_active = 1;
-  required float timer = 2;
+  optional bool is_active = 1;
+  optional float timer = 2;
 }
 
 message GameInfo {
-  required float seconds_elapsed = 1;
-  required float game_time_remaining = 2;
-  required bool is_overtime = 3;
-  required bool is_unlimited_time = 4;
-  required bool is_round_active = 5;
-  required bool is_kickoff_pause = 6;
-  required bool is_match_ended = 7;
+  optional float seconds_elapsed = 1;
+  optional float game_time_remaining = 2;
+  optional bool is_overtime = 3;
+  optional bool is_unlimited_time = 4;
+  optional bool is_round_active = 5;
+  optional bool is_kickoff_pause = 6;
+  optional bool is_match_ended = 7;
 }
 
 message GameTickPacket {
@@ -102,14 +102,14 @@ message GameTickPacket {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 message GoalInfo {
-  required int32 team_num = 1;
-  required Vector3 location = 2;
-  required Vector3 direction = 3;
+  optional int32 team_num = 1;
+  optional Vector3 location = 2;
+  optional Vector3 direction = 3;
 }
 
 message BoostPad {
-  required Vector3 location = 1;
-  required bool is_full_boost = 2;
+  optional Vector3 location = 1;
+  optional bool is_full_boost = 2;
 }
 
 message FieldInfo {
@@ -135,20 +135,13 @@ message RotatorPartial {
   optional float roll = 3;
 }
 
-message DesiredPhysics {
-  optional Vector3Partial location = 1;
-  optional RotatorPartial rotation = 2;
-  optional Vector3Partial velocity = 3;
-  optional Vector3Partial angular_velocity = 4;
-}
-
 message DesiredBallState {
-  optional DesiredPhysics physics = 1;
+  optional Physics physics = 1;
 }
 
 message DesiredCarState {
-  required int32 player_index = 1;
-  optional DesiredPhysics physics = 2;
+  optional int32 player_index = 1;
+  optional Physics physics = 2;
 }
 
 

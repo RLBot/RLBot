@@ -131,6 +131,17 @@ namespace GameFunctions
 		// The lock will be released when this object goes out of scope
 		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*mtx);
 
+		boost::interprocess::offset_t size;
+		shm->get_size(size);
+		if (size == 0)
+		{
+			// Bail out early because mapped_region will freak out if size is zero.
+			ByteBuffer empty;
+			empty.ptr = new char[1]; // Arbitrary valid pointer to an array. We'll be calling delete[] on this later.
+			empty.size = 0;
+			return empty;
+		}
+
 		boost::interprocess::mapped_region region(*shm, boost::interprocess::read_only);
 		unsigned char *buffer = new unsigned char[region.get_size()];
 		memcpy(buffer, region.get_address(), region.get_size());
@@ -157,11 +168,8 @@ namespace GameFunctions
 		return fetchCapnp(&fieldInfoShm, &fieldInfoMutex);
 	}
 
-
-
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateLiveDataPacket(LiveDataPacket* pLiveData)
 	{
-		// std::this_thread::sleep_for(std::chrono::milliseconds(15000));
 		ByteBuffer capnp = UpdateLiveDataPacketCapnp();
 		CapnConversions::capnpGameTickToStruct(capnp, pLiveData);
 		delete[] capnp.ptr;

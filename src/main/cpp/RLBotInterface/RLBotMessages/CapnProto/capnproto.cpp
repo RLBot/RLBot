@@ -5,13 +5,11 @@
 
 namespace CapnConversions {
 
-
 	std::string convertString(wchar_t* w) {
 		std::wstring ws(w);
 		std::string str(ws.begin(), ws.end());
 		return str;
 	}
-	
 
     ByteBuffer toBuf(capnp::MallocMessageBuilder* message) {
         kj::Array<capnp::word> words = capnp::messageToFlatArray(*message);
@@ -126,46 +124,46 @@ namespace CapnConversions {
 
 	ByteBuffer capnpGameTickToProtobuf(ByteBuffer capnData)
 	{
-		kj::ArrayPtr<const capnp::word> arrayPtr = kj::ArrayPtr<const capnp::word>((const capnp::word*) capnData.ptr, capnData.size);
-		capnp::FlatArrayMessageReader reader = capnp::FlatArrayMessageReader(arrayPtr, capnp::ReaderOptions());
-		rlbot::GameTickPacket::Reader tickReader = reader.getRoot<rlbot::GameTickPacket>();
-
-
 		rlbot::api::GameTickPacket* packet = new rlbot::api::GameTickPacket();
-
-		if (tickReader.hasPlayers())
+		if (capnData.size > 0)
 		{
-			auto players = tickReader.getPlayers();
 
-			for (int i = 0; i < players.size(); i++) {
-				rlbot::PlayerInfo::Reader player = players[i];
-				rlbot::api::PlayerInfo* protoCar = packet->add_players();
-				fillProtoPlayer(protoCar, &player);
+			kj::ArrayPtr<const capnp::word> arrayPtr = kj::ArrayPtr<const capnp::word>((const capnp::word*) capnData.ptr, capnData.size);
+			capnp::FlatArrayMessageReader reader = capnp::FlatArrayMessageReader(arrayPtr, capnp::ReaderOptions());
+			rlbot::GameTickPacket::Reader tickReader = reader.getRoot<rlbot::GameTickPacket>();
+
+			if (tickReader.hasPlayers())
+			{
+				auto players = tickReader.getPlayers();
+
+				for (int i = 0; i < players.size(); i++) {
+					rlbot::PlayerInfo::Reader player = players[i];
+					rlbot::api::PlayerInfo* protoCar = packet->add_players();
+					fillProtoPlayer(protoCar, &player);
+				}
+			}
+
+			if (tickReader.hasBoostPadStates())
+			{
+				auto boosts = tickReader.getBoostPadStates();
+
+				for (int i = 0; i < boosts.size(); i++) {
+					rlbot::BoostPadState::Reader boost = boosts[i];
+					rlbot::api::BoostPadState* protoBoost = packet->add_boost_pad_states();
+					fillProtoBoostState(protoBoost, &boost);
+				}
+			}
+
+			if (tickReader.hasBall())
+			{
+				packet->set_allocated_ball(allocateProtobufBall(tickReader.getBall()));
+			}
+
+			if (tickReader.hasGameInfo())
+			{
+				packet->set_allocated_game_info(canpnGameInfoToProtobuf(tickReader.getGameInfo()));
 			}
 		}
-
-
-		if (tickReader.hasBoostPadStates())
-		{
-			auto boosts = tickReader.getBoostPadStates();
-
-			for (int i = 0; i < boosts.size(); i++) {
-				rlbot::BoostPadState::Reader boost = boosts[i];
-				rlbot::api::BoostPadState* protoBoost = packet->add_boost_pad_states();
-				fillProtoBoostState(protoBoost, &boost);
-			}
-		}
-
-		if (tickReader.hasBall())
-		{
-			packet->set_allocated_ball(allocateProtobufBall(tickReader.getBall()));
-		}
-
-		if (tickReader.hasGameInfo())
-		{
-			packet->set_allocated_game_info(canpnGameInfoToProtobuf(tickReader.getGameInfo()));
-		}
-
 
 		int byte_size = packet->ByteSize();
 		void* proto_binary = malloc(byte_size);
@@ -194,32 +192,33 @@ namespace CapnConversions {
 
 	ByteBuffer capnpFieldInfoToProtobuf(ByteBuffer capnData)
 	{
-		kj::ArrayPtr<const capnp::word> arrayPtr = kj::ArrayPtr<const capnp::word>((const capnp::word*) capnData.ptr, capnData.size);
-		capnp::FlatArrayMessageReader reader = capnp::FlatArrayMessageReader(arrayPtr, capnp::ReaderOptions());
-		rlbot::FieldInfo::Reader fieldInfoReader = reader.getRoot<rlbot::FieldInfo>();
-
-
 		rlbot::api::FieldInfo* fieldInfo = new rlbot::api::FieldInfo();
-
-		if (fieldInfoReader.hasGoals())
+		if (capnData.size > 0)
 		{
-			auto goals = fieldInfoReader.getGoals();
+			kj::ArrayPtr<const capnp::word> arrayPtr = kj::ArrayPtr<const capnp::word>((const capnp::word*) capnData.ptr, capnData.size);
+			capnp::FlatArrayMessageReader reader = capnp::FlatArrayMessageReader(arrayPtr, capnp::ReaderOptions());
+			rlbot::FieldInfo::Reader fieldInfoReader = reader.getRoot<rlbot::FieldInfo>();
 
-			for (int i = 0; i < goals.size(); i++) {
-				rlbot::GoalInfo::Reader goalInfo = goals[i];
-				rlbot::api::GoalInfo* protoGoal = fieldInfo->add_goals();
-				fillProtoGoal(protoGoal, goalInfo);
+			if (fieldInfoReader.hasGoals())
+			{
+				auto goals = fieldInfoReader.getGoals();
+
+				for (int i = 0; i < goals.size(); i++) {
+					rlbot::GoalInfo::Reader goalInfo = goals[i];
+					rlbot::api::GoalInfo* protoGoal = fieldInfo->add_goals();
+					fillProtoGoal(protoGoal, goalInfo);
+				}
 			}
-		}
 
-		if (fieldInfoReader.hasBoostPads())
-		{
-			auto boosts = fieldInfoReader.getBoostPads();
+			if (fieldInfoReader.hasBoostPads())
+			{
+				auto boosts = fieldInfoReader.getBoostPads();
 
-			for (int i = 0; i < boosts.size(); i++) {
-				rlbot::BoostPad::Reader boost = boosts[i];
-				rlbot::api::BoostPad* protoBoost = fieldInfo->add_boost_pads();
-				fillProtoBoost(protoBoost, boost);
+				for (int i = 0; i < boosts.size(); i++) {
+					rlbot::BoostPad::Reader boost = boosts[i];
+					rlbot::api::BoostPad* protoBoost = fieldInfo->add_boost_pads();
+					fillProtoBoost(protoBoost, boost);
+				}
 			}
 		}
 
@@ -232,12 +231,15 @@ namespace CapnConversions {
 		byteBuffer.size = byte_size;
 
 		return byteBuffer;
-
 	}
 
 	// Will try to deserialize a rlbot::PlayerInput from the buffer.
     IndexedPlayerInput* bufferToPlayerInput(ByteBuffer buf)
     {
+		if (buf.size == 0)
+		{
+			return new IndexedPlayerInput(); // Nothing to do. Return now to avoid a "Message did not contain a root pointer" error.
+		}
 
         kj::ArrayPtr<const capnp::word> arrayPtr = kj::ArrayPtr<const capnp::word>((const capnp::word*) buf.ptr, buf.size);
         capnp::FlatArrayMessageReader reader = capnp::FlatArrayMessageReader(arrayPtr, capnp::ReaderOptions());
@@ -368,6 +370,11 @@ namespace CapnConversions {
 
 	void capnpGameTickToStruct(ByteBuffer capnData, LiveDataPacket* liveDataPacket)
 	{
+		if (capnData.size == 0)
+		{
+			return; // Nothing to do. Return now to avoid a "Message did not contain a root pointer" error.
+		}
+
 		kj::ArrayPtr<const capnp::word> arrayPtr = kj::ArrayPtr<const capnp::word>((const capnp::word*) capnData.ptr, capnData.size);
 		capnp::FlatArrayMessageReader reader = capnp::FlatArrayMessageReader(arrayPtr, capnp::ReaderOptions());
 		rlbot::GameTickPacket::Reader tickReader = reader.getRoot<rlbot::GameTickPacket>();
@@ -402,6 +409,11 @@ namespace CapnConversions {
 
 	void applyFieldInfoToStruct(ByteBuffer capnData, LiveDataPacket* pLiveData)
 	{
+		if (capnData.size == 0)
+		{
+			return; // Nothing to do. Return now to avoid a "Message did not contain a root pointer" error.
+		}
+
 		kj::ArrayPtr<const capnp::word> arrayPtr = kj::ArrayPtr<const capnp::word>((const capnp::word*) capnData.ptr, capnData.size);
 		capnp::FlatArrayMessageReader reader = capnp::FlatArrayMessageReader(arrayPtr, capnp::ReaderOptions());
 		rlbot::FieldInfo::Reader fieldReader = reader.getRoot<rlbot::FieldInfo>();
