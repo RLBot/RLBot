@@ -1,0 +1,151 @@
+syntax = "proto2";
+ 
+package rlbot.api;
+
+message ControllerState {
+  optional float throttle = 1; // -1 for full reverse, 1 for full forward
+  optional float steer = 2; // -1 for full left, 1 for full right
+  optional float pitch = 3; // -1 for nose down, 1 for nose up
+  optional float yaw = 4; // -1 for full left, 1 for full right
+  optional float roll = 5; // -1 for roll left, 1 for roll right
+  optional bool jump = 6;
+  optional bool boost = 7;
+  optional bool handbrake = 8;
+}
+
+message PlayerInput {
+  optional int32 player_index = 1;
+  optional ControllerState controller_state = 2;
+}
+
+// Values are in "unreal units"
+message Vector3 {
+  required float x = 1;
+  required float y = 2;
+  required float z = 3;
+}
+
+// Values are in radians
+message Rotator {
+  required float pitch = 1;
+  required float yaw = 2;
+  required float roll = 3;
+}
+
+message Touch {
+  optional string player_name = 1;
+  optional float game_seconds = 2;  // Seconds elapsed since the beginning of the game at the time of the touch
+  optional Vector3 location = 3;
+  optional Vector3 normal = 4;
+}
+
+message ScoreInfo {
+  optional int32 score = 1;
+  optional int32 goals = 2;
+  optional int32 own_goals = 3;
+  optional int32 assists = 4;
+  optional int32 saves = 5;
+  optional int32 shots = 6;
+  optional int32 demolitions = 7;
+}
+
+message Physics {
+  optional Vector3 location = 1;
+  optional Rotator rotation = 2;
+  optional Vector3 velocity = 3;
+  optional Vector3 angular_velocity = 4;
+}
+
+message PlayerInfo {
+  optional Physics physics = 1;
+  optional ScoreInfo score_info = 2;
+  optional bool is_demolished = 3;
+  optional bool has_wheel_contact = 4;
+  optional bool is_supersonic = 5;
+  optional bool is_bot = 6;
+  optional bool jumped = 7;
+  optional bool double_jumped = 8;
+  optional string name = 9;
+  optional int32 team = 10;
+  optional int32 boost = 11;
+}
+
+message BallInfo {
+  optional Physics physics = 1;
+  optional Touch latest_touch = 2;
+}
+
+message BoostPadState {
+  optional bool is_active = 1;
+  optional float timer = 2;
+}
+
+message GameInfo {
+  optional float seconds_elapsed = 1;
+  optional float game_time_remaining = 2;
+  optional bool is_overtime = 3;
+  optional bool is_unlimited_time = 4;
+  optional bool is_round_active = 5;
+  optional bool is_kickoff_pause = 6;
+  optional bool is_match_ended = 7;
+}
+
+message GameTickPacket {
+  repeated PlayerInfo players = 1;
+  repeated BoostPadState boost_pad_states = 2;
+  optional BallInfo ball = 3;
+  optional GameInfo game_info = 4;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// This section deals with arena information, e.g. where the goals and boost locations are.
+///////////////////////////////////////////////////////////////////////////////////////////
+
+message GoalInfo {
+  optional int32 team_num = 1;
+  optional Vector3 location = 2;
+  optional Vector3 direction = 3;
+}
+
+message BoostPad {
+  optional Vector3 location = 1;
+  optional bool is_full_boost = 2;
+}
+
+message FieldInfo {
+  repeated BoostPad boost_pads = 1; // These will be sorted according to (y * 100 + x), and BoostInfo will be provided in the same order.
+  repeated GoalInfo goals = 2;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// This section deals with desired game state, useful for teleporting cars around, etc.
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+message Vector3Partial {
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+}
+
+// Values are in radians
+message RotatorPartial {
+  optional float pitch = 1;
+  optional float yaw = 2;
+  optional float roll = 3;
+}
+
+message DesiredBallState {
+  optional Physics physics = 1;
+}
+
+message DesiredCarState {
+  optional int32 player_index = 1;
+  optional Physics physics = 2;
+}
+
+
+message DesiredGameState {
+  optional DesiredBallState ballState = 1;
+  repeated DesiredCarState carSates = 2;
+}

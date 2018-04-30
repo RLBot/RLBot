@@ -105,10 +105,4 @@ struct LiveDataPacket
 	GameInfo				GameInfo;
 };
 
-struct LiveDataWrapper
-{
-	long					ExchangedValue;
-	LiveDataPacket			LiveDataPacket;
-};
-
 #endif

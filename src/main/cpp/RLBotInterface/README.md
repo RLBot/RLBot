@@ -6,7 +6,9 @@ a second closed-source DLL that gets injected into the game.
 ### Setup Instructions
 
 1. Install Visual Studio 2015
-4. Open `RLBotInterface.sln` in Visual Studio
+2. Execute `./gradlew.bat assembleProtos` from the root of the repository.
+This will generate a few source and header files that are needed to build successfully.
+3. Open `RLBotInterface.sln` in Visual Studio
 
 ### Building the Interface DLL
 
