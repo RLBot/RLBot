@@ -168,8 +168,6 @@ struct GameInputData
 
 struct GameOutputData
 {
-	LiveDataWrapper			LiveData;
-	MatchDataWrapper		MatchData;
 	CallbackOutput			CallbackOutput;
 };
 

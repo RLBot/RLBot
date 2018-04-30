@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.h" />
     <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.h" />
+    <ClInclude Include="BoostConstants\BoostConstants.hpp" />
     <ClInclude Include="CapnProto\capnproto.hpp" />
     <ClInclude Include="DebugHelper.hpp" />
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
@@ -36,15 +37,14 @@
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />
     <ClInclude Include="PacketStructs\MatchSettings.hpp" />
     <ClInclude Include="PacketStructs\PacketStructs.hpp" />
-    <ClInclude Include="Protobuf\ProtoConversions.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.cpp" />
     <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.cc" />
+    <ClCompile Include="BoostConstants\BoostConstants.cpp" />
     <ClCompile Include="CapnProto\capnproto.cpp" />
     <ClCompile Include="FileMappings\FileMappings.cpp" />
     <ClCompile Include="MessageStructs\Message.cpp" />
-    <ClCompile Include="Protobuf\ProtoConversions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

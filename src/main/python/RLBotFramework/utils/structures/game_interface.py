@@ -56,7 +56,7 @@ class GameInterface:
 
         # update player input
         func = self.game.UpdatePlayerInputProto
-        func.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
 
         # send chat
@@ -177,9 +177,14 @@ class GameInterface:
         self.extension = extension
 
     def update_controller_state(self, controller_state, index):
-        byte_size = controller_state.ByteSize()
-        serialized = controller_state.SerializeToString()
-        rlbot_status = self.game.UpdatePlayerInputProto(serialized, byte_size, index)
+
+        player_input = game_data_pb2.PlayerInput()
+        player_input.controller_state.CopyFrom(controller_state)
+        player_input.player_index = index
+
+        byte_size = player_input.ByteSize()
+        serialized = player_input.SerializeToString()
+        rlbot_status = self.game.UpdatePlayerInputProto(serialized, byte_size)
         self.game_status(None, rlbot_status)
 
     def update_live_data_proto(self):

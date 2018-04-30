@@ -49,36 +49,35 @@ message ScoreInfo {
   required int32 demolitions = 7;
 }
 
-message PlayerInfo {
+message Physics {
   required Vector3 location = 1;
   required Rotator rotation = 2;
   required Vector3 velocity = 3;
   required Vector3 angular_velocity = 4;
-  required ScoreInfo score_info = 5;
-  required bool is_demolished = 6;
-  required bool is_midair = 7;
-  required bool is_supersonic = 8;
-  required bool is_bot = 9;
-  required bool jumped = 10;
-  required bool double_jumped = 11;
-  required string name = 12;
-  required int32 team = 13;
-  required int32 boost = 14;
+}
+
+message PlayerInfo {
+  required Physics physics = 1;
+  required ScoreInfo score_info = 2;
+  required bool is_demolished = 3;
+  required bool has_wheel_contact = 4;
+  required bool is_supersonic = 5;
+  required bool is_bot = 6;
+  required bool jumped = 7;
+  required bool double_jumped = 8;
+  required string name = 9;
+  required int32 team = 10;
+  required int32 boost = 11;
 }
 
 message BallInfo {
-  required Vector3 location = 1;
-  required Rotator rotation = 2;
-  required Vector3 velocity = 3;
-  required Vector3 angular_velocity = 4;
-  required Vector3 acceleration = 5;
-  required Touch latest_touch = 6;
+  required Physics physics = 1;
+  optional Touch latest_touch = 2;
 }
 
-message BoostInfo {
-  required Vector3 location = 1;
-  required bool is_active = 2;
-  required float timer = 3;
+message BoostPadState {
+  required bool is_active = 1;
+  required float timer = 2;
 }
 
 message GameInfo {
@@ -93,8 +92,67 @@ message GameInfo {
 
 message GameTickPacket {
   repeated PlayerInfo players = 1;
-  required int32 player_index = 2;
-  repeated BoostInfo boost_pads = 3;
-  required BallInfo ball = 4;
-  required GameInfo game_info = 5;
+  repeated BoostPadState boost_pad_states = 2;
+  optional BallInfo ball = 3;
+  optional GameInfo game_info = 4;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// This section deals with arena information, e.g. where the goals and boost locations are.
+///////////////////////////////////////////////////////////////////////////////////////////
+
+message GoalInfo {
+  required int32 team_num = 1;
+  required Vector3 location = 2;
+  required Vector3 direction = 3;
+}
+
+message BoostPad {
+  required Vector3 location = 1;
+  required bool is_full_boost = 2;
+}
+
+message FieldInfo {
+  repeated BoostPad boost_pads = 1; // These will be sorted according to (y * 100 + x), and BoostInfo will be provided in the same order.
+  repeated GoalInfo goals = 2;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+// This section deals with desired game state, useful for teleporting cars around, etc.
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+message Vector3Partial {
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+}
+
+// Values are in radians
+message RotatorPartial {
+  optional float pitch = 1;
+  optional float yaw = 2;
+  optional float roll = 3;
+}
+
+message DesiredPhysics {
+  optional Vector3Partial location = 1;
+  optional RotatorPartial rotation = 2;
+  optional Vector3Partial velocity = 3;
+  optional Vector3Partial angular_velocity = 4;
+}
+
+message DesiredBallState {
+  optional DesiredPhysics physics = 1;
+}
+
+message DesiredCarState {
+  required int32 player_index = 1;
+  optional DesiredPhysics physics = 2;
+}
+
+
+message DesiredGameState {
+  optional DesiredBallState ballState = 1;
+  repeated DesiredCarState carSates = 2;
 }

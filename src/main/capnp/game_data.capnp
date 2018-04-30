@@ -54,35 +54,38 @@ struct ScoreInfo {
   demolitions @6 :Int32;
 }
 
-struct PlayerInfo {
+struct Physics {
   location @0 :Vector3;
   rotation @1 :Rotator;
   velocity @2 :Vector3;
   angularVelocity @3 :Vector3;
-  scoreInfo @4 :ScoreInfo;
-  isDemolished @5 :Bool;
-  isMidair @6 :Bool;
-  isSupersonic @7 :Bool;
-  isBot @8 :Bool;
-  jumped @9 :Bool;
-  doubleJumped @10 :Bool;
-  name @11 :Text;
-  team @12 :Int32;
-  boost @13 :Int32;
+}
+
+struct PlayerInfo {
+  physics @0 :Physics;
+  scoreInfo @1 :ScoreInfo;
+  isDemolished @2 :Bool;
+  hasWheelContact @3 :Bool;
+  isSupersonic @4 :Bool;
+  isBot @5 :Bool;
+  jumped @6 :Bool;
+  doubleJumped @7 :Bool;
+  name @8 :Text;
+  team @9 :Int32;
+  boost @10 :Int32;
 }
 
 struct BallInfo {
-  location @0 :Vector3;
-  rotation @1 :Rotator;
-  velocity @2 :Vector3;
-  angularVelocity @3 :Vector3;
-  latestTouch @4 :Touch;
+  physics @0 :Physics;
+  latestTouch :union {
+    unset @1 :Void;
+  	value @2 :Touch;
+  }
 }
 
-struct BoostInfo {
-  location @0 :Vector3;
-  isActive @1 :Bool;
-  timer @2 :Float32;
+struct BoostPadState {
+  isActive @0 :Bool;
+  timer @1 :Float32;
 }
 
 struct GameInfo {
@@ -97,10 +100,30 @@ struct GameInfo {
 
 struct GameTickPacket {
   players @0 :List(PlayerInfo);
-  playerIndex @1 :Int32;
-  boostPads @2 :List(BoostInfo);
-  ball @3 :BallInfo;
-  gameInfo @4 :GameInfo;
+  boostPadStates @1 :List(BoostPadState);
+  ball @2 :BallInfo;
+  gameInfo @3 :GameInfo;
+}
+
+
+##########################################################################################
+# This section deals with arena information, e.g. where the goals and boost locations are.
+##########################################################################################
+
+struct GoalInfo {
+  teamNum @0 :Int32;
+  location @1 :Vector3;
+  direction @2 :Vector3;
+}
+
+struct BoostPad {
+  location @0 :Vector3;
+  isFullBoost @1 :Bool;
+}
+
+struct FieldInfo {
+  boostPads @0 :List(BoostPad); # These will be sorted according to (y * 100 + x), and BoostInfo will be provided in the same order.
+  goals @1 :List(GoalInfo);
 }
 
 

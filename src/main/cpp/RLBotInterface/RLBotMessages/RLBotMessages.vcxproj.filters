@@ -45,6 +45,9 @@
     <Filter Include="Source Files\CapnProto">
       <UniqueIdentifier>{9be14b1e-a803-455d-8c82-0aeb30834a96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\BoostConstants">
+      <UniqueIdentifier>{291c9832-cd6a-4018-ba3e-86c6a9925a15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Messages.hpp">
@@ -86,9 +89,6 @@
     <ClInclude Include="PacketStructs\MatchSettings.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
-    <ClInclude Include="Protobuf\ProtoConversions.hpp">
-      <Filter>Header Files\Protobuf</Filter>
-    </ClInclude>
     <ClInclude Include="CapnProto\capnproto.hpp">
       <Filter>Header Files\CapnProto</Filter>
     </ClInclude>
@@ -101,6 +101,9 @@
     <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.h">
       <Filter>Header Files\Protobuf</Filter>
     </ClInclude>
+    <ClInclude Include="BoostConstants\BoostConstants.hpp">
+      <Filter>Header Files\BoostConstants</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MessageStructs\Message.cpp">
@@ -112,14 +115,14 @@
     <ClCompile Include="CapnProto\capnproto.cpp">
       <Filter>Source Files\CapnProto</Filter>
     </ClCompile>
-    <ClCompile Include="Protobuf\ProtoConversions.cpp">
-      <Filter>Source Files\Protobuf</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.cpp">
       <Filter>Source Files\CapnProto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.cc">
       <Filter>Source Files\Protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="BoostConstants\BoostConstants.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

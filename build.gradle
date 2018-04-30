@@ -60,16 +60,19 @@ sourceSets {
     }
 }
 
+// Runs the capnproto generate script to create java and c++ files.
 task generateCapnproto(type: Exec) {
     commandLine "./src/main/capnp/generate.bat"
 }
 
+// Copies capnproto java files to where they need to go.
 task copyCapnpJava(type: Copy) {
     dependsOn 'generateCapnproto'
     from file('src/main/capnp/Capnp.java')
     into 'build/generated/source/proto/main/java/rlbot'
 }
 
+// Copies capnproto c++ files to where they need to go.
 task copyCapnpCpp(type: Copy) {
     dependsOn 'generateCapnproto'
     from files('src/main/capnp/game_data.capnp.c++', 'src/main/capnp/game_data.capnp.h')
@@ -77,10 +80,12 @@ task copyCapnpCpp(type: Copy) {
     rename('game_data.capnp.c\\+\\+', 'game_data.capnp.cpp')
 }
 
+// Clears out intermediate files
 task deleteCapnp(type: Delete) {
     delete 'src/main/capnp/game_data.capnp.c++', 'src/main/capnp/game_data.capnp.h', 'src/main/capnp/Capnp.java'
 }
 
+// Sends all the capnproto files to where they need to go.
 task assembleCapnp(dependsOn: ['generateCapnproto', 'copyCapnpJava', 'copyCapnpCpp', 'deleteCapnp']) {
     dependsOn 'copyCapnpJava'
     dependsOn 'copyCapnpCpp'
@@ -90,6 +95,7 @@ task assembleCapnp(dependsOn: ['generateCapnproto', 'copyCapnpJava', 'copyCapnpC
 
 }
 
+// After protobuf is generated, copy the generated file to its home in the python folder.
 task copyProtoPython(type: Copy) {
     dependsOn 'generateProto'
     from file('build/generated/source/proto/main/python/game_data_pb2.py')
@@ -102,6 +108,7 @@ task assembleProtos {
     dependsOn 'assempbleCapnp'
 }
 
+// This is just a convenience task for developers.
 task copyDlls(type: Copy) {
     from files('src/main/cpp/RLBotInterface/RLBotInterface/Bin/x64/Debug/RLBotInterface.dll',
             '../rlbot-core/RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll')

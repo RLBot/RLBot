@@ -22,15 +22,4 @@ struct FieldInfo
 	GoalInfo				Goals[2];
 };
 
-struct MatchDataPacket
-{
-	FieldInfo				FieldInfo;
-};
-
-struct MatchDataWrapper
-{
-	long					ExchangedValue;
-	MatchDataPacket			MatchDataPacket;
-};
-
 #endif

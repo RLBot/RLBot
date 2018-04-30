@@ -16,13 +16,13 @@ public class CarData {
 
     public CarData(GameData.PlayerInfo playerInfo, float elapsedSeconds) {
 
-        this.position = Vector3.fromProto(playerInfo.getLocation());
-        this.velocity = Vector3.fromProto(playerInfo.getVelocity());
+        this.position = Vector3.fromProto(playerInfo.getPhysics().getLocation());
+        this.velocity = Vector3.fromProto(playerInfo.getPhysics().getVelocity());
         this.orientation = CarOrientation.fromPlayerInfo(playerInfo);
         this.boost = playerInfo.getBoost();
         this.isSupersonic = playerInfo.getIsSupersonic();
         this.team = playerInfo.getTeam();
-        this.isMidair = playerInfo.getIsMidair();
+        this.isMidair = playerInfo.getHasWheelContact();
         this.elapsedSeconds = elapsedSeconds;
     }
 }
