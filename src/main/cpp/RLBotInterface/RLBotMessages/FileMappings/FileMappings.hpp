@@ -12,8 +12,6 @@ namespace FileMappings
 {
 	GameInput* GetGameInput();
 	RenderInput* GetRenderInput();
-	LiveDataWrapper* GetLiveData();
-	MatchDataWrapper* GetMatchData();
 	CallbackOutput* GetCallbackOutput();
 	void Lock(void* pSharedMem);
 	void Unlock(void* pSharedMem);

@@ -22,6 +22,11 @@ namespace CapnConversions {
 	ByteBuffer liveDataPacketToBuffer(LiveDataPacket* pLiveData);
 	IndexedPlayerInput* bufferToPlayerInput(ByteBuffer buf);
 	ByteBuffer toBuf(capnp::MallocMessageBuilder* message);
+	ByteBuffer capnpGameTickToProtobuf(ByteBuffer capnData);
+	ByteBuffer capnpFieldInfoToProtobuf(ByteBuffer capnData);
+	void capnpGameTickToStruct(ByteBuffer capnData, LiveDataPacket* pLiveData);
+	void applyFieldInfoToStruct(ByteBuffer capnData, LiveDataPacket* pLiveData);
+	std::string convertString(wchar_t* w);
 }
 
 #endif  // !CAPN_CONVERSIONS_HPP

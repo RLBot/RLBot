@@ -10,8 +10,8 @@ public class BallData {
     public final Vector3 spin;
 
     public BallData(final GameData.BallInfo ballInfo) {
-        this.position = Vector3.fromProto(ballInfo.getLocation());
-        this.velocity = Vector3.fromProto(ballInfo.getLocation());
-        this.spin = Vector3.fromProto(ballInfo.getAngularVelocity());
+        this.position = Vector3.fromProto(ballInfo.getPhysics().getLocation());
+        this.velocity = Vector3.fromProto(ballInfo.getPhysics().getVelocity());
+        this.spin = Vector3.fromProto(ballInfo.getPhysics().getAngularVelocity());
     }
 }

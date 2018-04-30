@@ -65,11 +65,6 @@ struct SendChatMessage : public Message<SendChatMessageType, true>
 	bool				bTeam;
 };
 
-struct SetGameStateMessage : public Message<SetGameStateMessageType, true>
-{
-	LiveDataPacket	GameState;
-};
-
 struct ByteBuffer
 {
 	void* ptr;
