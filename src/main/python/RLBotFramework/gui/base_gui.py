@@ -77,6 +77,8 @@ class BaseGui:
             self.overall_config = config_file
         self.agents.clear()
         num_participants = get_num_players(self.overall_config)
+        self.loadout_presets.clear()
+        self.agent_presets.clear()
         for i in range(num_participants):
             self.load_agent(i)
 
@@ -126,16 +128,24 @@ class BaseGui:
         return agent
 
     def add_loadout_preset(self, file_path):
-        if os.path.basename(file_path).replace(".cfg", "") in self.loadout_presets:
-            return self.loadout_presets[os.path.basename(file_path).replace(".cfg", "")]
-        preset = LoadoutPreset(file_path)
+        if os.path.isfile(file_path):
+            name = os.path.basename(file_path).replace(".cfg", "")
+        else:
+            name = "new preset"
+        if name in self.loadout_presets:
+            return self.loadout_presets[name]
+        preset = LoadoutPreset(name, file_path)
         self.loadout_presets[preset.get_name()] = preset
         return preset
 
     def add_agent_preset(self, file_path):
-        if os.path.basename(file_path).replace(".cfg", "") in self.agent_presets:
-            return self.agent_presets[os.path.basename(file_path).replace(".cfg", "")]
-        preset = AgentPreset(file_path)
+        if os.path.isfile(file_path):
+            name = os.path.basename(file_path).replace(".cfg", "")
+        else:
+            name = "new preset"
+        if name in self.agent_presets:
+            return self.agent_presets[name]
+        preset = AgentPreset(name, file_path)
         self.agent_presets[preset.get_name()] = preset
         return preset
 

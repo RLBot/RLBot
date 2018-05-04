@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'agent_customisation_3.ui'
+# Form implementation generated from reading ui file 'agent_customisation.ui'
 #
-# Created by: PyQt5 UI code generator 5.10
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -51,28 +51,33 @@ class Ui_AgentPresetCustomiser(object):
         self.groupBox_2.setObjectName("groupBox_2")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox_2)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.label_2 = QtWidgets.QLabel(self.groupBox_2)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1)
+        self.preset_python_file_lineedit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.preset_python_file_lineedit.setReadOnly(True)
+        self.preset_python_file_lineedit.setClearButtonEnabled(False)
+        self.preset_python_file_lineedit.setObjectName("preset_python_file_lineedit")
+        self.gridLayout_2.addWidget(self.preset_python_file_lineedit, 6, 1, 1, 3)
         self.label = QtWidgets.QLabel(self.groupBox_2)
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 6, 0, 1, 1)
+        self.lineEdit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.lineEdit.setObjectName("lineEdit")
+        self.gridLayout_2.addWidget(self.lineEdit, 0, 1, 1, 3)
+        self.preset_path_lineedit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.preset_path_lineedit.setReadOnly(True)
+        self.preset_path_lineedit.setObjectName("preset_path_lineedit")
+        self.gridLayout_2.addWidget(self.preset_path_lineedit, 3, 1, 1, 3)
         self.label_17 = QtWidgets.QLabel(self.groupBox_2)
         self.label_17.setObjectName("label_17")
         self.gridLayout_2.addWidget(self.label_17, 3, 0, 1, 1)
-        self.preset_python_file_lineedit = QtWidgets.QLineEdit(self.groupBox_2)
-        self.preset_python_file_lineedit.setObjectName("preset_python_file_lineedit")
-        self.gridLayout_2.addWidget(self.preset_python_file_lineedit, 6, 1, 1, 4)
-        self.preset_autosave_checkbox = QtWidgets.QCheckBox(self.groupBox_2)
-        self.preset_autosave_checkbox.setChecked(True)
-        self.preset_autosave_checkbox.setObjectName("preset_autosave_checkbox")
-        self.gridLayout_2.addWidget(self.preset_autosave_checkbox, 7, 4, 1, 1)
-        self.preset_save_pushbutton = QtWidgets.QPushButton(self.groupBox_2)
-        self.preset_save_pushbutton.setObjectName("preset_save_pushbutton")
-        self.gridLayout_2.addWidget(self.preset_save_pushbutton, 7, 2, 1, 2)
         self.python_file_select_button = QtWidgets.QPushButton(self.groupBox_2)
         self.python_file_select_button.setObjectName("python_file_select_button")
-        self.gridLayout_2.addWidget(self.python_file_select_button, 7, 0, 1, 2)
-        self.preset_path_lineedit = QtWidgets.QLineEdit(self.groupBox_2)
-        self.preset_path_lineedit.setObjectName("preset_path_lineedit")
-        self.gridLayout_2.addWidget(self.preset_path_lineedit, 3, 1, 1, 4)
+        self.gridLayout_2.addWidget(self.python_file_select_button, 8, 0, 1, 2)
+        self.preset_save_pushbutton = QtWidgets.QPushButton(self.groupBox_2)
+        self.preset_save_pushbutton.setObjectName("preset_save_pushbutton")
+        self.gridLayout_2.addWidget(self.preset_save_pushbutton, 8, 2, 1, 2)
         self.verticalLayout_4.addWidget(self.groupBox_2)
         self.agent_parameters_groupbox = QtWidgets.QGroupBox(self.right_frame)
         self.agent_parameters_groupbox.setObjectName("agent_parameters_groupbox")
@@ -92,10 +97,11 @@ class Ui_AgentPresetCustomiser(object):
         self.preset_new_pushbutton.setText(_translate("AgentPresetCustomiser", "New"))
         self.preset_load_pushbutton.setText(_translate("AgentPresetCustomiser", "Load"))
         self.groupBox_2.setTitle(_translate("AgentPresetCustomiser", "Preset Config"))
+        self.label_2.setText(_translate("AgentPresetCustomiser", "Preset Name:"))
         self.label.setText(_translate("AgentPresetCustomiser", "Python File:"))
+        self.preset_path_lineedit.setPlaceholderText(_translate("AgentPresetCustomiser", "Currently not stored on disk"))
         self.label_17.setText(_translate("AgentPresetCustomiser", "File Path:"))
-        self.preset_autosave_checkbox.setText(_translate("AgentPresetCustomiser", "Autosave"))
-        self.preset_save_pushbutton.setText(_translate("AgentPresetCustomiser", "Save Preset"))
         self.python_file_select_button.setText(_translate("AgentPresetCustomiser", "Select Agent File"))
+        self.preset_save_pushbutton.setText(_translate("AgentPresetCustomiser", "Save Preset"))
         self.agent_parameters_groupbox.setTitle(_translate("AgentPresetCustomiser", "Agent Parameters"))
 

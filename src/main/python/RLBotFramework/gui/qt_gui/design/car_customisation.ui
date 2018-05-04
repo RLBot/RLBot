@@ -21,7 +21,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QListWidget" name="presets_listwidget"/>
+       <widget class="QListWidget" name="presets_listwidget">
+        <property name="editTriggers">
+         <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QFrame" name="frame">
@@ -78,33 +85,40 @@
         <property name="title">
          <string>Preset Config</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="1" column="0">
           <widget class="QLabel" name="label_17">
            <property name="text">
             <string>File Path:</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLineEdit" name="preset_path_lineedit"/>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Preset Name:</string>
+           </property>
+          </widget>
          </item>
-         <item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="preset_path_lineedit">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>Currently not stored on disk</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
           <widget class="QPushButton" name="preset_save_pushbutton">
            <property name="text">
             <string>Save</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QCheckBox" name="preset_autosave_checkbox">
-           <property name="text">
-            <string>Autosave</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
+         <item row="0" column="1" colspan="2">
+          <widget class="QLineEdit" name="preset_name_lineedit"/>
          </item>
         </layout>
        </widget>

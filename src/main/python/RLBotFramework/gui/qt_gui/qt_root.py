@@ -46,7 +46,6 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
         self.connect_functions()
 
-        # self.update_teams_listwidgets() (already gets called with load_cfg)
         self.enable_disable_on_bot_select_deselect()
         self.update_bot_type_combobox()
 
@@ -135,7 +134,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.mode_type_combobox.addItems(game_mode_types)
         self.map_type_combobox.addItems(map_types)
         self.match_length_combobox.addItems(match_length_types)
-        # TODO: add the boost type combobox instead of the max goals combobox
+        self.boost_type_combobox.addItems(boost_types)
 
     def update_match_settings(self):
         self.mode_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
@@ -143,11 +142,12 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.skip_replays_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS))
         self.instant_start_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START))
         self.match_length_combobox.setCurrentText(self.overall_config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
+        self.boost_type_combobox.setCurrentText(self.overall_config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
 
     def connect_functions(self):
         self.bot_type_combobox.currentIndexChanged.connect(self.update_bot_type_combobox)
-        self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.show)
-        self.agent_preset_toolbutton.clicked.connect(self.agent_customisation.show)
+        self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.popup)
+        self.agent_preset_toolbutton.clicked.connect(self.agent_customisation.popup)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
 
@@ -168,7 +168,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                    self.orange_name_lineedit, self.orange_color_spinbox,
                    self.loadout_preset_combobox, self.agent_preset_combobox,
                    self.mode_type_combobox, self.map_type_combobox, self.skip_replays_checkbox,
-                   self.instant_start_checkbox, self.match_length_combobox, self.max_score_spinbox]
+                   self.instant_start_checkbox, self.match_length_combobox, self.boost_type_combobox]
 
         for item in widgets:
             if isinstance(item, QtWidgets.QLineEdit):
@@ -190,8 +190,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
     def edit_event(self, value=None):
         def auto_save():
-            if self.cfg_autosave_checkbox.isChecked():
-                self.save_overall_config(time_out=5000)
+            pass  # disabling the auto_save for now, takes too much time to fix
+            # if self.cfg_autosave_checkbox.isChecked():
+            #     self.save_overall_config(time_out=5000)
 
         s = self.sender()
         if isinstance(s, QtWidgets.QLineEdit):
@@ -244,10 +245,10 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
                 self.orange_listwidget.setCurrentItem(item)
 
         elif s is self.loadout_preset_combobox:
-            if self.current_bot is not None:
+            if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
                 self.current_bot.set_loadout_preset(self.loadout_presets[value])
         elif s is self.agent_preset_combobox:
-            if self.current_bot is not None:
+            if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
                 self.current_bot.set_agent_preset(self.agent_presets[value])
 
         elif s is self.mode_type_combobox:
@@ -260,8 +261,8 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, INSTANT_START, value)
         elif s is self.match_length_combobox:
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, value)
-        elif s is self.max_score_spinbox:
-            self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MAX_SCORE, value)
+        elif s is self.boost_type_combobox:
+            self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT, value)
 
     def validate_name(self, name, agent):
         if name in self.bot_names_to_agent_dict and self.bot_names_to_agent_dict[name] is not agent:
@@ -426,11 +427,9 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         elif sender is self.orange_listwidget:
             bots_list = self.orange_bots
             self.blue_listwidget.clearSelection()
-        # agent_name = sender.currentItem().text()
         agent_i = sender.currentRow()
         try:
             agent = bots_list[agent_i]
-            # print(agent)
         except IndexError:
             if print_err:
                 print("\nI am printing this error manually. It can be hidden easily:")

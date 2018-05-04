@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'car_customisation_3.ui'
+# Form implementation generated from reading ui file 'car_customisation.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -19,6 +19,7 @@ class Ui_LoadoutPresetCustomiser(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox_3)
         self.verticalLayout.setObjectName("verticalLayout")
         self.presets_listwidget = QtWidgets.QListWidget(self.groupBox_3)
+        self.presets_listwidget.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked|QtWidgets.QAbstractItemView.EditKeyPressed|QtWidgets.QAbstractItemView.SelectedClicked)
         self.presets_listwidget.setObjectName("presets_listwidget")
         self.verticalLayout.addWidget(self.presets_listwidget)
         self.frame = QtWidgets.QFrame(self.groupBox_3)
@@ -47,21 +48,24 @@ class Ui_LoadoutPresetCustomiser(object):
         sizePolicy.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
         self.groupBox_2.setSizePolicy(sizePolicy)
         self.groupBox_2.setObjectName("groupBox_2")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.groupBox_2)
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox_2)
+        self.gridLayout_2.setObjectName("gridLayout_2")
         self.label_17 = QtWidgets.QLabel(self.groupBox_2)
         self.label_17.setObjectName("label_17")
-        self.horizontalLayout_3.addWidget(self.label_17)
+        self.gridLayout_2.addWidget(self.label_17, 1, 0, 1, 1)
+        self.label_16 = QtWidgets.QLabel(self.groupBox_2)
+        self.label_16.setObjectName("label_16")
+        self.gridLayout_2.addWidget(self.label_16, 0, 0, 1, 1)
         self.preset_path_lineedit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.preset_path_lineedit.setReadOnly(True)
         self.preset_path_lineedit.setObjectName("preset_path_lineedit")
-        self.horizontalLayout_3.addWidget(self.preset_path_lineedit)
+        self.gridLayout_2.addWidget(self.preset_path_lineedit, 1, 1, 1, 1)
         self.preset_save_pushbutton = QtWidgets.QPushButton(self.groupBox_2)
         self.preset_save_pushbutton.setObjectName("preset_save_pushbutton")
-        self.horizontalLayout_3.addWidget(self.preset_save_pushbutton)
-        self.preset_autosave_checkbox = QtWidgets.QCheckBox(self.groupBox_2)
-        self.preset_autosave_checkbox.setChecked(True)
-        self.preset_autosave_checkbox.setObjectName("preset_autosave_checkbox")
-        self.horizontalLayout_3.addWidget(self.preset_autosave_checkbox)
+        self.gridLayout_2.addWidget(self.preset_save_pushbutton, 1, 2, 1, 1)
+        self.preset_name_lineedit = QtWidgets.QLineEdit(self.groupBox_2)
+        self.preset_name_lineedit.setObjectName("preset_name_lineedit")
+        self.gridLayout_2.addWidget(self.preset_name_lineedit, 0, 1, 1, 2)
         self.verticalLayout_4.addWidget(self.groupBox_2)
         self.groupBox = QtWidgets.QGroupBox(self.right_frame)
         self.groupBox.setObjectName("groupBox")
@@ -395,12 +399,14 @@ class Ui_LoadoutPresetCustomiser(object):
         _translate = QtCore.QCoreApplication.translate
         LoadoutPresetCustomiser.setWindowTitle(_translate("LoadoutPresetCustomiser", "Loadout Preset Customiser"))
         self.groupBox_3.setTitle(_translate("LoadoutPresetCustomiser", "Loadout Presets"))
+        self.presets_listwidget.setSortingEnabled(True)
         self.preset_new_pushbutton.setText(_translate("LoadoutPresetCustomiser", "New"))
         self.preset_load_pushbutton.setText(_translate("LoadoutPresetCustomiser", "Load"))
         self.groupBox_2.setTitle(_translate("LoadoutPresetCustomiser", "Preset Config"))
         self.label_17.setText(_translate("LoadoutPresetCustomiser", "File Path:"))
+        self.label_16.setText(_translate("LoadoutPresetCustomiser", "Preset Name:"))
+        self.preset_path_lineedit.setPlaceholderText(_translate("LoadoutPresetCustomiser", "Currently not stored on disk"))
         self.preset_save_pushbutton.setText(_translate("LoadoutPresetCustomiser", "Save"))
-        self.preset_autosave_checkbox.setText(_translate("LoadoutPresetCustomiser", "Autosave"))
         self.groupBox.setTitle(_translate("LoadoutPresetCustomiser", "Loadout"))
         self.label_14.setText(_translate("LoadoutPresetCustomiser", "Blue"))
         self.label_15.setText(_translate("LoadoutPresetCustomiser", "Orange"))

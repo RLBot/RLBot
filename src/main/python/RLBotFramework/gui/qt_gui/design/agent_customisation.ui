@@ -75,10 +75,40 @@
          <string>Preset Config</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Preset Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1" colspan="3">
+          <widget class="QLineEdit" name="preset_python_file_lineedit">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
          <item row="6" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
             <string>Python File:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="3">
+          <widget class="QLineEdit" name="lineEdit"/>
+         </item>
+         <item row="3" column="1" colspan="3">
+          <widget class="QLineEdit" name="preset_path_lineedit">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>Currently not stored on disk</string>
            </property>
           </widget>
          </item>
@@ -89,35 +119,19 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1" colspan="4">
-          <widget class="QLineEdit" name="preset_python_file_lineedit"/>
-         </item>
-         <item row="7" column="4">
-          <widget class="QCheckBox" name="preset_autosave_checkbox">
-           <property name="text">
-            <string>Autosave</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="2" colspan="2">
-          <widget class="QPushButton" name="preset_save_pushbutton">
-           <property name="text">
-            <string>Save Preset</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" colspan="2">
+         <item row="8" column="0" colspan="2">
           <widget class="QPushButton" name="python_file_select_button">
            <property name="text">
             <string>Select Agent File</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1" colspan="4">
-          <widget class="QLineEdit" name="preset_path_lineedit"/>
+         <item row="8" column="2" colspan="2">
+          <widget class="QPushButton" name="preset_save_pushbutton">
+           <property name="text">
+            <string>Save Preset</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
