@@ -2,6 +2,10 @@
 #define FILEMAPPINGS_HPP
 
 #include <Windows.h>
+//#ifdef ERROR
+//#undef ERROR
+//#endif
+//#include <kj\windows-sanity.h>
 
 #include "../PacketStructs/PacketStructs.hpp"
 

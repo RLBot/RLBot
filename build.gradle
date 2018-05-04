@@ -1,19 +1,25 @@
 group 'rlbotofficial'
 version '0.0.1'
 
+import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.4'
+        classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:1.0.4"
     }
 }
 
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
 apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'  // Needed to get jitpack to work.
+apply plugin: "io.netifi.flatbuffers"
 
 repositories {
     jcenter()
@@ -102,10 +108,42 @@ task copyProtoPython(type: Copy) {
     into pythonRoot + 'protobuf'
 }
 
+// After protobuf is generated, copy the generated file to its home in the python folder.
+task copyFlatbuffersPython(type: Copy) {
+    dependsOn 'generateFlatbuffersPython'
+    from fileTree('src/generated/python/flatbuffers/rlbot')
+    into pythonRoot + 'RLBotMessages'
+}
+
+flatbuffers {
+    flatcPath = 'src/main/flatbuffers'
+}
+
+task generateFlatbuffersJava(type: FlatBuffers) {
+    inputDir = file("src/main/flatbuffers")
+    outputDir = file("src/generated/java/flatbuffers")
+    language = 'java'
+}
+
+task generateFlatbuffersPython(type: FlatBuffers) {
+    inputDir = file("src/main/flatbuffers")
+    outputDir = file("src/generated/python/flatbuffers")
+    language = 'python'
+}
+
+task generateFlatbuffersCpp(type: FlatBuffers) {
+    inputDir = file("src/main/flatbuffers")
+    outputDir = file("src/generated/cpp/flatbuffers")
+    language = 'cpp'
+}
+
 // Useful standalone task for setting up visual studio development environment
 task assembleProtos {
     dependsOn 'copyProtoPython'
-    dependsOn 'assempbleCapnp'
+    dependsOn 'assembleCapnp'
+    dependsOn 'copyFlatbuffersPython'
+    dependsOn 'generateFlatbuffersJava'
+    dependsOn 'generateFlatbuffersCpp'
 }
 
 // This is just a convenience task for developers.
@@ -120,9 +158,9 @@ task copyDlls(type: Copy) {
 // You can use the clean task to remove build output.
 clean {
     // In addition to the normal clean behavior, also remove the generated protobuf python file(s).
-    delete fileTree(pythonRoot + 'protobuf') {
-        include '**/*pb2.py'
-    }
+    delete pythonRoot + 'protobuf'
+    delete pythonRoot + 'RLBotMessages/flat'
+    delete 'src/generated'
 }
 
 // Use pip, which is the python package manager, to install all requirements listed in requirements.txt.
