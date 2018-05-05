@@ -1,7 +1,7 @@
 package rlbot.manager;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import rlbot.Bot;
+import rlbot.ProtoBot;
+import rlbot.ControllerState;
 import rlbot.api.GameData;
 import rlbot.cpp.RLBotDll;
 
@@ -18,32 +18,32 @@ public class BotManager {
     private boolean keepRunning;
 
     private final Object dinnerBell = new Object();
-    private  GameData.GameTickPacket latestPacket;
+    private GameData.GameTickPacket latestPacket;
 
-    public void ensureBotRegistered(final int index, final Supplier<Bot> botSupplier) {
+    public void ensureBotRegistered(final int index, final Supplier<ProtoBot> botSupplier) {
         if (botProcesses.containsKey(index)) {
             return;
         }
 
-        final Bot bot = botSupplier.get();
+        final ProtoBot bot = botSupplier.get();
 
         botProcesses.computeIfAbsent(index, (idx) -> {
             final AtomicBoolean runFlag = new AtomicBoolean(true);
             Thread botThread = new Thread(() -> doRunBot(bot, index, runFlag));
             botThread.start();
-            return new BotProcess(bot, botThread, runFlag);
+            return new BotProcess(botThread, runFlag);
         });
     }
 
-    private void doRunBot(final Bot bot, final int index, final AtomicBoolean runFlag) {
+    private void doRunBot(final ProtoBot bot, final int index, final AtomicBoolean runFlag) {
         while (keepRunning && runFlag.get()) {
             try {
                 synchronized (dinnerBell) {
                     dinnerBell.wait(1000);
                 }
                 if (latestPacket != null) {
-                    GameData.ControllerState controllerState = bot.processInput(latestPacket);
-                    RLBotDll.setControllerState(controllerState, index);
+                    ControllerState controllerState = bot.processInput(latestPacket);
+                    RLBotDll.setPlayerInputProtobuf(controllerState, index);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -66,7 +66,7 @@ public class BotManager {
         while (keepRunning) {
 
             try {
-                latestPacket = RLBotDll.getProtoPacket();
+                latestPacket = RLBotDll.getProtobufPacket();
                 synchronized (dinnerBell) {
                     dinnerBell.notifyAll();
                 }

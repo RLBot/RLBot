@@ -54,6 +54,6 @@ packages/
 
 *.cpp_backup
 
-!lib/**/*
+!lib/
 !RLBotMessages/CapnProto/*
 !RLBotMessages/Protobuf/*

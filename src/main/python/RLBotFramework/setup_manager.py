@@ -155,6 +155,9 @@ class SetupManager:
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_proto"):
             bm = bot_manager.BotManagerProto(terminate_event, callback_event, config_file, name, team,
                                              index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+        elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
+            bm = bot_manager.BotManagerFlatbuffer(terminate_event, callback_event, config_file, name, team,
+                                             index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         else:
             bm = bot_manager.BotManagerStruct(terminate_event, callback_event, config_file, name, team,
                                               index, agent_class_wrapper, agent_telemetry_queue, queue_holder)

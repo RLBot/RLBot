@@ -126,7 +126,7 @@ namespace GameFunctions
 
 	
 
-	ByteBuffer fetchCapnp(boost::interprocess::shared_memory_object* shm, boost::interprocess::named_sharable_mutex* mtx)
+	ByteBuffer fetchByteBufferFromSharedMem(boost::interprocess::shared_memory_object* shm, boost::interprocess::named_sharable_mutex* mtx)
 	{
 		// The lock will be released when this object goes out of scope
 		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*mtx);
@@ -149,6 +149,7 @@ namespace GameFunctions
 		ByteBuffer buf;
 		buf.ptr = buffer;
 		buf.size = region.get_size();
+
 		return buf;
 	}
 
@@ -157,7 +158,7 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
 	{
-		return fetchCapnp(&gameTickShm, &gameTickMutex);
+		return fetchByteBufferFromSharedMem(&gameTickShm, &gameTickMutex);
 	}
 
 	static boost::interprocess::shared_memory_object fieldInfoShm(boost::interprocess::open_only, BoostConstants::FieldInfoSharedMemName, boost::interprocess::read_only);
@@ -165,7 +166,15 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoCapnp()
 	{
-		return fetchCapnp(&fieldInfoShm, &fieldInfoMutex);
+		return fetchByteBufferFromSharedMem(&fieldInfoShm, &fieldInfoMutex);
+	}
+
+	static boost::interprocess::shared_memory_object gameTickFlatShm(boost::interprocess::open_only, BoostConstants::GameDataFlatSharedMemName, boost::interprocess::read_only);
+	static boost::interprocess::named_sharable_mutex gameTickFlatMutex(boost::interprocess::open_only, BoostConstants::GameDataFlatMutexName);
+
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
+	{
+		return fetchByteBufferFromSharedMem(&gameTickFlatShm, &gameTickFlatMutex);
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateLiveDataPacket(LiveDataPacket* pLiveData)
@@ -229,6 +238,18 @@ namespace GameFunctions
 		delete[] buf.ptr;
 
 		return status;
+	}
+
+	// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
+	static interop_message_queue flatPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputFlatQueueName);
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* playerInput, int size)
+	{
+		bool sent = flatPlayerInput.try_send(playerInput, size, 0);
+		if (!sent) {
+			return RLBotCoreStatus::BufferOverfilled;
+		}
+		return RLBotCoreStatus::Success;
 	}
 
 	static interop_message_queue capnpPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputQueueName);
