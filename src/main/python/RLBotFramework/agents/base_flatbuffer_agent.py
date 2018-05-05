@@ -1,5 +1,5 @@
+import flatbuffers
 from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotMessages import flatbuffers
 from RLBotMessages.flat import ControllerState
 from RLBotMessages.flat import PlayerInput
 from RLBotMessages.flat import GameTickPacket
@@ -27,7 +27,11 @@ class BaseFlatbufferAgent(BaseAgent):
     """
 
     def get_output_flatbuffer(self, game_tick_flatbuffer):
-        friendly_state = self.get_output(game_tick_flatbuffer)
+
+        if game_tick_flatbuffer is None or game_tick_flatbuffer.PlayersLength() - 1 < self.index:
+            friendly_state = SimpleControllerState()
+        else:
+            friendly_state = self.get_output(game_tick_flatbuffer)
 
         builder = flatbuffers.Builder(0)
 

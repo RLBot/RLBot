@@ -235,6 +235,7 @@ class BotManagerProto(BotManager):
     def prepare_for_run(self):
         pass
 
+
 class BotManagerFlatbuffer(BotManager):
     def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
                  agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
@@ -253,7 +254,10 @@ class BotManagerFlatbuffer(BotManager):
         self.game_interface.update_player_input_flat(player_input)
 
     def get_game_time(self):
-        return self.game_tick_flat.GameInfo().SecondsElapsed()
+        try:
+            return self.game_tick_flat.GameInfo().SecondsElapsed()
+        except AttributeError:
+            return 0.0
 
     def pull_data_from_game(self):
         self.game_tick_flat = self.game_interface.update_live_data_flat()

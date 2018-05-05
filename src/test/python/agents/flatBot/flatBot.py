@@ -10,7 +10,7 @@ class FlatBot(BaseFlatbufferAgent):
 
         controller_state = SimpleControllerState()
 
-        if packet.PlayersLength() - 1 < self.index or not packet.Ball():
+        if packet.Ball() is None:  # This happens during replays
             return controller_state
 
         ball_location = Vector2(packet.Ball().Physics().Location().X(), packet.Ball().Physics().Location().Y())
