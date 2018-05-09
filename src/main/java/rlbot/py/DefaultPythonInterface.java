@@ -1,6 +1,6 @@
 package rlbot.py;
 
-import rlbot.Bot;
+import rlbot.ProtoBot;
 import rlbot.manager.BotManager;
 
 /**
@@ -30,5 +30,5 @@ public abstract class DefaultPythonInterface implements PythonInterface {
         botManager.retireBot(index);
     }
 
-    protected abstract Bot initBot(final int index, final String botType, final int team);
+    protected abstract ProtoBot initBot(final int index, final String botType, final int team);
 }

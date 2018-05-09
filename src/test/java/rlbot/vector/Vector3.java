@@ -19,6 +19,11 @@ public class Vector3 {
         return new Vector3(-vec.getX(), vec.getY(), vec.getZ());
     }
 
+    public static Vector3 fromFlatbuffer(rlbot.flat.Vector3 vec) {
+        // Invert the X value so that the axes make more sense.
+        return new Vector3(-vec.x(), vec.y(), vec.z());
+    }
+
     public Vector3() {
         this(0, 0, 0);
     }
