@@ -1,9 +1,9 @@
 package rlbot.manager;
 
-import rlbot.ProtoBot;
 import rlbot.ControllerState;
-import rlbot.api.GameData;
+import rlbot.FlatBot;
 import rlbot.cpp.RLBotDll;
+import rlbot.flat.GameTickPacket;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,21 +11,21 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class BotManager {
+public class FlatBotManager {
 
     private final Map<Integer, BotProcess> botProcesses = new HashMap<>();
 
     private boolean keepRunning;
 
     private final Object dinnerBell = new Object();
-    private GameData.GameTickPacket latestPacket;
+    private GameTickPacket latestPacket;
 
-    public void ensureBotRegistered(final int index, final Supplier<ProtoBot> botSupplier) {
+    public void ensureBotRegistered(final int index, final Supplier<FlatBot> botSupplier) {
         if (botProcesses.containsKey(index)) {
             return;
         }
 
-        final ProtoBot bot = botSupplier.get();
+        final FlatBot bot = botSupplier.get();
 
         botProcesses.computeIfAbsent(index, (idx) -> {
             final AtomicBoolean runFlag = new AtomicBoolean(true);
@@ -35,7 +35,7 @@ public class BotManager {
         });
     }
 
-    private void doRunBot(final ProtoBot bot, final int index, final AtomicBoolean runFlag) {
+    private void doRunBot(final FlatBot bot, final int index, final AtomicBoolean runFlag) {
         while (keepRunning && runFlag.get()) {
             try {
                 synchronized (dinnerBell) {
@@ -43,7 +43,7 @@ public class BotManager {
                 }
                 if (latestPacket != null) {
                     ControllerState controllerState = bot.processInput(latestPacket);
-                    RLBotDll.setPlayerInputProtobuf(controllerState, index);
+                    RLBotDll.setPlayerInputFlatbuffer(controllerState, index);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -66,7 +66,7 @@ public class BotManager {
         while (keepRunning) {
 
             try {
-                latestPacket = RLBotDll.getProtobufPacket();
+                latestPacket = RLBotDll.getFlatbufferPacket();
                 synchronized (dinnerBell) {
                     dinnerBell.notifyAll();
                 }

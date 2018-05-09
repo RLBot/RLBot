@@ -1,11 +1,8 @@
 package rlbot.output;
 
-import rlbot.api.GameData;
+import rlbot.ControllerState;
 
-public class ControlsOutput {
-
-    // Slide to avoid sending zero bytes. TODO: remove this temporary hack once the framework can handle zero byte output.
-    public static final ControlsOutput NO_OUTPUT = new ControlsOutput().withSlide();
+public class ControlsOutput implements ControllerState {
 
     // 0 is straight, -1 is hard left, 1 is hard right.
     private float steer;
@@ -88,16 +85,43 @@ public class ControlsOutput {
         return Math.max(-1, Math.min(1, value));
     }
 
-    public GameData.ControllerState toControllerState() {
-        return GameData.ControllerState.newBuilder()
-                .setThrottle(throttle)
-                .setSteer(steer)
-                .setPitch(pitch)
-                .setYaw(yaw)
-                .setRoll(roll)
-                .setBoost(boostDepressed)
-                .setHandbrake(slideDepressed)
-                .setJump(jumpDepressed)
-                .build();
+    @Override
+    public float getSteer() {
+        return steer;
+    }
+
+    @Override
+    public float getThrottle() {
+        return throttle;
+    }
+
+    @Override
+    public float getPitch() {
+        return pitch;
+    }
+
+    @Override
+    public float getYaw() {
+        return yaw;
+    }
+
+    @Override
+    public float getRoll() {
+        return roll;
+    }
+
+    @Override
+    public boolean holdJump() {
+        return jumpDepressed;
+    }
+
+    @Override
+    public boolean holdBoost() {
+        return boostDepressed;
+    }
+
+    @Override
+    public boolean holdHandbrake() {
+        return slideDepressed;
     }
 }
