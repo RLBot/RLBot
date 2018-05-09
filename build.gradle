@@ -1,8 +1,3 @@
-group 'rlbotofficial'
-version '0.0.1'
-
-import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
-
 buildscript {
     repositories {
         jcenter()
@@ -16,10 +11,14 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.jfrog.bintray" version "1.7"
+}
+
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
 apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'  // Needed to get jitpack to work.
-apply plugin: "io.netifi.flatbuffers"
+apply plugin: 'io.netifi.flatbuffers'
 
 repositories {
     jcenter()
@@ -35,6 +34,10 @@ dependencies {
     testRuntime files('src/main/python/RLBotFramework/dll')
 }
 
+project.setGroup('org.rlbot.commons')
+project.setVersion('0.0.1')
+
+import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 def pythonRoot = './src/main/python/'
 def protoVersion = '2.6.1'
 
@@ -212,9 +215,28 @@ publishing {
             artifact (pythonZip) {
                 classifier = 'python'
             }
-            groupId group
-            artifactId 'RLBotFramework'
-            version version
+            groupId project.getGroup()
+            artifactId 'framework'
+            version project.getVersion()
+        }
+    }
+}
+
+Properties localProperties = new Properties()
+localProperties.load(new FileInputStream('local.properties'))
+
+bintray {
+    user = 'rlbotofficial'
+    key = localProperties.getProperty("bintray.apikey")
+    publications = ['Main']
+    pkg {
+        repo = 'RLBotMaven'
+        name = 'rlbot-framework'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/RLBot/RLBot.git'
+        version {
+            name = project.getVersion()
+            released = new Date()
         }
     }
 }
