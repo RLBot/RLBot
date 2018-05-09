@@ -5,6 +5,7 @@ import sys
 import time
 
 from protobuf import game_data_pb2
+from RLBotMessages.flat import GameTickPacket as GameTickPacketFlat
 from RLBotFramework.utils.class_importer import get_python_root
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
@@ -44,6 +45,10 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
+        func = self.game.UpdateLiveDataPacketFlatbuffer
+        func.argtypes = []
+        func.restype = ByteBuffer
+
         # start match
         func = self.game.StartMatch
         func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
@@ -56,6 +61,11 @@ class GameInterface:
 
         # update player input
         func = self.game.UpdatePlayerInputProto
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        func.restype = ctypes.c_int
+
+        # update player input
+        func = self.game.UpdatePlayerInputFlatbuffer
         func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
 
@@ -187,6 +197,11 @@ class GameInterface:
         rlbot_status = self.game.UpdatePlayerInputProto(serialized, byte_size)
         self.game_status(None, rlbot_status)
 
+    def update_player_input_flat(self, player_input_builder):
+        buf = player_input_builder.Output()
+        rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
+        self.game_status(None, rlbot_status)
+
     def update_live_data_proto(self):
         byte_buffer = self.game.UpdateLiveDataPacketProto()
         proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
@@ -195,3 +210,12 @@ class GameInterface:
         self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
         self.game_status(None, "Success")
         return packet
+
+    def update_live_data_flat(self):
+        byte_buffer = self.game.UpdateLiveDataPacketFlatbuffer()
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            packet = GameTickPacketFlat.GameTickPacket.GetRootAsGameTickPacket(proto_string, 0)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            self.game_status(None, "Success")
+            return packet

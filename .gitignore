@@ -121,3 +121,8 @@ ENV/
 
 # Protobuf files copied from dependencies
 /src/main/python/protobuf
+/src/generated
+/src/main/python/RLBotMessages/flat
+
+# File with api keys, passwords, etc
+local.properties

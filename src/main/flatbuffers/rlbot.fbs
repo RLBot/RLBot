@@ -1,0 +1,188 @@
+
+namespace rlbot.flat;
+
+table ControllerState {
+  /// -1 for full reverse, 1 for full forward
+  throttle:float;
+
+  /// -1 for full left, 1 for full right
+  steer:float;
+
+  /// -1 for nose down, 1 for nose up
+  pitch:float;
+
+  /// -1 for full left, 1 for full right
+  yaw:float;
+
+  /// -1 for roll left, 1 for roll right
+  roll:float;
+
+  /// true if you want to press the jump button
+  jump:bool;
+
+  /// true if you want to press the boost button
+  boost:bool;
+
+  /// true if you want to press the handbrake button
+  handbrake:bool;
+}
+
+table PlayerInput {
+  playerIndex:int;
+  controllerState:ControllerState;
+}
+
+root_type PlayerInput;
+
+// Values are in "unreal units"
+struct Vector3 {
+  x:float;
+  y:float;
+  z:float;
+}
+
+// Values are in radians
+struct Rotator {
+  pitch:float;
+  yaw:float;
+  roll:float;
+}
+
+table Touch {
+  /// The name of the player involved with the touch.
+  playerName:string;
+
+  /// Seconds that had elapsed in the game when the touch occurred.
+  gameSeconds:float;
+
+  /// The point of contact for the touch.
+  location:Vector3;
+
+  /// The direction of the touch.
+  normal:Vector3;
+}
+
+table ScoreInfo {
+  score:int;
+  goals:int;
+  ownGoals:int;
+  assists:int;
+  saves:int;
+  shots:int;
+  demolitions:int;
+}
+
+table Physics {
+  location:Vector3;
+  rotation:Rotator;
+  velocity:Vector3;
+  angularVelocity:Vector3;
+}
+
+table PlayerInfo {
+  physics:Physics;
+  scoreInfo:ScoreInfo;
+  isDemolished:bool;
+  hasWheelContact:bool;
+  isSupersonic:bool;
+  isBot:bool;
+  jumped:bool;
+  doubleJumped:bool;
+  name:string;
+  team:int;
+  boost:int;
+}
+
+table BallInfo {
+  physics:Physics;
+  latestTouch:Touch;
+}
+
+table BoostPadState {
+  /// True if the boost can be picked up
+  isActive:bool;
+
+  /// The number of seconds since the boost has been picked up, or 0.0 if the boost is active.
+  timer:float;
+}
+
+table GameInfo {
+  secondsElapsed:float;
+  gameTimeRemaining:float;
+  isOvertime:bool;
+  isUnlimitedTime:bool;
+  isRoundActive:bool;
+  isKickoffPause:bool;
+  isMatchEnded:bool;
+}
+
+table GameTickPacket {
+  players:[PlayerInfo];
+  boostPadStates:[BoostPadState];
+  ball:BallInfo;
+  gameInfo:GameInfo;
+}
+
+root_type GameTickPacket;
+
+// This section deals with arena information, e.g. where the goals and boost locations are.
+
+table GoalInfo {
+  teamNum:int;
+  location:Vector3;
+  direction:Vector3;
+}
+
+table BoostPad {
+  location:Vector3;
+  isFullBoost:bool;
+}
+
+table FieldInfo {
+  boostPads:[BoostPad]; // These will be sorted according to (y * 100 + x), and BoostInfo will be provided in the same order.
+  goals:[GoalInfo];
+}
+
+root_type FieldInfo;
+
+// This section deals with desired game state, useful for teleporting cars around, etc.
+
+struct Float {
+  val:float;
+}
+
+// Values are in "unreal units"
+table Vector3Partial {
+  x:Float;
+  y:Float;
+  z:Float;
+}
+
+// Values are in radians
+table RotatorPartial {
+  pitch:Float;
+  yaw:Float;
+  roll:Float;
+}
+
+table DesiredPhysics {
+  location:Vector3Partial;
+  rotation:RotatorPartial;
+  velocity:Vector3Partial;
+  angularVelocity:Vector3Partial;
+}
+
+table DesiredBallState {
+  physics:DesiredPhysics;
+}
+
+table DesiredCarState {
+  physics:DesiredPhysics;
+}
+
+table DesiredGameState {
+  ballState:[DesiredBallState];
+  carSates:[DesiredCarState];
+}
+
+root_type DesiredGameState;

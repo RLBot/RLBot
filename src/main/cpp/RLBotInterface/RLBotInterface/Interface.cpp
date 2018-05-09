@@ -142,6 +142,7 @@ namespace Interface
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID)
 {
+
 	UNREFERENCED_PARAMETER(hinstDLL);
 
 	if (fdwReason == DLL_PROCESS_ATTACH)
