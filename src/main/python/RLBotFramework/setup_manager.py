@@ -1,4 +1,3 @@
-import configparser
 import msvcrt
 import multiprocessing as mp
 import os
@@ -6,7 +5,6 @@ import queue
 
 import time
 
-from RLBotFramework.agents import bot_manager
 from RLBotFramework.base_extension import BaseExtension
 from RLBotFramework.utils.class_importer import import_class_with_base, import_agent, get_python_root
 from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
@@ -15,6 +13,10 @@ from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout,
 from RLBotFramework.utils.structures.game_interface import GameInterface
 from RLBotFramework.utils.structures.quick_chats import QuickChatManager
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
+from RLBotFramework.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
+from RLBotFramework.botmanager.bot_manager_independent import BotManagerIndependent
+from RLBotFramework.botmanager.bot_manager_proto import BotManagerProto
+from RLBotFramework.botmanager.bot_manager_struct import BotManagerStruct
 
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
@@ -149,16 +151,16 @@ class SetupManager:
         agent_class_wrapper = import_agent(python_file)
 
         if hasattr(agent_class_wrapper.get_loaded_class(), "run_independently"):
-            bm = bot_manager.BotManagerIndependent(terminate_event, callback_event, config_file, name, team,
-                                                   index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+            bm = BotManagerIndependent(terminate_event, callback_event, config_file, name, team,
+                                       index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
 
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_proto"):
-            bm = bot_manager.BotManagerProto(terminate_event, callback_event, config_file, name, team,
-                                             index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+            bm = BotManagerProto(terminate_event, callback_event, config_file, name, team,
+                                 index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
-            bm = bot_manager.BotManagerFlatbuffer(terminate_event, callback_event, config_file, name, team,
-                                             index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+            bm = BotManagerFlatbuffer(terminate_event, callback_event, config_file, name, team,
+                                      index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         else:
-            bm = bot_manager.BotManagerStruct(terminate_event, callback_event, config_file, name, team,
-                                              index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+            bm = BotManagerStruct(terminate_event, callback_event, config_file, name, team,
+                                  index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         bm.run()
