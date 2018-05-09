@@ -1,0 +1,1 @@
+I followed the instructions at https://capnproto.org/install.html to generate these files.
