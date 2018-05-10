@@ -38,7 +38,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="cfg_file_path_lineedit"/>
+        <widget class="QLineEdit" name="cfg_file_path_lineedit">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="cfg_load_pushbutton">

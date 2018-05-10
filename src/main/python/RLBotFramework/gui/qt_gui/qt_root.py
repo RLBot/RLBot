@@ -8,6 +8,7 @@ from RLBotFramework.gui.qt_gui.dialogs import CarCustomisationDialog, AgentCusto
 from RLBotFramework.parsing.rlbot_config_parser import TEAM_CONFIGURATION_HEADER
 from RLBotFramework.setup_manager import SetupManager
 from RLBotFramework.parsing.match_settings_config_parser import *
+from RLBotFramework.utils.class_importer import get_python_root
 
 class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
 
@@ -30,7 +31,7 @@ class RLBotQTGui(QtWidgets.QMainWindow, Ui_MainWindow, BaseGui):
         self.current_bot = None
 
         try:
-            super().load_overall_config("rlbot.cfg")
+            super().load_overall_config(os.path.realpath("rlbot.cfg"))
             self.statusbar.showMessage("Loaded CFG.")
         except FileNotFoundError:
             self.statusbar.showMessage("Unable to load overall config")

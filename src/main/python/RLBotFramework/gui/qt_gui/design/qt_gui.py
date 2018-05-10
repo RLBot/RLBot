@@ -30,6 +30,7 @@ class Ui_MainWindow(object):
         self.label_6.setObjectName("label_6")
         self.horizontalLayout_9.addWidget(self.label_6)
         self.cfg_file_path_lineedit = QtWidgets.QLineEdit(self.groupBox_5)
+        self.cfg_file_path_lineedit.setReadOnly(True)
         self.cfg_file_path_lineedit.setObjectName("cfg_file_path_lineedit")
         self.horizontalLayout_9.addWidget(self.cfg_file_path_lineedit)
         self.cfg_load_pushbutton = QtWidgets.QPushButton(self.groupBox_5)
