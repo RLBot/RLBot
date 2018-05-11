@@ -4,12 +4,13 @@ import subprocess
 import sys
 import time
 
+from RLBotFramework.utils.structures.rendering_manager import RenderingManager
 from protobuf import game_data_pb2
+from RLBotMessages.flat import GameTickPacket as GameTickPacketFlat
 from RLBotFramework.utils.class_importer import get_python_root
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
-from RLBotFramework.utils.structures.rendering_manager import RenderingManager
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
 
 
@@ -46,6 +47,10 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
+        func = self.game.UpdateLiveDataPacketFlatbuffer
+        func.argtypes = []
+        func.restype = ByteBuffer
+
         # start match
         func = self.game.StartMatch
         func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
@@ -58,17 +63,18 @@ class GameInterface:
 
         # update player input
         func = self.game.UpdatePlayerInputProto
-        func.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        func.restype = ctypes.c_int
+
+        # update player input
+        func = self.game.UpdatePlayerInputFlatbuffer
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
 
         # send chat
         func = self.game.SendChat
         func.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_bool, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
-
-        # not implemented in dll yet
-        # func = self.game.ToggleNullRenderer
-        # func.argtypes = [ctypes.c_bool]
 
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
@@ -185,9 +191,19 @@ class GameInterface:
         self.extension = extension
 
     def update_controller_state(self, controller_state, index):
-        byte_size = controller_state.ByteSize()
-        serialized = controller_state.SerializeToString()
-        rlbot_status = self.game.UpdatePlayerInputProto(serialized, byte_size, index)
+
+        player_input = game_data_pb2.PlayerInput()
+        player_input.controller_state.CopyFrom(controller_state)
+        player_input.player_index = index
+
+        byte_size = player_input.ByteSize()
+        serialized = player_input.SerializeToString()
+        rlbot_status = self.game.UpdatePlayerInputProto(serialized, byte_size)
+        self.game_status(None, rlbot_status)
+
+    def update_player_input_flat(self, player_input_builder):
+        buf = player_input_builder.Output()
+        rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
 
     def update_live_data_proto(self):
@@ -199,5 +215,11 @@ class GameInterface:
         self.game_status(None, "Success")
         return packet
 
-    def toggle_null_renderer(self, should_enable):
-        self.game.ToggleNullRenderer(should_enable)
+    def update_live_data_flat(self):
+        byte_buffer = self.game.UpdateLiveDataPacketFlatbuffer()
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            packet = GameTickPacketFlat.GameTickPacket.GetRootAsGameTickPacket(proto_string, 0)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            self.game_status(None, "Success")
+            return packet

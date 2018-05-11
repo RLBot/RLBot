@@ -2,6 +2,7 @@ package rlbot.input;
 
 
 import rlbot.api.GameData;
+import rlbot.flat.PlayerInfo;
 import rlbot.vector.Vector3;
 
 public class CarOrientation {
@@ -19,9 +20,16 @@ public class CarOrientation {
 
     public static CarOrientation fromPlayerInfo(final GameData.PlayerInfo playerInfo) {
         return convert(
-                playerInfo.getRotation().getPitch(),
-                playerInfo.getRotation().getYaw(),
-                playerInfo.getRotation().getRoll());
+                playerInfo.getPhysics().getRotation().getPitch(),
+                playerInfo.getPhysics().getRotation().getYaw(),
+                playerInfo.getPhysics().getRotation().getRoll());
+    }
+
+    public static CarOrientation fromFlatbuffer(PlayerInfo playerInfo) {
+        return convert(
+                playerInfo.physics().rotation().pitch(),
+                playerInfo.physics().rotation().yaw(),
+                playerInfo.physics().rotation().roll());
     }
 
     /**

@@ -1,11 +1,19 @@
 #include <CapnProto\capnproto.hpp>
-#include <Protobuf\ProtoConversions.hpp>
+#include "game_data.pb.h"
 #include <DebugHelper.hpp>
 #include <boost\interprocess\ipc\message_queue.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost\interprocess\sync\named_sharable_mutex.hpp>
+#include <boost\interprocess\sync\sharable_lock.hpp>
 
 #include "GameFunctions.hpp"
+#include <BoostConstants\BoostConstants.hpp>
 
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
+
+#include <chrono>
+#include <thread>
 
 /*
 This typedef is advice from one of the boost maintainers on how to make message queues work between 32 and 64 bit processes.
@@ -116,47 +124,110 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
+	
+
+	ByteBuffer fetchByteBufferFromSharedMem(boost::interprocess::shared_memory_object* shm, boost::interprocess::named_sharable_mutex* mtx)
+	{
+		// The lock will be released when this object goes out of scope
+		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*mtx);
+
+		boost::interprocess::offset_t size;
+		shm->get_size(size);
+		if (size == 0)
+		{
+			// Bail out early because mapped_region will freak out if size is zero.
+			ByteBuffer empty;
+			empty.ptr = new char[1]; // Arbitrary valid pointer to an array. We'll be calling delete[] on this later.
+			empty.size = 0;
+			return empty;
+		}
+
+		boost::interprocess::mapped_region region(*shm, boost::interprocess::read_only);
+		unsigned char *buffer = new unsigned char[region.get_size()];
+		memcpy(buffer, region.get_address(), region.get_size());
+
+		ByteBuffer buf;
+		buf.ptr = buffer;
+		buf.size = region.get_size();
+
+		return buf;
+	}
+
+	static boost::interprocess::shared_memory_object gameTickShm(
+		boost::interprocess::open_only, BoostConstants::GameDataSharedMemName, boost::interprocess::read_only);
+
+	static boost::interprocess::named_sharable_mutex gameTickMutex(
+		boost::interprocess::open_only, BoostConstants::GameDataMutexName);
+
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
+	{
+		return fetchByteBufferFromSharedMem(&gameTickShm, &gameTickMutex);
+	}
+
+	static boost::interprocess::shared_memory_object fieldInfoShm(
+		boost::interprocess::open_only, BoostConstants::FieldInfoSharedMemName, boost::interprocess::read_only);
+
+	static boost::interprocess::named_sharable_mutex fieldInfoMutex(
+		boost::interprocess::open_only, BoostConstants::FieldInfoMutexName);
+
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoCapnp()
+	{
+		return fetchByteBufferFromSharedMem(&fieldInfoShm, &fieldInfoMutex);
+	}
+
+	static boost::interprocess::shared_memory_object gameTickFlatShm(
+		boost::interprocess::open_only, BoostConstants::GameDataFlatSharedMemName, boost::interprocess::read_only);
+
+	static boost::interprocess::named_sharable_mutex gameTickFlatMutex(
+		boost::interprocess::open_only, BoostConstants::GameDataFlatMutexName);
+
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
+	{
+		return fetchByteBufferFromSharedMem(&gameTickFlatShm, &gameTickFlatMutex);
+	}
+
+	static boost::interprocess::shared_memory_object fieldInfoFlatShm(
+		boost::interprocess::open_only, BoostConstants::FieldInfoFlatSharedMemName, boost::interprocess::read_only);
+
+	static boost::interprocess::named_sharable_mutex fieldInfoFlatMutex(
+		boost::interprocess::open_only, BoostConstants::FieldInfoFlatMutexName);
+
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
+	{
+		return fetchByteBufferFromSharedMem(&fieldInfoFlatShm, &fieldInfoFlatMutex);
+	}
+
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateLiveDataPacket(LiveDataPacket* pLiveData)
 	{
-		memcpy(pLiveData, &FileMappings::GetLiveData()->LiveDataPacket, sizeof(LiveDataPacket));
+		ByteBuffer capnp = UpdateLiveDataPacketCapnp();
+		CapnConversions::capnpGameTickToStruct(capnp, pLiveData);
+		delete[] capnp.ptr;
+
+		ByteBuffer fieldInfo = UpdateFieldInfoCapnp();
+		CapnConversions::applyFieldInfoToStruct(fieldInfo, pLiveData);
+		delete[] fieldInfo.ptr;
 
 		return RLBotCoreStatus::Success;
 	}
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketProto()
 	{
-		LiveDataPacket packet = LiveDataPacket();
-		UpdateLiveDataPacket(&packet);
+		ByteBuffer capnp = UpdateLiveDataPacketCapnp();
+		return CapnConversions::capnpGameTickToProtobuf(capnp);
+	}
 
-		rlbot::api::GameTickPacket* protoResult = ProtoConversions::convert(&packet);
-		int byte_size = protoResult->ByteSize();
-		void* proto_binary = malloc(byte_size);
-		protoResult->SerializeToArray(proto_binary, byte_size);
-
-		ByteBuffer byteBuffer;
-		byteBuffer.ptr = proto_binary;
-		byteBuffer.size = byte_size;
-
-		return byteBuffer;
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoProto()
+	{
+		ByteBuffer capnp = UpdateFieldInfoCapnp();
+		return CapnConversions::capnpFieldInfoToProtobuf(capnp);
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID)
 	{
 		rlbot::api::GameTickPacket* protoResult = &rlbot::api::GameTickPacket();
 		protoResult->ParseFromArray(gameTickPacket, protoSize);
-		LiveDataPacket* packet = &LiveDataPacket();
-		UpdateLiveDataPacket(packet);
-		RLBotCoreStatus status = ProtoConversions::convert(protoResult, packet);
 
-		if (status != RLBotCoreStatus::Success)
-			return status;
-
-		BEGIN_GAME_FUNCTION(SetGameStateMessage, pSetGameData);
-		REGISTER_CALLBACK(pSetGameData, callback, pID);
-
-		pSetGameData->GameState = *packet;
-
-		END_GAME_FUNCTION;
+		// TODO: convert to canproto and send to core via a message queue
 		return RLBotCoreStatus::Success;
 	}
 
@@ -189,20 +260,24 @@ namespace GameFunctions
 		return status;
 	}
 
-	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
+	// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
+	static interop_message_queue flatPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputFlatQueueName);
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* playerInput, int size)
 	{
-		LiveDataPacket packet = LiveDataPacket();
-		UpdateLiveDataPacket(&packet);
-		return CapnConversions::liveDataPacketToBuffer(&packet);
+		bool sent = flatPlayerInput.try_send(playerInput, size, 0);
+		if (!sent) {
+			return RLBotCoreStatus::BufferOverfilled;
+		}
+		return RLBotCoreStatus::Success;
 	}
 
-	static interop_message_queue capnpPlayerInput(boost::interprocess::open_only, "capnp_player_update_queue");
+	static interop_message_queue capnpPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputQueueName);
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
 	{
 		bool sent = capnpPlayerInput.try_send(controllerState, protoSize, 0);
 		if (!sent) {
-			DEBUG_LOG("Failed to send player input capnproto!\n", sent);
 			return RLBotCoreStatus::BufferOverfilled;
 		}
 		return RLBotCoreStatus::Success;
@@ -211,13 +286,6 @@ namespace GameFunctions
 	extern "C" void RLBOT_CORE_API Free(void* ptr)
 	{
 		free(ptr);
-	}
-
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateMatchDataPacket(MatchDataPacket* pMatchData)
-	{
-		memcpy(pMatchData, &FileMappings::GetMatchData()->MatchDataPacket, sizeof(MatchDataPacket));
-
-		return RLBotCoreStatus::Success;
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings, CallbackFunction callback, unsigned int* pID)

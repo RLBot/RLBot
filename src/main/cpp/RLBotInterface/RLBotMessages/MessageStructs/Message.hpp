@@ -10,7 +10,6 @@ enum MessageType
 	CallbackMessageType = 0,
 	StartMatchMessageType,
 	SendChatMessageType,
-	SetGameStateMessageType,
 	DrawLine2DMessageType,
 	DrawLine3DMessageType,
 	DrawLine2D_3DMessageType,

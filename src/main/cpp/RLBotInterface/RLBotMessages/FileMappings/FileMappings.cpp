@@ -44,16 +44,6 @@ namespace FileMappings
 		return &((GameInputData*)lpMappedInputData)->RenderInput;
 	}
 
-	LiveDataWrapper* GetLiveData()
-	{
-		return &((GameOutputData*)lpMappedOutputData)->LiveData;
-	}
-
-	MatchDataWrapper* GetMatchData()
-	{
-		return &((GameOutputData*)lpMappedOutputData)->MatchData;
-	}
-
 	CallbackOutput* GetCallbackOutput()
 	{
 		return &((GameOutputData*)lpMappedOutputData)->CallbackOutput;

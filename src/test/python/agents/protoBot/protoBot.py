@@ -12,10 +12,10 @@ class ProtoAtba(BaseProtoAgent):
         if len(game_tick_proto.players) - 1 < self.index:
             return controller_state
 
-        ball_location = Vector2(game_tick_proto.ball.location.x, game_tick_proto.ball.location.y)
+        ball_location = Vector2(game_tick_proto.ball.physics.location.x, game_tick_proto.ball.physics.location.y)
 
         my_car = game_tick_proto.players[self.index]
-        car_location = Vector2(my_car.location.x, my_car.location.y)
+        car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
 
@@ -65,8 +65,8 @@ class Vector2:
 
 
 def get_car_facing_vector(car):
-    pitch = car.rotation.pitch
-    yaw = car.rotation.yaw
+    pitch = car.physics.rotation.pitch
+    yaw = car.physics.rotation.yaw
 
     facing_x = math.cos(pitch) * math.cos(yaw)
     facing_y = math.cos(pitch) * math.sin(yaw)
