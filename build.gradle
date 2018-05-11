@@ -221,7 +221,7 @@ publishing {
         }
     }
 }
-/*
+
 Properties localProperties = new Properties()
 localProperties.load(new FileInputStream('local.properties'))
 
