@@ -121,3 +121,5 @@ ENV/
 
 # Protobuf files copied from dependencies
 /src/main/python/protobuf
+
+src/main/cpp/RLBotInterface/.vs/RLBotInterface/v15/.suo
