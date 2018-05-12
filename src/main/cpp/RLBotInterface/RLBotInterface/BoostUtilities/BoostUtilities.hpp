@@ -44,10 +44,8 @@ typedef boost::interprocess::message_queue_t< boost::interprocess::offset_ptr<vo
 												}
 
 namespace GameFunctions {
-	bool isValidName(wchar_t* pName);
-	RLBotCoreStatus checkPlayerConfiguration(PlayerConfiguration playerConfiguration[CONST_MaxPlayers], int numPlayers);
-	RLBotCoreStatus checkInputConfiguration(const PlayerInput& playerInput);
-	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset);
+
+	// Gets the next ByteBuffer from a boost shared memory with the given object and mutex
 	ByteBuffer fetchByteBufferFromSharedMem(boost::interprocess::shared_memory_object* shm, boost::interprocess::named_sharable_mutex* mtx);
 }
 

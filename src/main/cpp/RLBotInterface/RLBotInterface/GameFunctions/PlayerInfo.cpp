@@ -10,6 +10,14 @@
 
 namespace GameFunctions
 {
+	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
+	{
+		if (quickChatPreset < 0 || quickChatPreset > QuickChatPreset::MaxQuickChatPresets)
+			return RLBotCoreStatus::InvalidQuickChatPreset;
+
+		return RLBotCoreStatus::Success;
+	}
+
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback, unsigned int* pID)
 	{
 		RLBotCoreStatus status = checkQuickChatPreset(quickChatPreset);
@@ -28,6 +36,25 @@ namespace GameFunctions
 	}
 
 	// Player info
+	RLBotCoreStatus checkInputConfiguration(const PlayerInput& playerInput)
+	{
+		if (playerInput.Throttle < -1.0f || playerInput.Throttle > 1.0f)
+			return RLBotCoreStatus::InvalidThrottle;
+
+		if (playerInput.Steer < -1.0f || playerInput.Steer > 1.0f)
+			return RLBotCoreStatus::InvalidSteer;
+
+		if (playerInput.Pitch < -1.0f || playerInput.Pitch > 1.0f)
+			return RLBotCoreStatus::InvalidPitch;
+
+		if (playerInput.Yaw < -1.0f || playerInput.Yaw > 1.0f)
+			return RLBotCoreStatus::InvalidYaw;
+
+		if (playerInput.Roll < -1.0f || playerInput.Roll > 1.0f)
+			return RLBotCoreStatus::InvalidRoll;
+
+		return RLBotCoreStatus::Success;
+	}
 
 	// Ctypes
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(const PlayerInput& playerInput, int playerIndex)
