@@ -6,6 +6,14 @@
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "..\InterfaceBase\InterfaceBase.hpp"
 
+#include <boost\interprocess\ipc\message_queue.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost\interprocess\sync\named_sharable_mutex.hpp>
+#include <boost\interprocess\sync\sharable_lock.hpp>
+
+#include <BoostConstants\BoostConstants.hpp>
+
 
 
 /*

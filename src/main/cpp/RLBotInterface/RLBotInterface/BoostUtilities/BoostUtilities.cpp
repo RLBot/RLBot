@@ -4,6 +4,8 @@
 #include <boost\interprocess\sync\named_sharable_mutex.hpp>
 #include <boost\interprocess\sync\sharable_lock.hpp>
 
+#include "BoostUtilities.hpp"
+
 
 namespace GameFunctions {
 	bool isValidName(wchar_t* pName)
