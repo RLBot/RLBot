@@ -128,3 +128,4 @@ src/main/cpp/RLBotInterface/.vs/RLBotInterface/
 
 # File with api keys, passwords, etc
 local.properties
+.vs/
