@@ -15,8 +15,90 @@
 #include <chrono>
 #include <thread>
 
+/*
+This typedef is advice from one of the boost maintainers on how to make message queues work between 32 and 64 bit processes.
+It looks pretty janky. I believe the reason it's not "fixed" in the library is that it can't be done consistently on windows vs linux.
+
+"In general I regret putting message_queue in Interprocess, as IMHO it's not good enough to be in the library. Some people find it useful, though."
+https://lists.boost.org/Archives/boost/2014/06/214746.php
+*/
+typedef boost::interprocess::message_queue_t< boost::interprocess::offset_ptr<void, boost::int32_t, boost::uint64_t>> interop_message_queue;
+
+
+#define BEGIN_GAME_FUNCTION(structName, name)	GameInput* pGameInput = FileMappings::GetGameInput(); \
+												pGameInput->Lock(); \
+												CHECK_BUFFER_OVERFILLED(pGameInput, true); \
+												BEGIN_FUNCTION(structName, name, pGameInput)
+
+#define END_GAME_FUNCTION						END_FUNCTION(pGameInput); \
+												pGameInput->Unlock()
+
+#define REGISTER_CALLBACK(name, callback, id)	if (callback) \
+												{ \
+													CallbackProcessor::RegisterCallback(name->ID, callback); \
+												} \
+												if (id) \
+												{ \
+													*id = name->ID; \
+												}
+
 namespace GameFunctions
 {
+	RLBotCoreStatus checkInputConfiguration(const PlayerInput& playerInput)
+	{
+		if (playerInput.Throttle < -1.0f || playerInput.Throttle > 1.0f)
+			return RLBotCoreStatus::InvalidThrottle;
+
+		if (playerInput.Steer < -1.0f || playerInput.Steer > 1.0f)
+			return RLBotCoreStatus::InvalidSteer;
+
+		if (playerInput.Pitch < -1.0f || playerInput.Pitch > 1.0f)
+			return RLBotCoreStatus::InvalidPitch;
+
+		if (playerInput.Yaw < -1.0f || playerInput.Yaw > 1.0f)
+			return RLBotCoreStatus::InvalidYaw;
+
+		if (playerInput.Roll < -1.0f || playerInput.Roll > 1.0f)
+			return RLBotCoreStatus::InvalidRoll;
+
+		return RLBotCoreStatus::Success;
+	}
+
+	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
+	{
+		if (quickChatPreset < 0 || quickChatPreset > QuickChatPreset::MaxQuickChatPresets)
+			return RLBotCoreStatus::InvalidQuickChatPreset;
+
+		return RLBotCoreStatus::Success;
+	}
+
+	ByteBuffer fetchByteBufferFromSharedMem(boost::interprocess::shared_memory_object* shm, boost::interprocess::named_sharable_mutex* mtx)
+	{
+		// The lock will be released when this object goes out of scope
+		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*mtx);
+
+		boost::interprocess::offset_t size;
+		shm->get_size(size);
+		if (size == 0)
+		{
+			// Bail out early because mapped_region will freak out if size is zero.
+			ByteBuffer empty;
+			empty.ptr = new char[1]; // Arbitrary valid pointer to an array. We'll be calling delete[] on this later.
+			empty.size = 0;
+			return empty;
+		}
+
+		boost::interprocess::mapped_region region(*shm, boost::interprocess::read_only);
+		unsigned char *buffer = new unsigned char[region.get_size()];
+		memcpy(buffer, region.get_address(), region.get_size());
+
+		ByteBuffer buf;
+		buf.ptr = buffer;
+		buf.size = region.get_size();
+
+		return buf;
+	}
+
 	static boost::interprocess::shared_memory_object gameTickShm(
 		boost::interprocess::open_only, BoostConstants::GameDataSharedMemName, boost::interprocess::read_only);
 
@@ -104,7 +186,7 @@ namespace GameFunctions
 		::capnp::MallocMessageBuilder message;
 		rlbot::PlayerInput::Builder capnInput = message.initRoot<rlbot::PlayerInput>();
 		capnInput.setPlayerIndex(protoInput.player_index());
-		
+
 		rlbot::ControllerState::Builder capnState = capnInput.initControllerState();
 		capnState.setBoost(protoState.boost());
 		capnState.setHandbrake(protoState.handbrake());
