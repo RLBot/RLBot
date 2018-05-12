@@ -7,7 +7,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.4'
-        classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:1.0.4"
     }
 }
 
@@ -16,8 +15,7 @@ plugins {
 }
 
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
-apply plugin: 'maven-publish'  // Needed to get jitpack to work.
-apply plugin: 'io.netifi.flatbuffers'
+apply plugin: 'maven-publish'  // Needed for publishing to bintray.
 
 repositories {
     jcenter()
@@ -34,7 +32,6 @@ dependencies {
 project.setGroup('org.rlbot.commons')
 project.setVersion('0.0.1')
 
-import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 def parentFolder = new File(new File('.').getCanonicalPath()).getParentFile().absolutePath
 def defaultCoreFolder = 'rlbot-core'
 def pythonRoot = './src/main/python/'
@@ -48,33 +45,25 @@ sourceSets {
     }
 }
 
-// After protobuf is generated, copy the generated file to its home in the python folder.
+// After flatbuffers are generated, copy the generated file to its home in the python folder.
 task copyFlatbuffersPython(type: Copy) {
     dependsOn 'generateFlatbuffersPython'
     from fileTree('src/generated/python/flatbuffers/rlbot')
     into pythonRoot + 'RLBotMessages'
 }
 
-flatbuffers {
-    flatcPath = 'src/main/flatbuffers'
+def flatbufDir = "./src/main/flatbuffers/"
+
+task generateFlatbuffersJava(type: Exec) {
+    commandLine flatbufDir + "flatc.exe", "--java", "-o", "./src/generated/java/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
-task generateFlatbuffersJava(type: FlatBuffers) {
-    inputDir = file("src/main/flatbuffers")
-    outputDir = file("src/generated/java/flatbuffers")
-    language = 'java'
+task generateFlatbuffersPython(type: Exec) {
+    commandLine flatbufDir + "flatc.exe", "--python", "-o", "./src/generated/python/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
-task generateFlatbuffersPython(type: FlatBuffers) {
-    inputDir = file("src/main/flatbuffers")
-    outputDir = file("src/generated/python/flatbuffers")
-    language = 'python'
-}
-
-task generateFlatbuffersCpp(type: FlatBuffers) {
-    inputDir = file("src/main/flatbuffers")
-    outputDir = file("src/generated/cpp/flatbuffers")
-    language = 'cpp'
+task generateFlatbuffersCpp(type: Exec) {
+    commandLine flatbufDir + "flatc.exe", "--cpp", "-o", "./src/generated/cpp/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
 // Useful standalone task for setting up visual studio development environment
