@@ -4,6 +4,7 @@ import subprocess
 import sys
 import time
 
+from RLBotFramework.utils.rendering.rendering_group_manager import RenderingGroupManager
 from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
 from protobuf import game_data_pb2
 from RLBotMessages.flat import GameTickPacket as GameTickPacketFlat
@@ -32,7 +33,7 @@ class GameInterface:
     def __init__(self, logger):
         self.logger = logger
         self.dll_path = os.path.join(self.get_dll_path(), 'RLBot_Core_Interface.dll')
-        self.renderer = RenderingManager()
+        self.renderer = RenderingGroupManager()
         # wait for the dll to load
 
     def setup_function_types(self):

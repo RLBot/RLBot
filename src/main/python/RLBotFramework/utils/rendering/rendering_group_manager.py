@@ -71,6 +71,7 @@ class RenderingGroupManager(RenderingManager):
         self.game.DrawString2D(vec, scale_x, scale_y, color, text)
 
     def create_color(self, alpha, red, green, blue):
+        print('please stop')
         colorBuilder = self.builder
         Color.ColorStart(colorBuilder)
         Color.ColorAddA(colorBuilder, alpha)

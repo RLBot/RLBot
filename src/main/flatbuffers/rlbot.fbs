@@ -199,10 +199,10 @@ enum RenderType : byte {
 }
 
 table Color {
-    a: byte = 0;
-    r: byte = 0;
-    g: byte = 0;
-    b: byte = 0;
+    a: ubyte = 0;
+    r: ubyte = 0;
+    g: ubyte = 0;
+    b: ubyte = 0;
 }
 
 table RenderMessage {

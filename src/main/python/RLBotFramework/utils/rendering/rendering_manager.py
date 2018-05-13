@@ -99,12 +99,7 @@ class RenderingManager:
         return color
 
     def black(self):
-        color = Color()
-        color.a = 255
-        color.r = 0
-        color.g = 0
-        color.b = 0
-        return color
+        return self.create_color(255, 0, 0, 0)
 
     def get_render_functions(self):
         """
