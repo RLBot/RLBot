@@ -38,6 +38,8 @@ project.setGroup('org.rlbot.commons')
 project.setVersion('0.0.1')
 
 import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
+def parentFolder = new File(new File('.').getCanonicalPath()).getParentFile().absolutePath
+def defaultCoreFolder = 'rlbot-core'
 def pythonRoot = './src/main/python/'
 def protoVersion = '2.6.1'
 
@@ -150,10 +152,24 @@ task assembleProtos {
     dependsOn 'generateFlatbuffersCpp'
 }
 
+def counter = 0
+String regex = /(?i)rlbot[-_ ]core/
+new File(parentFolder).eachDir{
+    if (it.name ==~ regex) {
+        if (counter > 0) {
+            throw new Exception('More than one core directory found please move one of them.')
+        }
+        defaultCoreFolder = it.absolutePath
+        print('Found dll folder ')
+        println(defaultCoreFolder)
+        counter++
+    }
+}
+
 // This is just a convenience task for developers.
 task copyDlls(type: Copy) {
     from files('src/main/cpp/RLBotInterface/RLBotInterface/Bin/x64/Debug/RLBotInterface.dll',
-            '../rlbot-core/RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll')
+            defaultCoreFolder + '/RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll')
     into pythonRoot + 'RLBotFramework/dll'
     rename('RLBot Core.dll', 'RLBot_Core.dll')
     rename('RLBotInterface.dll', 'RLBot_Core_Interface.dll')
