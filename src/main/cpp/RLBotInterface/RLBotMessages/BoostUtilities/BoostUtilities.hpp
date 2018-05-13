@@ -12,7 +12,7 @@
 #include <boost\interprocess\sync\named_sharable_mutex.hpp>
 #include <boost\interprocess\sync\sharable_lock.hpp>
 
-#include <BoostConstants\BoostConstants.hpp>
+#include <BoostUtilities\BoostConstants.hpp>
 
 
 

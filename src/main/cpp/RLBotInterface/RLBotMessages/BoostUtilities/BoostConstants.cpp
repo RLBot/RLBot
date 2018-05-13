@@ -1,5 +1,6 @@
 // A list of constants used by boost
-// Typically each boost queue has a shared memory and a mutex
+// Shared Memory has a shared memory name and a mutex name
+// Boost queues only have a queue name
 // This specifies the IDs for those
 namespace BoostConstants
 {

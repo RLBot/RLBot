@@ -8,7 +8,7 @@
 #include <boost\interprocess\sync\sharable_lock.hpp>
 
 #include "GameFunctions.hpp"
-#include <BoostConstants\BoostConstants.hpp>
+#include <BoostUtilities\BoostConstants.hpp>
 
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 

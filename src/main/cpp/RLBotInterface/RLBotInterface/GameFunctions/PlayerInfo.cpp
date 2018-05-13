@@ -3,7 +3,7 @@
 #include <DebugHelper.hpp>
 
 #include "PlayerInfo.hpp"
-#include <BoostConstants\BoostConstants.hpp>
+#include <BoostUtilities\BoostConstants.hpp>
 
 #include <chrono>
 #include <thread>

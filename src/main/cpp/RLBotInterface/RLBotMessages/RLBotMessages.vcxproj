@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.h" />
     <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.h" />
-    <ClInclude Include="BoostConstants\BoostConstants.hpp" />
     <ClInclude Include="CapnProto\capnproto.hpp" />
     <ClInclude Include="DebugHelper.hpp" />
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
