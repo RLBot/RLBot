@@ -16,6 +16,11 @@ class Color(ctypes.Structure):
 class RenderingManager:
     game = None
     render_state = False
+    ignored_funcs = []
+
+    def __init__(self):
+        self.ignored_funcs = ['setup_function_types', 'get_render_functions',
+                              'create_dynamic_function', 'send_group']
 
     def setup_function_types(self, dll_instance):
         self.game = dll_instance
@@ -114,7 +119,7 @@ class RenderingManager:
 
         for name in functions:  # iterate through every module's attributes
             val = getattr(self, name)
-            if callable(val) and name != 'setup_function_types' and name != 'get_render_functions':
+            if callable(val) and name not in self.ignored_funcs:
                 temp_func = self.create_dynamic_function(val, self.is_rendering, self.end_rendering)
                 function_names.append(name)
                 filtered_functions.append(temp_func)

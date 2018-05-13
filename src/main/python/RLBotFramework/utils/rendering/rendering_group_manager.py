@@ -3,6 +3,7 @@ from RLBotMessages.flat import RenderGroup
 from RLBotMessages.flat import Color
 from RLBotMessages.flat import RenderMessage
 from RLBotMessages.flat import Vector3Partial
+from RLBotMessages.flat import Float
 from RLBotMessages.flat.RenderType import RenderType
 
 from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
@@ -11,6 +12,12 @@ from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
 class RenderingGroupManager(RenderingManager):
     builder = None
     render_list = []
+
+    def __init__(self):
+        super().__init__()
+        self.ignored_funcs.append('create_color')
+        self.ignored_funcs.append('create_vector')
+        self.ignored_funcs.append('wrap_float')
 
     def begin_rendering(self):
         self.builder = flatbuffers.Builder(0)
@@ -22,21 +29,21 @@ class RenderingGroupManager(RenderingManager):
 
         list_length = len(self.render_list)
 
-        RenderGroup.RenderGroupStart(self.builder)
-        RenderGroup.RenderGroupStartRenderOptionsVector(self.builder, list_length)
+        RenderGroup.RenderGroupStartRenderMessagesVector(self.builder, list_length)
 
         for i in reversed(range(0, list_length)):
             self.builder.PrependUOffsetTRelative(self.render_list[i])
 
-        options = self.builder.EndVector(list_length)
+        messages = self.builder.EndVector(list_length)
 
-        RenderGroup.RenderGroupAddRenderOptions(self.builder, options)
-        result = RenderGroup.RenderGroupEnd()
+        RenderGroup.RenderGroupStart(self.builder)
+        RenderGroup.RenderGroupAddRenderMessages(self.builder, messages)
+        result = RenderGroup.RenderGroupEnd(self.builder)
 
         self.builder.Finish(result)
 
         buf = self.builder.Output()
-
+        self.send_group(buf)
 
     def draw_line_2d(self, x1, y1, x2, y2, color):
         messageBuilder = self.builder
@@ -80,11 +87,14 @@ class RenderingGroupManager(RenderingManager):
         Color.ColorAddB(colorBuilder, blue)
         return Color.ColorEnd(colorBuilder)
 
+    def wrap_float(self, number):
+        return Float.CreateFloat(self.builder, number)
+
     def create_vector(self, x, y, z=None):
         Vector3Partial.Vector3PartialStart(self.builder)
-        Vector3Partial.Vector3PartialAddX(self.builder, x)
-        Vector3Partial.Vector3PartialAddY(self.builder, y)
+        Vector3Partial.Vector3PartialAddX(self.builder, self.wrap_float(x))
+        Vector3Partial.Vector3PartialAddY(self.builder, self.wrap_float(y))
         if z is not None:
-            Vector3Partial.Vector3PartialAddZ(self.builder, z)
+            Vector3Partial.Vector3PartialAddZ(self.builder, self.wrap_float(z))
 
         return Vector3Partial.Vector3PartialEnd(self.builder)
