@@ -13,7 +13,7 @@ namespace GameFunctions
 	// FIELD INFO
 
 	// Capn
-	CREATE_BOOST_SHARED_MEMORY(fieldInfoShm, BoostConstants::FieldInfoSharedMemName,
+	CREATE_CLIENT_BOOST_SHARED_MEMORY(fieldInfoShm, BoostConstants::FieldInfoSharedMemName,
 		fieldInfoMutex, BoostConstants::FieldInfoMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoCapnp()
@@ -22,7 +22,7 @@ namespace GameFunctions
 	}
 
 	// Flat
-	CREATE_BOOST_SHARED_MEMORY(fieldInfoFlatShm, BoostConstants::FieldInfoFlatSharedMemName,
+	CREATE_CLIENT_BOOST_SHARED_MEMORY(fieldInfoFlatShm, BoostConstants::FieldInfoFlatSharedMemName,
 		fieldInfoFlatMutex, BoostConstants::FieldInfoFlatMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
@@ -42,7 +42,7 @@ namespace GameFunctions
 	//////////////
 
 	// Capnp
-	CREATE_BOOST_SHARED_MEMORY(gameTickShm, BoostConstants::GameDataSharedMemName,
+	CREATE_CLIENT_BOOST_SHARED_MEMORY(gameTickShm, BoostConstants::GameDataSharedMemName,
 		gameTickMutex, BoostConstants::GameDataMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
@@ -51,7 +51,7 @@ namespace GameFunctions
 	}
 
 	// Flat
-	CREATE_BOOST_SHARED_MEMORY(gameTickFlatShm, BoostConstants::GameDataFlatSharedMemName,
+	CREATE_CLIENT_BOOST_SHARED_MEMORY(gameTickFlatShm, BoostConstants::GameDataFlatSharedMemName,
 		gameTickFlatMutex, BoostConstants::GameDataFlatMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()

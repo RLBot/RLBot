@@ -118,7 +118,7 @@ namespace GameFunctions
 	}
 
 	// Capn
-	CREATE_BOOST_QUEUE(capnpPlayerInput, BoostConstants::PlayerInputQueueName)
+	CREATE_CLIENT_BOOST_QUEUE(capnpPlayerInput, BoostConstants::PlayerInputQueueName)
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
 	{
@@ -126,7 +126,7 @@ namespace GameFunctions
 	}
 
 	// FLAT
-	CREATE_BOOST_QUEUE(flatPlayerInput, BoostConstants::PlayerInputFlatQueueName)
+	CREATE_CLIENT_BOOST_QUEUE(flatPlayerInput, BoostConstants::PlayerInputFlatQueueName)
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
