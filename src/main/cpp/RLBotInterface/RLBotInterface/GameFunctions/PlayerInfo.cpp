@@ -118,18 +118,19 @@ namespace GameFunctions
 	}
 
 	// Capn
-	CREATE_CLIENT_BOOST_QUEUE(capnpPlayerInput, BoostConstants::PlayerInputQueueName)
+	static BoostUtilities::QueueSender capnInputQueue(BoostConstants::PlayerInputQueueName);
+
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
 	{
-		ADD_TO_BOOST_QUEUE(capnpPlayerInput, controllerState, protoSize, PLAYER_INPUT_MAX_MESSAGE_SIZE)
+		return capnInputQueue.sendMessage(controllerState, protoSize);
 	}
 
 	// FLAT
-	CREATE_CLIENT_BOOST_QUEUE(flatPlayerInput, BoostConstants::PlayerInputFlatQueueName)
+	static BoostUtilities::QueueSender flatInputQueue(BoostConstants::PlayerInputFlatQueueName);
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
-		ADD_TO_BOOST_QUEUE(flatPlayerInput, controllerState, protoSize, PLAYER_INPUT_MAX_MESSAGE_SIZE)
+		return flatInputQueue.sendMessage(controllerState, protoSize);
 	}
 }

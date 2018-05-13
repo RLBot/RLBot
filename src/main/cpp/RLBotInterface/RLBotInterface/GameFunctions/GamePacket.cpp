@@ -4,30 +4,28 @@
 
 #include "GamePacket.hpp"
 
-#include <chrono>
-#include <thread>
 #include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
+#include <BoostUtilities\BoostUtilities.hpp>
+#include <BoostUtilities\BoostConstants.hpp>
 
 namespace GameFunctions
 {
 	// FIELD INFO
 
 	// Capn
-	CREATE_CLIENT_BOOST_SHARED_MEMORY(fieldInfoShm, BoostConstants::FieldInfoSharedMemName,
-		fieldInfoMutex, BoostConstants::FieldInfoMutexName)
+	static BoostUtilities::SharedMemReader capnFieldMem(BoostConstants::FieldInfoName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoCapnp()
 	{
-		return fetchByteBufferFromSharedMem(&fieldInfoShm, &fieldInfoMutex);
+		return capnFieldMem.fetchData();
 	}
 
 	// Flat
-	CREATE_CLIENT_BOOST_SHARED_MEMORY(fieldInfoFlatShm, BoostConstants::FieldInfoFlatSharedMemName,
-		fieldInfoFlatMutex, BoostConstants::FieldInfoFlatMutexName)
+	static BoostUtilities::SharedMemReader flatFieldMem(BoostConstants::FieldInfoFlatName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
 	{
-		return fetchByteBufferFromSharedMem(&fieldInfoFlatShm, &fieldInfoFlatMutex);
+		return flatFieldMem.fetchData();
 	}
 
 	// Proto
@@ -42,21 +40,19 @@ namespace GameFunctions
 	//////////////
 
 	// Capnp
-	CREATE_CLIENT_BOOST_SHARED_MEMORY(gameTickShm, BoostConstants::GameDataSharedMemName,
-		gameTickMutex, BoostConstants::GameDataMutexName)
+	static BoostUtilities::SharedMemReader capnTickMem(BoostConstants::GameDataName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
 	{
-		return fetchByteBufferFromSharedMem(&gameTickShm, &gameTickMutex);
+		return capnTickMem.fetchData();
 	}
 
 	// Flat
-	CREATE_CLIENT_BOOST_SHARED_MEMORY(gameTickFlatShm, BoostConstants::GameDataFlatSharedMemName,
-		gameTickFlatMutex, BoostConstants::GameDataFlatMutexName)
+	static BoostUtilities::SharedMemReader flatTickMem(BoostConstants::GameDataFlatName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{
-		return fetchByteBufferFromSharedMem(&gameTickFlatShm, &gameTickFlatMutex);
+		return flatTickMem.fetchData();
 	}
 
 	// Proto
