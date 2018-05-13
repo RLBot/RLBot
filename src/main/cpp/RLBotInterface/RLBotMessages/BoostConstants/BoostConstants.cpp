@@ -20,6 +20,5 @@ namespace BoostConstants
 	const char* FieldInfoFlatMutexName = "fieldInfoFlatMutex";
 
 	// Rendering
-	const char* RenderingFlatSharedMemName = "RenderingFlatSharedMem";
-	const char* RenderingFlatMutexName = "RenderingFlatMutex";
+	const char* RenderingFlatQueueName = "RenderingFlaQueue";
 };

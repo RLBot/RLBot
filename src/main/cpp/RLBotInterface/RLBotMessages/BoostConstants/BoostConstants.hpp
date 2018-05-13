@@ -13,6 +13,7 @@ namespace BoostConstants
 	extern const char* GameDataFlatMutexName;
 	extern const char* FieldInfoFlatSharedMemName;
 	extern const char* FieldInfoFlatMutexName;
+	extern const char* RenderingFlatQueueName;
 };
 
 #endif

@@ -120,7 +120,7 @@ namespace RenderFunctions
 	}
 
 	// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
-	static interop_message_queue renderGroupQueue(boost::interprocess::open_only, BoostConstants::PlayerInputFlatQueueName);
+	static interop_message_queue renderGroupQueue(boost::interprocess::open_only, BoostConstants::RenderingFlatQueueName);
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int protoSize)
 	{
