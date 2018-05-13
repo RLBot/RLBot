@@ -8,6 +8,8 @@
 #include <chrono>
 #include <thread>
 
+#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
+
 namespace GameFunctions
 {
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
@@ -120,25 +122,16 @@ namespace GameFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
 	{
-		bool sent = capnpPlayerInput.try_send(controllerState, protoSize, 0);
-		if (!sent) {
-			return RLBotCoreStatus::BufferOverfilled;
-		}
-		return RLBotCoreStatus::Success;
+		ADD_TO_BOOST_QUEUE(capnpPlayerInput, controllerState, protoSize, PLAYER_INPUT_MAX_MESSAGE_SIZE)
 	}
-
 
 	// FLAT
 
 	// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
 	static interop_message_queue flatPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputFlatQueueName);
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* playerInput, int size)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
-		bool sent = flatPlayerInput.try_send(playerInput, size, 0);
-		if (!sent) {
-			return RLBotCoreStatus::BufferOverfilled;
-		}
-		return RLBotCoreStatus::Success;
+		ADD_TO_BOOST_QUEUE(flatPlayerInput, controllerState, protoSize, PLAYER_INPUT_MAX_MESSAGE_SIZE)
 	}
 }

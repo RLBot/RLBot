@@ -14,6 +14,7 @@
 
 #include <chrono>
 #include <thread>
+#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
 
 namespace GameFunctions
 {
