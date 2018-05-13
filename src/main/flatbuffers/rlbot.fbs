@@ -186,3 +186,41 @@ table DesiredGameState {
 }
 
 root_type DesiredGameState;
+
+
+enum RenderType : byte {
+    DrawLine2D = 1,
+    DrawLine3D = 2,
+    DrawLine2D_3D = 3,
+    DrawRect2D = 4,
+    DrawRect3D = 5,
+    DrawString2D = 6,
+    DrawString3D = 7
+}
+
+table Color {
+    a: byte = 0;
+    r: byte = 0;
+    g: byte = 0;
+    b: byte = 0;
+}
+
+table RenderMessage {
+    renderType: RenderType = 1;
+    color: Color;
+    /// For 2d renders this only grabs x and y
+    start: Vector3Partial;
+    /// For 2d renders this only grabs x and y
+    end:   Vector3Partial;
+    /// Scales the x size of the text/rectangle, is used for rectangles assuming an initial value of 1
+    scaleX: int = 1;
+    /// Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1
+    scaleY: int = 1;
+    text: string;
+}
+
+table RenderGroup {
+    renderMessages:[RenderMessage];
+}
+
+root_type RenderGroup;

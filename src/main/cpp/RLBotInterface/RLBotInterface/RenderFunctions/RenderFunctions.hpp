@@ -3,6 +3,7 @@
 
 #include <Messages.hpp>
 
+#include "..\BoostUtilities\BoostUtilities.hpp"
 #include "..\InterfaceBase\InterfaceBase.hpp"
 
 #ifdef __cplusplus
@@ -22,6 +23,8 @@ extern "C"
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API DrawString2D(int x, int y, float scaleX, float scaleY, const PyStruct::Color& color, wchar_t* pString);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API DrawString3D(const PyStruct::Vector3& vec, float scaleX, float scaleY, const PyStruct::Color& color, wchar_t* pString);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API ToggleNullRenderer(bool Enable);
+
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int protoSize);
 	}
 
 #ifdef __cplusplus

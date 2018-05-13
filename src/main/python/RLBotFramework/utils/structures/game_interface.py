@@ -4,7 +4,7 @@ import subprocess
 import sys
 import time
 
-from RLBotFramework.utils.structures.rendering_manager import RenderingManager
+from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
 from protobuf import game_data_pb2
 from RLBotMessages.flat import GameTickPacket as GameTickPacketFlat
 from RLBotFramework.utils.class_importer import get_python_root

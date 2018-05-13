@@ -1,6 +1,7 @@
 import collections
 import ctypes
 
+from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures.game_data_struct import Vector3
 
@@ -22,7 +23,6 @@ class RenderingManager:
         func = self.game.DrawLine2D
         func.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, Color]
         func.restype = ctypes.c_int
-
 
         func = self.game.DrawLine3D
         func.argtypes = [Vector3, Vector3, Color]
@@ -48,6 +48,15 @@ class RenderingManager:
         func.argtypes = [Vector3, ctypes.c_float, ctypes.c_float, Color, ctypes.POINTER(ctypes.c_char)]
         func.restype = ctypes.c_int
 
+        func = self.game.RenderGroup
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        func.restype = ctypes.c_int
+
+    def send_group(self, buffer):
+        rlbot_status = self.game.RenderGroup(bytes(buffer), len(buffer))
+        if rlbot_status != RLBotCoreStatus.Success:
+            get_logger("Renderer").error("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
+
     def begin_rendering(self):
         self.render_state = True
         self.game.BeginRendering()
@@ -61,8 +70,6 @@ class RenderingManager:
         return self.render_state
 
     def draw_line_2d(self, x1, y1, x2, y2, color):
-        if color is None:
-            raise ValueError('wtf color is not valid')
         self.game.DrawLine2D(x1, y1, x2, y2, color)
 
     def draw_line_3d(self, vec1, vec2, color):

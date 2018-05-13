@@ -118,4 +118,16 @@ namespace RenderFunctions
 
 		return RLBotCoreStatus::Success;
 	}
+
+	// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
+	static interop_message_queue renderGroupQueue(boost::interprocess::open_only, BoostConstants::PlayerInputFlatQueueName);
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int protoSize)
+	{
+		bool sent = renderGroupQueue.try_send(renderGroup, protoSize, 0);
+		if (!sent) {
+			return RLBotCoreStatus::BufferOverfilled;
+		}
+		return RLBotCoreStatus::Success;
+	}
 }
