@@ -13,11 +13,8 @@ namespace GameFunctions
 	// FIELD INFO
 
 	// Capn
-	static boost::interprocess::shared_memory_object fieldInfoShm(
-		boost::interprocess::open_only, BoostConstants::FieldInfoSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex fieldInfoMutex(
-		boost::interprocess::open_only, BoostConstants::FieldInfoMutexName);
+	CREATE_BOOST_SHARED_MEMORY(fieldInfoShm, BoostConstants::FieldInfoSharedMemName,
+		fieldInfoMutex, BoostConstants::FieldInfoMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoCapnp()
 	{
@@ -25,11 +22,8 @@ namespace GameFunctions
 	}
 
 	// Flat
-	static boost::interprocess::shared_memory_object fieldInfoFlatShm(
-		boost::interprocess::open_only, BoostConstants::FieldInfoFlatSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex fieldInfoFlatMutex(
-		boost::interprocess::open_only, BoostConstants::FieldInfoFlatMutexName);
+	CREATE_BOOST_SHARED_MEMORY(fieldInfoFlatShm, BoostConstants::FieldInfoFlatSharedMemName,
+		fieldInfoFlatMutex, BoostConstants::FieldInfoFlatMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
 	{
@@ -43,16 +37,13 @@ namespace GameFunctions
 		return CapnConversions::capnpFieldInfoToProtobuf(capnp);
 	}
 
-
-	// Game Packet
-	 
+	//////////////
+	// GAME PACKET
+	//////////////
 
 	// Capnp
-	static boost::interprocess::shared_memory_object gameTickShm(
-		boost::interprocess::open_only, BoostConstants::GameDataSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex gameTickMutex(
-		boost::interprocess::open_only, BoostConstants::GameDataMutexName);
+	CREATE_BOOST_SHARED_MEMORY(gameTickShm, BoostConstants::GameDataSharedMemName,
+		gameTickMutex, BoostConstants::GameDataMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
 	{
@@ -60,11 +51,8 @@ namespace GameFunctions
 	}
 
 	// Flat
-	static boost::interprocess::shared_memory_object gameTickFlatShm(
-		boost::interprocess::open_only, BoostConstants::GameDataFlatSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex gameTickFlatMutex(
-		boost::interprocess::open_only, BoostConstants::GameDataFlatMutexName);
+	CREATE_BOOST_SHARED_MEMORY(gameTickFlatShm, BoostConstants::GameDataFlatSharedMemName,
+		gameTickFlatMutex, BoostConstants::GameDataFlatMutexName)
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{

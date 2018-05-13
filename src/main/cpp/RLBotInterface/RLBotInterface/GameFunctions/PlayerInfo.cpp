@@ -118,7 +118,7 @@ namespace GameFunctions
 	}
 
 	// Capn
-	static interop_message_queue capnpPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputQueueName);
+	CREATE_BOOST_QUEUE(capnpPlayerInput, BoostConstants::PlayerInputQueueName)
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
 	{
@@ -126,9 +126,7 @@ namespace GameFunctions
 	}
 
 	// FLAT
-
-	// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
-	static interop_message_queue flatPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputFlatQueueName);
+	CREATE_BOOST_QUEUE(flatPlayerInput, BoostConstants::PlayerInputFlatQueueName)
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{

@@ -21,6 +21,18 @@
 																} \
 																return RLBotCoreStatus::Success; \
 
+
+// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
+#define CREATE_BOOST_QUEUE(variable_name, queue)	static interop_message_queue variable_name(boost::interprocess::open_only, queue);
+
+
+#define CREATE_BOOST_SHARED_MEMORY(memVariable, memConstant, mutexVariable, mutextConstant) \
+	static boost::interprocess::shared_memory_object memVariable( \
+		boost::interprocess::open_only, memConstant, boost::interprocess::read_only); \
+	\
+	static boost::interprocess::named_sharable_mutex mutexVariable( \
+		boost::interprocess::open_only, mutextConstant);
+
 /*
 This typedef is advice from one of the boost maintainers on how to make message queues work between 32 and 64 bit processes.
 It looks pretty janky. I believe the reason it's not "fixed" in the library is that it can't be done consistently on windows vs linux.
