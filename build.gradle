@@ -152,19 +152,23 @@ task assembleProtos {
     dependsOn 'generateFlatbuffersCpp'
 }
 
-
-String regex = /(?i)rlbot(?i)[-_ ](?i)core(?i)/
+def counter = 0
+String regex = /(?i)rlbot[-_ ]core/
 new File(parentFolder).eachDir{
     if (it.name ==~ regex) {
+        if (counter > 0) {
+            throw new Exception('More than one core directory found please move one of them.')
+        }
         defaultCoreFolder = it.absolutePath
         print('Found dll folder ')
-        println(corePath)
+        println(defaultCoreFolder)
+        counter++
     }
 }
 
 // This is just a convenience task for developers.
 task copyDlls(type: Copy) {
-    from files('RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll',
+    from files('src/main/cpp/RLBotInterface/RLBotInterface/Bin/x64/Debug/RLBotInterface.dll',
             defaultCoreFolder + '/RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll')
     into pythonRoot + 'RLBotFramework/dll'
     rename('RLBot Core.dll', 'RLBot_Core.dll')
