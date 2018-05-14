@@ -34,7 +34,9 @@ class Atba(BaseAgent):
             self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
 
         self.renderer.begin_rendering()
-        self.renderer.draw_line_2d(50, 100, 100, 50, self.renderer.black())
+        color = self.renderer.create_color(121, 121, 0, 121)
+        self.renderer.draw_line_2d(100, 100, 1000, 500, color)
+        self.renderer.draw_rect_2d(0,0, 1000, 1000, True, color)
         self.renderer.end_rendering()
 
         return [

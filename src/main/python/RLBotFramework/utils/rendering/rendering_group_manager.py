@@ -65,7 +65,19 @@ class RenderingGroupManager(RenderingManager):
         self.game.DrawLine2D_3D(x, y, vec, color)
 
     def draw_rect_2d(self, x, y, width, height, filled, color):
-        self.game.DrawRect2D(x, y, width, height, filled, color)
+        messageBuilder = self.builder
+
+        vectorStart = self.create_vector(x, y)
+
+        RenderMessage.RenderMessageStart(messageBuilder)
+        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect2D)
+        RenderMessage.RenderMessageAddColor(messageBuilder, color)
+        RenderMessage.RenderMessageAddStart(messageBuilder, vectorStart)
+        RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
+        RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
+        RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
+        message = RenderMessage.RenderMessageEnd(messageBuilder)
+        self.render_list.append(message)
 
     def draw_rect_3d(self, vec, width, height, filled, color):
         self.game.DrawRect3D(vec, width, height, filled, color)

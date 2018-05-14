@@ -217,6 +217,7 @@ table RenderMessage {
     /// Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1
     scaleY: int = 1;
     text: string;
+    isFilled: bool;
 }
 
 table RenderGroup {
