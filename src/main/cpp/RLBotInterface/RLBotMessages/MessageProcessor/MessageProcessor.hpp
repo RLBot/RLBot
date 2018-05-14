@@ -42,6 +42,16 @@ public:
 		messageHandlerMap[type] = handler;
 	}
 
+	RLBotCoreStatus callMessage(MessageType type, MessageBase* base) {
+		auto result = messageHandlerMap.find(type);
+
+		if (result != messageHandlerMap.end())
+		{
+			return result->second(base);
+		}
+		return RLBotCoreStatus::InvalidGameValues;
+	}
+
 	void ProcessMessages(bool resetOffset)
 	{
 		pStorage->Lock();
@@ -52,20 +62,15 @@ public:
 			it++
 			)
 		{
-			auto result = messageHandlerMap.find(it->Type);
+			//ToDo: Execute only if the callback buffer is not overfilled?
+			RLBotCoreStatus returnValue = callMessage(it->Type, it.GetCurrentMessage());
 
-			if (result != messageHandlerMap.end())
+			if (returnValue != RLBotCoreStatus::InvalidGameValues && it->HasCallback)
 			{
-				//ToDo: Execute only if the callback buffer is not overfilled?
-				RLBotCoreStatus returnValue = result->second(it.GetCurrentMessage());
-
-				if (it->HasCallback)
-				{
-					BEGIN_CALLBACK_FUNCTION(CallbackMessage, pCallback);
-					pCallback->FunctionID = it->ID;
-					pCallback->Status = returnValue;
-					END_CALLBACK_FUNCTION;
-				}
+				BEGIN_CALLBACK_FUNCTION(CallbackMessage, pCallback);
+				pCallback->FunctionID = it->ID;
+				pCallback->Status = returnValue;
+				END_CALLBACK_FUNCTION;
 			}
 		}
 
