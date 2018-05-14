@@ -15,7 +15,6 @@ class RenderingGroupManager(RenderingManager):
 
     def __init__(self):
         super().__init__()
-        self.ignored_funcs.append('create_color')
         self.ignored_funcs.append('create_vector')
         self.ignored_funcs.append('wrap_float')
 
