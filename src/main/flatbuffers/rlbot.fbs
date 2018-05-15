@@ -209,9 +209,9 @@ table RenderMessage {
     renderType: RenderType = 1;
     color: Color;
     /// For 2d renders this only grabs x and y
-    start: Vector3Partial;
+    start: Vector3;
     /// For 2d renders this only grabs x and y
-    end:   Vector3Partial;
+    end:   Vector3;
     /// Scales the x size of the text/rectangle, is used for rectangles assuming an initial value of 1
     scaleX: int = 1;
     /// Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1

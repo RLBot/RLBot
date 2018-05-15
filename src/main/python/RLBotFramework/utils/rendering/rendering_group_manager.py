@@ -48,7 +48,7 @@ class RenderingGroupManager(RenderingManager):
         messageBuilder = self.builder
 
         vectorStart = self.create_vector(x1, y1)
-        vectorEnd = self.create_vector(x1, y1)
+        vectorEnd = self.create_vector(x2, y2)
 
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
@@ -102,9 +102,9 @@ class RenderingGroupManager(RenderingManager):
 
     def create_vector(self, x, y, z=None):
         Vector3Partial.Vector3PartialStart(self.builder)
-        Vector3Partial.Vector3PartialAddX(self.builder, self.wrap_float(x))
-        Vector3Partial.Vector3PartialAddY(self.builder, self.wrap_float(y))
+        Vector3Partial.Vector3PartialAddX(self.builder, x)
+        Vector3Partial.Vector3PartialAddY(self.builder, y)
         if z is not None:
-            Vector3Partial.Vector3PartialAddZ(self.builder, self.wrap_float(z))
+            Vector3Partial.Vector3PartialAddZ(self.builder, z)
 
         return Vector3Partial.Vector3PartialEnd(self.builder)
