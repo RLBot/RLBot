@@ -47,22 +47,41 @@ class RenderingGroupManager(RenderingManager):
     def draw_line_2d(self, x1, y1, x2, y2, color):
         messageBuilder = self.builder
 
-        #vectorStart =
-        #vectorEnd =
-
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
         RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x1, y1))
         RenderMessage.RenderMessageAddEnd(messageBuilder, self.create_vector(x2, y2))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
+
         self.render_list.append(message)
+        return self
 
     def draw_line_3d(self, vec1, vec2, color):
-        self.game.DrawLine3D(vec1, vec2, color)
+        messageBuilder = self.builder
+
+        RenderMessage.RenderMessageStart(messageBuilder)
+        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
+        RenderMessage.RenderMessageAddColor(messageBuilder, color)
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(*vec1))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.create_vector(*vec2))
+        message = RenderMessage.RenderMessageEnd(messageBuilder)
+
+        self.render_list.append(message)
+        return self
 
     def draw_line_2d_3d(self, x, y, vec, color):
-        self.game.DrawLine2D_3D(x, y, vec, color)
+        messageBuilder = self.builder
+
+        RenderMessage.RenderMessageStart(messageBuilder)
+        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
+        RenderMessage.RenderMessageAddColor(messageBuilder, color)
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x, y))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.create_vector(*vec))
+        message = RenderMessage.RenderMessageEnd(messageBuilder)
+
+        self.render_list.append(message)
+        return self
 
     def draw_rect_2d(self, x, y, width, height, filled, color):
         messageBuilder = self.builder
@@ -75,16 +94,56 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
         RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
         message = RenderMessage.RenderMessageEnd(messageBuilder)
+
         self.render_list.append(message)
+        return self
 
     def draw_rect_3d(self, vec, width, height, filled, color):
-        self.game.DrawRect3D(vec, width, height, filled, color)
+        messageBuilder = self.builder
 
-    def draw_string_2d(self, x, y, scale_x, scale_y, color, text):
-        self.game.DrawString2D(x, y, scale_x, scale_y, color, text)
+        RenderMessage.RenderMessageStart(messageBuilder)
+        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect2D)
+        RenderMessage.RenderMessageAddColor(messageBuilder, color)
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(*vec))
+        RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
+        RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
+        RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
+        message = RenderMessage.RenderMessageEnd(messageBuilder)
 
-    def draw_string_3d(self, vec, scale_x, scale_y, color, text):
-        self.game.DrawString2D(vec, scale_x, scale_y, color, text)
+        self.render_list.append(message)
+        return self
+
+    def draw_string_2d(self, x, y, scale_x, scale_y, text, color):
+        messageBuilder = self.builder
+        builtString = messageBuilder.CreateString(text)
+
+        RenderMessage.RenderMessageStart(messageBuilder)
+        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect2D)
+        RenderMessage.RenderMessageAddColor(messageBuilder, color)
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x, y))
+        RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
+        RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
+        RenderMessage.RenderMessageAddText(messageBuilder, builtString)
+        message = RenderMessage.RenderMessageEnd(messageBuilder)
+
+        self.render_list.append(message)
+        return self
+
+    def draw_string_3d(self, vec, scale_x, scale_y, text, color):
+        messageBuilder = self.builder
+        builtString = messageBuilder.CreateString(text)
+
+        RenderMessage.RenderMessageStart(messageBuilder)
+        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect2D)
+        RenderMessage.RenderMessageAddColor(messageBuilder, color)
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(*vec))
+        RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
+        RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
+        RenderMessage.RenderMessageAddText(messageBuilder, builtString)
+        message = RenderMessage.RenderMessageEnd(messageBuilder)
+
+        self.render_list.append(message)
+        return self
 
     def create_color(self, alpha, red, green, blue):
         colorBuilder = self.builder

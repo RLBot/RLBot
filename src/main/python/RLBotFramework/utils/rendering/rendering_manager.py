@@ -75,25 +75,80 @@ class RenderingManager:
         return self.render_state
 
     def draw_line_2d(self, x1, y1, x2, y2, color):
-        self.game.DrawLine2D(x1, y1, x2, y2, color)
+        """
+        :param x1: represents the start of the line
+        :param y1: represents the start of the line
+        :param x2: represents the end of the line
+        :param y2: represents the end of the line
+        :param color: Should be created by calling create_color
+        :return: self for chaining
+        """
+        return self
 
     def draw_line_3d(self, vec1, vec2, color):
-        self.game.DrawLine3D(vec1, vec2, color)
+        """
+        :param vec1: This should be a tuple or an array
+        :param vec2: This should be a tutple or an array
+        :param color: Should be created by calling create_color
+        :return: self for chaining
+        """
+        return self
 
     def draw_line_2d_3d(self, x, y, vec, color):
-        self.game.DrawLine2D_3D(x, y, vec, color)
+        """
+        :param x: represents the start of the line in the x coordinate
+        :param y: represents the start of the line in the y coordinate
+        :param vec: This should be a tutple or an array
+        :param color: Should be created by calling create_color
+        :return: self for chaining
+        """
+        return self
 
     def draw_rect_2d(self, x, y, width, height,  filled, color):
-        self.game.DrawRect2D(x, y, width, height, filled, color)
+        """
+        :param x: represents the left coordinate of the rectangle
+        :param y: represents the top coordinate of the rectangle
+        :param width: How wide the rectangle should be
+        :param height: How tall the rectangle should be
+        :param filled: True if the rectangle should be filled in, false if it should be an outline
+        :param color: Should be created by calling create_color
+        :return: self for chaining
+        """
+        return self
 
     def draw_rect_3d(self, vec, width, height,  filled, color):
-        self.game.DrawRect3D(vec, width, height, filled, color)
+        """
+        :param vec: This should be a tuple or an array
+        :param width: How wide the rectangle should be
+        :param height: How tall the rectangle should be
+        :param filled: True if the rectangle should be filled in, false if it should be an outline
+        :param color: Should be created by calling create_color
+        :return: self for chaining
+        """
+        return self
 
-    def draw_string_2d(self, x, y, scale_x, scale_y, color, text):
-        self.game.DrawString2D(x, y, scale_x, scale_y, color, text)
+    def draw_string_2d(self, x, y, scale_x, scale_y, text, color):
+        """
+        :param x: represents the left coordinate of the rectangle
+        :param y: represents the top coordinate of the rectangle
+        :param scale_x: How much to scale the text by in the x direction
+        :param scale_y: How much to scale the text by in the y direction
+        :param text: The string
+        :param color: Should be created by calling create_color
+        :return: self for chaining
+        """
+        return self
 
-    def draw_string_3d(self, vec, scale_x, scale_y, color, text):
-        self.game.DrawString2D(vec, scale_x, scale_y, color, text)
+    def draw_string_3d(self, vec, scale_x, scale_y, text, color):
+        """
+        :param vec: This should be a tuple or an array
+        :param scale_x: How much to scale the text by in the x direction
+        :param scale_y: How much to scale the text by in the y direction
+        :param text: The string
+        :param color: Should be created by calling create_color
+        :return: self for chaining
+        """
+        return self
 
     def create_color(self, alpha, red, green, blue):
         color = Color()
@@ -105,6 +160,9 @@ class RenderingManager:
 
     def black(self):
         return self.create_color(255, 0, 0, 0)
+
+    def white(self):
+        return self.create_color(255, 255, 255, 255)
 
     def get_render_functions(self):
         """
