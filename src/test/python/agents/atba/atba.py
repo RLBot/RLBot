@@ -36,7 +36,7 @@ class Atba(BaseAgent):
         self.renderer.begin_rendering()
         color = self.renderer.create_color(121, 121, 0, 121)
         self.renderer.draw_line_2d(100, 100, 1000, 500, color)
-        self.renderer.draw_rect_2d(0,0, 1000, 1000, True, color)
+        self.renderer.draw_rect_2d(0, 0, 1000, 1000, True, color)
         self.renderer.end_rendering()
 
         return [

@@ -2,7 +2,7 @@ import flatbuffers
 from RLBotMessages.flat import RenderGroup
 from RLBotMessages.flat import Color
 from RLBotMessages.flat import RenderMessage
-from RLBotMessages.flat import Vector3Partial
+from RLBotMessages.flat import Vector3
 from RLBotMessages.flat import Float
 from RLBotMessages.flat.RenderType import RenderType
 
@@ -47,14 +47,14 @@ class RenderingGroupManager(RenderingManager):
     def draw_line_2d(self, x1, y1, x2, y2, color):
         messageBuilder = self.builder
 
-        vectorStart = self.create_vector(x1, y1)
-        vectorEnd = self.create_vector(x2, y2)
+        #vectorStart =
+        #vectorEnd =
 
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, vectorStart)
-        RenderMessage.RenderMessageAddEnd(messageBuilder, vectorEnd)
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x1, y1))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.create_vector(x2, y2))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
         self.render_list.append(message)
 
@@ -67,12 +67,10 @@ class RenderingGroupManager(RenderingManager):
     def draw_rect_2d(self, x, y, width, height, filled, color):
         messageBuilder = self.builder
 
-        vectorStart = self.create_vector(x, y)
-
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect2D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, vectorStart)
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x, y))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
         RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
@@ -90,6 +88,7 @@ class RenderingGroupManager(RenderingManager):
 
     def create_color(self, alpha, red, green, blue):
         colorBuilder = self.builder
+        # Color.CreateColor(colorBuilder, alpha, red, green, blue)
         Color.ColorStart(colorBuilder)
         Color.ColorAddA(colorBuilder, alpha)
         Color.ColorAddR(colorBuilder, red)
@@ -101,10 +100,6 @@ class RenderingGroupManager(RenderingManager):
         return Float.CreateFloat(self.builder, number)
 
     def create_vector(self, x, y, z=None):
-        Vector3Partial.Vector3PartialStart(self.builder)
-        Vector3Partial.Vector3PartialAddX(self.builder, x)
-        Vector3Partial.Vector3PartialAddY(self.builder, y)
-        if z is not None:
-            Vector3Partial.Vector3PartialAddZ(self.builder, z)
-
-        return Vector3Partial.Vector3PartialEnd(self.builder)
+        if z is None:
+            z = 0
+        return Vector3.CreateVector3(self.builder, x, y, z)
