@@ -126,3 +126,4 @@ ENV/
 
 # File with api keys, passwords, etc
 local.properties
+.vs/

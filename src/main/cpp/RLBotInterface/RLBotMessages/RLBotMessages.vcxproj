@@ -21,7 +21,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.h" />
     <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.h" />
-    <ClInclude Include="BoostConstants\BoostConstants.hpp" />
+    <ClInclude Include="BoostUtilities\BoostConstants.hpp" />
+    <ClInclude Include="BoostUtilities\BoostUtilities.hpp" />
     <ClInclude Include="CapnProto\capnproto.hpp" />
     <ClInclude Include="DebugHelper.hpp" />
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
@@ -41,13 +42,16 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.cpp" />
     <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.cc" />
-    <ClCompile Include="BoostConstants\BoostConstants.cpp" />
+    <ClCompile Include="BoostUtilities\BoostConstants.cpp" />
+    <ClCompile Include="BoostUtilities\BoostUtilities.cpp" />
     <ClCompile Include="CapnProto\capnproto.cpp" />
     <ClCompile Include="FileMappings\FileMappings.cpp" />
     <ClCompile Include="MessageStructs\Message.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{075F4B01-013A-4200-9720-95051226D748}</ProjectGuid>
@@ -155,8 +159,8 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>false</ExceptionHandling>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -230,8 +234,8 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>false</ExceptionHandling>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -305,8 +309,8 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>false</ExceptionHandling>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -371,8 +375,8 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>false</ExceptionHandling>
+      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -438,6 +442,7 @@
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
     <Import Project="..\packages\protobuf.2.6.1.1\build\native\protobuf.targets" Condition="Exists('..\packages\protobuf.2.6.1.1\build\native\protobuf.targets')" />
     <Import Project="..\packages\protobuf-vc140.2.6.1.1\build\native\protobuf-vc140.targets" Condition="Exists('..\packages\protobuf-vc140.2.6.1.1\build\native\protobuf-vc140.targets')" />
+    <Import Project="..\packages\boost.1.67.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.67.0.0\build\boost.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -445,5 +450,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\protobuf.2.6.1.1\build\native\protobuf.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\protobuf.2.6.1.1\build\native\protobuf.targets'))" />
     <Error Condition="!Exists('..\packages\protobuf-vc140.2.6.1.1\build\native\protobuf-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\protobuf-vc140.2.6.1.1\build\native\protobuf-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\boost.1.67.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.67.0.0\build\boost.targets'))" />
   </Target>
 </Project>

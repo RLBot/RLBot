@@ -44,6 +44,12 @@
     <ClCompile Include="CallbackProcessor\CallbackProcessor.cpp">
       <Filter>Source Files\CallbackProcessor</Filter>
     </ClCompile>
+    <ClCompile Include="GameFunctions\GamePacket.cpp">
+      <Filter>Source Files\GameFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFunctions\PlayerInfo.cpp">
+      <Filter>Source Files\GameFunctions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameFunctions\GameFunctions.hpp">
@@ -60,6 +66,15 @@
     </ClInclude>
     <ClInclude Include="Interface.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunctions\GamePacket.hpp">
+      <Filter>Header Files\GameFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunctions\PlayerInfo.hpp">
+      <Filter>Header Files\GameFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="CallbackProcessor\SharedMemoryDefinitions.hpp">
+      <Filter>Header Files\CallbackProcessor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
