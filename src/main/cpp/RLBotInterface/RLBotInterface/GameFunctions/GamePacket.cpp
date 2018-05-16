@@ -4,35 +4,28 @@
 
 #include "GamePacket.hpp"
 
-#include <chrono>
-#include <thread>
+#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
+#include <BoostUtilities\BoostUtilities.hpp>
+#include <BoostUtilities\BoostConstants.hpp>
 
 namespace GameFunctions
 {
 	// FIELD INFO
 
 	// Capn
-	static boost::interprocess::shared_memory_object fieldInfoShm(
-		boost::interprocess::open_only, BoostConstants::FieldInfoSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex fieldInfoMutex(
-		boost::interprocess::open_only, BoostConstants::FieldInfoMutexName);
+	static BoostUtilities::SharedMemReader capnFieldMem(BoostConstants::FieldInfoName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoCapnp()
 	{
-		return fetchByteBufferFromSharedMem(&fieldInfoShm, &fieldInfoMutex);
+		return capnFieldMem.fetchData();
 	}
 
 	// Flat
-	static boost::interprocess::shared_memory_object fieldInfoFlatShm(
-		boost::interprocess::open_only, BoostConstants::FieldInfoFlatSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex fieldInfoFlatMutex(
-		boost::interprocess::open_only, BoostConstants::FieldInfoFlatMutexName);
+	static BoostUtilities::SharedMemReader flatFieldMem(BoostConstants::FieldInfoFlatName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
 	{
-		return fetchByteBufferFromSharedMem(&fieldInfoFlatShm, &fieldInfoFlatMutex);
+		return flatFieldMem.fetchData();
 	}
 
 	// Proto
@@ -42,32 +35,24 @@ namespace GameFunctions
 		return CapnConversions::capnpFieldInfoToProtobuf(capnp);
 	}
 
-
-	// Game Packet
-	 
+	//////////////
+	// GAME PACKET
+	//////////////
 
 	// Capnp
-	static boost::interprocess::shared_memory_object gameTickShm(
-		boost::interprocess::open_only, BoostConstants::GameDataSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex gameTickMutex(
-		boost::interprocess::open_only, BoostConstants::GameDataMutexName);
+	static BoostUtilities::SharedMemReader capnTickMem(BoostConstants::GameDataName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketCapnp()
 	{
-		return fetchByteBufferFromSharedMem(&gameTickShm, &gameTickMutex);
+		return capnTickMem.fetchData();
 	}
 
 	// Flat
-	static boost::interprocess::shared_memory_object gameTickFlatShm(
-		boost::interprocess::open_only, BoostConstants::GameDataFlatSharedMemName, boost::interprocess::read_only);
-
-	static boost::interprocess::named_sharable_mutex gameTickFlatMutex(
-		boost::interprocess::open_only, BoostConstants::GameDataFlatMutexName);
+	static BoostUtilities::SharedMemReader flatTickMem(BoostConstants::GameDataFlatName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{
-		return fetchByteBufferFromSharedMem(&gameTickFlatShm, &gameTickFlatMutex);
+		return flatTickMem.fetchData();
 	}
 
 	// Proto

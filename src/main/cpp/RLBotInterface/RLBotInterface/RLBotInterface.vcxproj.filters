@@ -30,12 +30,6 @@
     <Filter Include="Source Files\CallbackProcessor">
       <UniqueIdentifier>{4084497e-ca6e-40b9-9172-0ff6f2eb5ae9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\BoostUtilities">
-      <UniqueIdentifier>{52c76e6e-bcc6-4a73-a1c5-89a2b39994e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\BoostUtilities">
-      <UniqueIdentifier>{4d064213-bbd6-43e3-adf5-f561af607566}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Interface.cpp">
@@ -49,9 +43,6 @@
     </ClCompile>
     <ClCompile Include="CallbackProcessor\CallbackProcessor.cpp">
       <Filter>Source Files\CallbackProcessor</Filter>
-    </ClCompile>
-    <ClCompile Include="BoostUtilities\BoostUtilities.cpp">
-      <Filter>Source Files\BoostUtilities</Filter>
     </ClCompile>
     <ClCompile Include="GameFunctions\GamePacket.cpp">
       <Filter>Source Files\GameFunctions</Filter>
@@ -76,14 +67,14 @@
     <ClInclude Include="Interface.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BoostUtilities\BoostUtilities.hpp">
-      <Filter>Header Files\BoostUtilities</Filter>
-    </ClInclude>
     <ClInclude Include="GameFunctions\GamePacket.hpp">
       <Filter>Header Files\GameFunctions</Filter>
     </ClInclude>
     <ClInclude Include="GameFunctions\PlayerInfo.hpp">
       <Filter>Header Files\GameFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="CallbackProcessor\SharedMemoryDefinitions.hpp">
+      <Filter>Header Files\CallbackProcessor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

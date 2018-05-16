@@ -6,8 +6,7 @@
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "..\InterfaceBase\InterfaceBase.hpp"
 
-#include "..\BoostUtilities\BoostUtilities.hpp"
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
+#include <BoostUtilities\BoostUtilities.hpp>
 
 // Other dll functions related to the game itself
 #include "PlayerInfo.hpp"

@@ -3,10 +3,12 @@
 #include <DebugHelper.hpp>
 
 #include "PlayerInfo.hpp"
-#include <BoostConstants\BoostConstants.hpp>
+#include <BoostUtilities\BoostConstants.hpp>
 
 #include <chrono>
 #include <thread>
+
+#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
 
 namespace GameFunctions
 {
@@ -116,29 +118,19 @@ namespace GameFunctions
 	}
 
 	// Capn
-	static interop_message_queue capnpPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputQueueName);
+	static BoostUtilities::QueueSender capnInputQueue(BoostConstants::PlayerInputQueueName);
+
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
 	{
-		bool sent = capnpPlayerInput.try_send(controllerState, protoSize, 0);
-		if (!sent) {
-			return RLBotCoreStatus::BufferOverfilled;
-		}
-		return RLBotCoreStatus::Success;
+		return capnInputQueue.sendMessage(controllerState, protoSize);
 	}
 
-
 	// FLAT
+	static BoostUtilities::QueueSender flatInputQueue(BoostConstants::PlayerInputFlatQueueName);
 
-	// Currently we are relying on the core dll to create the queue in shared memory before this process starts. TODO: be less fragile
-	static interop_message_queue flatPlayerInput(boost::interprocess::open_only, BoostConstants::PlayerInputFlatQueueName);
-
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* playerInput, int size)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
-		bool sent = flatPlayerInput.try_send(playerInput, size, 0);
-		if (!sent) {
-			return RLBotCoreStatus::BufferOverfilled;
-		}
-		return RLBotCoreStatus::Success;
+		return flatInputQueue.sendMessage(controllerState, protoSize);
 	}
 }

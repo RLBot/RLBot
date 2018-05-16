@@ -6,7 +6,7 @@
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "..\InterfaceBase\InterfaceBase.hpp"
 
-#include "..\BoostUtilities\BoostUtilities.hpp"
+#include <BoostUtilities\BoostUtilities.hpp>
 
 
 #ifdef __cplusplus
