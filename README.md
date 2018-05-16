@@ -11,7 +11,7 @@ RLBot is a framework to create bots to play Rocket League that reads values from
 - General bug fixes as they come up
 
 ### Requirements
-Windows, Rocket League, Python 3. If you are running my tensorflow bot than you definitley need (Python 3.5, Google Tensorflow).
+Windows, Rocket League, Python 3. If you are running my Tensorflow bot then you definitely need (Python 3.5, Google Tensorflow).
 
 ### Longer Description
 
