@@ -3,12 +3,16 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RLBotDir>$(ProjectDir)..\..\..\..\..\</RLBotDir>
+    <FlatbufferDir>$(RLBotDir)src\generated\cpp\flatbuffers\</FlatbufferDir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
     <BuildMacro Include="RLBotDir">
       <Value>$(RLBotDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FlatbufferDir">
+      <Value>$(FlatbufferDir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
