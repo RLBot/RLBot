@@ -224,7 +224,7 @@ table RenderMessage {
 table RenderGroup {
     renderMessages:[RenderMessage];
     /// The id of the render group
-    id: string;
+    id: int;
 }
 
 root_type RenderGroup;

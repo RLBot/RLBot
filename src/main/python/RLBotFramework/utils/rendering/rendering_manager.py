@@ -1,4 +1,3 @@
-import collections
 import ctypes
 import flatbuffers
 
@@ -12,6 +11,8 @@ from RLBotMessages.flat import Vector3
 from RLBotMessages.flat import Float
 from RLBotMessages.flat.RenderType import RenderType
 
+
+MAX_INT = 2147483647 // 2
 
 class RenderingManager:
     """
@@ -53,7 +54,7 @@ class RenderingManager:
         if self.group_id is None:
             self.group_id = 'default'
 
-        self.group_id = str(self.bot_index) + str(self.group_id)
+        group_id = str(self.bot_index) + str(self.group_id)
 
         list_length = len(self.render_list)
 
@@ -64,10 +65,9 @@ class RenderingManager:
 
         messages = self.builder.EndVector(list_length)
 
-        self.builder.CreateString(self.group_id)
 
         RenderGroup.RenderGroupStart(self.builder)
-        RenderGroup.RenderGroupAddId(self.builder, self.group_id)
+        RenderGroup.RenderGroupAddId(self.builder, int(hash(self.group_id)) % MAX_INT)
         RenderGroup.RenderGroupAddRenderMessages(self.builder, messages)
         result = RenderGroup.RenderGroupEnd(self.builder)
 
