@@ -65,7 +65,7 @@ public:
 			//ToDo: Execute only if the callback buffer is not overfilled?
 			RLBotCoreStatus returnValue = callMessage(it->Type, it.GetCurrentMessage());
 
-			if (returnValue != RLBotCoreStatus::InvalidGameValues && it->HasCallback)
+			if (it->HasCallback)
 			{
 				BEGIN_CALLBACK_FUNCTION(CallbackMessage, pCallback);
 				pCallback->FunctionID = it->ID;
