@@ -16,7 +16,7 @@ If you just want to make a bot, you don't need to be here. Instead, just start w
 If you want to make improvements that help out everyone, you're in the right place!
 
 ### Requirements
-Windows, Rocket League, Python 3.6, Java, Gradle.
+Windows, Rocket League, Python 3.6, Java 1.8, Gradle.
 
 ### Quick Start
 
