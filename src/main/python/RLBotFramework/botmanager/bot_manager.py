@@ -73,6 +73,7 @@ class BotManager:
 
     def load_agent(self, agent_wrapper: ExternalClassWrapper):
         render_functions = self.game_interface.renderer.get_render_functions()
+        render_functions.set_bot_index(self.index)
         agent_class = agent_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
         agent.logger = self.logger

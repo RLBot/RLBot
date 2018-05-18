@@ -22,6 +22,7 @@ class RenderingManager:
     builder = None
     render_list = []
     group_id = None
+    bot_index = 0
 
     def __init__(self):
         self.ignored_funcs = ['setup_function_types', 'get_render_functions',
@@ -32,6 +33,9 @@ class RenderingManager:
 
         self.renderGroup.argtypes = [ctypes.c_void_p, ctypes.c_int]
         self.renderGroup.restype = ctypes.c_int
+
+    def set_bot_index(self, bot_index=0):
+        self.bot_index = bot_index
 
     def send_group(self, buffer):
         rlbot_status = self.renderGroup(bytes(buffer), len(buffer))
@@ -48,7 +52,8 @@ class RenderingManager:
         self.render_state = False
         if self.group_id is None:
             self.group_id = 'default'
-        self.group_id = str(self.group_id)
+
+        self.group_id = str(self.bot_index) + str(self.group_id)
 
         list_length = len(self.render_list)
 
