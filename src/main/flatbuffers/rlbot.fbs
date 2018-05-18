@@ -217,11 +217,14 @@ table RenderMessage {
     /// Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1
     scaleY: int = 1;
     text: string;
+    /// Rectangles can be filled or just outlines.
     isFilled: bool;
 }
 
 table RenderGroup {
     renderMessages:[RenderMessage];
+    /// The id of the render group
+    id: string;
 }
 
 root_type RenderGroup;

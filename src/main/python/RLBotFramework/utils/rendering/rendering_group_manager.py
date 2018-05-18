@@ -50,8 +50,8 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x1, y1))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.create_vector(x2, y2))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x1, y1))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(x2, y2))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
@@ -63,8 +63,8 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(*vec1))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.create_vector(*vec2))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec1))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(*vec2))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
@@ -76,8 +76,8 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D_3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x, y))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.create_vector(*vec))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(*vec))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
@@ -89,7 +89,7 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect2D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x, y))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
         RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
@@ -104,7 +104,7 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(*vec))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
         RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
@@ -120,7 +120,7 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawString2D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(x, y))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
         RenderMessage.RenderMessageAddText(messageBuilder, builtString)
@@ -136,7 +136,7 @@ class RenderingGroupManager(RenderingManager):
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawString3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.create_vector(*vec))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
         RenderMessage.RenderMessageAddText(messageBuilder, builtString)
@@ -155,10 +155,10 @@ class RenderingGroupManager(RenderingManager):
         Color.ColorAddB(colorBuilder, blue)
         return Color.ColorEnd(colorBuilder)
 
-    def wrap_float(self, number):
+    def __wrap_float(self, number):
         return Float.CreateFloat(self.builder, number)
 
-    def create_vector(self, x, y, z=None):
+    def __create_vector(self, x, y, z=None):
         if z is None:
             z = 0
         return Vector3.CreateVector3(self.builder, x, y, z)
