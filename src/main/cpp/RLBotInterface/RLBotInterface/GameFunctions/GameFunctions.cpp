@@ -74,7 +74,7 @@ namespace GameFunctions
 			if (playerConfig.Team < 0 || playerConfig.Team > 1)
 				return RLBotCoreStatus::InvalidTeam;
 
-			if (playerConfig.TeamColorID < 0 || playerConfig.TeamColorID > 27)
+			if (playerConfig.TeamColorID < 0 || playerConfig.TeamColorID > 69)
 				return RLBotCoreStatus::InvalidTeamColorID;
 
 			if (playerConfig.CustomColorID < 0 || playerConfig.CustomColorID > 104)
