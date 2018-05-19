@@ -180,11 +180,20 @@ class GameInterface:
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
 
-    def update_live_data_flat(self):
+    def get_live_data_flat_binary(self):
+        """
+        Gets the live data packet in flatbuffer binary format. You'll need to do something like
+        GameTickPacket.GetRootAsGameTickPacket(binary, 0) to get the data out.
+
+        This is a temporary method designed to keep the integration test working. It returns the raw bytes
+        of the flatbuffer so that it can be stored in a file. We can get rid of this once we have a first-class
+        data recorder that lives inside the core dll.
+        """
         byte_buffer = self.game.UpdateLiveDataPacketFlatbuffer()
         if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
-            packet = GameTickPacketFlat.GameTickPacket.GetRootAsGameTickPacket(proto_string, 0)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, "Success")
-            return packet
+            return proto_string
