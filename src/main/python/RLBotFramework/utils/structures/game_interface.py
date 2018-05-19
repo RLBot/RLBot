@@ -12,6 +12,7 @@ from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
+from RLBotFramework.utils import rlbot_exception
 
 
 def wrap_callback(callback_func):
@@ -97,6 +98,9 @@ class GameInterface:
         rlbot_status = self.game.StartMatch(self.start_match_configuration,
                                             self.create_status_callback(
                                                 None if self.extension is None else self.extension.onMatchStart), None)
+
+        if rlbot_status != 0:
+            raise rlbot_exception.RLBotException().raise_exception_from_error_code(rlbot_status)
 
         self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
 
