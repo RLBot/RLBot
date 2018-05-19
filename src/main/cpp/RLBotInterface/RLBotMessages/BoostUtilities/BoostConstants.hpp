@@ -16,7 +16,7 @@ namespace BoostConstants
 	extern const char* FieldInfoFlatName;
 
 	// Rendering
-	extern const char* RenderingFlatName;
+	extern const char* RenderingFlatQueueName;
 
 	std::string buildSharedMemName(const char* baseName);
 	std::string buildMutexName(const char* baseName);
