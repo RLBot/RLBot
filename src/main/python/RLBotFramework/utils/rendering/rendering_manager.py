@@ -1,5 +1,6 @@
 import ctypes
 import flatbuffers
+import hashlib
 
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
 from RLBotFramework.utils.logging_utils import get_logger
@@ -13,6 +14,7 @@ from RLBotMessages.flat.RenderType import RenderType
 
 
 MAX_INT = 2147483647 // 2
+
 
 class RenderingManager:
     """
@@ -65,9 +67,8 @@ class RenderingManager:
 
         messages = self.builder.EndVector(list_length)
 
-
         RenderGroup.RenderGroupStart(self.builder)
-        RenderGroup.RenderGroupAddId(self.builder, int(hash(self.group_id)) % MAX_INT)
+        RenderGroup.RenderGroupAddId(self.builder, group_id_hashed)
         RenderGroup.RenderGroupAddRenderMessages(self.builder, messages)
         result = RenderGroup.RenderGroupEnd(self.builder)
 
