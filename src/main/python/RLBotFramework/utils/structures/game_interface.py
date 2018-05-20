@@ -4,6 +4,7 @@ import subprocess
 import sys
 import time
 
+from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
 from protobuf import game_data_pb2
 from RLBotMessages.flat import GameTickPacket as GameTickPacketFlat
 from RLBotFramework.utils.class_importer import get_python_root
@@ -32,6 +33,7 @@ class GameInterface:
     def __init__(self, logger):
         self.logger = logger
         self.dll_path = os.path.join(self.get_dll_path(), 'RLBot_Core_Interface.dll')
+        self.renderer = RenderingManager()
         # wait for the dll to load
 
     def setup_function_types(self):
@@ -74,6 +76,8 @@ class GameInterface:
         func = self.game.SendChat
         func.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_bool, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
+
+        self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
         # free the memory at the given pointer
