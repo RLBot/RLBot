@@ -2,7 +2,7 @@ package rlbot;
 
 import rlbot.flat.GameTickPacket;
 
-public interface FlatBot {
+public interface Bot {
 
     int getIndex();
 

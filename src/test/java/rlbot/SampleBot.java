@@ -5,11 +5,11 @@ import rlbot.input.DataPacket;
 import rlbot.output.ControlsOutput;
 import rlbot.vector.Vector2;
 
-public class FlatbufferBot implements FlatBot {
+public class SampleBot implements Bot {
 
     private final int playerIndex;
 
-    public FlatbufferBot(int playerIndex) {
+    public SampleBot(int playerIndex) {
         this.playerIndex = playerIndex;
         System.out.println("Constructed sample bot " + playerIndex);
     }
