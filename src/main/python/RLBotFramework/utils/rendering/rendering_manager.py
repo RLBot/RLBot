@@ -78,6 +78,10 @@ class RenderingManager:
         buf = self.builder.Output()
         self.send_group(buf)
 
+    def clear_screen(self, group_id='default'):
+        self.begin_rendering(group_id)
+        self.end_rendering()
+
     def is_rendering(self):
         return self.render_state
 
