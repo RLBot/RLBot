@@ -57,6 +57,7 @@ class RenderingManager:
             self.group_id = 'default'
 
         group_id = str(self.bot_index) + str(self.group_id)
+        group_id_hashed = int(hashlib.sha256(str(group_id).encode('utf-8')).hexdigest(), 16) % MAX_INT
 
         list_length = len(self.render_list)
 
