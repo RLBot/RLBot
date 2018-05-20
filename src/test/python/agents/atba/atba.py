@@ -8,6 +8,7 @@ URotationToRadians = math.pi / float(32768)
 
 class Atba(BaseAgent):
     flip_turning = False
+    cleared = False
 
     def get_output_vector(self, game_tick_packet):
 
@@ -38,18 +39,26 @@ class Atba(BaseAgent):
                                 game_tick_packet.gameball.Location.Y,
                                 game_tick_packet.gameball.Location.Z]
         text_render_strX = 'x:' + str(game_tick_packet.gameball.Location.X)
-        self.renderer.begin_rendering()
-        color = self.renderer.create_color(121, 121, 0, 121)
-        color2 = self.renderer.create_color(255, 0, 255, 255)
-        self.renderer.draw_line_2d(100, 100, 1000, 500, self.renderer.black())
-        self.renderer.draw_rect_2d(0, 0, 1000, 1000, True, color)
-        self.renderer.draw_line_3d((50, 50, 50),
-                                   car_render_location, color2).draw_line_2d_3d(100, 100,
-                                                                                car_render_location, color2)
-        self.renderer.draw_rect_3d(car_render_location, 100, 100, True, self.renderer.create_color(200, 0, 0, 0))
-        self.renderer.draw_string_2d(1000, 500, 10, 10, text_render_strX, self.renderer.white())
-        self.renderer.draw_string_3d(ball_render_location, 20, 20, "BALL", self.renderer.black())
-        self.renderer.end_rendering()
+        if not self.cleared:
+            self.renderer.begin_rendering()
+            color = self.renderer.create_color(121, 121, 0, 121)
+            color2 = self.renderer.create_color(255, 0, 255, 255)
+            self.renderer.draw_line_2d(100, 100, 1000, 500, self.renderer.black())
+            self.renderer.draw_rect_2d(0, 0, 1000, 1000, True, color)
+            self.renderer.draw_line_3d((50, 50, 50),
+                                       car_render_location, color2).draw_line_2d_3d(100, 100,
+                                                                                    car_render_location, color2)
+            self.renderer.draw_rect_3d(car_render_location, 100, 100, True, self.renderer.create_color(200, 0, 0, 0))
+            self.renderer.draw_string_2d(1000, 500, 10, 10, text_render_strX, self.renderer.white())
+            self.renderer.draw_string_3d(ball_render_location, 20, 20, "BALL", self.renderer.black())
+            self.renderer.end_rendering()
+        if self.cleared:
+            self.renderer.clear_screen()
+
+        if my_car.Location.X > 0:
+            self.cleared = True
+        else:
+            self.cleared = False
 
         return [
             1.0,  # throttle
