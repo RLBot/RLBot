@@ -1,7 +1,6 @@
 package rlbot.input;
 
 
-import rlbot.api.GameData;
 import rlbot.vector.Vector3;
 
 public class CarData {
@@ -13,18 +12,6 @@ public class CarData {
     public final boolean isSupersonic;
     public final int team;
     public final float elapsedSeconds;
-
-    public CarData(GameData.PlayerInfo playerInfo, float elapsedSeconds) {
-
-        this.position = Vector3.fromProto(playerInfo.getPhysics().getLocation());
-        this.velocity = Vector3.fromProto(playerInfo.getPhysics().getVelocity());
-        this.orientation = CarOrientation.fromPlayerInfo(playerInfo);
-        this.boost = playerInfo.getBoost();
-        this.isSupersonic = playerInfo.getIsSupersonic();
-        this.team = playerInfo.getTeam();
-        this.hasWheelContact = playerInfo.getHasWheelContact();
-        this.elapsedSeconds = elapsedSeconds;
-    }
 
     public CarData(rlbot.flat.PlayerInfo playerInfo, float elapsedSeconds) {
         this.position = Vector3.fromFlatbuffer(playerInfo.physics().location());

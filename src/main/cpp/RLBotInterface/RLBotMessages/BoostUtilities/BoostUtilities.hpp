@@ -1,7 +1,8 @@
 #ifndef BOOSTUTILITIES_HPP
 #define BOOSTUTILITIES_HPP
 
-#include "..\Messages.hpp"
+#include "..\MessageStructs\ByteBuffer.hpp"
+#include "..\ErrorCodes\ErrorCodes.hpp"
 
 #include <boost\interprocess\ipc\message_queue.hpp>
 #include <boost\interprocess\shared_memory_object.hpp>
