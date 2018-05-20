@@ -121,6 +121,8 @@ ENV/
 
 # Protobuf files copied from dependencies
 /src/main/python/protobuf
+
+src/main/cpp/RLBotInterface/.vs/RLBotInterface/
 /src/generated
 /src/main/python/RLBotMessages/flat
 

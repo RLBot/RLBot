@@ -16,7 +16,7 @@ namespace BoostConstants
 	const char* FieldInfoFlatName = "fieldInfoFlat";
 
 	// Rendering
-	const char* RenderingFlatName = "RenderingFlat";
+	const char* RenderingFlatQueueName = "RenderingFlatQueue";
 
 	std::string buildSharedMemName(const char* baseName) {
 		std::string name(baseName);

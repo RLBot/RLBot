@@ -16,13 +16,17 @@ If you just want to make a bot, you don't need to be here. Instead, just start w
 If you want to make improvements that help out everyone, you're in the right place!
 
 ### Requirements
-Windows, Rocket League, Python 3.6.
+Windows, Rocket League, Python 3.6, Java 1.8, Gradle.
 
 ### Quick Start
 
 1. Double-click on setup.bat
 2. Open up Rocket League
 3. Open a terminal and execute `python runner.py`
+
+### Gradle Commands
+gradle build - The main gradle command. This does the majority of the building, compiling, and setting up the code to run. Should be called after any protocol change.
+gradle copyDlls - This copies any built dlls from visual studio into the correct folder to speed up compile -> run time.
 
 For more details, visit the [Setup guide](https://github.com/RLBot/RLBot/wiki/Setup-Instructions-%28current%29). When you're done, there are [more wikis](https://github.com/RLBot/RLBot/wiki) with additional information.
 
