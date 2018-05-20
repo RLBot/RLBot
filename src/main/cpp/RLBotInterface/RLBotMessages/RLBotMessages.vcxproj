@@ -19,34 +19,31 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.h" />
-    <ClInclude Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.h" />
     <ClInclude Include="BoostUtilities\BoostConstants.hpp" />
     <ClInclude Include="BoostUtilities\BoostUtilities.hpp" />
-    <ClInclude Include="CapnProto\capnproto.hpp" />
     <ClInclude Include="DebugHelper.hpp" />
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
     <ClInclude Include="FileMappings\FileMappings.hpp" />
     <ClInclude Include="MessageDefines\MessageDefines.hpp" />
     <ClInclude Include="MessageProcessor\MessageProcessor.hpp" />
     <ClInclude Include="Messages.hpp" />
+    <ClInclude Include="MessageStructs\ByteBuffer.hpp" />
     <ClInclude Include="MessageStructs\CallbackMessages.hpp" />
     <ClInclude Include="MessageStructs\GameMessages.hpp" />
     <ClInclude Include="MessageStructs\Message.hpp" />
     <ClInclude Include="MessageStructs\RendererMessages.hpp" />
+    <ClInclude Include="MessageTranslation\FlatbufferTranslator.hpp" />
     <ClInclude Include="PacketStructs\LiveDataPacket.hpp" />
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />
     <ClInclude Include="PacketStructs\MatchSettings.hpp" />
     <ClInclude Include="PacketStructs\PacketStructs.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.capnp.cpp" />
-    <ClCompile Include="..\..\..\..\..\build\generated\source\proto\main\cpp\game_data.pb.cc" />
     <ClCompile Include="BoostUtilities\BoostConstants.cpp" />
     <ClCompile Include="BoostUtilities\BoostUtilities.cpp" />
-    <ClCompile Include="CapnProto\capnproto.cpp" />
     <ClCompile Include="FileMappings\FileMappings.cpp" />
     <ClCompile Include="MessageStructs\Message.cpp" />
+    <ClCompile Include="MessageTranslation\FlatbufferTranslator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
@@ -188,7 +185,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FlatbufferDir);$(ProjectDir)..\lib\flatbuffers\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -263,7 +260,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FlatbufferDir);$(ProjectDir)..\lib\flatbuffers\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>No</GenerateDebugInformation>
@@ -335,7 +332,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FlatbufferDir);$(ProjectDir)..\lib\flatbuffers\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
@@ -401,7 +398,7 @@
       <PreprocessToFile>false</PreprocessToFile>
       <MinimalRebuild>false</MinimalRebuild>
       <CallingConvention>Cdecl</CallingConvention>
-      <AdditionalIncludeDirectories>$(RLBotDir)build\generated\source\proto\main\cpp;$(ProjectDir)..\lib\capnproto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FlatbufferDir);$(ProjectDir)..\lib\flatbuffers\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>

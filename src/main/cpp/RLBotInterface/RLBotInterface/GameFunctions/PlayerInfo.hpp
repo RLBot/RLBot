@@ -21,8 +21,6 @@ extern "C"
 
 		RLBotCoreStatus checkInputConfiguration(const PlayerInput& playerInput);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(const PlayerInput& playerInput, int playerIndex);
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(void* controllerState, int protoSize);
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* playerInput, int size);
 	}
 

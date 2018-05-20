@@ -1,9 +1,9 @@
-#include <CapnProto\capnproto.hpp>
-#include "game_data.pb.h"
 #include <DebugHelper.hpp>
+#include <flatbuffers\flatbuffers.h>
 
 #include "PlayerInfo.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
+#include <MessageTranslation\FlatbufferTranslator.hpp>
 
 #include <chrono>
 #include <thread>
@@ -74,64 +74,9 @@ namespace GameFunctions
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		::capnp::MallocMessageBuilder message;
-		rlbot::PlayerInput::Builder capnInput = message.initRoot<rlbot::PlayerInput>();
-		capnInput.setPlayerIndex(playerIndex);
-
-		rlbot::ControllerState::Builder capnState = capnInput.initControllerState();
-		capnState.setBoost(playerInput.Boost);
-		capnState.setHandbrake(playerInput.Handbrake);
-		capnState.setJump(playerInput.Jump);
-		capnState.setPitch(playerInput.Pitch);
-		capnState.setRoll(playerInput.Roll);
-		capnState.setSteer(playerInput.Steer);
-		capnState.setThrottle(playerInput.Throttle);
-		capnState.setYaw(playerInput.Yaw);
-
-		ByteBuffer buf = CapnConversions::toBuf(&message);
-		status = UpdatePlayerInputCapnp(buf.ptr, buf.size);
-
-		delete[] buf.ptr;
-		return status;
-	}
-
-	// Proto
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputProto(void* playerInputBinary, int protoSize)
-	{
-		rlbot::api::PlayerInput protoInput = rlbot::api::PlayerInput();
-		protoInput.ParseFromArray(playerInputBinary, protoSize);
-		rlbot::api::ControllerState protoState = protoInput.controller_state();
-
-		::capnp::MallocMessageBuilder message;
-		rlbot::PlayerInput::Builder capnInput = message.initRoot<rlbot::PlayerInput>();
-		capnInput.setPlayerIndex(protoInput.player_index());
-
-		rlbot::ControllerState::Builder capnState = capnInput.initControllerState();
-		capnState.setBoost(protoState.boost());
-		capnState.setHandbrake(protoState.handbrake());
-		capnState.setJump(protoState.jump());
-		capnState.setPitch(protoState.pitch());
-		capnState.setRoll(protoState.roll());
-		capnState.setSteer(protoState.steer());
-		capnState.setThrottle(protoState.throttle());
-		capnState.setYaw(protoState.yaw());
-
-		ByteBuffer buf = CapnConversions::toBuf(&message);
-
-		RLBotCoreStatus status = UpdatePlayerInputCapnp(buf.ptr, buf.size);
-
-		delete[] buf.ptr;
-
-		return status;
-	}
-
-	// Capn
-	static BoostUtilities::QueueSender capnInputQueue(BoostConstants::PlayerInputQueueName);
-
-
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputCapnp(void* controllerState, int protoSize)
-	{
-		return capnInputQueue.sendMessage(controllerState, protoSize);
+		flatbuffers::FlatBufferBuilder builder;
+		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
+		return UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
 	}
 
 	// FLAT

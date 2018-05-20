@@ -16,7 +16,6 @@ plugins {
 }
 
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
-apply plugin: 'com.google.protobuf'
 apply plugin: 'maven-publish'  // Needed to get jitpack to work.
 apply plugin: 'io.netifi.flatbuffers'
 
@@ -27,8 +26,6 @@ repositories {
 dependencies {
     compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
-    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.1.0'  // Allows the java bot manager to use protobuf
-    compile 'org.capnproto:runtime:0.1.3' // Allows java bot manager to use capnproto
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
     compile 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
     testRuntime files('src/main/python/RLBotFramework/dll')
@@ -41,77 +38,14 @@ import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 def parentFolder = new File(new File('.').getCanonicalPath()).getParentFile().absolutePath
 def defaultCoreFolder = 'rlbot-core'
 def pythonRoot = './src/main/python/'
-def protoVersion = '2.6.1'
-
-
-protobuf {
-    // Configure the protoc executable
-    protoc {
-        // Download from repositories
-        artifact = 'com.google.protobuf:protoc:' + protoVersion
-    }
-    generateProtoTasks {
-        // all() returns the collection of all protoc tasks
-        all().each {
-            task ->
-                task.builtins {
-                    python { }
-                    cpp {}
-                    java {}
-                }
-        }
-    }
-}
 
 sourceSets {
     main {
         java {
             // This is the default location where java protobuf classes are generated
-            srcDirs = ['src/main/java', 'build/generated/source/proto/main/java', 'src/generated/java/flatbuffers']
+            srcDirs = ['src/main/java', 'src/generated/java/flatbuffers']
         }
     }
-}
-
-// Runs the capnproto generate script to create java and c++ files.
-task generateCapnproto(type: Exec) {
-    commandLine "./src/main/capnp/generate.bat"
-}
-
-// Copies capnproto java files to where they need to go.
-task copyCapnpJava(type: Copy) {
-    dependsOn 'generateCapnproto'
-    from file('src/main/capnp/Capnp.java')
-    into 'build/generated/source/proto/main/java/rlbot'
-}
-
-// Copies capnproto c++ files to where they need to go.
-task copyCapnpCpp(type: Copy) {
-    dependsOn 'generateCapnproto'
-    from files('src/main/capnp/game_data.capnp.c++', 'src/main/capnp/game_data.capnp.h')
-    into 'build/generated/source/proto/main/cpp'
-    rename('game_data.capnp.c\\+\\+', 'game_data.capnp.cpp')
-}
-
-// Clears out intermediate files
-task deleteCapnp(type: Delete) {
-    delete 'src/main/capnp/game_data.capnp.c++', 'src/main/capnp/game_data.capnp.h', 'src/main/capnp/Capnp.java'
-}
-
-// Sends all the capnproto files to where they need to go.
-task assembleCapnp(dependsOn: ['generateCapnproto', 'copyCapnpJava', 'copyCapnpCpp', 'deleteCapnp']) {
-    dependsOn 'copyCapnpJava'
-    dependsOn 'copyCapnpCpp'
-    dependsOn 'deleteCapnp'
-    tasks.findByName('deleteCapnp').mustRunAfter 'copyCapnpCpp'
-    tasks.findByName('deleteCapnp').mustRunAfter 'copyCapnpJava'
-
-}
-
-// After protobuf is generated, copy the generated file to its home in the python folder.
-task copyProtoPython(type: Copy) {
-    dependsOn 'generateProto'
-    from file('build/generated/source/proto/main/python/game_data_pb2.py')
-    into pythonRoot + 'protobuf'
 }
 
 // After protobuf is generated, copy the generated file to its home in the python folder.
@@ -145,8 +79,6 @@ task generateFlatbuffersCpp(type: FlatBuffers) {
 
 // Useful standalone task for setting up visual studio development environment
 task assembleProtos {
-    dependsOn 'copyProtoPython'
-    dependsOn 'assembleCapnp'
     dependsOn 'copyFlatbuffersPython'
     dependsOn 'generateFlatbuffersJava'
     dependsOn 'generateFlatbuffersCpp'
@@ -177,8 +109,7 @@ task copyDlls(type: Copy) {
 
 // You can use the clean task to remove build output.
 clean {
-    // In addition to the normal clean behavior, also remove the generated protobuf python file(s).
-    delete pythonRoot + 'protobuf'
+    // In addition to the normal clean behavior, also remove the generated flatbuffer file(s).
     delete pythonRoot + 'RLBotMessages/flat'
     delete 'src/generated'
 }
