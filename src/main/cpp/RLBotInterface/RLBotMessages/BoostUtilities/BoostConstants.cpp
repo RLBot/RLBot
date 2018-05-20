@@ -7,15 +7,12 @@
 namespace BoostConstants
 {
 	// Game Data
-	const char* GameDataName = "gameData";
 	const char* GameDataFlatName = "gameDataFlat";
 
 	// Player Input
-	const char* PlayerInputQueueName = "playerInputQueue";
 	const char* PlayerInputFlatQueueName = "playerInputFlatQueue";
 
 	// Field information
-	const char* FieldInfoName = "fieldInfo";
 	const char* FieldInfoFlatName = "fieldInfoFlat";
 
 	// Rendering
