@@ -40,9 +40,9 @@ class BaseFlatbufferAgent(BaseAgent):
         ControllerState.ControllerStateAddPitch(builder, friendly_state.pitch)
         ControllerState.ControllerStateAddYaw(builder, friendly_state.yaw)
         ControllerState.ControllerStateAddRoll(builder, friendly_state.roll)
-        ControllerState.ControllerStateAddJump(builder, friendly_state.jump)
-        ControllerState.ControllerStateAddBoost(builder, friendly_state.boost)
-        ControllerState.ControllerStateAddHandbrake(builder, friendly_state.handbrake)
+        ControllerState.ControllerStateAddJump(builder, int(friendly_state.jump))
+        ControllerState.ControllerStateAddBoost(builder, int(friendly_state.boost))
+        ControllerState.ControllerStateAddHandbrake(builder, int(friendly_state.handbrake))
         controller_state = ControllerState.ControllerStateEnd(builder)
 
         PlayerInput.PlayerInputStart(builder)

@@ -19,7 +19,7 @@ class BaseAgent:
     team = None
     # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.gamecars
     index = None
-    quick_chat_func = None
+    __quick_chat_func = None
     renderer = None
 
     def __init__(self, name, team, index):
@@ -47,11 +47,13 @@ class BaseAgent:
 
     def send_quick_chat(self, team_only, quick_chat):
         """
-        Sends a quick chat to the other bots.
+        Sends a quick chat to the other bots.  If it is None it does not send a quick chat to other bots
         :param team_only: either True or False, this says if the quick chat should only go to team members.
         :param quick_chat: The quick chat selection, available chats are defined in quick_chats.py
         """
-        self.quick_chat_func(team_only, quick_chat)
+        if quick_chat == QuickChats.CHAT_NONE:
+            return
+        self.__quick_chat_func(team_only, quick_chat)
 
     def receive_quick_chat(self, index, team, quick_chat):
         """
@@ -68,7 +70,7 @@ class BaseAgent:
         Registers the send quick chat function.
         This should not be overwritten by the agent.
         """
-        self.quick_chat_func = quick_chat_func
+        self.__quick_chat_func = quick_chat_func
 
     def load_config(self, config_object_header):
         """
