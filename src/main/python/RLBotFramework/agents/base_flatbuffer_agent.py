@@ -27,7 +27,6 @@ class BaseFlatbufferAgent(BaseAgent):
     """
 
     def get_output_flatbuffer(self, game_tick_flatbuffer):
-
         if game_tick_flatbuffer is None or game_tick_flatbuffer.PlayersLength() - 1 < self.index:
             friendly_state = SimpleControllerState()
         else:

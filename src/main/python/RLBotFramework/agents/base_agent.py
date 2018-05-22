@@ -1,6 +1,7 @@
 from RLBotFramework.parsing.custom_config import ConfigObject, ConfigHeader
 from RLBotFramework.utils.logging_utils import get_logger
 from RLBotFramework.utils.structures.quick_chats import QuickChats
+from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
@@ -8,7 +9,6 @@ BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 PYTHON_FILE_KEY = 'python_file'
 LOOKS_CONFIG_KEY = 'looks_config'
-BOT_NAME_KEY = "name"
 
 
 class BaseAgent:
@@ -20,6 +20,7 @@ class BaseAgent:
     # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.gamecars
     index = None
     quick_chat_func = None
+    renderer = None
 
     def __init__(self, name, team, index):
         self.name = name
@@ -93,17 +94,17 @@ class BaseAgent:
     def retire(self):
         """Called after the game ends"""
 
+    def set_renderer(self, renderer: RenderingManager):
+        self.renderer = renderer
+
     @staticmethod
     def create_agent_configurations() -> ConfigObject:
         config = ConfigObject()
-        location_config = config.get_header(BOT_CONFIG_MODULE_HEADER)
+        location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
         location_config.add_value(LOOKS_CONFIG_KEY, str, default='./atba_looks.cfg',
                                   description='Path to loadout config from runner')
         location_config.add_value(PYTHON_FILE_KEY, str, default='./atba.py',
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
-        location_config.add_value(BOT_NAME_KEY, str, default='nameless',
-                                  description='The name that will be displayed in game')
-        config.get_header(BOT_CONFIG_MODULE_HEADER)
         return config
 
     @staticmethod
@@ -117,6 +118,7 @@ class BaseAgent:
     @staticmethod
     def _create_loadout() -> ConfigHeader:
         header = ConfigHeader()
+        header.add_value('name', str, default='nameless', description='The name that will be displayed in game')
         header.add_value('team_color_id', int, default=27, description='Primary Color selection')
         header.add_value('custom_color_id', int, default=75, description='Secondary Color selection')
         header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc')

@@ -1,23 +1,24 @@
-from collections import namedtuple
-from protobuf import game_data_pb2
+import base64
 import os
+import json
+from collections import namedtuple
 
-# I/O adapted from https://www.datadoghq.com/blog/engineering/protobuf-parsing-in-python/
-from google.protobuf.internal.encoder import _VarintBytes
-from google.protobuf.internal.decoder import _DecodeVarint32
-def write_proto_to_file(proto, f):
-    f.write(_VarintBytes(proto.ByteSize()))
-    f.write(proto.SerializeToString())
-def read_proto_from_buffer(proto_class, buffer, offset):
-    msg_len, offset = _DecodeVarint32(buffer, offset)
-    msg_buf = buffer[offset:offset+msg_len]
-    offset += msg_len
-    proto = proto_class()
-    proto.ParseFromString(msg_buf)
-    return proto, offset
+from RLBotMessages.flat.GameTickPacket import GameTickPacket
+from RLBotMessages.flat.PlayerInput import PlayerInput
+
+
+def read_game_tick_from_buffer(buf):
+    packet = GameTickPacket.GetRootAsGameTickPacket(buf, 0)
+    return packet
+
+
+def read_controller_input_from_buffer(buf):
+    player_input = PlayerInput.GetRootAsPlayerInput(buf, 0)
+    return player_input
 
 
 HistoryItem = namedtuple('HistoryItem', 'game_tick_proto controller_state')
+
 
 class HistoryIO():
 
@@ -32,20 +33,27 @@ class HistoryIO():
         if os.path.exists(self.file_path):
             os.remove(self.file_path)
 
-    def append(self, game_tick_proto, controller_state):
-        assert isinstance(game_tick_proto, game_data_pb2.GameTickPacket)
-        assert isinstance(controller_state, game_data_pb2.ControllerState)
-        with open(self.file_path, 'ab') as f:
-            write_proto_to_file(game_tick_proto, f)
-            write_proto_to_file(controller_state, f)
+    def append(self, game_tick_proto, player_input):
+        with open(self.file_path, 'a') as f:
+            f.write(json.dumps({
+                'tick': base64.b64encode(game_tick_proto).decode('ascii'),
+                'input': base64.b64encode(player_input).decode('ascii')
+            }))
+            f.write('\n')
 
     def get_all_history_items(self):
         history = []
-        with open(self.file_path, 'rb') as f:
-            buf = f.read()
-            n = 0  # our position in the file.
-            while n < len(buf):
-                game_tick_proto, n = read_proto_from_buffer(game_data_pb2.GameTickPacket, buf, n)
-                controller_state, n = read_proto_from_buffer(game_data_pb2.ControllerState, buf, n)
+        with open(self.file_path, 'r') as f:
+
+            for line in f:
+                data = json.loads(line)
+
+                game_tick_proto_binary = base64.b64decode(data['tick'])
+                game_tick_proto = read_game_tick_from_buffer(game_tick_proto_binary)
+
+                player_input_binary = base64.b64decode(data['input'])
+                controller_state = read_controller_input_from_buffer(player_input_binary)
+
                 history.append(HistoryItem(game_tick_proto=game_tick_proto, controller_state=controller_state))
+
         return history

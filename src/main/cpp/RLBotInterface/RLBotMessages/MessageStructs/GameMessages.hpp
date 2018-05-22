@@ -65,10 +65,4 @@ struct SendChatMessage : public Message<SendChatMessageType, true>
 	bool				bTeam;
 };
 
-struct ByteBuffer
-{
-	void* ptr;
-	int size;
-};
-
 #endif

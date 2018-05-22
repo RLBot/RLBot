@@ -15,7 +15,6 @@ from RLBotFramework.utils.structures.quick_chats import QuickChatManager
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
 from RLBotFramework.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
 from RLBotFramework.botmanager.bot_manager_independent import BotManagerIndependent
-from RLBotFramework.botmanager.bot_manager_proto import BotManagerProto
 from RLBotFramework.botmanager.bot_manager_struct import BotManagerStruct
 
 # By default, look for rlbot.cfg in the current working directory.
@@ -153,10 +152,6 @@ class SetupManager:
         if hasattr(agent_class_wrapper.get_loaded_class(), "run_independently"):
             bm = BotManagerIndependent(terminate_event, callback_event, config_file, name, team,
                                        index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
-
-        elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_proto"):
-            bm = BotManagerProto(terminate_event, callback_event, config_file, name, team,
-                                 index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
             bm = BotManagerFlatbuffer(terminate_event, callback_event, config_file, name, team,
                                       index, agent_class_wrapper, agent_telemetry_queue, queue_holder)

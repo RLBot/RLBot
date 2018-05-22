@@ -8,11 +8,13 @@ def test_sufficient_data(history):
 def test_tick_rate(history):
     ''' Checks that we're consistently running at 60 ticks/s'''
     fps = 60  # I know it's not frames but I find it easier to read than tps.
-    times = [ item.game_tick_proto.game_info.seconds_elapsed for item in history ]
+
     def get_time(history_item):
-        return history_item.game_tick_proto.game_info.seconds_elapsed
+        return history_item.game_tick_proto.GameInfo().SecondsElapsed()
+
     def is_admissible(history_item):
-        return history_item.game_tick_proto.game_info.is_round_active
+        return history_item.game_tick_proto.GameInfo().IsRoundActive()
+
     intervals = [
         get_time(history[i+1]) - get_time(history[i])
         for i in range(len(history)-1)

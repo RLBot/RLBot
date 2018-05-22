@@ -4,13 +4,14 @@ import subprocess
 import sys
 import time
 
-from protobuf import game_data_pb2
+from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
 from RLBotMessages.flat import GameTickPacket as GameTickPacketFlat
 from RLBotFramework.utils.class_importer import get_python_root
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
 from RLBotFramework.utils.structures.start_match_structures import MatchSettings
+from RLBotFramework.utils import rlbot_exception
 
 
 def wrap_callback(callback_func):
@@ -31,6 +32,7 @@ class GameInterface:
     def __init__(self, logger):
         self.logger = logger
         self.dll_path = os.path.join(self.get_dll_path(), 'RLBot_Core_Interface.dll')
+        self.renderer = RenderingManager()
         # wait for the dll to load
 
     def setup_function_types(self):
@@ -39,11 +41,6 @@ class GameInterface:
         func = self.game.UpdateLiveDataPacket
         func.argtypes = [ctypes.POINTER(GameTickPacket)]
         func.restype = ctypes.c_int
-
-        # update live data proto
-        func = self.game.UpdateLiveDataPacketProto
-        func.argtypes = []
-        func.restype = ByteBuffer
 
         func = self.game.UpdateLiveDataPacketFlatbuffer
         func.argtypes = []
@@ -60,11 +57,6 @@ class GameInterface:
         func.restype = ctypes.c_int
 
         # update player input
-        func = self.game.UpdatePlayerInputProto
-        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
-        func.restype = ctypes.c_int
-
-        # update player input
         func = self.game.UpdatePlayerInputFlatbuffer
         func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
@@ -73,6 +65,8 @@ class GameInterface:
         func = self.game.SendChat
         func.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_bool, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
+
+        self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
         # free the memory at the given pointer
@@ -93,6 +87,9 @@ class GameInterface:
         rlbot_status = self.game.StartMatch(self.start_match_configuration,
                                             self.create_status_callback(
                                                 None if self.extension is None else self.extension.onMatchStart), None)
+
+        if rlbot_status != 0:
+            raise rlbot_exception.RLBotException().raise_exception_from_error_code(rlbot_status)
 
         self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
 
@@ -186,36 +183,25 @@ class GameInterface:
         self.game_status_callback_type(wrap_callback(self.game_status))
         self.extension = extension
 
-    def update_controller_state(self, controller_state, index):
-
-        player_input = game_data_pb2.PlayerInput()
-        player_input.controller_state.CopyFrom(controller_state)
-        player_input.player_index = index
-
-        byte_size = player_input.ByteSize()
-        serialized = player_input.SerializeToString()
-        rlbot_status = self.game.UpdatePlayerInputProto(serialized, byte_size)
-        self.game_status(None, rlbot_status)
-
     def update_player_input_flat(self, player_input_builder):
         buf = player_input_builder.Output()
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
 
-    def update_live_data_proto(self):
-        byte_buffer = self.game.UpdateLiveDataPacketProto()
-        proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
-        packet = game_data_pb2.GameTickPacket()
-        packet.ParseFromString(proto_string)
-        self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-        self.game_status(None, "Success")
-        return packet
+    def get_live_data_flat_binary(self):
+        """
+        Gets the live data packet in flatbuffer binary format. You'll need to do something like
+        GameTickPacket.GetRootAsGameTickPacket(binary, 0) to get the data out.
 
-    def update_live_data_flat(self):
+        This is a temporary method designed to keep the integration test working. It returns the raw bytes
+        of the flatbuffer so that it can be stored in a file. We can get rid of this once we have a first-class
+        data recorder that lives inside the core dll.
+        """
         byte_buffer = self.game.UpdateLiveDataPacketFlatbuffer()
         if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
-            packet = GameTickPacketFlat.GameTickPacket.GetRootAsGameTickPacket(proto_string, 0)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, "Success")
-            return packet
+            return proto_string

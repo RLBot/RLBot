@@ -5,7 +5,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import rlbot.ControllerState;
-import rlbot.api.GameData;
 import rlbot.flat.FieldInfo;
 import rlbot.flat.GameTickPacket;
 
@@ -13,9 +12,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class RLBotDll {
-
-    private static native ByteBufferStruct UpdateLiveDataPacketProto();
-    private static native int UpdatePlayerInputProto(Pointer ptr, int size);
 
     private static native ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
     private static native int UpdatePlayerInputFlatbuffer(Pointer ptr, int size);
@@ -51,16 +47,6 @@ public class RLBotDll {
         }
     }
 
-    public static GameData.GameTickPacket getProtobufPacket() throws IOException {
-        try {
-            final ByteBufferStruct struct = UpdateLiveDataPacketProto();
-            final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
-            return GameData.GameTickPacket.parseFrom(protoBytes);
-        } catch (final Error error) {
-            throw new IOException(error);
-        }
-    }
-
     /**
      * Set player input in flatbuffer format.
      */
@@ -89,30 +75,6 @@ public class RLBotDll {
         final byte[] protoBytes = builder.sizedByteArray();
         final Memory memory = getMemory(protoBytes);
         UpdatePlayerInputFlatbuffer(memory, protoBytes.length);
-    }
-
-    /**
-     * Set player input in protobuf format.
-     */
-    public static void setPlayerInputProtobuf(ControllerState controllerState, int index) {
-
-        GameData.PlayerInput playerInput = GameData.PlayerInput.newBuilder()
-                .setPlayerIndex(index)
-                .setControllerState(GameData.ControllerState.newBuilder()
-                        .setThrottle(controllerState.getThrottle())
-                        .setSteer(controllerState.getSteer())
-                        .setPitch(controllerState.getPitch())
-                        .setYaw(controllerState.getYaw())
-                        .setRoll(controllerState.getRoll())
-                        .setBoost(controllerState.holdBoost())
-                        .setHandbrake(controllerState.holdHandbrake())
-                        .setJump(controllerState.holdJump())
-                        .build())
-                .build();
-
-        final byte[] protoBytes = playerInput.toByteArray();
-        final Memory memory = getMemory(protoBytes);
-        UpdatePlayerInputProto(memory, protoBytes.length);
     }
 
     private static Memory getMemory(byte[] protoBytes) {
