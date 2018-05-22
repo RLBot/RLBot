@@ -66,13 +66,6 @@ task generateFlatbuffersCpp(type: Exec) {
     commandLine flatbufDir + "flatc.exe", "--cpp", "-o", "./src/generated/cpp/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
-// Useful standalone task for setting up visual studio development environment
-task assembleProtos {
-    dependsOn 'copyFlatbuffersPython'
-    dependsOn 'generateFlatbuffersJava'
-    dependsOn 'generateFlatbuffersCpp'
-}
-
 def counter = 0
 String regex = /(?i)rlbot[-_ ]core/
 new File(parentFolder).eachDir{
@@ -110,8 +103,7 @@ task pipInstallRequirements(type: Exec) {
 }
 
 // Establish some task dependencies so that some tasks always run before others.
-compileJava.dependsOn assembleProtos
-
+compileJava.dependsOn generateFlatbuffersJava
 
 // This task creates a jar file which contains the java source files.
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -133,7 +125,7 @@ def gitignoreToList(File f) {
 
 // Creates a zip file with all the python files needed for running rlbot. Custom bot repositories should be able to
 // depend on this zip instead of keeping a local copy of framework files.
-task pythonZip(type: Zip, dependsOn: processResources) {
+task pythonZip(type: Zip, dependsOn: copyFlatbuffersPython) {
     into('/') {
         from(fileTree('src/main/python/'))   // Grab all the files in the src/main/python folder and add them at the root level
         from 'LICENSE.txt'   // Also grab the license
