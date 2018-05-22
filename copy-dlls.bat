@@ -26,5 +26,3 @@ IF %count% GEQ 2 (
 
 copy /Y "%core_folder%\RLBot Core\Bin\Win32\Debug-SDK\RLBot Core.dll" ^
  .\src\main\python\RLBotFramework\dll\RLBot_Core.dll
-
-
