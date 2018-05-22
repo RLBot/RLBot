@@ -36,9 +36,6 @@
     <Filter Include="Header Files\Protobuf">
       <UniqueIdentifier>{10365943-e60e-436e-975a-757a947c2d15}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Protobuf">
-      <UniqueIdentifier>{54a19714-57d6-493b-8bfe-82bc3ea29b05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\CapnProto">
       <UniqueIdentifier>{9ce82cf1-1117-481f-b413-7f48b95cba2e}</UniqueIdentifier>
     </Filter>

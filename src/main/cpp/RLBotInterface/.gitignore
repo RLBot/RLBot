@@ -56,5 +56,3 @@ packages/
 
 !lib/
 !lib/**/*.lib
-!RLBotMessages/CapnProto/*
-!RLBotMessages/Protobuf/*
