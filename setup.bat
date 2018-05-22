@@ -1,4 +1,7 @@
 @rem Change the working directory to the location of this file so that relative paths will work
+
+@echo off
+
 cd /D "%~dp0"
 
 .\src\main\flatbuffers\flatc.exe --python -o .\src\generated\python .\src\main\flatbuffers\rlbot.fbs
@@ -10,6 +13,10 @@ xcopy /s /Y .\src\generated\python\rlbot .\src\main\python\RLBotMessages\
 
 pip install -r .\src\main\python\requirements.txt
 
-echo "Setup succeeded!"
+echo.
+echo #######################
+echo ### Setup Complete! ###
+echo #######################
+echo.
 
 pause
