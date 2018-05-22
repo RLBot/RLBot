@@ -7,7 +7,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.4'
-        classpath "gradle.plugin.io.netifi:gradle-flatbuffers-plugin:1.0.4"
     }
 }
 
@@ -16,8 +15,7 @@ plugins {
 }
 
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
-apply plugin: 'maven-publish'  // Needed to get jitpack to work.
-apply plugin: 'io.netifi.flatbuffers'
+apply plugin: 'maven-publish'  // Needed for publishing to bintray.
 
 repositories {
     jcenter()
@@ -34,7 +32,6 @@ dependencies {
 project.setGroup('org.rlbot.commons')
 project.setVersion('0.0.1')
 
-import io.netifi.flatbuffers.plugin.tasks.FlatBuffers
 def parentFolder = new File(new File('.').getCanonicalPath()).getParentFile().absolutePath
 def defaultCoreFolder = 'rlbot-core'
 def pythonRoot = './src/main/python/'
@@ -48,63 +45,25 @@ sourceSets {
     }
 }
 
-// After protobuf is generated, copy the generated file to its home in the python folder.
+// After flatbuffers are generated, copy the generated file to its home in the python folder.
 task copyFlatbuffersPython(type: Copy) {
     dependsOn 'generateFlatbuffersPython'
     from fileTree('src/generated/python/flatbuffers/rlbot')
     into pythonRoot + 'RLBotMessages'
 }
 
-flatbuffers {
-    flatcPath = 'src/main/flatbuffers'
+def flatbufDir = "./src/main/flatbuffers/"
+
+task generateFlatbuffersJava(type: Exec) {
+    commandLine flatbufDir + "flatc.exe", "--java", "-o", "./src/generated/java/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
-task generateFlatbuffersJava(type: FlatBuffers) {
-    inputDir = file("src/main/flatbuffers")
-    outputDir = file("src/generated/java/flatbuffers")
-    language = 'java'
+task generateFlatbuffersPython(type: Exec) {
+    commandLine flatbufDir + "flatc.exe", "--python", "-o", "./src/generated/python/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
-task generateFlatbuffersPython(type: FlatBuffers) {
-    inputDir = file("src/main/flatbuffers")
-    outputDir = file("src/generated/python/flatbuffers")
-    language = 'python'
-}
-
-task generateFlatbuffersCpp(type: FlatBuffers) {
-    inputDir = file("src/main/flatbuffers")
-    outputDir = file("src/generated/cpp/flatbuffers")
-    language = 'cpp'
-}
-
-// Useful standalone task for setting up visual studio development environment
-task assembleProtos {
-    dependsOn 'copyFlatbuffersPython'
-    dependsOn 'generateFlatbuffersJava'
-    dependsOn 'generateFlatbuffersCpp'
-}
-
-def counter = 0
-String regex = /(?i)rlbot[-_ ]core/
-new File(parentFolder).eachDir{
-    if (it.name ==~ regex) {
-        if (counter > 0) {
-            throw new Exception('More than one core directory found please move one of them.')
-        }
-        defaultCoreFolder = it.absolutePath
-        print('Found dll folder ')
-        println(defaultCoreFolder)
-        counter++
-    }
-}
-
-// This is just a convenience task for developers.
-task copyDlls(type: Copy) {
-    from files('src/main/cpp/RLBotInterface/RLBotInterface/Bin/x64/Debug/RLBotInterface.dll',
-            defaultCoreFolder + '/RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll')
-    into pythonRoot + 'RLBotFramework/dll'
-    rename('RLBot Core.dll', 'RLBot_Core.dll')
-    rename('RLBotInterface.dll', 'RLBot_Core_Interface.dll')
+task generateFlatbuffersCpp(type: Exec) {
+    commandLine flatbufDir + "flatc.exe", "--cpp", "-o", "./src/generated/cpp/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
 // You can use the clean task to remove build output.
@@ -121,8 +80,20 @@ task pipInstallRequirements(type: Exec) {
 }
 
 // Establish some task dependencies so that some tasks always run before others.
-compileJava.dependsOn assembleProtos
+compileJava.dependsOn generateFlatbuffersJava
 
+task pythonSetup {
+    dependsOn 'copyFlatbuffersPython'
+    dependsOn 'pipInstallRequirements'
+}
+
+task cppSetup {
+    dependsOn 'generateFlatbuffersCpp'
+}
+
+task javaSetup {
+    dependsOn 'generateFlatbuffersJava'
+}
 
 // This task creates a jar file which contains the java source files.
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -144,7 +115,7 @@ def gitignoreToList(File f) {
 
 // Creates a zip file with all the python files needed for running rlbot. Custom bot repositories should be able to
 // depend on this zip instead of keeping a local copy of framework files.
-task pythonZip(type: Zip, dependsOn: processResources) {
+task pythonZip(type: Zip, dependsOn: copyFlatbuffersPython) {
     into('/') {
         from(fileTree('src/main/python/'))   // Grab all the files in the src/main/python folder and add them at the root level
         from 'LICENSE.txt'   // Also grab the license
