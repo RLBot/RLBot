@@ -1,30 +1,27 @@
 import os
-from RLBotFramework.agents.base_agent import BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, BOT_NAME_KEY
+
+from RLBotFramework.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
+from RLBotFramework.gui.presets import AgentPreset, LoadoutPreset
 from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
-    PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, get_bot_config_bundle, BotConfigBundle
+    PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM
 
 
-class BaseGuiAgent:
-    overall_config = None  # The config that is shared by all agent frames.
+class Agent:
+    overall_config = None
 
-    def __init__(self, overall_index, loadout_preset=None, agent_preset=None):
-        """
-        Creates a class containing the info needed to extract by the GUI
-        :param overall_index: An optional value if the overall index of this agent is already specified.
-        :return: an instance of BaseAgentFrame
-        """
+    def __init__(self, overall_index: int, loadout_preset: LoadoutPreset=None, agent_preset: AgentPreset=None):
         self.overall_index = overall_index
-
-        self.agent_config_path = None
-        self.loadout_config_path = None
         self.loadout_preset = loadout_preset
         self.agent_preset = agent_preset
-        self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY) if agent_preset is not None \
-            else None
+        if agent_preset is not None:
+            self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
+        else:
+            self.ingame_name = None
 
+    # Below here the getters and setters
     def get_configs(self):
         """
-        :return: A tuple in the shape of (overall index, agent config, loadout config)
+        :return: overall index, agent config, loadout config in that order
         """
         agent_config = self.agent_preset.config.copy()
         agent_config.set_value(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, self.ingame_name)
@@ -49,12 +46,6 @@ class BaseGuiAgent:
 
     def get_agent_preset(self):
         return self.agent_preset
-
-    def __repr__(self):
-        return '%s (%s, %s)' % (self.__class__.__name__, self.agent_class.__name__, self.overall_index)
-
-    def __str__(self):
-        return '%s (%s)' % (self.ingame_name, self.__class__.__name__)  # TODO fix this up again
 
     def get_agent_config_path(self):
         return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
