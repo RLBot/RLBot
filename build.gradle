@@ -66,29 +66,6 @@ task generateFlatbuffersCpp(type: Exec) {
     commandLine flatbufDir + "flatc.exe", "--cpp", "-o", "./src/generated/cpp/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
-def counter = 0
-String regex = /(?i)rlbot[-_ ]core/
-new File(parentFolder).eachDir{
-    if (it.name ==~ regex) {
-        if (counter > 0) {
-            throw new Exception('More than one core directory found please move one of them.')
-        }
-        defaultCoreFolder = it.absolutePath
-        print('Found dll folder ')
-        println(defaultCoreFolder)
-        counter++
-    }
-}
-
-// This is just a convenience task for developers.
-task copyDlls(type: Copy) {
-    from files('src/main/cpp/RLBotInterface/RLBotInterface/Bin/x64/Debug/RLBotInterface.dll',
-            defaultCoreFolder + '/RLBot Core/Bin/Win32/Debug-SDK/RLBot Core.dll')
-    into pythonRoot + 'RLBotFramework/dll'
-    rename('RLBot Core.dll', 'RLBot_Core.dll')
-    rename('RLBotInterface.dll', 'RLBot_Core_Interface.dll')
-}
-
 // You can use the clean task to remove build output.
 clean {
     // In addition to the normal clean behavior, also remove the generated flatbuffer file(s).
@@ -104,6 +81,19 @@ task pipInstallRequirements(type: Exec) {
 
 // Establish some task dependencies so that some tasks always run before others.
 compileJava.dependsOn generateFlatbuffersJava
+
+task pythonSetup {
+    dependsOn 'copyFlatbuffersPython'
+    dependsOn 'pipInstallRequirements'
+}
+
+task cppSetup {
+    dependsOn 'generateFlatbuffersCpp'
+}
+
+task javaSetup {
+    dependsOn 'generateFlatbuffersJava'
+}
 
 // This task creates a jar file which contains the java source files.
 task sourcesJar(type: Jar, dependsOn: classes) {
