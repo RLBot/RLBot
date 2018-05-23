@@ -11,8 +11,6 @@ xcopy /s /Y .\src\generated\python\rlbot .\src\main\python\RLBotMessages\
 
 .\src\main\flatbuffers\flatc.exe --java -o .\src\generated\java\flatbuffers .\src\main\flatbuffers\rlbot.fbs
 
-pip install -r .\src\main\python\requirements.txt
-
 echo.
 echo #######################
 echo ### Setup Complete! ###
