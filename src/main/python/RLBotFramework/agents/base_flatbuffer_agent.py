@@ -10,6 +10,7 @@ class SimpleControllerState:
     Building flatbuffer objects is verbose and error prone. This class provides a friendlier
     interface to bot makers.
     """
+
     def __init__(self):
         self.steer = 0.0
         self.throttle = 0.0
