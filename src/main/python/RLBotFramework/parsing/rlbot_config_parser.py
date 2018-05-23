@@ -59,7 +59,6 @@ def parse_configurations(start_match_configuration, config_parser, config_locati
 
     player_configuration_list = get_player_configuration_list(start_match_configuration)
 
-
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
 
@@ -71,8 +70,8 @@ def parse_configurations(start_match_configuration, config_parser, config_locati
             looks_config_object = looks_configs[i]
 
         bot_name, team_number, python_file, bot_parameters = load_bot_config(i, player_configuration_list[i],
-                                                                            config_bundle, looks_config_object,
-                                                                            config_parser, name_dict)
+                                                                             config_bundle, looks_config_object,
+                                                                             config_parser, name_dict)
 
         bot_names.append(bot_name)
         bot_teams.append(team_number)
