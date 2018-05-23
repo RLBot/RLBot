@@ -119,9 +119,6 @@ ENV/
 # Generated integration test data
 /src/test/python/integration_test/history.pb.bin
 
-# Protobuf files copied from dependencies
-/src/main/python/protobuf
-
 src/main/cpp/RLBotInterface/.vs/RLBotInterface/
 /src/generated
 /src/main/python/RLBotMessages/flat
