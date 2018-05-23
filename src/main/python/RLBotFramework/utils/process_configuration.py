@@ -27,7 +27,7 @@ def configure_processes(agent_metadata_map, logger):
 
     for player_index, data in agent_metadata_map.items():
         team = data['team']
-        if not team in team_pids_map:
+        if team not in team_pids_map:
             team_pids_map[team] = set()
         team_pids_map[team].update(data['pids'])
 
@@ -64,4 +64,3 @@ def configure_processes(agent_metadata_map, logger):
     for pid in shared_pids:
         p = psutil.Process(pid)  # Allow the process to run at high priority
         p.nice(psutil.HIGH_PRIORITY_CLASS)
-

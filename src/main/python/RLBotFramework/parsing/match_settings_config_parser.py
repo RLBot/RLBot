@@ -42,8 +42,8 @@ def add_match_settings_header(config_object):
 
 def add_mutator_header(config_object):
     mutator_header = config_object.add_header_name(MUTATOR_CONFIGURATION_HEADER)
-    mutator_header.add_value(MUTATOR_MATCH_LENGTH, int, default=1,
-                             description="Changes the length of the match, 0 for unlimited")
+    mutator_header.add_value(MUTATOR_MATCH_LENGTH, int, default=0,
+                             description="Changes the length of the match, 3 for unlimited")
     mutator_header.add_value(MUTATOR_MAX_SCORE, int, default=0,
                              description="Changes the number of goals needed to win, 0 for unlimited")
     mutator_header.add_value(MUTATOR_GAME_SPEED, str, default="Default",

@@ -114,7 +114,6 @@ class BaseAgent:
         config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
         return config
 
-
     @staticmethod
     def _create_loadout() -> ConfigHeader:
         header = ConfigHeader()
@@ -150,4 +149,3 @@ class BaseAgent:
         player_configuration.engine_audio_id = bot_config.getint(loadout_header, 'engine_audio_id')
         player_configuration.trails_id = bot_config.getint(loadout_header, 'trails_id')
         player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')
-

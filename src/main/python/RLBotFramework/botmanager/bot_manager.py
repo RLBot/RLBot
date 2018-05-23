@@ -146,7 +146,6 @@ class BotManager:
                     self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
 
             # Ratelimit here
-            #self.logger.debug('Latency of %s: %s', self.name, str(before - after))
             after = datetime.now()
 
             rate_limit.acquire(after - before)
