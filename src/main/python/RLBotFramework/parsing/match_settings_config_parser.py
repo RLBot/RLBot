@@ -124,7 +124,7 @@ def add_mutator_header(config_object):
     mutator_header.add_value(MUTATOR_BALL_BOUNCINESS, float, default=1.0,  # TODO find real default
                              description="Changes the bounciness of the ball")
     mutator_header.add_value(MUTATOR_BOOST_AMOUNT, str, default="Default",
-                             description="Changes the amount of boost \n (use 'Default', 'Unlimited', "
+                             description="Changes the amount of boost\n (use 'Default', 'Unlimited', "
                                          "'Recharge (Slow)', 'Recharge (Fast)' or 'No Boost')")
     mutator_header.add_value(MUTATOR_RUMBLE, str, default="None",
                              description="Changes rumble type\n(use 'None', 'Default', "

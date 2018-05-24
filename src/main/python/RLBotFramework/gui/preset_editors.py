@@ -150,7 +150,7 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
             elif isinstance(config_widget, QtWidgets.QAbstractSpinBox):
                 config_widget.valueChanged.connect(self.update_spinbox_and_combobox)
 
-    def update_spinbox_and_combobox(self, print_err=False):
+    def update_spinbox_and_combobox(self):
         # Updates the corresponding widget (ie update spinbox if combobox edited)
         updated_widget = self.sender()
         # config_headers contains the config_header (team) and the config_item (ie decal)
@@ -178,12 +178,12 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
                             _index = self.item_dicts['categorised_items'][category].index(item_name)
                             widget_to_update.setCurrentIndex(_index)
                         except ValueError:
-                            if print_err:
-                                print('Error: Item ID entered does not belong in this category. (%s)' % item_name)
+                            # print('Error: Item ID entered does not belong in this category. (%s)' % item_name)
+                            pass
                     except KeyError:
                         # unknown item selected, the id exists in no category
-                        if print_err:
-                            print('Unknown item ID entered (%s) in %s' % (item_id, widget_to_update.objectName()))
+                        # print('Unknown item ID entered (%s) in %s' % (item_id, widget_to_update.objectName()))
+                        pass
                         widget_to_update.setCurrentText('Unknown')
 
                 elif isinstance(widget_to_update, QtWidgets.QAbstractSpinBox):
@@ -205,6 +205,8 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
         for config_header_key, config_header in self.get_current_preset().config.headers.items():
             # for config_header in config, update widget value
             for config_value_key in config_header.values:
+                if config_value_key == "name":
+                    continue
                 try:
                     widgets = self.config_headers_to_widgets[config_header_key][config_value_key]
                     try:
@@ -214,9 +216,11 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
                                 # widget.setValue(config_header_value.value)
                                 widget.setValue(config_header.get(config_value_key))
                     except:
-                        print("An error occurred")
+                        # print("An error occurred")
+                        pass
                 except KeyError:
-                    print('Unknown loadout config header entry: %s' % config_value_key)
+                    # print('Unknown loadout config header entry: %s' % config_value_key)
+                    pass
 
     def create_config_headers_dicts(self):
         """

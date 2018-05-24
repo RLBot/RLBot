@@ -44,12 +44,49 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.connect_functions()
         self.update_bot_type_combobox()
 
+    def fixed_indices(self):
+        """
+        Agents in the GUI might not have following overall indices,
+        thereby a file saved through the GUI would cause other bots to start than the GUI when ran
+        :return: CustomConfig instance, copy of the overall config which has the indices sorted out
+        """
+        config = self.overall_config.copy()
+
+        used_indices = sorted(self.index_manager.numbers)
+        not_used_indices = [e for e in range(10) if e not in used_indices]
+        order = used_indices + not_used_indices
+        header = config[PARTICIPANT_CONFIGURATION_HEADER]
+        for name, config_value in header.values.items():
+            old_values = list(config_value.value)
+            for i in range(10):
+                config_value.set_value(old_values[order[i]], index=i)
+        return config
+
     def start_match(self):
         """
         Starts a match with the current configuration
         :return:
         """
-        # TODO hook this up to the SetupManager and actually run the match
+        agent_configs_dict = {}
+        loadout_configs_dict = {}
+        for agent in self.agents:
+            i, agent_config, loadout_config = agent.get_configs()
+            agent_configs_dict[i] = agent_config
+            loadout_configs_dict[i] = loadout_config
+        agent_configs = {}
+        loadout_configs = {}
+        index = 0
+        for i in range(10):
+            if i in agent_configs_dict:
+                agent_configs[index] = agent_configs_dict[i]
+                loadout_configs[index] = loadout_configs_dict[i]
+                index += 1
+        manager = SetupManager()
+        manager.startup()
+        manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
+        manager.launch_bot_processes()
+        manager.run()
+        manager.shut_down()
 
     def connect_functions(self):
         """
@@ -69,8 +106,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
         self.blue_minus_toolbutton.clicked.connect(lambda e: self.remove_agent(self.current_bot))
         self.orange_minus_toolbutton.clicked.connect(lambda e: self.remove_agent(self.current_bot))
-        self.blue_plus_toolbutton.clicked.connect(lambda e: self.add_agent(team_index=0))
-        self.orange_plus_toolbutton.clicked.connect(lambda e: self.add_agent(team_index=1))
+        self.blue_plus_toolbutton.clicked.connect(lambda e: self.add_agent_button(team_index=0))
+        self.orange_plus_toolbutton.clicked.connect(lambda e: self.add_agent_button(team_index=1))
 
         for child in self.bot_config_groupbox.findChildren(QWidget):
             if isinstance(child, QLineEdit):
@@ -119,13 +156,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 self.orange_listwidget.setCurrentItem(self.orange_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
 
         elif sender is self.ign_lineedit:
+            if agent not in self.agents:
+                return
             if not agent.get_team():
                 listwidget = self.blue_listwidget
             else:
                 listwidget = self.orange_listwidget
-            # if not listwidget.selectedItems():  # happens when you 'finish editing' by click delete [-]
-            #     return
-            # TODO catch the real [-]
             name = self.validate_name(value, agent)
             old_name = self.validate_name(agent.ingame_name, agent)
             listwidget.findItems(old_name, QtCore.Qt.MatchExactly)[0].setText(name)
@@ -133,9 +169,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             agent.set_name(value)
             self.bot_names_to_agent_dict[name] = agent
         elif sender is self.loadout_preset_combobox:
-            pass
+            if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
+                self.current_bot.set_loadout_preset(self.loadout_presets[value])
         elif sender is self.agent_preset_combobox:
-            pass
+            if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
+                self.current_bot.set_agent_preset(self.agent_presets[value])
         elif sender is self.bot_level_slider:
             agent.set_bot_skill(value / 100)
 
@@ -227,12 +265,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         :param time_out: The amound of milliseconds it should wait before saving
         :return:
         """
-        # TODO make sure the preset paths also save/always get updated, also make sure the order is correct
         def save():
             if not os.path.exists(self.overall_config_path):
                 return
             with open(self.overall_config_path, "w") as f:
-                f.write(str(self.overall_config))
+                f.write(str(self.fixed_indices()))
         if self.overall_config_timer is None:
             self.overall_config_timer = QTimer()
             self.overall_config_timer.setSingleShot(True)
@@ -334,6 +371,17 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         else:
             return name
 
+    def add_agent_button(self, team_index: int):
+        agent = self.load_agent()
+        if agent is None:
+            return
+        agent.set_team(team_index)
+        self.update_teams_listwidgets()
+        if agent.get_team() == 0:
+            self.blue_listwidget.setCurrentItem(self.blue_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
+        else:
+            self.orange_listwidget.setCurrentItem(self.orange_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
+
     def load_agents(self, config_file=None):
         """
         Loads all agents for this team from the rlbot.cfg
@@ -378,9 +426,9 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         :param team_index: The index of the team to place the agent in
         :return agent:
         """
-        if not self.index_manager.has_free_slots():
-            return
         if overall_index is None:
+            if not self.index_manager.has_free_slots():
+                return
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.use_index(overall_index)
@@ -400,7 +448,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.update_teams_listwidgets()
 
     def add_loadout_preset(self, file_path):
-        if os.path.isfile(file_path):
+        if file_path is not None and os.path.isfile(file_path):
             name = os.path.basename(file_path).replace(".cfg", "")
         else:
             name = "new preset"

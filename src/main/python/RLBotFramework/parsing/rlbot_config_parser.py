@@ -29,7 +29,7 @@ def create_bot_config_layout():
                           description="Changes the Team name to use instead of 'Blue'")
     team_header.add_value("Team Orange Color", int, default=0,
                           description="Changes Blue team color, use 0 to use default color")
-    team_header.add_value("Team Orange Name", str, default="Blue",
+    team_header.add_value("Team Orange Name", str, default="Orange",
                           description="Changes the Team name to use instead of 'Orange'")
     add_match_settings_header(config_object)
     add_mutator_header(config_object)
