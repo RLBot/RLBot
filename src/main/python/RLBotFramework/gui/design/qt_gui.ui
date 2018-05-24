@@ -387,7 +387,7 @@
                 <string>Select bot</string>
                </property>
                <property name="currentIndex">
-                <number>2</number>
+                <number>0</number>
                </property>
                <item>
                 <property name="text">
@@ -406,7 +406,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Possessed Human</string>
+                 <string>Party Member Bot</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Controller Passthrough</string>
                 </property>
                </item>
               </widget>
