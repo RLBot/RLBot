@@ -103,7 +103,6 @@ class BaseAgent:
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
         location_config.add_value(BOT_NAME_KEY, str, default='nameless',
                                   description='The name that will be displayed in game')
-        config.get_header(BOT_CONFIG_MODULE_HEADER)
         return config
 
     @staticmethod

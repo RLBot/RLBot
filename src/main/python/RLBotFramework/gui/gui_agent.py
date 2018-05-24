@@ -1,9 +1,9 @@
 import os
 
-from RLBotFramework.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
+from RLBotFramework.agents.base_agent import BOT_NAME_KEY, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, BOT_CONFIG_MODULE_HEADER
 from RLBotFramework.gui.presets import AgentPreset, LoadoutPreset
 from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
-    PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM
+    PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, PARTICIPANT_LOADOUT_CONFIG_KEY, BotConfigBundle
 
 
 class Agent:
@@ -13,8 +13,8 @@ class Agent:
         self.overall_index = overall_index
         self.loadout_preset = loadout_preset
         self.agent_preset = agent_preset
-        if agent_preset is not None:
-            self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
+        if loadout_preset is not None:
+            self.ingame_name = loadout_preset.config.get(BOT_CONFIG_LOADOUT_HEADER, BOT_NAME_KEY)
         else:
             self.ingame_name = None
 
@@ -23,10 +23,14 @@ class Agent:
         """
         :return: overall index, agent config, loadout config in that order
         """
-        agent_config = self.agent_preset.config.copy()
-        agent_config.set_value(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, self.ingame_name)
+        loadout_config = self.loadout_preset.config.copy()
 
-        return self.overall_index, agent_config, self.loadout_preset.config
+        config_path = os.path.dirname(self.agent_preset.config_path)
+        config = self.agent_preset.config.copy()
+        config.set_value(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, self.ingame_name)
+        config_bundle = BotConfigBundle(config_path, config)
+
+        return self.overall_index, config_bundle, loadout_config
 
     def set_name(self, name):
         self.ingame_name = name
@@ -34,15 +38,17 @@ class Agent:
     def get_name(self):
         return self.ingame_name
 
-    def set_loadout_preset(self, loadout_preset):
+    def set_loadout_preset(self, loadout_preset: LoadoutPreset):
         self.loadout_preset = loadout_preset
+        self.set_loadout_config_path(loadout_preset.config_path)
 
     def get_loadout_preset(self):
         return self.loadout_preset
 
-    def set_agent_preset(self, agent_preset):
+    def set_agent_preset(self, agent_preset: AgentPreset):
         self.agent_preset = agent_preset
         self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
+        self.set_agent_config_path(agent_preset.config_path)
 
     def get_agent_preset(self):
         return self.agent_preset
@@ -51,14 +57,22 @@ class Agent:
         return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
                                                         PARTICIPANT_CONFIG_KEY, self.overall_index))
 
-    def set_agent_config_path(self, config_path):
+    def set_agent_config_path(self, config_path: str):
         self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,
+                                      config_path, self.overall_index)
+
+    def get_loadout_config_path(self):
+        return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
+                                                        PARTICIPANT_LOADOUT_CONFIG_KEY, self.overall_index))
+
+    def set_loadout_config_path(self, config_path: str):
+        self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY,
                                       config_path, self.overall_index)
 
     def get_participant_type(self):
         return self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, self.overall_index)
 
-    def set_participant_type(self, participant_type):
+    def set_participant_type(self, participant_type: str):
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY,
                                              participant_type, self.overall_index)
 
@@ -66,14 +80,13 @@ class Agent:
         return self.overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
                                             self.overall_index)
 
-    def set_bot_skill(self, bot_skill):
+    def set_bot_skill(self, bot_skill: float):
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY,
                                              bot_skill, self.overall_index)
 
     def get_team(self):
         return self.overall_config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, self.overall_index)
 
-    def set_team(self, team_i):
-        # sets team to team_i, where 0 is blue, 1 is orange
+    def set_team(self, team_i: int):
         return self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, team_i,
                                              self.overall_index)
