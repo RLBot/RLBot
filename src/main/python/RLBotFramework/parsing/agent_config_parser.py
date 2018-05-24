@@ -3,7 +3,7 @@ import configparser
 import os
 
 from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
-    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY
+    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_NAME_KEY
 from RLBotFramework.utils.class_importer import import_agent
 from RLBotFramework.utils.logging_utils import get_logger
 
@@ -183,7 +183,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
     # Setting up the bots name
-    bot_name = config_bundle.config_obj.get(BOT_CONFIG_MODULE_HEADER, 'name')
+    bot_name = config_bundle.config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
     bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
 
     BaseAgent.parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)

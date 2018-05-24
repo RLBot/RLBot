@@ -9,6 +9,7 @@ BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 PYTHON_FILE_KEY = 'python_file'
 LOOKS_CONFIG_KEY = 'looks_config'
+BOT_NAME_KEY = "name"
 
 
 class BaseAgent:
