@@ -5,7 +5,6 @@ import sys
 import time
 
 from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
-from RLBotMessages.flat import GameTickPacket as GameTickPacketFlat
 from RLBotFramework.utils.class_importer import get_python_root
 from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
 from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer

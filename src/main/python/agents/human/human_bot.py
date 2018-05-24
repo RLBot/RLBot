@@ -1,10 +1,8 @@
-from agents.human.controller_input import controller
 from RLBotFramework.agents.base_agent import BaseAgent
+from controller_input import controller
 
 
 class Agent(BaseAgent):
-    def __init__(self, name, team, index):
-        super(Agent, self).__init__(name, team, index)
 
     def get_output_vector(self, game_tick_packet):
 

@@ -172,7 +172,8 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     # Setting up data about what type of bot it is
     bot_type = overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, index)
     bot_configuration.bot, bot_configuration.rlbot_controlled = get_bot_options(bot_type)
-    bot_configuration.bot_skill = overall_config.getfloat(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
+    bot_configuration.bot_skill = overall_config.getfloat(
+        PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
 
     if not bot_configuration.bot:
         bot_configuration.human_index = index

@@ -1,5 +1,4 @@
 from datetime import datetime
-import math
 import time
 
 ONE_SECOND_TO_MICROSECONDS = 1000000
@@ -13,7 +12,7 @@ class RateLimiter:
     @staticmethod
     def get_time_microseconds(elapsed_time):
         return (
-               elapsed_time.days * 24 * 60 * 60 + elapsed_time.seconds) * ONE_SECOND_TO_MICROSECONDS + elapsed_time.microseconds
+            elapsed_time.days * 24 * 60 * 60 + elapsed_time.seconds) * ONE_SECOND_TO_MICROSECONDS + elapsed_time.microseconds
 
     # Assumes acquring 1 permit
     def acquire(self, microseconds_waited):
