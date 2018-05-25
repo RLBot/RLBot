@@ -21,6 +21,9 @@ from RLBotFramework.parsing.match_settings_config_parser import *
 
 class RLBotQTGui(QMainWindow, Ui_MainWindow):
     def __init__(self):
+        """
+        Creates a new QT mainwindow with the GUI
+        """
         super().__init__()
         self.setupUi(self)
         self.overall_config = None
@@ -43,6 +46,19 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
         self.connect_functions()
         self.update_bot_type_combobox()
+
+    def bot_item_drop_event(self, dropped_listwidget, event):
+        """
+        Switches the team for the dropped agent to the other team
+        :param dropped_listwidget: The listwidget belonging to the new team for the agent
+        :param event: The QDropEvent containing the source
+        :return:
+        """
+        dragged_listwidget = event.source()
+        if dragged_listwidget is dropped_listwidget:  # drops in the same widget
+            return
+        self.current_bot.set_team(dropped_listwidget != self.blue_listwidget)
+        self.update_teams_listwidgets()
 
     def fixed_indices(self):
         """
@@ -98,6 +114,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
+        self.blue_listwidget.dropEvent = lambda event: self.bot_item_drop_event(self.blue_listwidget, event)
+        self.orange_listwidget.dropEvent = lambda event: self.bot_item_drop_event(self.orange_listwidget, event)
 
         self.blue_name_lineedit.editingFinished.connect(self.team_settings_edit_event)
         self.orange_name_lineedit.editingFinished.connect(self.team_settings_edit_event)
@@ -219,6 +237,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.overall_config.set_value(TEAM_CONFIGURATION_HEADER, "Team Orange Color", value)
 
     def update_team_settings(self):
+        """
+        Sets all team settings widgets to the value in the overall config
+        :return:
+        """
         self.blue_name_lineedit.setText(self.overall_config.get(TEAM_CONFIGURATION_HEADER, "Team Blue Name"))
         self.orange_name_lineedit.setText(self.overall_config.get(TEAM_CONFIGURATION_HEADER, "Team Orange Name"))
         self.blue_color_spinbox.setValue(self.overall_config.getint(TEAM_CONFIGURATION_HEADER, "Team Blue Color"))
@@ -274,7 +296,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.overall_config_timer.start(time_out)
 
     def load_selected_bot(self):
-        # prevent proccing from itself (clearing the other one processes this)
+        """
+        Loads all the values belonging to the new selected agent into the bot_config_groupbox
+        :return:
+        """
+        # prevent processing from itself (clearing the other one processes this)
         if not self.sender().selectedItems():
             return
 
@@ -316,6 +342,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.agent_preset_combobox.setCurrentText(agent.get_agent_preset().get_name())
 
     def update_teams_listwidgets(self):
+        """
+        Clears all items from the listwidgets and then adds everything from the self.agents list again to the right team
+        :return:
+        """
         self.bot_names_to_agent_dict.clear()
         self.blue_listwidget.clear()
         self.orange_listwidget.clear()
@@ -339,16 +369,24 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.orange_plus_toolbutton.setDisabled(False)
 
     def enable_disable_on_bot_select_deselect(self):
-        # if no bot selected, disable botconfig groupbox and minus buttons
+        """
+        Disables the botconfig groupbox and minus buttons when no bot is selected
+        :return:
+        """
         if not self.blue_listwidget.selectedItems() and not self.orange_listwidget.selectedItems():
             self.bot_config_groupbox.setDisabled(True)
             self.blue_minus_toolbutton.setDisabled(True)
             self.orange_minus_toolbutton.setDisabled(True)
-            return
         else:
             self.bot_config_groupbox.setDisabled(False)
 
     def validate_name(self, name, agent):
+        """
+        Finds the modification of name which is not yet in the list
+        :param name: the (new) name for the agent
+        :param agent: the agent instance to allow the same name as the previous one if necessary
+        :return: the best modification of name not yet in a listwidget
+        """
         if name in self.bot_names_to_agent_dict and self.bot_names_to_agent_dict[name] is not agent:
             i = 0
             while True:
@@ -362,6 +400,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             return name
 
     def add_agent_button(self, team_index: int):
+        """
+        The method to handle the [+] button press, adds an agent to the team
+        :param team_index: the team to set for the new agent, 0 for blue and 1 for orange
+        :return:
+        """
         agent = self.load_agent()
         if agent is None:
             return
@@ -384,7 +427,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         for i in range(num_participants):
             self.load_agent(i)
 
-    def load_agent(self, overall_index=None):
+    def load_agent(self, overall_index: int=None):
+        """
+        Loads all data for overall_index from the overall config and also loads both presets
+        :param overall_index: the index of the targeted agent
+        :return agent: an Agent (gui_agent) class with all loaded values
+        """
         if not self.index_manager.has_free_slots():
             return None
         if overall_index is None:
@@ -414,7 +462,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         Creates the agent using self.agent_class and adds it to the index manager.
         :param overall_index: The index of the bot in the config file if it already exists.
         :param team_index: The index of the team to place the agent in
-        :return agent:
+        :return agent: an Agent (gui_agent) with either given index or a free one, returns None if there is no index given and all indices are occupied
         """
         if overall_index is None:
             if not self.index_manager.has_free_slots():
@@ -432,12 +480,19 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
     def remove_agent(self, agent: Agent):
         """
         Removes the given agent.
+        :param agent: the agent to remove
+        :return:
         """
         self.index_manager.free_index(agent.overall_index)
         self.agents.remove(agent)
         self.update_teams_listwidgets()
 
-    def add_loadout_preset(self, file_path):
+    def add_loadout_preset(self, file_path: str):
+        """
+        Loads a preset using file_path with all values from that path loaded
+        :param file_path: the path to load the preset from, if invalid a default preset is returned
+        :return preset: the loadout preset created
+        """
         if file_path is not None and os.path.isfile(file_path):
             name = os.path.basename(file_path).replace(".cfg", "")
         else:
@@ -449,6 +504,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         return preset
 
     def add_agent_preset(self, file_path):
+        """
+        Loads a preset using file_path with all values from that path loaded
+        :param file_path: the path to load the preset from, if invalid a default preset is returned
+        :return preset: the agent preset created
+        """
         if os.path.isfile(file_path):
             name = os.path.basename(file_path).replace(".cfg", "")
         else:
@@ -460,12 +520,20 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         return preset
 
     def init_match_settings(self):
+        """
+        Adds all items to the match settings comboboxes
+        :return:
+        """
         self.mode_type_combobox.addItems(game_mode_types)
         self.map_type_combobox.addItems(map_types)
         self.match_length_combobox.addItems(match_length_types)
         self.boost_type_combobox.addItems(boost_types)
 
     def update_match_settings(self):
+        """
+        Sets all match setting widgets to the values in the overall config
+        :return:
+        """
         self.mode_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
         self.map_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
         self.skip_replays_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS))
@@ -474,6 +542,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.boost_type_combobox.setCurrentText(self.overall_config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
 
     def match_settings_edit_event(self, value):
+        """
+        Handles all edits to match settings and sets the config value to the new value
+        :param value: the value to apply to the overall config
+        :return:
+        """
         sender = self.sender()
 
         if sender is self.mode_type_combobox:
@@ -491,6 +564,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
     @staticmethod
     def main():
+        """
+        Start the GUI
+        :return:
+        """
         app = QApplication(sys.argv)
         window = RLBotQTGui()
         window.show()
