@@ -187,27 +187,17 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.rlbot_frame.setHidden(False)
             self.extra_line.setHidden(False)
             self.psyonix_bot_frame.setHidden(True)
-        elif self.bot_type_combobox.currentText() == 'Human':
-            self.psyonix_bot_frame.setHidden(True)
-            self.rlbot_frame.setHidden(True)
-            self.extra_line.setHidden(True)
         elif self.bot_type_combobox.currentText() == 'Psyonix':
             self.psyonix_bot_frame.setHidden(False)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(False)
-        elif self.bot_type_combobox.currentText() == 'Possessed Human':
+        elif self.bot_type_combobox.currentText() == 'Human' or self.bot_type_combobox.currentText() == 'Party Member Bot' or self.bot_type_combobox.currentText() == 'Controller Passthrough':
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
         if self.bot_config_groupbox.isEnabled():
-            if self.bot_type_combobox.currentText() == 'RLBot':
-                self.current_bot.set_participant_type("rlbot")
-            elif self.bot_type_combobox.currentText() == 'Human':
-                self.current_bot.set_participant_type("human")
-            elif self.bot_type_combobox.currentText() == 'Psyonix':
-                self.current_bot.set_participant_type("psyonix")
-            elif self.bot_type_combobox.currentText() == 'Possessed Human':
-                self.current_bot.set_participant_type("party_member_bot")
+            config_type = self.bot_type_combobox.currentText().lower().replace(" ", "_")
+            self.current_bot.set_participant_type(config_type)
 
     def team_settings_edit_event(self, value=None):
         """
@@ -313,7 +303,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         # load the bot parameters into the edit frame
         agent_type = agent.get_participant_type()
 
-        known_types = ['human', 'psyonix', 'rlbot', 'party_member_bot']
+        known_types = ['human', 'psyonix', 'rlbot', 'party_member_bot', 'controller_passthrough']
         assert agent_type in known_types, 'Bot has unknown type: %s' % agent_type
 
         self.bot_type_combobox.setCurrentIndex(known_types.index(agent_type))

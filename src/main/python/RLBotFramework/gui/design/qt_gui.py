@@ -175,6 +175,7 @@ class Ui_MainWindow(object):
         self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
+        self.bot_type_combobox.addItem("")
         self.horizontalLayout_2.addWidget(self.bot_type_combobox)
         self.horizontalLayout_2.setStretch(0, 1)
         self.horizontalLayout_2.setStretch(1, 3)
@@ -436,7 +437,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.bot_type_combobox.setCurrentIndex(2)
+        self.bot_type_combobox.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -464,7 +465,8 @@ class Ui_MainWindow(object):
         self.bot_type_combobox.setItemText(0, _translate("MainWindow", "Human"))
         self.bot_type_combobox.setItemText(1, _translate("MainWindow", "Psyonix"))
         self.bot_type_combobox.setItemText(2, _translate("MainWindow", "RLBot"))
-        self.bot_type_combobox.setItemText(3, _translate("MainWindow", "Possessed Human"))
+        self.bot_type_combobox.setItemText(3, _translate("MainWindow", "Party Member Bot"))
+        self.bot_type_combobox.setItemText(4, _translate("MainWindow", "Controller Passthrough"))
         self.blue_radiobutton.setText(_translate("MainWindow", "Blue"))
         self.orange_radiobutton.setText(_translate("MainWindow", "Orange"))
         self.label_3.setText(_translate("MainWindow", "IGN:"))

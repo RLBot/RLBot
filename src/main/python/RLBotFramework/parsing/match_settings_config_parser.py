@@ -80,7 +80,7 @@ match_length_types = [
 
 boost_types = [
     "Default",
-    "Unlimied",
+    "Unlimited",
     "Recharge (Slow)",
     "Recharge (Fast)",
     "No Boost"
