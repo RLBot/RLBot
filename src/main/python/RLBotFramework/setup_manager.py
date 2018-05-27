@@ -6,6 +6,8 @@ import queue
 import time
 
 from RLBotFramework.base_extension import BaseExtension
+from RLBotFramework.botmanager.agent_metadata import AgentMetadata
+from RLBotFramework.botmanager.bot_helper_process import BotHelperProcess
 from RLBotFramework.utils.class_importer import import_class_with_base, import_agent
 from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from RLBotFramework.utils.process_configuration import configure_processes
@@ -32,6 +34,7 @@ class SetupManager:
     start_match_configuration = None
     agent_metadata_queue = None
     agent_metadata_map = None
+    helper_process_map = None
     quit_event = None
     extension = None
 
@@ -52,6 +55,8 @@ class SetupManager:
 
         self.agent_metadata_map = {}
         self.agent_metadata_queue = mp.Queue()
+
+        self.helper_process_map = {}
 
         self.has_started = True
 
@@ -116,13 +121,37 @@ class SetupManager:
                 break
             try:
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
-                self.agent_metadata_map[single_agent_metadata['index']] = single_agent_metadata
+                self.start_or_update_helper_process(single_agent_metadata)
+                self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
                 configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
                 pass
             except Exception as ex:
                 self.logger.error(ex)
                 pass
+
+    def start_or_update_helper_process(self, agent_metadata: AgentMetadata):
+        """
+        Examines the agent metadata to see if the agent needs a helper process. If the process is not running yet,
+        create the process. Once the process is running, feed the agent metadata to it.
+
+        If a process is created here, the pid will be added to the agent metadata.
+        """
+
+        helper_req = agent_metadata.helper_process_request
+
+        if helper_req is not None:
+            if helper_req.key not in self.helper_process_map:
+                metadata_queue = mp.Queue()
+                process = mp.Process(target=SetupManager.run_helper_process,
+                                     args=(helper_req.python_file_path, metadata_queue, self.quit_event))
+                process.start()
+                agent_metadata.pids.add(process.pid)
+
+                self.helper_process_map[helper_req.key] = metadata_queue
+
+            metadata_queue = self.helper_process_map[helper_req.key]
+            metadata_queue.put(agent_metadata)
 
     def shut_down(self):
         self.logger.info("Shutting Down")
@@ -159,3 +188,16 @@ class SetupManager:
             bm = BotManagerStruct(terminate_event, callback_event, config_file, name, team,
                                   index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         bm.run()
+
+    @staticmethod
+    def run_helper_process(python_file, metadata_queue, quit_event):
+        """
+        :param python_file: The absolute path of a python file containing the helper process that should be run.
+        It must define a class which is a subclass of BotHelperProcess.
+        :param metadata_queue: A queue from which the helper process will read AgentMetadata updates.
+        :param quit_event: An event which should be set when rlbot is shutting down.
+        """
+        class_wrapper = import_class_with_base(python_file, BotHelperProcess)
+        helper_class = class_wrapper.get_loaded_class()
+        helper = helper_class(metadata_queue, quit_event)
+        helper.start()

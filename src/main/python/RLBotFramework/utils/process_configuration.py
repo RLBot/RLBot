@@ -26,10 +26,10 @@ def configure_processes(agent_metadata_map, logger):
     team_pids_map = {}
 
     for player_index, data in agent_metadata_map.items():
-        team = data['team']
+        team = data.team
         if team not in team_pids_map:
             team_pids_map[team] = set()
-        team_pids_map[team].update(data['pids'])
+        team_pids_map[team].update(data.pids)
 
     shared_pids = set()
     cpu_count = psutil.cpu_count()
