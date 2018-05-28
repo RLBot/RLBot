@@ -6,8 +6,8 @@ import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
 
-from RLBotFramework.agents.base_independent_agent import BaseIndependentAgent
-from RLBotFramework.utils.logging_utils import get_logger
+from rlbot.agents.base_independent_agent import BaseIndependentAgent
+from rlbot.utils.logging_utils import get_logger
 
 
 class BaseJavaAgent(BaseIndependentAgent):

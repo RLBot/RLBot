@@ -1,5 +1,5 @@
 from integration_test.history import HistoryIO
-from RLBotFramework.utils.logging_utils import log
+from rlbot.utils.logging_utils import log
 
 from integration_test.tests.blah_test import test_tick_rate, test_sufficient_data
 

@@ -1,6 +1,6 @@
-from RLBotFramework.botmanager.bot_manager import BotManager
-from RLBotFramework.utils.structures import game_data_struct as gd
-from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
+from rlbot.botmanager.bot_manager import BotManager
+from rlbot.utils.structures import game_data_struct as gd
+from rlbot.utils.structures.bot_input_struct import PlayerInput
 
 
 class BotManagerStruct(BotManager):

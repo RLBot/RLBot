@@ -2,7 +2,7 @@ import multiprocessing
 import queue
 from threading import Thread
 
-from RLBotFramework.utils.logging_utils import get_logger
+from rlbot.utils.logging_utils import get_logger
 
 
 def get_quick_chats():
