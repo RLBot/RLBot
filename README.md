@@ -21,8 +21,10 @@ Windows, Rocket League, Python 3.6.
 ### Quick Start
 
 1. Double-click on setup.bat
-2. Open up Rocket League
-3. Open a terminal and execute `python runner.py`
+2. Run `pip install -r .\src\main\python\requirements.txt`
+(may be slightly different for you if you don't have pip on your PATH)
+3. Open up Rocket League
+4. Open a terminal and execute `python runner.py`
 
 ### Useful Scripts
 
@@ -34,10 +36,16 @@ Windows, Rocket League, Python 3.6.
 Gradle is a build / dependency management system. You can execute various tasks with `gradlew.bat some_task`.
 To use gradle, you'll need to install JDK 8 or higher.
 
+
+- `publishToPyPI` - Uploads our package to [PyPI](https://pypi.org/project/rlbot/).
+This is done when we want to make an update available to bot makers.
+To run this successfully, you will need to create a [.pypirc](https://docs.python.org/3.6/distutils/packageindex.html#pypirc) file.
+Ask somebody for the username and password.
 - `build` - Generates and builds Java code.
-- `bintrayUpload` - Builds everything, assembles artifacts, and uploads to
+- `bintrayUpload` - Uploads Java artifacts to
 [bintray](https://bintray.com/rlbotofficial/RLBotMaven/rlbot-framework). This is done when we're ready to
-make an update available to bot makers.
+make an update available to java bots. To run this successfully, you will need to create a local.properties file.
+  See the build.gradle file for details.
 
 ### Wikis
 

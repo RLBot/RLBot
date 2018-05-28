@@ -1,7 +1,7 @@
-from RLBotFramework.parsing.custom_config import ConfigObject, ConfigHeader
-from RLBotFramework.utils.logging_utils import get_logger
-from RLBotFramework.utils.structures.quick_chats import QuickChats
-from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
+from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
+from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.quick_chats import QuickChats
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'

@@ -2,10 +2,10 @@ import configparser
 
 import os
 
-from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
+from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
     BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_NAME_KEY
-from RLBotFramework.utils.class_importer import import_agent
-from RLBotFramework.utils.logging_utils import get_logger
+from rlbot.utils.class_importer import import_agent
+from rlbot.utils.logging_utils import get_logger
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_CONFIG_KEY = 'participant_config'

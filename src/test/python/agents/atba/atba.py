@@ -1,7 +1,7 @@
 import math
 
-from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
-from RLBotFramework.utils.structures.quick_chats import QuickChats
+from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
+from rlbot.utils.structures.quick_chats import QuickChats
 
 URotationToRadians = math.pi / float(32768)
 

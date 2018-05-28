@@ -3,7 +3,7 @@ import inspect
 import os
 import sys
 
-from RLBotFramework.agents.base_agent import BaseAgent
+from rlbot.agents.base_agent import BaseAgent
 
 
 class ExternalClassWrapper:

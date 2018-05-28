@@ -1,8 +1,8 @@
-import flatbuffers
-from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotMessages.flat import ControllerState
-from RLBotMessages.flat import PlayerInput
-from RLBotMessages.flat import GameTickPacket
+from rlbot.pylibs import flatbuffers
+from rlbot.agents.base_agent import BaseAgent
+from rlbot.messages.flat import ControllerState
+from rlbot.messages.flat import PlayerInput
+from rlbot.messages.flat import GameTickPacket
 
 
 class SimpleControllerState:

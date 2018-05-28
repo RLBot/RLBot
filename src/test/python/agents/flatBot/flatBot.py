@@ -1,8 +1,8 @@
 import math
 
-from RLBotFramework.agents.base_flatbuffer_agent import BaseFlatbufferAgent
-from RLBotFramework.agents.base_flatbuffer_agent import SimpleControllerState
-from RLBotMessages.flat import GameTickPacket
+from rlbot.agents.base_flatbuffer_agent import BaseFlatbufferAgent
+from rlbot.agents.base_flatbuffer_agent import SimpleControllerState
+from rlbot.messages.flat import GameTickPacket
 
 
 class FlatBot(BaseFlatbufferAgent):

@@ -1,4 +1,4 @@
-from RLBotFramework.setup_manager import SetupManager
+from rlbot.setup_manager import SetupManager
 
 
 def main():
