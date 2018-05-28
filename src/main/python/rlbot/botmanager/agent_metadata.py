@@ -1,4 +1,4 @@
-from RLBotFramework.botmanager.helper_process_request import HelperProcessRequest
+from rlbot.botmanager.helper_process_request import HelperProcessRequest
 
 
 class AgentMetadata:

@@ -1,4 +1,4 @@
-from RLBotFramework.botmanager.bot_manager import BotManager
+from rlbot.botmanager.bot_manager import BotManager
 
 
 class BotManagerIndependent(BotManager):

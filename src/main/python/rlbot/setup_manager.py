@@ -2,22 +2,26 @@ import msvcrt
 import multiprocessing as mp
 import os
 import queue
-
 import time
+import sys
 
-from RLBotFramework.base_extension import BaseExtension
-from RLBotFramework.botmanager.agent_metadata import AgentMetadata
-from RLBotFramework.botmanager.bot_helper_process import BotHelperProcess
-from RLBotFramework.utils.class_importer import import_class_with_base, import_agent
-from RLBotFramework.utils.logging_utils import get_logger, DEFAULT_LOGGER
-from RLBotFramework.utils.process_configuration import configure_processes
-from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
-from RLBotFramework.utils.structures.game_interface import GameInterface
-from RLBotFramework.utils.structures.quick_chats import QuickChatManager
-from RLBotFramework.utils.structures.start_match_structures import MatchSettings
-from RLBotFramework.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
-from RLBotFramework.botmanager.bot_manager_independent import BotManagerIndependent
-from RLBotFramework.botmanager.bot_manager_struct import BotManagerStruct
+# Make sure the flatbuffers dir can be located on sys.path so that the generated files can find it.
+# TODO: Use pip for flatbuffers if they ever get their act together: https://github.com/google/flatbuffers/issues/4507
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pylibs")))
+
+from rlbot.base_extension import BaseExtension
+from rlbot.botmanager.agent_metadata import AgentMetadata
+from rlbot.botmanager.bot_helper_process import BotHelperProcess
+from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
+from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
+from rlbot.botmanager.bot_manager_struct import BotManagerStruct
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
+from rlbot.utils.class_importer import import_class_with_base, import_agent
+from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
+from rlbot.utils.process_configuration import configure_processes
+from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.utils.structures.quick_chats import QuickChatManager
+from rlbot.utils.structures.start_match_structures import MatchSettings
 
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')

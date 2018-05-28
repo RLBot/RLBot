@@ -1,6 +1,6 @@
 import os
 
-from RLBotFramework.agents.base_java_agent import BaseJavaAgent
+from rlbot.agents.base_java_agent import BaseJavaAgent
 
 
 class ProtoJava(BaseJavaAgent):

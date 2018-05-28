@@ -18,7 +18,7 @@ This will generate a few source and header files that are needed to build succes
 
 ### Testing your changes
 
-1. Build the DLL and copy it to `src\main\python\RLBotFramework\dll\RLBot_Core_Interface.dll`
+1. Build the DLL and copy it to `src\main\python\rlbot\dll\RLBot_Core_Interface.dll`
    - There's a script called `copy-dlls.bat` that can do the copy for you.
 2. Run RLBot as normal, e.g. `python runner.py`
 

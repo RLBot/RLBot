@@ -1,5 +1,5 @@
-from RLBotFramework.botmanager.bot_manager import BotManager
-from RLBotMessages.flat import GameTickPacket
+from rlbot.botmanager.bot_manager import BotManager
+from rlbot.messages.flat import GameTickPacket
 
 
 class BotManagerFlatbuffer(BotManager):

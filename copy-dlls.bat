@@ -3,7 +3,7 @@
 
 
 copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\x64\Debug\RLBotInterface.dll ^
- .\src\main\python\RLBotFramework\dll\RLBot_Core_Interface.dll
+ .\src\main\python\rlbot\dll\RLBot_Core_Interface.dll
 
 @echo off
 echo.
@@ -25,4 +25,4 @@ IF %count% GEQ 2 (
 @echo on
 
 copy /Y "%core_folder%\RLBot Core\Bin\Win32\Debug-SDK\RLBot Core.dll" ^
- .\src\main\python\RLBotFramework\dll\RLBot_Core.dll
+ .\src\main\python\rlbot\dll\RLBot_Core.dll

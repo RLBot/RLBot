@@ -3,12 +3,12 @@ import time
 import traceback
 from datetime import datetime, timedelta
 
-from RLBotFramework.botmanager.agent_metadata import AgentMetadata
-from RLBotFramework.utils import rate_limiter
-from RLBotFramework.utils.class_importer import ExternalClassWrapper
-from RLBotFramework.utils.logging_utils import get_logger
-from RLBotFramework.utils.structures.game_interface import GameInterface
-from RLBotFramework.utils.structures.quick_chats import send_quick_chat, register_for_quick_chat
+from rlbot.botmanager.agent_metadata import AgentMetadata
+from rlbot.utils import rate_limiter
+from rlbot.utils.class_importer import ExternalClassWrapper
+from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.utils.structures.quick_chats import send_quick_chat, register_for_quick_chat
 
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
 MAX_CHAT_RATE = 2.0

@@ -1,12 +1,12 @@
 import configparser
 
-from RLBotFramework.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header, \
+from rlbot.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header, \
     get_looks_config
-from RLBotFramework.parsing.match_settings_config_parser import add_mutator_header, get_num_players, \
+from rlbot.parsing.match_settings_config_parser import add_mutator_header, get_num_players, \
     add_match_settings_header, parse_match_settings
-from RLBotFramework.parsing.custom_config import ConfigObject
-from RLBotFramework.utils.logging_utils import get_logger
-from RLBotFramework.utils.structures.start_match_structures import get_player_configuration_list
+from rlbot.parsing.custom_config import ConfigObject
+from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.start_match_structures import get_player_configuration_list
 
 
 TEAM_CONFIGURATION_HEADER = "Team Configuration"
