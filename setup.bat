@@ -5,7 +5,7 @@
 cd /D "%~dp0"
 
 .\src\main\flatbuffers\flatc.exe --python -o .\src\generated\python .\src\main\flatbuffers\rlbot.fbs
-xcopy /s /Y .\src\generated\python\rlbot .\src\main\python\RLBotMessages\
+xcopy /s /Y .\src\generated\python\rlbot .\src\main\python\rlbot\messages\
 
 .\src\main\flatbuffers\flatc.exe --cpp -o .\src\generated\cpp\flatbuffers .\src\main\flatbuffers\rlbot.fbs
 
