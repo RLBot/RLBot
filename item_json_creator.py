@@ -120,5 +120,5 @@ if __name__ == '__main__':
     items_list = get_items_category(all_items)
     items_dict = get_item_id_dict(items_list)
 
-    with open('RLBotFramework/gui/categorised_items.json', 'w') as f:
+    with open('rlbot/gui/categorised_items.json', 'w') as f:
         json.dump(items_dict, f)

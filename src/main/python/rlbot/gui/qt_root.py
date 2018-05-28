@@ -4,19 +4,23 @@ from PyQt5.QtCore import QTimer
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox
 
-from RLBotFramework.gui.presets import AgentPreset, LoadoutPreset
-from RLBotFramework.gui.index_manager import IndexManager
-from RLBotFramework.gui.design.qt_gui import Ui_MainWindow
-from RLBotFramework.gui.gui_agent import Agent
-from RLBotFramework.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
+# Make sure the flatbuffers dir can be located on sys.path so that the generated files can find it.
+# TODO: Use pip for flatbuffers if they ever get their act together: https://github.com/google/flatbuffers/issues/4507
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../pylibs")))
 
-from RLBotFramework.utils.class_importer import get_python_root
-from RLBotFramework.agents.base_agent import BOT_CONFIG_MODULE_HEADER
-from RLBotFramework.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
+from rlbot.gui.presets import AgentPreset, LoadoutPreset
+from rlbot.gui.index_manager import IndexManager
+from rlbot.gui.design.qt_gui import Ui_MainWindow
+from rlbot.gui.gui_agent import Agent
+from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
 
-from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout, get_num_players, TEAM_CONFIGURATION_HEADER
-from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, LOOKS_CONFIG_KEY
-from RLBotFramework.parsing.match_settings_config_parser import *
+from rlbot.utils.class_importer import get_python_root
+from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER
+from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
+
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, get_num_players, TEAM_CONFIGURATION_HEADER
+from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, LOOKS_CONFIG_KEY
+from rlbot.parsing.match_settings_config_parser import *
 
 
 class RLBotQTGui(QMainWindow, Ui_MainWindow):

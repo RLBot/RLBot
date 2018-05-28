@@ -1,8 +1,8 @@
 import os
 
-from RLBotFramework.agents.base_agent import BOT_NAME_KEY, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, BOT_CONFIG_MODULE_HEADER
-from RLBotFramework.gui.presets import AgentPreset, LoadoutPreset
-from RLBotFramework.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
+from rlbot.agents.base_agent import BOT_NAME_KEY, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_MODULE_HEADER
+from rlbot.gui.presets import AgentPreset, LoadoutPreset
+from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, \
     PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, PARTICIPANT_LOADOUT_CONFIG_KEY, BotConfigBundle
 
 
