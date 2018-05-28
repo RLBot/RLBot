@@ -2,13 +2,14 @@ import msvcrt
 import multiprocessing as mp
 import os
 import queue
-import time
 import sys
+import time
 
 # Make sure the flatbuffers dir can be located on sys.path so that the generated files can find it.
 # TODO: Use pip for flatbuffers if they ever get their act together: https://github.com/google/flatbuffers/issues/4507
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pylibs")))
 
+from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
 from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
@@ -35,15 +36,16 @@ class SetupManager:
     parameters = None
     start_match_configuration = None
     agent_metadata_queue = None
-    agent_metadata_map = None
-    quit_event = None
     extension = None
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
         self.game_interface = GameInterface(self.logger)
         self.quick_chat_manager = QuickChatManager(self.game_interface)
+        self.quit_event = mp.Event()
+        self.helper_process_manager = HelperProcessManager(self.quit_event)
         self.bot_quit_callbacks = []
+        self.agent_metadata_map = {}
 
     def startup(self):
         if self.has_started:
@@ -51,12 +53,7 @@ class SetupManager:
         self.logger.debug("Starting up game management")
         self.game_interface.inject_dll()
         self.game_interface.load_interface()
-        # Create Quit event
-        self.quit_event = mp.Event()
-
-        self.agent_metadata_map = {}
         self.agent_metadata_queue = mp.Queue()
-
         self.has_started = True
 
     def load_config(self, framework_config=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None, looks_configs=None):
@@ -120,7 +117,8 @@ class SetupManager:
                 break
             try:
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
-                self.agent_metadata_map[single_agent_metadata['index']] = single_agent_metadata
+                self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
+                self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
                 configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
                 pass
