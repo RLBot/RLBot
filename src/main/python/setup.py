@@ -21,6 +21,6 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
     ],
     package_data={
-        'rlbot': ['dll/RLBot_Core.dll', 'dll/RLBot_Core_Interface.dll', 'dll/RLBot_Injector.exe']
+        'rlbot': ['**/*.dll', '**/*.exe', '**/*.json', 'gui/design/*.ui']
     },
 )

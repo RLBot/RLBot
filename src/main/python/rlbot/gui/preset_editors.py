@@ -2,10 +2,10 @@ import os
 import json
 from PyQt5 import QtWidgets, QtCore
 
-from RLBotFramework.gui.design.car_customisation import Ui_LoadoutPresetCustomiser
-from RLBotFramework.gui.design.agent_customisation import Ui_AgentPresetCustomiser
-from RLBotFramework.gui.presets import Preset, AgentPreset, LoadoutPreset
-from RLBotFramework.utils.class_importer import get_python_root
+from rlbot.gui.design.car_customisation import Ui_LoadoutPresetCustomiser
+from rlbot.gui.design.agent_customisation import Ui_AgentPresetCustomiser
+from rlbot.gui.presets import AgentPreset, LoadoutPreset
+from rlbot.utils.class_importer import get_python_root
 
 
 class BasePresetEditor(QtWidgets.QWidget):
