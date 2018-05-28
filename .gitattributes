@@ -1,0 +1,10 @@
+# Set the default line ending behavior
+* text=auto
+
+# Denote all files that are truly binary and should not be modified. This is in case git fails to identify
+# one of these as binary automatically.
+*.png binary
+*.jpg binary
+*.exe binary
+*.wav binary
+*.dll binary
