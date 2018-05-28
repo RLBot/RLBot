@@ -2,9 +2,9 @@ import os
 from PyQt5.QtCore import QTimer
 from configparser import RawConfigParser
 
-from RLBotFramework.agents.base_agent import BaseAgent
-from RLBotFramework.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
-from RLBotFramework.utils.class_importer import import_agent, get_python_root
+from rlbot.agents.base_agent import BaseAgent
+from rlbot.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
+from rlbot.utils.class_importer import import_agent, get_python_root
 
 
 class Preset:
@@ -63,7 +63,7 @@ class AgentPreset(Preset):
             file_path = os.path.realpath(file_path)
             basic_config.parse_file(file_path)
         else:
-            base_agent_path = os.path.join(get_python_root(), "RLBotFramework", "agents", "base_agent.py")
+            base_agent_path = os.path.join(get_python_root(), "rlbot", "agents", "base_agent.py")
             rel_path = os.path.relpath(base_agent_path, get_python_root())
             basic_config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, rel_path)
 
