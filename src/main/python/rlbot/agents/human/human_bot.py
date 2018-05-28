@@ -1,4 +1,4 @@
-from RLBotFramework.agents.base_agent import BaseAgent
+from rlbot.agents.base_agent import BaseAgent
 from controller_input import controller
 
 

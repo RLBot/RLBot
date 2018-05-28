@@ -1,11 +1,13 @@
-from RLBotFramework.setup_manager import SetupManager
-import configparser
-from RLBotFramework.parsing.rlbot_config_parser import create_bot_config_layout
-from RLBotFramework.utils.logging_utils import log
-from integration_test.history import HistoryIO
 import multiprocessing
 import psutil
 import os
+import sys
+import configparser
+
+from rlbot.setup_manager import SetupManager
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
+from rlbot.utils.logging_utils import log
+from integration_test.history import HistoryIO
 
 RLBOT_CONFIG_FILE = os.path.realpath(os.path.join(os.path.dirname(__file__), 'rlbot.cfg'))
 

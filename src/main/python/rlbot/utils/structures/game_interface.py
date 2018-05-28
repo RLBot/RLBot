@@ -4,13 +4,13 @@ import subprocess
 import sys
 import time
 
-from RLBotFramework.utils.rendering.rendering_manager import RenderingManager
-from RLBotFramework.utils.class_importer import get_python_root
-from RLBotFramework.utils.structures.bot_input_struct import PlayerInput
-from RLBotFramework.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
-from RLBotFramework.utils.structures.game_status import RLBotCoreStatus
-from RLBotFramework.utils.structures.start_match_structures import MatchSettings
-from RLBotFramework.utils import rlbot_exception
+from rlbot.utils.rendering.rendering_manager import RenderingManager
+from rlbot.utils.class_importer import get_python_root
+from rlbot.utils.structures.bot_input_struct import PlayerInput
+from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
+from rlbot.utils.structures.game_status import RLBotCoreStatus
+from rlbot.utils.structures.start_match_structures import MatchSettings
+from rlbot.utils import rlbot_exception
 
 
 def wrap_callback(callback_func):
@@ -158,7 +158,7 @@ class GameInterface:
             sys.exit()
 
     def get_dll_path(self):
-        return os.path.join(get_python_root(), 'RLBotFramework', 'dll')
+        return os.path.join(get_python_root(), 'rlbot', 'dll')
 
     def countdown(self, countdown_timer):
         for i in range(countdown_timer):

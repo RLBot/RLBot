@@ -3,8 +3,8 @@ import os
 import json
 from collections import namedtuple
 
-from RLBotMessages.flat.GameTickPacket import GameTickPacket
-from RLBotMessages.flat.PlayerInput import PlayerInput
+from rlbot.messages.flat.GameTickPacket import GameTickPacket
+from rlbot.messages.flat.PlayerInput import PlayerInput
 
 
 def read_game_tick_from_buffer(buf):
