@@ -1,3 +1,4 @@
+from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.quick_chats import QuickChats
@@ -96,6 +97,13 @@ class BaseAgent:
 
     def set_renderer(self, renderer: RenderingManager):
         self.renderer = renderer
+
+    def get_helper_process_request(self) -> HelperProcessRequest:
+        """
+        If your bot needs a helper process which can be shared, e.g. with other bots of the same type,
+        you may override this to return a HelperProcessRequest.
+        """
+        return None
 
     @staticmethod
     def create_agent_configurations() -> ConfigObject:

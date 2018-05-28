@@ -3,6 +3,7 @@ import time
 import traceback
 from datetime import datetime, timedelta
 
+from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.utils import rate_limiter
 from rlbot.utils.class_importer import ExternalClassWrapper
 from rlbot.utils.logging_utils import get_logger
@@ -72,14 +73,11 @@ class BotManager:
             self.logger.debug('quick chat disabled for %s', MAX_CHAT_RATE - time_since_last_chat)
 
     def load_agent(self, agent_wrapper: ExternalClassWrapper):
-        render_functions = self.game_interface.renderer.get_render_functions()
-        render_functions.set_bot_index(self.index)
         agent_class = agent_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
         agent.logger = self.logger
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
         agent.initialize_agent()
-        agent.set_renderer(render_functions)
 
         self.update_metadata_queue(agent)
         agent_class_file = self.agent_class_wrapper.python_file
@@ -87,15 +85,19 @@ class BotManager:
         register_for_quick_chat(self.quick_chat_queue_holder, agent.receive_quick_chat, self.terminate_request_event)
         return agent, agent_class_file
 
+    def set_render_functions(self, agent):
+        render_functions = self.game_interface.renderer.get_render_functions()
+        render_functions.set_bot_index(self.index)
+        agent.set_renderer(render_functions)
+
     def update_metadata_queue(self, agent):
         pids = set()
         pids.add(os.getpid())
+        pids.update(agent.get_extra_pids())
 
-        get_extra_pids = getattr(agent, "get_extra_pids", None)
-        if callable(get_extra_pids):
-            pids.update(agent.get_extra_pids())
+        helper_process_request = agent.get_helper_process_request()
 
-        self.agent_metadata_queue.put({'index': self.index, 'name': self.name, 'team': self.team, 'pids': pids})
+        self.agent_metadata_queue.put(AgentMetadata(self.index, self.name, self.team, pids, helper_process_request))
 
     def run(self):
         self.logger.debug('initializing agent')
@@ -110,6 +112,7 @@ class BotManager:
 
         # Get bot module
         agent, agent_class_file = self.load_agent(self.agent_class_wrapper)
+        self.set_render_functions(agent)
 
         last_module_modification_time = os.stat(agent_class_file).st_mtime
 
@@ -136,6 +139,7 @@ class BotManager:
                         self.agent_class_wrapper.reload()
                         old_agent = agent
                         agent, agent_class_file = self.load_agent(self.agent_class_wrapper)
+                        self.set_render_functions(agent)
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
