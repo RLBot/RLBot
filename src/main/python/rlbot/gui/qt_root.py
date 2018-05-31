@@ -2,7 +2,10 @@ import os
 import sys
 from PyQt5.QtCore import QTimer
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QStyle, QMessageBox
+import threading
+import configparser
 
 # Make sure the flatbuffers dir can be located on sys.path so that the generated files can find it.
 # TODO: Use pip for flatbuffers if they ever get their act together: https://github.com/google/flatbuffers/issues/4507
@@ -15,7 +18,7 @@ from rlbot.gui.gui_agent import Agent
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
 
 from rlbot.utils.class_importer import get_python_root
-from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER
+from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
 from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, get_num_players, TEAM_CONFIGURATION_HEADER
@@ -30,6 +33,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         """
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(QIcon(os.path.join("images", "RLBot_logo.png")))
         self.overall_config = None
         self.index_manager = IndexManager(10)
 
@@ -39,6 +43,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.loadout_presets = {}
         self.current_bot = None
         self.overall_config_timer = None
+        self.setup_manager = None
+        self.match_process = None
+        self.overall_config = None
+        self.overall_config_path = None
 
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
@@ -82,6 +90,17 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 config_value.set_value(old_values[order[i]], index=i)
         return config
 
+    def run_button_pressed(self):
+        if self.setup_manager is not None and self.setup_manager.has_started and self.match_process is not None:
+            self.run_button.setIcon(self.run_button.style().standardIcon(QStyle.SP_CommandLink))
+            self.run_button.setText("RUN")
+            self.setup_manager.should_stop = True
+        else:
+            self.run_button.setIcon(self.run_button.style().standardIcon(QStyle.SP_BrowserStop))
+            self.run_button.setText("STOP")
+            self.match_process = threading.Thread(target=self.start_match)
+            self.match_process.start()
+
     def start_match(self):
         """
         Starts a match with the current configuration
@@ -101,20 +120,21 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 agent_configs[index] = agent_configs_dict[i]
                 loadout_configs[index] = loadout_configs_dict[i]
                 index += 1
-        manager = SetupManager()
-        manager.startup()
-        manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
-        manager.launch_bot_processes()
-        manager.run()
-        manager.shut_down()
+        self.setup_manager = SetupManager()
+        self.setup_manager.startup()
+        self.setup_manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
+        self.setup_manager.launch_bot_processes()
+        self.setup_manager.run()
+        self.setup_manager.shut_down()
 
     def connect_functions(self):
         """
         Connects all events to the functions which should be called
         :return:
         """
-        self.cfg_load_pushbutton.clicked.connect(lambda: self.load_overall_config())  # Lambda because it is going to pass the event parameter otherwise
-        self.cfg_save_pushbutton.clicked.connect(lambda: self.save_overall_config())  # Same story here
+        # Lambda is sometimes used to prevent passing the event parameter.
+        self.cfg_load_pushbutton.clicked.connect(lambda: self.load_overall_config())
+        self.cfg_save_pushbutton.clicked.connect(lambda: self.save_overall_config())
 
         self.blue_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
         self.orange_listwidget.itemSelectionChanged.connect(self.load_selected_bot)
@@ -135,7 +155,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             if isinstance(child, QLineEdit):
                 child.editingFinished.connect(self.bot_config_edit_event)
             elif isinstance(child, QSlider):
-                child.sliderMoved.connect(self.bot_config_edit_event)
+                child.valueChanged.connect(self.bot_config_edit_event)
             elif isinstance(child, QRadioButton):
                 child.toggled.connect(self.bot_config_edit_event)
             elif isinstance(child, QComboBox):
@@ -149,7 +169,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             elif isinstance(child, QCheckBox):
                 child.toggled.connect(self.match_settings_edit_event)
 
-        self.run_button.clicked.connect(self.start_match)
+        self.run_button.clicked.connect(self.run_button_pressed)
 
     def bot_config_edit_event(self, value=None):
         """
@@ -264,10 +284,21 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             if not config_path:
                 self.statusbar.showMessage("No file selected, not loading config", 5000)
                 return
-        if not os.path.isfile(config_path):
-            raise FileNotFoundError("The file " + config_path + " does not exist, not loading config")
+        if config_path is None or not os.path.isfile(config_path):
+            return
+        raw_parser = configparser.RawConfigParser()
+        raw_parser.read(config_path)
+        for section in self.overall_config.headers.keys():
+            if not raw_parser.has_section(section):
+                popup = QMessageBox()
+                popup.setIcon(QMessageBox.Warning)
+                popup.setWindowTitle("Invalid Config File")
+                popup.setText("This file does not have the sections for an overall config, not loading it")
+                popup.setStandardButtons(QMessageBox.Ok)
+                popup.exec_()
+                return
         self.overall_config_path = config_path
-        self.overall_config.parse_file(config_path, 10)
+        self.overall_config.parse_file(raw_parser, 10)
         self.load_agents()
         self.update_teams_listwidgets()
         self.cfg_file_path_lineedit.setText(self.overall_config_path)
@@ -344,6 +375,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.ign_lineedit.setText(agent.ingame_name)
         self.loadout_preset_combobox.setCurrentText(agent.get_loadout_preset().get_name())
         self.agent_preset_combobox.setCurrentText(agent.get_agent_preset().get_name())
+        self.bot_level_slider.setValue(int(agent.get_bot_skill() * 100))
 
     def update_teams_listwidgets(self):
         """
@@ -459,6 +491,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             loadout_file = os.path.realpath(os.path.join(directory, file_path))
         loadout_preset = self.add_loadout_preset(loadout_file)
         agent.set_loadout_preset(loadout_preset)
+        agent.set_name(agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
         return agent
 
     def add_agent(self, overall_index=None, team_index=None):
@@ -479,6 +512,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             agent.set_team(team_index)
 
         self.agents.append(agent)
+        self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, len(self.agents))
         return agent
 
     def remove_agent(self, agent: Agent):
@@ -490,6 +524,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.index_manager.free_index(agent.overall_index)
         self.agents.remove(agent)
         self.update_teams_listwidgets()
+        self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, len(self.agents))
 
     def add_loadout_preset(self, file_path: str):
         """

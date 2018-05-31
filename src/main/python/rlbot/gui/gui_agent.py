@@ -47,7 +47,6 @@ class Agent:
 
     def set_agent_preset(self, agent_preset: AgentPreset):
         self.agent_preset = agent_preset
-        self.ingame_name = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
         self.set_agent_config_path(agent_preset.config_path)
 
     def get_agent_preset(self):

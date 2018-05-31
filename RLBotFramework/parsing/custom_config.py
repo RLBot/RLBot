@@ -6,11 +6,10 @@ class ConfigObject:
     """
 
     """
-    headers = None
-    raw_config_parser = None  # set by calling parse_file
 
     def __init__(self):
         self.headers = {}
+        self.raw_config_parser = None  # set by calling parse_file
 
     def __getitem__(self, x):
         return self.get_header(x)
@@ -103,13 +102,12 @@ class ConfigObject:
 
 
 class ConfigHeader:
-    values = None
-    is_indexed = False  # if True then indexes will be applied to all values otherwise they will not be
-    has_values = False  # False if no values have been set on this header object.
-    max_index = -1
 
     def __init__(self):
         self.values = {}
+        self.is_indexed = False  # if True then indexes will be applied to all values otherwise they will not be
+        self.has_values = False  # False if no values have been set on this header object.
+        self.max_index = -1
 
     def __getitem__(self, x):
         return self.values[x]
