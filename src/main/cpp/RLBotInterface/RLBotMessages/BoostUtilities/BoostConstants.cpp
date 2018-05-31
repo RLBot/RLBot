@@ -18,6 +18,9 @@ namespace BoostConstants
 	// Rendering
 	const char* RenderingFlatQueueName = "RenderingFlatQueue";
 
+	// Chat
+	const char* QuickChatFlatQueueName = "quickChatQueue";
+
 	std::string buildSharedMemName(const char* baseName) {
 		std::string name(baseName);
 		name.append("-SharedMem");

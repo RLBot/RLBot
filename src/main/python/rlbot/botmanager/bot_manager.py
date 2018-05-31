@@ -8,7 +8,7 @@ from rlbot.utils import rate_limiter
 from rlbot.utils.class_importer import ExternalClassWrapper
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_interface import GameInterface
-from rlbot.utils.structures.quick_chats import send_quick_chat, register_for_quick_chat
+from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat
 
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
 MAX_CHAT_RATE = 2.0
@@ -67,7 +67,8 @@ class BotManager:
             self.chat_counter = 0
             self.reset_chat_time = False
         if self.chat_counter < MAX_CHAT_COUNT:
-            send_quick_chat(self.quick_chat_queue_holder, self.index, self.team, team_only, quick_chat)
+            send_quick_chat_flat(self.game_interface, self.index, self.team, team_only, quick_chat)
+            #send_quick_chat(self.quick_chat_queue_holder, self.index, self.team, team_only, quick_chat)
             self.chat_counter += 1
         else:
             self.logger.debug('quick chat disabled for %s', MAX_CHAT_RATE - time_since_last_chat)
@@ -82,7 +83,7 @@ class BotManager:
         self.update_metadata_queue(agent)
         agent_class_file = self.agent_class_wrapper.python_file
         agent.register_quick_chat(self.send_quick_chat_from_agent)
-        register_for_quick_chat(self.quick_chat_queue_holder, agent.receive_quick_chat, self.terminate_request_event)
+        register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
         return agent, agent_class_file
 
     def set_render_functions(self, agent):

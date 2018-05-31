@@ -65,6 +65,10 @@ class GameInterface:
         func.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_bool, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
 
+        func = self.game.SendQuickChat
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        func.restype = ctypes.c_int
+
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
@@ -100,6 +104,11 @@ class GameInterface:
         rlbot_status = self.game.SendChat(message_details, index, team_only, self.create_status_callback(), None)
         self.game_status(None, rlbot_status)
         pass
+
+    def send_chat_flat(self, chat_message_builder):
+        buf = chat_message_builder.Output()
+        rlbot_status = self.game.SendQuickChat(bytes(buf), len(buf))
+        self.game_status(None, rlbot_status)
 
     def create_callback(self):
         return
