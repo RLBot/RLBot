@@ -111,14 +111,30 @@ class BaseAgent:
         return None
 
     @staticmethod
-    def create_agent_configurations() -> ConfigObject:
+    def base_create_agent_configurations() -> ConfigObject:
+        """
+        This is used when initializing agent config via builder pattern.
+        It also calls `create_agent_configurations` that can be used by BaseAgent subclasses for custom configs.
+        :return: Returns an instance of a ConfigObject object.
+        """
         config = ConfigObject()
         location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
         location_config.add_value(LOOKS_CONFIG_KEY, str, default='./atba_looks.cfg',
                                   description='Path to loadout config from runner')
         location_config.add_value(PYTHON_FILE_KEY, str, default='./atba.py',
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
+
+        BaseAgent.create_agent_configurations(config)
+
         return config
+
+    @staticmethod
+    def create_agent_configurations(config: ConfigObject):
+        """
+        If your bot needs to add custom configurations, you may override this and use the `config` object.
+        :param config: A ConfigObject instance.
+        """
+        pass
 
     @staticmethod
     def create_looks_configurations() -> ConfigObject:
