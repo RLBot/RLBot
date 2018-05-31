@@ -25,7 +25,6 @@ namespace GameFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
 	{
-		DEBUG_LOG("CHATTING");
 		return quickChatQueue.sendMessage(quickChatMessage, protoSize);
 	}
 

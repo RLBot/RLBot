@@ -17,7 +17,7 @@ extern "C"
 	namespace GameFunctions
 	{
 		RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset);
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* controllerState, int protoSize);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback = nullptr, unsigned int* pID = nullptr);
 
 		RLBotCoreStatus checkInputConfiguration(const PlayerInput& playerInput);
