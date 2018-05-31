@@ -6,7 +6,7 @@ a second closed-source DLL that gets injected into the game.
 ### Setup Instructions
 
 1. Install Visual Studio 2015
-2. Execute `./gradlew.bat assembleProtos` from the root of the repository.
+2. Execute `setup.bat` which is in the root of the repository.
 This will generate a few source and header files that are needed to build successfully.
 3. Open `RLBotInterface.sln` in Visual Studio
 
@@ -14,11 +14,12 @@ This will generate a few source and header files that are needed to build succes
 
 1. In the Solution Platforms dropdown in the toolbar, select x64
 2. Build -> Build Solution
-3. Find the build output in `RLBot Core\Bin\x64\Debug` or `RLBot Core\Bin\x64\Release`
+3. Find the build output in `RLBotInterface\Bin\x64\Debug` or `RLBotInterface\Bin\x64\Release`
 
 ### Testing your changes
 
-1. Build the DLL and copy it to `src\main\python\RLBotFramework\dll\RLBot_Core_Interface.dll`
+1. Build the DLL and copy it to `src\main\python\rlbot\dll\RLBot_Core_Interface.dll`
+   - There's a script called `copy-dlls.bat` that can do the copy for you.
 2. Run RLBot as normal, e.g. `python runner.py`
 
 Note that if you change code in the RLBotMessages project, you may break compatibility with

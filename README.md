@@ -16,17 +16,38 @@ If you just want to make a bot, you don't need to be here. Instead, just start w
 If you want to make improvements that help out everyone, you're in the right place!
 
 ### Requirements
-Windows, Rocket League, Python 3.6, Java 1.8, Gradle.
+Windows, Rocket League, Python 3.6.
 
 ### Quick Start
 
 1. Double-click on setup.bat
-2. Open up Rocket League
-3. Open a terminal and execute `python runner.py`
+2. Run `pip install -r .\src\main\python\requirements.txt`
+(may be slightly different for you if you don't have pip on your PATH)
+3. Open up Rocket League
+4. Open a terminal and execute `python runner.py`
 
-### Gradle Commands
-gradle build - The main gradle command. This does the majority of the building, compiling, and setting up the code to run. Should be called after any protocol change.
-gradle copyDlls - This copies any built dlls from visual studio into the correct folder to speed up compile -> run time.
+### Useful Scripts
+
+- `setup.bat` - This generates some code from our message spec, and also installs python package dependencies.
+- `copy-dlls.bat` - This copies any built dlls from visual studio into the correct folder to speed up compile -> run time.
+
+#### Gradle
+
+Gradle is a build / dependency management system. You can execute various tasks with `gradlew.bat some_task`.
+To use gradle, you'll need to install JDK 8 or higher.
+
+
+- `publishToPyPI` - Uploads our package to [PyPI](https://pypi.org/project/rlbot/).
+This is done when we want to make an update available to bot makers.
+To run this successfully, you will need to create a [.pypirc](https://docs.python.org/3.6/distutils/packageindex.html#pypirc) file.
+Ask somebody for the username and password.
+- `build` - Generates and builds Java code.
+- `bintrayUpload` - Uploads Java artifacts to
+[bintray](https://bintray.com/rlbotofficial/RLBotMaven/rlbot-framework). This is done when we're ready to
+make an update available to java bots. To run this successfully, you will need to create a local.properties file.
+  See the build.gradle file for details.
+
+### Wikis
 
 For more details, visit the [Setup guide](https://github.com/RLBot/RLBot/wiki/Setup-Instructions-%28current%29). When you're done, there are [more wikis](https://github.com/RLBot/RLBot/wiki) with additional information.
 
