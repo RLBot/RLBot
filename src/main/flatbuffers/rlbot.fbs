@@ -228,7 +228,6 @@ table RenderGroup {
 
 root_type RenderGroup;
 
-
 enum QuickChatSelection : byte {
     Information_IGotIt = 0,
 	Information_NeedBoost = 1,
@@ -316,3 +315,104 @@ table QuickChat {
 }
 
 root_type QuickChat;
+
+table PlayerConfiguration
+{
+	bot:bool;
+	rlbot_controlled:bool;
+	float					BotSkill;
+	int						HumanIndex;
+	wchar_t					Name[32];
+	unsigned char			Team;
+	unsigned char			TeamColorID;
+	unsigned char			CustomColorID;
+	int						CarID;
+	int						DecalID;
+	int						WheelsID;
+	int						BoostID;
+	int						AntennaID;
+	int						HatID;
+	int						PaintFinishID;
+	int						CustomFinishID;
+	int						EngineAudioID;
+	int						TrailsID;
+	int						GoalExplosionID;
+};
+
+enum GameMode : byte {
+    Soccer,
+	Hoops,
+	Dropshot,
+	Hockey,
+	Rumble
+}
+
+enum GameMap : byte {
+	DFHStadium,
+	Mannfield,
+	ChampionsField,
+	UrbanCentral,
+	BeckwithPark,
+	UtopiaColiseum,
+	Wasteland,
+	NeoTokyo,
+	AquaDome,
+	StarbaseArc,
+	Farmstead,
+	DFHStadium_Stormy,
+	DFHStadium_Day,
+	Mannfield_Stormy,
+	Mannfield_Night,
+	ChampionsField_Day,
+	BeckwithPark_Stormy,
+	BeckwithPark_Midnight,
+	UrbanCentral_Night,
+	UrbanCentral_Dawn,
+	UtopiaColiseum_Dusk,
+	DFHStadium_Snowy,
+	Mannfield_Snowy,
+	UtopiaColiseum_Snowy,
+	Badlands,
+	Badlands_Night,
+	TokyoUnderpass,
+	Arctagon,
+	Pillars,
+	Cosmic,
+	DoubleGoal,
+	Octagon,
+	Underpass,
+	UtopiaRetro,
+	Hoops_DunkHouse,
+	DropShot_Core707
+}
+
+enum MatchLength : byte {
+	Five_Minutes,
+	Ten_Minutes,
+	Twenty_Minutes,
+	Unlimited
+};
+
+enum BoostOption : byte {
+	Normal_Boost,
+	Unlimited_Boost,
+	Slow_Recharge,
+	Rapid_Recharge,
+	No_Boost
+};
+
+struct MutatorSettings
+{
+	MatchLength				MatchLength;
+	BoostOption				BoostOptions;
+};
+
+table MatchSettings {
+	PlayerConfiguration		PlayerConfiguration[CONST_MaxPlayers];
+	int						NumPlayers;
+	GameMode				GameMode;
+	GameMap					GameMap;
+	bool					SkipReplays;
+	bool					InstantStart;
+	MutatorSettings			MutatorSettings;
+}
