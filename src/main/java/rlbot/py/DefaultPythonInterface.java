@@ -1,7 +1,10 @@
 package rlbot.py;
 
 import rlbot.Bot;
+import rlbot.cpp.RLBotDll;
 import rlbot.manager.BotManager;
+
+import java.io.IOException;
 
 /**
  * The public methods of this class will be called directly from the python component of the RLBot framework.
@@ -14,8 +17,13 @@ public abstract class DefaultPythonInterface implements PythonInterface {
         this.botManager = botManager;
     }
 
-    public void ensureStarted() {
-        botManager.ensureStarted();
+    public void ensureStarted(final String interfaceDllPath) {
+        try {
+            RLBotDll.initialize(interfaceDllPath);
+            botManager.ensureStarted();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void shutdown() {

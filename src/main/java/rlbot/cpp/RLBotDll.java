@@ -8,17 +8,45 @@ import rlbot.ControllerState;
 import rlbot.flat.FieldInfo;
 import rlbot.flat.GameTickPacket;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class RLBotDll {
+
+    private static final String LOCAL_DLL_DIR = "build/dll";  // Java bots must this in their classpath
+    private static final String DLL_NAME_SANS_EXTENSION = "RLBot_Core_Interface";
 
     private static native ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
     private static native int UpdatePlayerInputFlatbuffer(Pointer ptr, int size);
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
 
-    static {
-        Native.register("RLBot_Core_Interface");
+    private static boolean isInitialized = false;
+
+    public static void initialize(final String interfaceDllPath) throws IOException {
+
+        if (isInitialized) {
+            return;
+        }
+
+        File directory = new File(LOCAL_DLL_DIR);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        // Copy the interface dll to a known location that is already on the classpath.
+        Files.copy(
+                Paths.get(interfaceDllPath),
+                Paths.get( LOCAL_DLL_DIR, DLL_NAME_SANS_EXTENSION + ".dll"),
+                StandardCopyOption.REPLACE_EXISTING);
+
+        Native.register(DLL_NAME_SANS_EXTENSION);
+
+        isInitialized = true;
     }
 
     public static GameTickPacket getFlatbufferPacket() throws IOException {
@@ -29,6 +57,8 @@ public class RLBotDll {
             }
             final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
             return GameTickPacket.getRootAsGameTickPacket(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new IOException("Could not find interface dll! Did initialize get called?", error);
         } catch (final Error error) {
             throw new IOException(error);
         }
@@ -42,6 +72,8 @@ public class RLBotDll {
             }
             final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
             return FieldInfo.getRootAsFieldInfo(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new IOException("Could not find interface dll! Did initialize get called?", error);
         } catch (final Error error) {
             throw new IOException(error);
         }

@@ -25,7 +25,7 @@ dependencies {
     compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
     compile 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
-    testRuntime files('src/main/python/rlbot/dll')
+    testRuntime files('build/dll')
 }
 
 project.setGroup('org.rlbot.commons')
