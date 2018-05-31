@@ -15,6 +15,9 @@ namespace BoostConstants
 	// Rendering
 	extern const char* RenderingFlatQueueName;
 
+	// Chat
+	extern const char* QuickChatFlatQueueName;
+
 	std::string buildSharedMemName(const char* baseName);
 	std::string buildMutexName(const char* baseName);
 };

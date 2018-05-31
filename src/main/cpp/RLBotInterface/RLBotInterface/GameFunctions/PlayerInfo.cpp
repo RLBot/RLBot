@@ -20,6 +20,14 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
+	// FLAT
+	static BoostUtilities::QueueSender quickChatQueue(BoostConstants::QuickChatFlatQueueName);
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
+	{
+		return quickChatQueue.sendMessage(quickChatMessage, protoSize);
+	}
+
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback, unsigned int* pID)
 	{
 		RLBotCoreStatus status = checkQuickChatPreset(quickChatPreset);
