@@ -1,6 +1,7 @@
 import os
 import json
 from PyQt5 import QtWidgets, QtCore
+import configparser
 
 from rlbot.gui.design.car_customisation import Ui_LoadoutPresetCustomiser
 from rlbot.gui.design.agent_customisation import Ui_AgentPresetCustomiser
@@ -89,7 +90,16 @@ class BasePresetEditor(QtWidgets.QWidget):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Config', '', 'Config Files (*.cfg)')[0]
         if not os.path.isfile(file_path):
             return
-        preset = self.preset_class(self.validate_name(os.path.basename(file_path).replace(".cfg", ""), None), file_path)
+        try:
+            preset = self.preset_class(self.validate_name(os.path.basename(file_path).replace(".cfg", ""), None), file_path)
+        except configparser.NoSectionError:
+            popup = QtWidgets.QMessageBox()
+            popup.setIcon(QtWidgets.QMessageBox.Warning)
+            popup.setWindowTitle("Invalid Config File")
+            popup.setText("This file does not have the right sections!")
+            popup.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            popup.exec_()
+            return
         self.presets[preset.get_name()] = preset
         self.update_presets_widgets()
         self.presets_listwidget.setCurrentItem(self.presets_listwidget.findItems(preset.get_name(), QtCore.Qt.MatchExactly)[0])
@@ -159,6 +169,7 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
         # widget_list contains the spinbox and combobox (if it exists) associated with that item
         widget_list = self.config_headers_to_widgets[config_headers[0]][config_headers[1]]
 
+        item_id = 0
         if len(widget_list) != 1:
             # there is a widget to update
             for widget_to_update in widget_list:
@@ -337,11 +348,11 @@ class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
         preset = self.get_current_preset()
 
         bot_parameters = preset.config["Bot Parameters"]
+        self.preset_python_file_lineedit.setText(preset.config.get("Locations", "python_file"))
 
         self.add_parameters_to_gui(bot_parameters)
 
     def add_parameters_to_gui(self, bot_parameters):
-        # TODO make the window update in a more natural way
         # clear layout
         while self.grid_layout.count():
             child_widget = self.grid_layout.takeAt(0).widget()
@@ -399,7 +410,13 @@ class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
         if not file_path or not os.path.exists(file_path):
             return
         preset = self.get_current_preset()
-        preset.load_agent_class(file_path)
+        if not preset.load_agent_class(file_path):
+            popup = QtWidgets.QMessageBox()
+            popup.setIcon(QtWidgets.QMessageBox.Information)
+            popup.setWindowTitle("Invalid Python File")
+            popup.setText("This file does not extend BaseAgent, using BaseAgent")
+            popup.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            popup.exec_()
         if preset.config_path is None or not os.path.isfile(preset.config_path):
             start = get_python_root()
         else:

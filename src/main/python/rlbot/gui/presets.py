@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtCore import QTimer
-from configparser import RawConfigParser
+import configparser
 
 from rlbot.agents.base_agent import BaseAgent
 from rlbot.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
@@ -24,7 +24,12 @@ class Preset:
             self.config_path = ""
             return
         self.config_path = file_path
-        self.config.parse_file(file_path)
+        raw_parser = configparser.RawConfigParser()
+        raw_parser.read(file_path)
+        for section in self.config.headers.keys():
+            if not raw_parser.has_section(section):
+                raise configparser.NoSectionError(section)
+        self.config.parse_file(raw_parser)
         return self.config
 
     def save_config(self, file_path=None, time_out=0):
@@ -83,10 +88,13 @@ class AgentPreset(Preset):
         super().load(file_path)
 
     def load_agent_class(self, python_file_path):
+        result = True
         try:
             self.agent_class = import_agent(python_file_path).get_loaded_class()
         except (ValueError, ModuleNotFoundError):
             self.agent_class = BaseAgent
+            result = False
         old_config = self.config.copy()
         self.config = self.agent_class.create_agent_configurations()
         self.config.parse_file(old_config)
+        return result
