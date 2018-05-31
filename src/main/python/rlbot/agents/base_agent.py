@@ -110,8 +110,8 @@ class BaseAgent:
         """
         return None
 
-    @staticmethod
-    def base_create_agent_configurations() -> ConfigObject:
+    @classmethod
+    def base_create_agent_configurations(cls) -> ConfigObject:
         """
         This is used when initializing agent config via builder pattern.
         It also calls `create_agent_configurations` that can be used by BaseAgent subclasses for custom configs.
@@ -124,7 +124,7 @@ class BaseAgent:
         location_config.add_value(PYTHON_FILE_KEY, str, default='./atba.py',
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
 
-        BaseAgent.create_agent_configurations(config)
+        cls.create_agent_configurations(config)
 
         return config
 
