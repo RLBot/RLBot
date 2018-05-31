@@ -27,10 +27,6 @@ class RenderingManager:
     group_id = None
     bot_index = 0
 
-    def __init__(self):
-        self.ignored_funcs = ['setup_function_types', 'get_render_functions',
-                              'create_dynamic_function', 'send_group']
-
     def setup_function_types(self, dll_instance):
         self.renderGroup = dll_instance.RenderGroup
 
@@ -202,12 +198,12 @@ class RenderingManager:
     def white(self):
         return self.create_color(255, 255, 255, 255)
 
-    def get_render_functions(self):
+    def get_rendering_manager(self, bot_index=0):
         """
         Gets all the raw render functions but without giving access to any internal logic or the dll
         :return: An object with the same interface as the functions above
         """
-
+        self.set_bot_index(bot_index)
         return self
 
     def __wrap_float(self, number):

@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 
 from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.utils import rate_limiter
-from rlbot.utils.class_importer import ExternalClassWrapper
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat
@@ -73,34 +72,48 @@ class BotManager:
         else:
             self.logger.debug('quick chat disabled for %s', MAX_CHAT_RATE - time_since_last_chat)
 
-    def load_agent(self, agent_wrapper: ExternalClassWrapper):
-        agent_class = agent_wrapper.get_loaded_class()
+    def load_agent(self):
+        """
+        Loads and initializes an agent using instance variables, registers for quick chat and sets render functions.
+        :return: An instance of an agent, and the agent class file.
+        """
+        agent_class = self.agent_class_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
         agent.logger = self.logger
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
         agent.initialize_agent()
 
         self.update_metadata_queue(agent)
+        self.set_render_manager(agent)
+
         agent_class_file = self.agent_class_wrapper.python_file
         agent.register_quick_chat(self.send_quick_chat_from_agent)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
         return agent, agent_class_file
 
-    def set_render_functions(self, agent):
-        render_functions = self.game_interface.renderer.get_render_functions()
-        render_functions.set_bot_index(self.index)
-        agent.set_renderer(render_functions)
+    def set_render_manager(self, agent):
+        """
+        Sets the render manager for the agent.
+        :param agent: An instance of an agent.
+        """
+        rendering_manager = self.game_interface.renderer.get_rendering_manager(self.index)
+        agent.set_renderer(rendering_manager)
 
     def update_metadata_queue(self, agent):
-        pids = set()
-        pids.add(os.getpid())
-        pids.update(agent.get_extra_pids())
+        """
+        Adds a new instance of AgentMetadata into the `agent_metadata_queue` using `agent` data.
+        :param agent: An instance of an agent.
+        """
+        pids = {os.getpid(), *agent.get_extra_pids()}
 
         helper_process_request = agent.get_helper_process_request()
 
         self.agent_metadata_queue.put(AgentMetadata(self.index, self.name, self.team, pids, helper_process_request))
 
     def run(self):
+        """
+        Loads interface for RLBot, prepares environment and agent, and calls the update for the agent.
+        """
         self.logger.debug('initializing agent')
         self.game_interface.load_interface()
 
@@ -112,8 +125,7 @@ class BotManager:
         last_call_real_time = datetime.now()  # When we last called the Agent
 
         # Get bot module
-        agent, agent_class_file = self.load_agent(self.agent_class_wrapper)
-        self.set_render_functions(agent)
+        agent, agent_class_file = self.load_agent()
 
         last_module_modification_time = os.stat(agent_class_file).st_mtime
 
@@ -139,8 +151,7 @@ class BotManager:
                         self.logger.info('Reloading Agent: ' + agent_class_file)
                         self.agent_class_wrapper.reload()
                         old_agent = agent
-                        agent, agent_class_file = self.load_agent(self.agent_class_wrapper)
-                        self.set_render_functions(agent)
+                        agent, agent_class_file = self.load_agent()
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
