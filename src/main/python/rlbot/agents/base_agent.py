@@ -110,6 +110,7 @@ class BaseAgent:
         """
         return None
 
+    # Information about @classmethod: https://docs.python.org/3/library/functions.html#classmethod
     @classmethod
     def base_create_agent_configurations(cls) -> ConfigObject:
         """
