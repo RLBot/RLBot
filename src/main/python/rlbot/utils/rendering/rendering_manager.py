@@ -133,7 +133,7 @@ class RenderingManager:
         RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
-        RenderMessage.RenderMessageAddIsFilled(messageBuilder, int(filled))
+        RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
@@ -148,7 +148,7 @@ class RenderingManager:
         RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
-        RenderMessage.RenderMessageAddIsFilled(messageBuilder, int(filled))
+        RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
