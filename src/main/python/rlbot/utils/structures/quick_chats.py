@@ -1,11 +1,15 @@
+import flatbuffers
 import multiprocessing
 import queue
 from threading import Thread
 
+from rlbot.messages.flat import QuickChat
+from rlbot.messages.flat import QuickChatSelection
 from rlbot.utils.logging_utils import get_logger
 
 
 def get_quick_chats():
+    """
     quick_chat_list = ["Information_IGotIt",
                        "Information_NeedBoost",
                        "Information_TakeTheShot",
@@ -49,9 +53,12 @@ def get_quick_chats():
                        "PostGame_WhatAGame",
                        "PostGame_NiceMoves",
                        "PostGame_EverybodyDance"]
+    """
     result = lambda: None
+    obj = QuickChatSelection.QuickChatSelection
+    quick_chat_list = [a for a in dir(obj) if not a.startswith('__') and not callable(getattr(obj,a))]
     for i in range(len(quick_chat_list)):
-        setattr(result, quick_chat_list[i], i)
+        setattr(result, quick_chat_list[i], getattr(obj, quick_chat_list[i]))
     setattr(result, 'quick_chat_list', quick_chat_list)
     setattr(result, 'CHAT_NONE', -1)
     setattr(result, 'CHAT_EVERYONE', False)
@@ -61,6 +68,18 @@ def get_quick_chats():
 
 QuickChats = get_quick_chats()
 
+
+def send_quick_chat_flat(game_interface, index, team, team_only, quick_chat):
+    builder = flatbuffers.Builder(0)
+    QuickChat.QuickChatStart(builder)
+    QuickChat.QuickChatAddQuickChat(builder, quick_chat)
+    QuickChat.QuickChatAddPlayerIndex(builder, index)
+    QuickChat.QuickChatAddTeamOnly(builder, team_only)
+    result = QuickChat.QuickChatEnd(builder)
+
+    builder.Finish(result)
+
+    game_interface.send_chat_flat(builder)
 
 def send_quick_chat(queue_holder, index, team, team_only, quick_chat):
     """
