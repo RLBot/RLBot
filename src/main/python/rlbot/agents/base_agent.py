@@ -48,17 +48,20 @@ class BaseAgent:
 
     def send_quick_chat(self, team_only, quick_chat):
         """
-        Sends a quick chat to the other bots.  If it is None it does not send a quick chat to other bots
+        Sends a quick chat to the other bots.
+        If it is QuickChats.CHAT_NONE or None it does not send a quick chat to other bots.
         :param team_only: either True or False, this says if the quick chat should only go to team members.
         :param quick_chat: The quick chat selection, available chats are defined in quick_chats.py
         """
-        if quick_chat == QuickChats.CHAT_NONE:
+        if quick_chat == QuickChats.CHAT_NONE or quick_chat is None:
             return
         self.__quick_chat_func(team_only, quick_chat)
 
-    def receive_quick_chat(self, index, team, quick_chat):
+    def handle_quick_chat(self, index, team, quick_chat):
         """
-        Gets a quick chat from another
+        Handles a quick chat from another bot.
+        This will not receive any chats that this bot sends out.
+        Currently just logs the chat, override to add functionality.
         :param index: Returns the index in the list of game cars that sent the quick chat
         :param team: Which team this player is on
         :param quick_chat: What the quick chat selection was

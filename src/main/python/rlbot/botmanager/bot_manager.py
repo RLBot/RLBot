@@ -83,7 +83,7 @@ class BotManager:
         self.update_metadata_queue(agent)
         agent_class_file = self.agent_class_wrapper.python_file
         agent.register_quick_chat(self.send_quick_chat_from_agent)
-        register_for_quick_chat(self.quick_chat_queue_holder, agent.receive_quick_chat, self.terminate_request_event)
+        register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
         return agent, agent_class_file
 
     def set_render_functions(self, agent):
