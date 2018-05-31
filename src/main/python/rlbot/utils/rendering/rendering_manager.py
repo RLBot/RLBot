@@ -27,10 +27,6 @@ class RenderingManager:
     group_id = None
     bot_index = 0
 
-    def __init__(self):
-        self.ignored_funcs = ['setup_function_types', 'get_rendering_manager',
-                              'create_dynamic_function', 'send_group']
-
     def setup_function_types(self, dll_instance):
         self.renderGroup = dll_instance.RenderGroup
 
