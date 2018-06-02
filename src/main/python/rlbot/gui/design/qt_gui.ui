@@ -858,6 +858,13 @@
         </spacer>
        </item>
        <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Please make sure game is running</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCommandLinkButton" name="run_button">
          <property name="styleSheet">
           <string notr="true"/>

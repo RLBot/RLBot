@@ -424,6 +424,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
         spacerItem = QtWidgets.QSpacerItem(489, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_10.addItem(spacerItem)
+        self.label_7 = QtWidgets.QLabel(self.frame_6)
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout_10.addWidget(self.label_7)
         self.run_button = QtWidgets.QCommandLinkButton(self.frame_6)
         self.run_button.setStyleSheet("")
         self.run_button.setObjectName("run_button")
@@ -482,5 +485,6 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Map:"))
         self.label_14.setText(_translate("MainWindow", "Instant Start:"))
         self.label_16.setText(_translate("MainWindow", "Boost Type:"))
+        self.label_7.setText(_translate("MainWindow", "Please make sure game is running"))
         self.run_button.setText(_translate("MainWindow", "RUN"))
 

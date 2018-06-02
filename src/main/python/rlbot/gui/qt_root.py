@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtCore import QTimer
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QStyle, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QStyle, QProgressDialog, QMessageBox, QProgressBar
 import threading
 import configparser
 
@@ -51,7 +51,13 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
 
-        self.load_overall_config(DEFAULT_RLBOT_CONFIG_LOCATION)
+        if os.path.isfile(DEFAULT_RLBOT_CONFIG_LOCATION):
+            self.load_overall_config(DEFAULT_RLBOT_CONFIG_LOCATION)
+        else:
+            self.load_overall_config("")
+            self.frame_3.setDisabled(True)
+            self.match_settings_groupbox.setDisabled(True)
+            self.cfg_save_pushbutton.setDisabled(True)
 
         self.init_match_settings()
         self.update_match_settings()
@@ -91,15 +97,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         return config
 
     def run_button_pressed(self):
-        if self.setup_manager is not None and self.setup_manager.has_started and self.match_process is not None:
-            self.run_button.setIcon(self.run_button.style().standardIcon(QStyle.SP_CommandLink))
-            self.run_button.setText("RUN")
-            self.setup_manager.should_stop = True
-        else:
-            self.run_button.setIcon(self.run_button.style().standardIcon(QStyle.SP_BrowserStop))
-            self.run_button.setText("STOP")
-            self.match_process = threading.Thread(target=self.start_match)
-            self.match_process.start()
+        self.match_process = threading.Thread(target=self.start_match)
+        self.match_process.start()
 
     def start_match(self):
         """
@@ -237,7 +236,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
-        if self.bot_config_groupbox.isEnabled():
+        if self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
             config_type = self.bot_type_combobox.currentText().lower().replace(" ", "_")
             self.current_bot.set_participant_type(config_type)
 
@@ -297,6 +296,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 popup.setStandardButtons(QMessageBox.Ok)
                 popup.exec_()
                 return
+        for item in (self.frame_3, self.match_settings_groupbox, self.cfg_save_pushbutton):
+            item.setEnabled(True)
         self.overall_config_path = config_path
         self.overall_config.parse_file(raw_parser, 10)
         self.load_agents()
@@ -525,6 +526,20 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.agents.remove(agent)
         self.update_teams_listwidgets()
         self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, len(self.agents))
+        if len(self.agents) == 0:
+            return
+        if agent.get_team() == 0:
+            if self.blue_listwidget.count() != 0:
+                self.blue_listwidget.setCurrentRow(self.blue_listwidget.count() - 1)
+            else:
+                self.orange_listwidget.setCurrentRow(self.orange_listwidget.count() - 1)
+        else:
+            if self.orange_listwidget.count() != 0:
+                self.orange_listwidget.setCurrentRow(self.orange_listwidget.count() - 1)
+            else:
+                self.blue_listwidget.setCurrentRow(self.blue_listwidget.count() - 1)
+
+
 
     def add_loadout_preset(self, file_path: str):
         """

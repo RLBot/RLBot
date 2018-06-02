@@ -13,6 +13,7 @@ class BasePresetEditor(QtWidgets.QWidget):
     def __init__(self, qt_gui, presets: dict, root_combobox: QtWidgets.QComboBox, preset_class):
         super().__init__()
         self.setupUi(self)
+        self.setWindowIcon(qt_gui.windowIcon())
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.qt_gui = qt_gui
@@ -90,15 +91,13 @@ class BasePresetEditor(QtWidgets.QWidget):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Config', '', 'Config Files (*.cfg)')[0]
         if not os.path.isfile(file_path):
             return
+        if os.path.splitext(file_path)[1] != "cfg":
+            self.popup_message("This file is not a config file!", "Invalid File Extension", QtWidgets.QMessageBox.Warning)
+            return
         try:
             preset = self.preset_class(self.validate_name(os.path.basename(file_path).replace(".cfg", ""), None), file_path)
         except configparser.NoSectionError:
-            popup = QtWidgets.QMessageBox()
-            popup.setIcon(QtWidgets.QMessageBox.Warning)
-            popup.setWindowTitle("Invalid Config File")
-            popup.setText("This file does not have the right sections!")
-            popup.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            popup.exec_()
+            self.popup_message("This file does not have the right sections!", "Invalid Config File", QtWidgets.QMessageBox.Warning)
             return
         self.presets[preset.get_name()] = preset
         self.update_presets_widgets()
@@ -140,6 +139,15 @@ class BasePresetEditor(QtWidgets.QWidget):
                     return value
         else:
             return name
+
+    def popup_message(self, message: str, title: str, icon=QtWidgets.QMessageBox.Warning):
+        popup = QtWidgets.QMessageBox(self)
+        popup.setIcon(icon)
+        popup.setWindowTitle(title)
+        popup.setText(message)
+        popup.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        popup.exec_()
+        return
 
 
 class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
@@ -411,12 +419,7 @@ class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
             return
         preset = self.get_current_preset()
         if not preset.load_agent_class(file_path):
-            popup = QtWidgets.QMessageBox()
-            popup.setIcon(QtWidgets.QMessageBox.Information)
-            popup.setWindowTitle("Invalid Python File")
-            popup.setText("This file does not extend BaseAgent, using BaseAgent")
-            popup.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            popup.exec_()
+            self.popup_message("This file does not extend BaseAgent, using BaseAgent", "Invalid Python File", QtWidgets.QMessageBox.Information)
         if preset.config_path is None or not os.path.isfile(preset.config_path):
             start = get_python_root()
         else:

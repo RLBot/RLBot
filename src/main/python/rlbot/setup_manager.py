@@ -30,7 +30,6 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 class SetupManager:
     has_started = False
     num_participants = None
-    should_stop = False
     names = None
     teams = None
     python_files = None
@@ -106,14 +105,13 @@ class SetupManager:
         self.logger.debug("Successfully started bot processes")
 
     def run(self):
-        self.should_stop = False
         self.quick_chat_manager.start_manager(self.quit_event)
         self.logger.debug("Successfully started quick chat manager")
         self.game_interface.start_match()
         self.logger.info("Match has started")
 
         self.logger.info("Press any character to exit")
-        while True and not self.should_stop:
+        while True:
             if msvcrt.kbhit():
                 msvcrt.getch()
                 break
