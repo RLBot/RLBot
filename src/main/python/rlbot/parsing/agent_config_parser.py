@@ -20,7 +20,7 @@ class BotConfigBundle:
     def __init__(self, config_directory, config_obj):
         self.config_directory = config_directory
         self.config_obj = config_obj
-        self.base_agent_config = BaseAgent.create_agent_configurations()
+        self.base_agent_config = BaseAgent.base_create_agent_configurations()
         self.base_agent_config.parse_file(self.config_obj)
 
     def get_absolute_path(self, header, key):
@@ -190,7 +190,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         # Python file relative to the config location.
         python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
         agent_class_wrapper = import_agent(python_file)
-        bot_parameters = agent_class_wrapper.get_loaded_class().create_agent_configurations()
+        bot_parameters = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
         bot_parameters.parse_file(config_bundle.config_obj)
 
     return bot_name, team_num, python_file, bot_parameters
