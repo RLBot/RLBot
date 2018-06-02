@@ -8,12 +8,14 @@ from rlbot.utils.class_importer import import_agent, get_python_root
 
 
 class Preset:
+    """
+    Stores a config, the config path, a preset name and has methods to save/load the preset
+    """
     def __init__(self, config, file_path, name):
         self.config = config
         self.config_path = file_path
         self.name = name
         self.save_loadout_timer = None
-        self.auto_save = True
         if file_path is not None:
             self.load(file_path)
 
@@ -48,19 +50,22 @@ class Preset:
             self.save_loadout_timer.timeout.connect(save)
         self.save_loadout_timer.start(time_out)  # Time-out for timer over here
 
-    def set_auto_save(self, auto_save):
-        self.auto_save = auto_save
-
     def get_name(self):
         return self.name
 
 
 class LoadoutPreset(Preset):
+    """
+    A class extending Preset to handle a LoadoutPreset, which is based on the looks configurations file
+    """
     def __init__(self, name, file_path=None):
         super().__init__(BaseAgent.create_looks_configurations(), file_path, name)
 
 
 class AgentPreset(Preset):
+    """
+    A class extending Preset to handle an AgentPreset, which is based on the agent configuration file and which also contains the Agent class
+    """
     def __init__(self, name, file_path=None):
         basic_config = BaseAgent.create_agent_configurations()
 

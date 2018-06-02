@@ -1,5 +1,3 @@
-
-
 MUTATOR_CONFIGURATION_HEADER = "Mutator Configuration"
 MUTATOR_MATCH_LENGTH = "Match Length"
 MUTATOR_MAX_SCORE = "Max Score"
@@ -105,9 +103,10 @@ def add_match_settings_header(config_object):
 def add_mutator_header(config_object):
     mutator_header = config_object.add_header_name(MUTATOR_CONFIGURATION_HEADER)
     mutator_header.add_value(MUTATOR_MATCH_LENGTH, str, default="Unlimited",
-                             description="Changes the length of the match, 3 for unlimited")
+                             description="Changes the length of the match, possible options are:\n"
+                                         "5 Minutes, 10 Minutes, 20 Minutes and Unlimited")
     mutator_header.add_value(MUTATOR_MAX_SCORE, int, default=0,
-                             description="Changes the number of goals needed to win, 0 for unlimited")
+                             description="Changes the number of goals needed to win")  # TODO explanation
     mutator_header.add_value(MUTATOR_GAME_SPEED, str, default="Default",
                              description="'Default', 'Slo-Mo' or 'Time Warp'\n"
                                          "    Slo-Mo slows the game down\n"

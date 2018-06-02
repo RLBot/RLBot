@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtCore import QTimer
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QStyle, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QStyle, QProgressDialog, QMessageBox, QProgressBar
 import threading
 import configparser
 
@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(os.path.abspath
 from rlbot.gui.presets import AgentPreset, LoadoutPreset
 from rlbot.gui.index_manager import IndexManager
 from rlbot.gui.design.qt_gui import Ui_MainWindow
-from rlbot.gui.gui_agent import Agent
+from rlbot.gui.gui_agent import GUIAgent
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
 
 from rlbot.utils.class_importer import get_python_root
@@ -51,7 +51,13 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
 
-        self.load_overall_config(DEFAULT_RLBOT_CONFIG_LOCATION)
+        if os.path.isfile(DEFAULT_RLBOT_CONFIG_LOCATION):
+            self.load_overall_config(DEFAULT_RLBOT_CONFIG_LOCATION)
+        else:
+            self.load_overall_config("")
+            self.frame_3.setDisabled(True)
+            self.match_settings_groupbox.setDisabled(True)
+            self.cfg_save_pushbutton.setDisabled(True)
 
         self.init_match_settings()
         self.update_match_settings()
@@ -91,15 +97,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         return config
 
     def run_button_pressed(self):
-        if self.setup_manager is not None and self.setup_manager.has_started and self.match_process is not None:
-            self.run_button.setIcon(self.run_button.style().standardIcon(QStyle.SP_CommandLink))
-            self.run_button.setText("RUN")
-            self.setup_manager.should_stop = True
-        else:
-            self.run_button.setIcon(self.run_button.style().standardIcon(QStyle.SP_BrowserStop))
-            self.run_button.setText("STOP")
-            self.match_process = threading.Thread(target=self.start_match)
-            self.match_process.start()
+        self.match_process = threading.Thread(target=self.start_match)
+        self.match_process.start()
 
     def start_match(self):
         """
@@ -237,7 +236,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
-        if self.bot_config_groupbox.isEnabled():
+        if self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
             config_type = self.bot_type_combobox.currentText().lower().replace(" ", "_")
             self.current_bot.set_participant_type(config_type)
 
@@ -278,7 +277,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         """
         if self.overall_config is None:
             self.overall_config = create_bot_config_layout()
-        Agent.overall_config = self.overall_config
+        GUIAgent.overall_config = self.overall_config
         if config_path is None:
             config_path = QFileDialog.getOpenFileName(self, "Load Overall Config", "", "Config Files (*.cfg)")[0]
             if not config_path:
@@ -286,17 +285,17 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 return
         if config_path is None or not os.path.isfile(config_path):
             return
+        if os.path.splitext(config_path)[1] != "cfg":
+            self.popup_message("This file is not a config file!", "Invalid File Extension", QMessageBox.Warning)
+            return
         raw_parser = configparser.RawConfigParser()
         raw_parser.read(config_path)
         for section in self.overall_config.headers.keys():
             if not raw_parser.has_section(section):
-                popup = QMessageBox()
-                popup.setIcon(QMessageBox.Warning)
-                popup.setWindowTitle("Invalid Config File")
-                popup.setText("This file does not have the sections for an overall config, not loading it")
-                popup.setStandardButtons(QMessageBox.Ok)
-                popup.exec_()
+                self.popup_message("This file does not have the sections for an overall config, not loading it!", "Invalic Config File", QMessageBox.Warning)
                 return
+        for item in (self.frame_3, self.match_settings_groupbox, self.cfg_save_pushbutton):
+            item.setEnabled(True)
         self.overall_config_path = config_path
         self.overall_config.parse_file(raw_parser, 10)
         self.load_agents()
@@ -507,7 +506,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.use_index(overall_index)
-        agent = Agent(overall_index=overall_index)
+        agent = GUIAgent(overall_index=overall_index)
         if team_index is not None:
             agent.set_team(team_index)
 
@@ -515,7 +514,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, len(self.agents))
         return agent
 
-    def remove_agent(self, agent: Agent):
+    def remove_agent(self, agent: GUIAgent):
         """
         Removes the given agent.
         :param agent: the agent to remove
@@ -525,6 +524,20 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.agents.remove(agent)
         self.update_teams_listwidgets()
         self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, len(self.agents))
+        if len(self.agents) == 0:
+            return
+        if agent.get_team() == 0:
+            if self.blue_listwidget.count() != 0:
+                self.blue_listwidget.setCurrentRow(self.blue_listwidget.count() - 1)
+            else:
+                self.orange_listwidget.setCurrentRow(self.orange_listwidget.count() - 1)
+        else:
+            if self.orange_listwidget.count() != 0:
+                self.orange_listwidget.setCurrentRow(self.orange_listwidget.count() - 1)
+            else:
+                self.blue_listwidget.setCurrentRow(self.blue_listwidget.count() - 1)
+
+
 
     def add_loadout_preset(self, file_path: str):
         """
@@ -600,6 +613,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, value)
         elif sender is self.boost_type_combobox:
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT, value)
+
+    def popup_message(self, message: str, title: str, icon=QMessageBox.Warning):
+        popup = QMessageBox(self)
+        popup.setIcon(icon)
+        popup.setWindowTitle(title)
+        popup.setText(message)
+        popup.setStandardButtons(QMessageBox.Ok)
+        popup.exec_()
 
     @staticmethod
     def main():
