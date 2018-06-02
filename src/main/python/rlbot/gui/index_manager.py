@@ -2,6 +2,9 @@ from itertools import count, filterfalse
 
 
 class IndexManager:
+    """
+    Handles the indices for agents, some useful methods for handling the overall indices
+    """
     def __init__(self, size):
         self.numbers = set()
         self.size = size
@@ -26,4 +29,8 @@ class IndexManager:
         self.numbers.remove(index)
 
     def has_free_slots(self):
+        """
+        Checks if there is a free value smaller than self.size
+        :return: True if there is a free value, False if not
+        """
         return next(filterfalse(self.numbers.__contains__, count(1))) < self.size
