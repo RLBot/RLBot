@@ -1,13 +1,15 @@
 import math
 
-from RLBotFramework.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
-from RLBotFramework.utils.structures.quick_chats import QuickChats
+from rlbot.agents.base_agent import BaseAgent
+from rlbot.utils.structures.quick_chats import QuickChats
+from rlbot.parsing.custom_config import ConfigObject
 
 URotationToRadians = math.pi / float(32768)
 
 
 class Atba(BaseAgent):
     flip_turning = False
+    cleared = False
 
     def get_output_vector(self, game_tick_packet):
 
@@ -33,6 +35,32 @@ class Atba(BaseAgent):
         if turn == -1.0:
             self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
 
+        car_render_location = [my_car.Location.X, my_car.Location.Y, my_car.Location.Z]
+        ball_render_location = [game_tick_packet.gameball.Location.X,
+                                game_tick_packet.gameball.Location.Y,
+                                game_tick_packet.gameball.Location.Z]
+        text_render_strX = 'x:' + str(game_tick_packet.gameball.Location.X)
+        if not self.cleared:
+            self.renderer.begin_rendering()
+            color = self.renderer.create_color(121, 121, 0, 121)
+            color2 = self.renderer.create_color(255, 0, 255, 255)
+            self.renderer.draw_line_2d(100, 100, 1000, 500, self.renderer.black())
+            self.renderer.draw_rect_2d(0, 0, 1000, 1000, True, color)
+            self.renderer.draw_line_3d((50, 50, 50),
+                                       car_render_location, color2).draw_line_2d_3d(100, 100,
+                                                                                    car_render_location, color2)
+            self.renderer.draw_rect_3d(car_render_location, 100, 100, True, self.renderer.create_color(200, 0, 0, 0))
+            self.renderer.draw_string_2d(1000, 500, 10, 10, text_render_strX, self.renderer.white())
+            self.renderer.draw_string_3d(ball_render_location, 20, 20, "BALL", self.renderer.black())
+            self.renderer.end_rendering()
+        if self.cleared:
+            self.renderer.clear_screen()
+
+        if my_car.Location.X > 0:
+            self.cleared = True
+        else:
+            self.cleared = False
+
         return [
             1.0,  # throttle
             turn,  # steer
@@ -48,15 +76,9 @@ class Atba(BaseAgent):
         self.flip_turning = config_header.getboolean('flip_turning')
 
     @staticmethod
-    def create_agent_configurations():
-        config = super(Atba, Atba).create_agent_configurations()
-        config.get_header(BOT_CONFIG_AGENT_HEADER).add_value('flip_turning', bool, default=False,
-                                                             description='if true bot will turn opposite way')\
-            .add_value('some_testing_value', str, default="TestTestTest",
-                       description='if true bot will turn opposite way')\
-            .add_value('another_testing_value', int, default=92,
-                       description='if true bot will turn opposite way')
-        return config
+    def create_agent_configurations(config: ConfigObject):
+        config.add_header_name('Bot Parameters').add_value('flip_turning', bool, default=False,
+                                                           description='if true bot will turn opposite way')
 
 
 class Vector2:
