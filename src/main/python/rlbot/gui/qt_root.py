@@ -285,7 +285,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 return
         if config_path is None or not os.path.isfile(config_path):
             return
-        if os.path.splitext(config_path)[1] != "cfg":
+        paths = os.path.splitext(config_path)
+        if paths[-1] != ".cfg":
             self.popup_message("This file is not a config file!", "Invalid File Extension", QMessageBox.Warning)
             return
         raw_parser = configparser.RawConfigParser()

@@ -67,7 +67,7 @@ class AgentPreset(Preset):
     A class extending Preset to handle an AgentPreset, which is based on the agent configuration file and which also contains the Agent class
     """
     def __init__(self, name, file_path=None):
-        basic_config = BaseAgent.create_agent_configurations()
+        basic_config = BaseAgent.base_create_agent_configurations()
 
         if file_path is not None and os.path.isfile(file_path):
             file_path = os.path.realpath(file_path)
@@ -84,12 +84,12 @@ class AgentPreset(Preset):
         except (ValueError, ModuleNotFoundError):
             self.agent_class = BaseAgent
 
-        super().__init__(self.agent_class.create_agent_configurations(), file_path, name)
+        super().__init__(self.agent_class.base_create_agent_configurations(), file_path, name)
         # Make sure the path to the python file actually gets set to that path, even if there was no config at file_path
         self.config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, basic_config.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY))
 
     def load(self, file_path=None):
-        self.config = self.agent_class.create_agent_configurations()
+        self.config = self.agent_class.base_create_agent_configurations()
         super().load(file_path)
 
     def load_agent_class(self, python_file_path):
@@ -100,6 +100,6 @@ class AgentPreset(Preset):
             self.agent_class = BaseAgent
             result = False
         old_config = self.config.copy()
-        self.config = self.agent_class.create_agent_configurations()
+        self.config = self.agent_class.base_create_agent_configurations()
         self.config.parse_file(old_config)
         return result
