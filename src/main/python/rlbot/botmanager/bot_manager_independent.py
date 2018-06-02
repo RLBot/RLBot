@@ -12,7 +12,7 @@ class BotManagerIndependent(BotManager):
 
     def run(self):
         # Get bot module
-        agent, agent_class_file = self.load_agent(self.agent_class_wrapper)
+        agent, agent_class_file = self.load_agent()
         agent.run_independently(self.terminate_request_event)
         if hasattr(agent, 'retire'):
             agent.retire()
