@@ -285,16 +285,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 return
         if config_path is None or not os.path.isfile(config_path):
             return
+        if os.path.splitext(config_path)[1] != "cfg":
+            self.popup_message("This file is not a config file!", "Invalid File Extension", QMessageBox.Warning)
+            return
         raw_parser = configparser.RawConfigParser()
         raw_parser.read(config_path)
         for section in self.overall_config.headers.keys():
             if not raw_parser.has_section(section):
-                popup = QMessageBox()
-                popup.setIcon(QMessageBox.Warning)
-                popup.setWindowTitle("Invalid Config File")
-                popup.setText("This file does not have the sections for an overall config, not loading it")
-                popup.setStandardButtons(QMessageBox.Ok)
-                popup.exec_()
+                self.popup_message("This file does not have the sections for an overall config, not loading it!", "Invalic Config File", QMessageBox.Warning)
                 return
         for item in (self.frame_3, self.match_settings_groupbox, self.cfg_save_pushbutton):
             item.setEnabled(True)
@@ -615,6 +613,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, value)
         elif sender is self.boost_type_combobox:
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT, value)
+
+    def popup_message(self, message: str, title: str, icon=QMessageBox.Warning):
+        popup = QMessageBox(self)
+        popup.setIcon(icon)
+        popup.setWindowTitle(title)
+        popup.setText(message)
+        popup.setStandardButtons(QMessageBox.Ok)
+        popup.exec_()
 
     @staticmethod
     def main():
