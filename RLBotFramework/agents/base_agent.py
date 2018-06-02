@@ -1,6 +1,8 @@
-from RLBotFramework.parsing.custom_config import ConfigObject, ConfigHeader
-from RLBotFramework.utils.logging_utils import get_logger
-from RLBotFramework.utils.structures.quick_chats import QuickChats
+from rlbot.botmanager.helper_process_request import HelperProcessRequest
+from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
+from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.quick_chats import QuickChats
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
@@ -8,7 +10,6 @@ BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 PYTHON_FILE_KEY = 'python_file'
 LOOKS_CONFIG_KEY = 'looks_config'
-BOT_NAME_KEY = "name"
 
 
 class BaseAgent:
@@ -19,7 +20,8 @@ class BaseAgent:
     team = None
     # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.gamecars
     index = None
-    quick_chat_func = None
+    __quick_chat_func = None
+    renderer = None
 
     def __init__(self, name, team, index):
         self.name = name
@@ -47,14 +49,19 @@ class BaseAgent:
     def send_quick_chat(self, team_only, quick_chat):
         """
         Sends a quick chat to the other bots.
+        If it is QuickChats.CHAT_NONE or None it does not send a quick chat to other bots.
         :param team_only: either True or False, this says if the quick chat should only go to team members.
         :param quick_chat: The quick chat selection, available chats are defined in quick_chats.py
         """
-        self.quick_chat_func(team_only, quick_chat)
+        if quick_chat == QuickChats.CHAT_NONE or quick_chat is None:
+            return
+        self.__quick_chat_func(team_only, quick_chat)
 
-    def receive_quick_chat(self, index, team, quick_chat):
+    def handle_quick_chat(self, index, team, quick_chat):
         """
-        Gets a quick chat from another
+        Handles a quick chat from another bot.
+        This will not receive any chats that this bot sends out.
+        Currently just logs the chat, override to add functionality.
         :param index: Returns the index in the list of game cars that sent the quick chat
         :param team: Which team this player is on
         :param quick_chat: What the quick chat selection was
@@ -67,7 +74,7 @@ class BaseAgent:
         Registers the send quick chat function.
         This should not be overwritten by the agent.
         """
-        self.quick_chat_func = quick_chat_func
+        self.__quick_chat_func = quick_chat_func
 
     def load_config(self, config_object_header):
         """
@@ -93,17 +100,42 @@ class BaseAgent:
     def retire(self):
         """Called after the game ends"""
 
-    @staticmethod
-    def create_agent_configurations() -> ConfigObject:
+    def set_renderer(self, renderer: RenderingManager):
+        self.renderer = renderer
+
+    def get_helper_process_request(self) -> HelperProcessRequest:
+        """
+        If your bot needs a helper process which can be shared, e.g. with other bots of the same type,
+        you may override this to return a HelperProcessRequest.
+        """
+        return None
+
+    # Information about @classmethod: https://docs.python.org/3/library/functions.html#classmethod
+    @classmethod
+    def base_create_agent_configurations(cls) -> ConfigObject:
+        """
+        This is used when initializing agent config via builder pattern.
+        It also calls `create_agent_configurations` that can be used by BaseAgent subclasses for custom configs.
+        :return: Returns an instance of a ConfigObject object.
+        """
         config = ConfigObject()
-        location_config = config.get_header(BOT_CONFIG_MODULE_HEADER)
+        location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
         location_config.add_value(LOOKS_CONFIG_KEY, str, default='./atba_looks.cfg',
                                   description='Path to loadout config from runner')
         location_config.add_value(PYTHON_FILE_KEY, str, default='./atba.py',
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
-        location_config.add_value(BOT_NAME_KEY, str, default='nameless',
-                                  description='The name that will be displayed in game')
+
+        cls.create_agent_configurations(config)
+
         return config
+
+    @staticmethod
+    def create_agent_configurations(config: ConfigObject):
+        """
+        If your bot needs to add custom configurations, you may override this and use the `config` object.
+        :param config: A ConfigObject instance.
+        """
+        pass
 
     @staticmethod
     def create_looks_configurations() -> ConfigObject:
@@ -112,10 +144,10 @@ class BaseAgent:
         config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
         return config
 
-
     @staticmethod
     def _create_loadout() -> ConfigHeader:
         header = ConfigHeader()
+        header.add_value('name', str, default='nameless', description='The name that will be displayed in game')
         header.add_value('team_color_id', int, default=27, description='Primary Color selection')
         header.add_value('custom_color_id', int, default=75, description='Secondary Color selection')
         header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc')
