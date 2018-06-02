@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(os.path.abspath
 from rlbot.gui.presets import AgentPreset, LoadoutPreset
 from rlbot.gui.index_manager import IndexManager
 from rlbot.gui.design.qt_gui import Ui_MainWindow
-from rlbot.gui.gui_agent import Agent
+from rlbot.gui.gui_agent import GUIAgent
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
 
 from rlbot.utils.class_importer import get_python_root
@@ -277,7 +277,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         """
         if self.overall_config is None:
             self.overall_config = create_bot_config_layout()
-        Agent.overall_config = self.overall_config
+        GUIAgent.overall_config = self.overall_config
         if config_path is None:
             config_path = QFileDialog.getOpenFileName(self, "Load Overall Config", "", "Config Files (*.cfg)")[0]
             if not config_path:
@@ -506,7 +506,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             overall_index = self.index_manager.get_new_index()
         else:
             self.index_manager.use_index(overall_index)
-        agent = Agent(overall_index=overall_index)
+        agent = GUIAgent(overall_index=overall_index)
         if team_index is not None:
             agent.set_team(team_index)
 
@@ -514,7 +514,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, len(self.agents))
         return agent
 
-    def remove_agent(self, agent: Agent):
+    def remove_agent(self, agent: GUIAgent):
         """
         Removes the given agent.
         :param agent: the agent to remove

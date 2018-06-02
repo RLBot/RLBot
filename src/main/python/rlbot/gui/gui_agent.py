@@ -6,7 +6,10 @@ from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, 
     PARTICIPANT_BOT_SKILL_KEY, PARTICIPANT_TYPE_KEY, PARTICIPANT_TEAM, PARTICIPANT_LOADOUT_CONFIG_KEY, BotConfigBundle
 
 
-class Agent:
+class GUIAgent:
+    """
+    Holds all info for an agent stored in the GUI, also contains some methods to set values more easily
+    """
     overall_config = None
 
     def __init__(self, overall_index: int, loadout_preset: LoadoutPreset=None, agent_preset: AgentPreset=None):
