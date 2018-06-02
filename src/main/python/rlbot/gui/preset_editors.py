@@ -10,6 +10,9 @@ from rlbot.utils.class_importer import get_python_root
 
 
 class BasePresetEditor(QtWidgets.QWidget):
+    """
+    The Base of the popup windows to modify a Preset, handles the basic method of editing the preset
+    """
     def __init__(self, qt_gui, presets: dict, root_combobox: QtWidgets.QComboBox, preset_class):
         super().__init__()
         self.setupUi(self)
@@ -151,6 +154,9 @@ class BasePresetEditor(QtWidgets.QWidget):
 
 
 class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
+    """
+    The class extending BasePresetEditor to allow some loadout preset specific preset editing, like handling item names
+    """
     def __init__(self, qt_gui):
         super().__init__(qt_gui, qt_gui.loadout_presets, qt_gui.loadout_preset_combobox, LoadoutPreset)
 
@@ -339,6 +345,9 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
 
 
 class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
+    """
+    The class extending BasePresetEditor for some agent config specific edits, e.g. selecting the agent file
+    """
     def __init__(self, qt_gui):
         super().__init__(qt_gui, qt_gui.agent_presets, qt_gui.agent_preset_combobox, AgentPreset)
 
