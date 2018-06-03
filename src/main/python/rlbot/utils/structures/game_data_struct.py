@@ -89,7 +89,7 @@ class GameInfo(ctypes.Structure):
 # On the c++ side this struct has a long at the beginning for locking.  This flag is removed from this struct so it isn't visible to users.
 class GameTickPacket(ctypes.Structure):
     _fields_ = [("game_cars", PlayerInfo * MAX_PLAYERS),
-                ("not_cars", ctypes.c_int),
+                ("num_cars", ctypes.c_int),
                 ("game_boosts", BoostPadState * MAX_BOOSTS),
                 ("num_boost", ctypes.c_int),
                 ("game_ball", BallInfo),
@@ -123,7 +123,7 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
     ball_yaw = game_tick_packet.game_ball.rotation.yaw
     game_tick_packet.game_ball.rotation.yaw = ball_yaw + 32768 if ball_yaw < 0 else ball_yaw - 32768
 
-    for i in range(game_tick_packet.not_cars):
+    for i in range(game_tick_packet.num_cars):
         game_tick_packet.game_cars[i].physics.location.x = -1 * game_tick_packet.game_cars[i].physics.location.x
         game_tick_packet.game_cars[i].physics.location.y = -1 * game_tick_packet.game_cars[i].physics.location.y
         game_tick_packet.game_cars[i].physics.velocity.x = -1 * game_tick_packet.game_cars[i].physics.velocity.x

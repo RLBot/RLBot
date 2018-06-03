@@ -78,6 +78,8 @@ class BaseAgent:
         pass
 
     def get_field_info(self):
+        """Gets the information about the field.
+        This does not change during a match so it only needs to be called once after the everything is loaded."""
         return self.__field_info_func()
 
     def load_config(self, config_object_header):

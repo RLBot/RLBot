@@ -1,6 +1,7 @@
 import math
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
+from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.parsing.custom_config import ConfigObject
 
@@ -15,6 +16,11 @@ class Atba(BaseAgent):
 
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
                                 game_tick_packet.game_ball.physics.location.y)
+
+        # testing that conversion works
+        legacy = self.convert_packet_to_v3(game_tick_packet)
+
+        field_info = self.get_field_info()
 
         my_car = game_tick_packet.game_cars[self.index]
         car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)

@@ -115,7 +115,7 @@ def convert_to_legacy_v3(game_tick_packet):
 
 
 def convert_game_info(legacy_game_info, game_info):
-    legacy_game_info.TimeSeconds = game_info.time_elasped
+    legacy_game_info.TimeSeconds = game_info.seconds_elapsed
     legacy_game_info.GameTimeRemaining = game_info.game_time_remaining
     legacy_game_info.bOverTime = game_info.is_overtime
     legacy_game_info.bUnlimitedTime = game_info.is_unlimited_time
@@ -158,7 +158,7 @@ def convert_ball_info(legacy_ball_info, ball_info):
     legacy_ball_info.LatestTouch.wPlayerName = ball_info.latest_touch.player_name
     legacy_ball_info.LatestTouch.fTimeSeconds = ball_info.latest_touch.time_seconds
     convert_vector(legacy_ball_info.LatestTouch.sHitLocation, ball_info.latest_touch.hit_location)
-    convert_vector(legacy_ball_info.LatestTouch.sHitNormal, ball_info.latest_touch.hot_normal)
+    convert_vector(legacy_ball_info.LatestTouch.sHitNormal, ball_info.latest_touch.hit_normal)
 
 
 def convert_boost_info(legacy_boost_info, boost_info):
