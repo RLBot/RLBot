@@ -46,6 +46,10 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
+        func = self.game.UpdateFieldInfoFlatbuffer
+        func.argtypes = []
+        func.restype = ByteBuffer
+
         # start match
         func = self.game.StartMatch
         func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
