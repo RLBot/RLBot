@@ -11,6 +11,7 @@ from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
 from rlbot.utils import rlbot_exception
+from rlbot.messages.flat import FieldInfo
 
 
 def wrap_callback(callback_func):
@@ -42,6 +43,10 @@ class GameInterface:
         func.restype = ctypes.c_int
 
         func = self.game.UpdateLiveDataPacketFlatbuffer
+        func.argtypes = []
+        func.restype = ByteBuffer
+
+        func = self.game.UpdateFieldInfoFlatbuffer
         func.argtypes = []
         func.restype = ByteBuffer
 
@@ -213,3 +218,18 @@ class GameInterface:
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, "Success")
             return proto_string
+
+    def get_field_info(self):
+        """
+        Gets the field information from the interface.
+        :return: The field information
+        """
+        byte_buffer = self.game.UpdateFieldInfoFlatbuffer()
+
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            self.game_status(None, "Success")
+            return FieldInfo.FieldInfo.GetRootAsFieldInfo(proto_string, 0)

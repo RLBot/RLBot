@@ -41,12 +41,17 @@ namespace PyStruct
 	};
 }
 
-struct PlayerInfo
+struct Physics
 {
 	PyStruct::Vector3 		Location;
 	PyStruct::Rotator 		Rotation;
 	PyStruct::Vector3		Velocity;
 	PyStruct::Vector3		AngularVelocity;
+};
+
+struct PlayerInfo
+{
+	Physics 				Physics;
 	ScoreInfo 				Score;
 	bool					Demolished;
 	bool					OnGround;
@@ -61,7 +66,6 @@ struct PlayerInfo
 
 struct BoostInfo
 {
-	PyStruct::Vector3 		Location;
 	bool 					Active;
 	float 					Timer;
 };
@@ -76,11 +80,7 @@ struct Touch
 
 struct BallInfo
 {
-	PyStruct::Vector3 		Location;
-	PyStruct::Rotator 		Rotation;
-	PyStruct::Vector3 		Velocity;
-	PyStruct::Vector3 		AngularVelocity;
-	PyStruct::Vector3 		Acceleration;
+	Physics 				Physics;
 	Touch					LatestTouch;
 };
 

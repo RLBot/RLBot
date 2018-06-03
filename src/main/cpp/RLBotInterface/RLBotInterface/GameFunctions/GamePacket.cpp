@@ -36,7 +36,6 @@ namespace GameFunctions
 		delete[] flatbuffer.ptr;
 
 		ByteBuffer fieldInfo = UpdateFieldInfoFlatbuffer();
-		FlatbufferTranslator::applyFieldInfoToStruct(fieldInfo, pLiveData);
 		delete[] fieldInfo.ptr;
 
 		return RLBotCoreStatus::Success;

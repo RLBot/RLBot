@@ -1,6 +1,7 @@
 import math
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
+from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.parsing.custom_config import ConfigObject
 
@@ -13,10 +14,16 @@ class Atba(BaseAgent):
 
     def get_output_vector(self, game_tick_packet):
 
-        ball_location = Vector2(game_tick_packet.gameball.Location.X, game_tick_packet.gameball.Location.Y)
+        ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
+                                game_tick_packet.game_ball.physics.location.y)
 
-        my_car = game_tick_packet.gamecars[self.index]
-        car_location = Vector2(my_car.Location.X, my_car.Location.Y)
+        # testing that conversion works
+        legacy = self.convert_packet_to_v3(game_tick_packet)
+
+        field_info = self.get_field_info()
+
+        my_car = game_tick_packet.game_cars[self.index]
+        car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
 
@@ -35,11 +42,11 @@ class Atba(BaseAgent):
         if turn == -1.0:
             self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
 
-        car_render_location = [my_car.Location.X, my_car.Location.Y, my_car.Location.Z]
-        ball_render_location = [game_tick_packet.gameball.Location.X,
-                                game_tick_packet.gameball.Location.Y,
-                                game_tick_packet.gameball.Location.Z]
-        text_render_strX = 'x:' + str(game_tick_packet.gameball.Location.X)
+        car_render_location = [my_car.physics.location.x, my_car.physics.location.y, my_car.physics.location.z]
+        ball_render_location = [game_tick_packet.game_ball.physics.location.x,
+                                game_tick_packet.game_ball.physics.location.y,
+                                game_tick_packet.game_ball.physics.location.z]
+        text_render_strX = 'x:' + str(game_tick_packet.game_ball.physics.location.x)
         if not self.cleared:
             self.renderer.begin_rendering()
             color = self.renderer.create_color(121, 121, 0, 121)
@@ -56,7 +63,7 @@ class Atba(BaseAgent):
         if self.cleared:
             self.renderer.clear_screen()
 
-        if my_car.Location.X > 0:
+        if my_car.physics.location.x > 0:
             self.cleared = True
         else:
             self.cleared = False
@@ -110,8 +117,8 @@ class Vector2:
 
 
 def get_car_facing_vector(car):
-    pitch = float(car.Rotation.Pitch)
-    yaw = float(car.Rotation.Yaw)
+    pitch = float(car.physics.rotation.pitch)
+    yaw = float(car.physics.rotation.yaw)
 
     facing_x = math.cos(pitch * URotationToRadians) * math.cos(yaw * URotationToRadians)
     facing_y = math.cos(pitch * URotationToRadians) * math.sin(yaw * URotationToRadians)

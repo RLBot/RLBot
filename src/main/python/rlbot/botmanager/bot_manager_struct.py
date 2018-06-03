@@ -27,18 +27,18 @@ class BotManagerStruct(BotManager):
         player_input = self.bot_input
 
         # Write all player inputs
-        player_input.fThrottle = controller_input[0]
-        player_input.fSteer = controller_input[1]
-        player_input.fPitch = controller_input[2]
-        player_input.fYaw = controller_input[3]
-        player_input.fRoll = controller_input[4]
-        player_input.bJump = controller_input[5]
-        player_input.bBoost = controller_input[6]
-        player_input.bHandbrake = controller_input[7]
+        player_input.throttle = controller_input[0]
+        player_input.steer = controller_input[1]
+        player_input.pitch = controller_input[2]
+        player_input.yaw = controller_input[3]
+        player_input.roll = controller_input[4]
+        player_input.jump = controller_input[5]
+        player_input.boost = controller_input[6]
+        player_input.handbrake = controller_input[7]
         self.game_interface.update_player_input(player_input, self.index)
 
     def get_game_time(self):
-        return self.game_tick_packet.gameInfo.TimeSeconds
+        return self.game_tick_packet.game_info.seconds_elapsed
 
     def pull_data_from_game(self):
         self.game_interface.update_live_data_packet(self.game_tick_packet)
