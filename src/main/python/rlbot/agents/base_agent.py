@@ -1,6 +1,7 @@
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 
@@ -16,12 +17,19 @@ BOT_NAME_KEY = "name"
 class BaseAgent:
     # the name of the bot fixed for any duplicates that may occur
     name = None
+
     # 'team' is an integer: 0 towards positive goal, 1 towards negative goal.
     # 0 is blue team, 1 is orange team
     team = None
+
     # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.game_cars
     index = None
+
+    # passed in by the bot manager
     __quick_chat_func = None
+
+    # passed in by the bot manager
+    __field_info_func = None
     renderer = None
 
     def __init__(self, name, team, index):
@@ -62,20 +70,15 @@ class BaseAgent:
         """
         Handles a quick chat from another bot.
         This will not receive any chats that this bot sends out.
-        Currently just logs the chat, override to add functionality.
+        Currently does nothing, override to add functionality.
         :param index: Returns the index in the list of game cars that sent the quick chat
         :param team: Which team this player is on
         :param quick_chat: What the quick chat selection was
         """
-        self.logger.debug('got quick chat from bot %s on team %s with message %s:', index, team,
-                          QuickChats.quick_chat_list[quick_chat])
+        pass
 
-    def register_quick_chat(self, quick_chat_func):
-        """
-        Registers the send quick chat function.
-        This should not be overwritten by the agent.
-        """
-        self.__quick_chat_func = quick_chat_func
+    def get_field_info(self):
+        return self.__field_info_func()
 
     def load_config(self, config_object_header):
         """
@@ -100,9 +103,7 @@ class BaseAgent:
 
     def retire(self):
         """Called after the game ends"""
-
-    def set_renderer(self, renderer: RenderingManager):
-        self.renderer = renderer
+        pass
 
     def get_helper_process_request(self) -> HelperProcessRequest:
         """
@@ -110,6 +111,48 @@ class BaseAgent:
         you may override this to return a HelperProcessRequest.
         """
         return None
+
+    @staticmethod
+    def create_agent_configurations(config: ConfigObject):
+        """
+        If your bot needs to add custom configurations, you may override this and use the `config` object.
+        :param config: A ConfigObject instance.
+        """
+        pass
+
+    def convert_packet_to_v3(self, game_tick_packet):
+        """Converts the current game tick packet to v3
+        :return: A v3 version of the game tick packet"""
+        return convert_to_legacy_v3(game_tick_packet)
+
+
+    ############
+    #  Methods that should not be called or changed by subclasses
+    ############
+
+    @staticmethod
+    def _create_looks_configurations() -> ConfigObject:
+        config = ConfigObject()
+        config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
+        config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
+        return config
+
+    def _register_quick_chat(self, quick_chat_func):
+        """
+        Registers the send quick chat function.
+        This should not be overwritten by the agent.
+        """
+        self.__quick_chat_func = quick_chat_func
+
+    def _register_field_info(self, field_info_func):
+        """
+        Sets the function to grab field information from the interface.
+        This should not be overwritten by the agent.
+        """
+        self.__field_info_func = field_info_func
+
+    def _set_renderer(self, renderer: RenderingManager):
+        self.renderer = renderer
 
     # Information about @classmethod: https://docs.python.org/3/library/functions.html#classmethod
     @classmethod
@@ -133,21 +176,6 @@ class BaseAgent:
         return config
 
     @staticmethod
-    def create_agent_configurations(config: ConfigObject):
-        """
-        If your bot needs to add custom configurations, you may override this and use the `config` object.
-        :param config: A ConfigObject instance.
-        """
-        pass
-
-    @staticmethod
-    def create_looks_configurations() -> ConfigObject:
-        config = ConfigObject()
-        config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
-        config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
-        return config
-
-    @staticmethod
     def _create_loadout() -> ConfigHeader:
         header = ConfigHeader()
         header.add_value('team_color_id', int, default=27, description='Primary Color selection')
@@ -167,7 +195,7 @@ class BaseAgent:
         return header
 
     @staticmethod
-    def parse_bot_loadout(player_configuration, bot_config, loadout_header):
+    def _parse_bot_loadout(player_configuration, bot_config, loadout_header):
         player_configuration.team_color_id = bot_config.getint(loadout_header, 'team_color_id')
         player_configuration.custom_color_id = bot_config.getint(loadout_header, 'custom_color_id')
         player_configuration.car_id = bot_config.getint(loadout_header, 'car_id')

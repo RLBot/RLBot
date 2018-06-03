@@ -1,7 +1,7 @@
 import ctypes
 
-MAX_PLAYERS = 10
-MAX_NAME_LENGTH = 32
+from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
+
 MAX_BOOSTS = 50
 
 
@@ -33,12 +33,12 @@ class Touch(ctypes.Structure):
 
 class ScoreInfo(ctypes.Structure):
     _fields_ = [("score", ctypes.c_int),
-                ("Goals", ctypes.c_int),
-                ("OwnGoals", ctypes.c_int),
-                ("Assists", ctypes.c_int),
-                ("Saves", ctypes.c_int),
-                ("Shots", ctypes.c_int),
-                ("Demolitions", ctypes.c_int)]
+                ("goals", ctypes.c_int),
+                ("own_goals", ctypes.c_int),
+                ("assists", ctypes.c_int),
+                ("saves", ctypes.c_int),
+                ("shots", ctypes.c_int),
+                ("demolitions", ctypes.c_int)]
 
 
 class PlayerInfo(ctypes.Structure):
@@ -66,7 +66,7 @@ class BallInfo(ctypes.Structure):
 
 
 class BoostPadState(ctypes.Structure):
-    _fields_ = [("active", ctypes.c_bool),
+    _fields_ = [("is_active", ctypes.c_bool),
                 ("timer", ctypes.c_int)]
 
 

@@ -87,7 +87,8 @@ class BotManager:
         self.set_render_manager(agent)
 
         agent_class_file = self.agent_class_wrapper.python_file
-        agent.register_quick_chat(self.send_quick_chat_from_agent)
+        agent._register_quick_chat(self.send_quick_chat_from_agent)
+        agent._register_field_info(self.get_field_info)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
         return agent, agent_class_file
 
@@ -97,7 +98,7 @@ class BotManager:
         :param agent: An instance of an agent.
         """
         rendering_manager = self.game_interface.renderer.get_rendering_manager(self.index)
-        agent.set_renderer(rendering_manager)
+        agent._set_renderer(rendering_manager)
 
     def update_metadata_queue(self, agent):
         """
@@ -170,6 +171,9 @@ class BotManager:
             agent.retire()
         # If terminated, send callback
         self.termination_complete_event.set()
+
+    def get_field_info(self):
+        return self.game_interface.get_field_info()
 
     def prepare_for_run(self):
         raise NotImplementedError

@@ -71,7 +71,7 @@ def get_looks_config(config_bundle):
     :return:
     """
     looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-    return BaseAgent.create_looks_configurations().parse_file(looks_path)
+    return BaseAgent._create_looks_configurations().parse_file(looks_path)
 
 
 def get_sanitized_bot_name(dict, name):
@@ -186,7 +186,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     bot_name = config_bundle.config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
     bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
 
-    BaseAgent.parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
+    BaseAgent._parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
 
     python_file = 'NO_MODULE_FOR_PARTICIPANT'
     bot_parameters = None
