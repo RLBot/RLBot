@@ -293,7 +293,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         raw_parser.read(config_path)
         for section in self.overall_config.headers.keys():
             if not raw_parser.has_section(section):
-                self.popup_message("This file does not have the sections for an overall config, not loading it!", "Invalic Config File", QMessageBox.Warning)
+                self.popup_message("Config file is missing the section {}, not loading it!".format(section), "Invalid Config File", QMessageBox.Warning)
                 return
         for item in (self.frame_3, self.match_settings_groupbox, self.cfg_save_pushbutton):
             item.setEnabled(True)
