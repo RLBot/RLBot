@@ -1,7 +1,7 @@
 package rlbot;
 
 import rlbot.manager.BotManager;
-import rlbot.py.DefaultPythonInterface;
+import rlbot.pyinterop.DefaultPythonInterface;
 
 public class SamplePythonInterface extends DefaultPythonInterface {
 

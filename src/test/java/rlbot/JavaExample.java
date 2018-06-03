@@ -1,8 +1,8 @@
 package rlbot;
 
 import rlbot.manager.BotManager;
-import rlbot.py.PythonInterface;
-import rlbot.py.PythonServer;
+import rlbot.pyinterop.PythonInterface;
+import rlbot.pyinterop.PythonServer;
 
 /**
  * See JavaAgent.py for usage instructions
