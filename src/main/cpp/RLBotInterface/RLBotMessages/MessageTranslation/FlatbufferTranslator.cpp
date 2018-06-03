@@ -36,7 +36,7 @@ namespace FlatbufferTranslator {
 		structVec->Roll = convertToURot(rot->roll());
 	}
 
-	void fillPhsyicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
+	void fillPhysicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
 	{
 		fillVector3Struct(physics->location(), &structPhysics->Location);
 		fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
@@ -57,7 +57,7 @@ namespace FlatbufferTranslator {
 
 	void fillPlayerStruct(const rlbot::flat::PlayerInfo* player, PlayerInfo* structPlayer)
 	{
-		fillPhsyicsStruct(player->physics(), &structPlayer->Physics);
+		fillPhysicsStruct(player->physics(), &structPlayer->Physics);
 
 		structPlayer->Boost = player->boost();
 		structPlayer->Bot = player->isBot();
@@ -89,7 +89,7 @@ namespace FlatbufferTranslator {
 
 	void fillBallStruct(const rlbot::flat::BallInfo* ball, BallInfo* structBall)
 	{
-		fillPhsyicsStruct(ball->physics(), &structBall->Physics);
+		fillPhysicsStruct(ball->physics(), &structBall->Physics);
 
 		if (flatbuffers::IsFieldPresent(ball, rlbot::flat::BallInfo::VT_LATESTTOUCH))
 		{
@@ -99,7 +99,7 @@ namespace FlatbufferTranslator {
 		{
 			fillStructName(std::string(""), structBall->LatestTouch.PlayerName);
 		}
-		
+
 	}
 
 	void fillGameInfoStruct(const rlbot::flat::GameInfo* gameInfo, GameInfo* structGameInfo)
@@ -113,7 +113,7 @@ namespace FlatbufferTranslator {
 		structGameInfo->UnlimitedTime = gameInfo->isUnlimitedTime();
 	}
 
-	void translateToStruct(ByteBuffer flatbufferData, LiveDataPacket* packet) 
+	void translateToStruct(ByteBuffer flatbufferData, LiveDataPacket* packet)
 	{
 		if (flatbufferData.size == 0)
 		{
@@ -127,13 +127,13 @@ namespace FlatbufferTranslator {
 		for (int i = 0; i < players->size(); i++) {
 			fillPlayerStruct(players->Get(i), &packet->GameCars[i]);
 		}
-		
+
 		auto boosts = flatPacket->boostPadStates();
 		packet->NumBoosts = boosts->size();
 		for (int i = 0; i < boosts->size(); i++) {
 			fillBoostStruct(boosts->Get(i), &packet->GameBoosts[i]);
 		}
-		
+
 
 		if (flatbuffers::IsFieldPresent(flatPacket, rlbot::flat::GameTickPacket::VT_BALL))
 		{
@@ -149,14 +149,14 @@ namespace FlatbufferTranslator {
 	void inputStructToFlatbuffer(flatbuffers::FlatBufferBuilder* builder, const PlayerInput& playerInput, int playerIndex)
 	{
 		auto controls = rlbot::flat::CreateControllerState(
-			*builder, 
-			playerInput.Throttle, 
-			playerInput.Steer, 
-			playerInput.Pitch, 
-			playerInput.Yaw, 
-			playerInput.Roll, 
-			playerInput.Jump, 
-			playerInput.Boost, 
+			*builder,
+			playerInput.Throttle,
+			playerInput.Steer,
+			playerInput.Pitch,
+			playerInput.Yaw,
+			playerInput.Roll,
+			playerInput.Jump,
+			playerInput.Boost,
 			playerInput.Handbrake);
 
 		auto input = rlbot::flat::CreatePlayerInput(*builder, playerIndex, controls);
