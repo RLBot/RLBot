@@ -24,7 +24,7 @@ class BaseJavaAgent(BaseIndependentAgent):
         try:
             location = self.get_port_file_path()
 
-            with open(os.path.join(location, "port.cfg"), "r") as portFile:
+            with open(location, "r") as portFile:
                 return int(portFile.readline().rstrip())
 
         except ValueError:
