@@ -43,7 +43,7 @@ public class SampleBot implements Bot {
 
     @Override
     public ControllerState processInput(rlbot.flat.GameTickPacket gameTickPacket) {
-        if (gameTickPacket.playersLength() <= playerIndex) {
+        if (gameTickPacket.playersLength() <= playerIndex || gameTickPacket.ball() == null) {
             return new ControlsOutput();
         }
         DataPacket dataPacket = new DataPacket(gameTickPacket, playerIndex);
