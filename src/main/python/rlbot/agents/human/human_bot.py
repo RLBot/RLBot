@@ -7,12 +7,12 @@ class Agent(BaseAgent):
     def get_output_vector(self, game_tick_packet):
 
         return [
-            controller.fThrottle,
-            controller.fSteer,
-            controller.fPitch,
-            controller.fYaw,
-            controller.fRoll,
-            controller.bJump,
-            controller.bBoost,
-            controller.bHandbrake,
+            controller.throttle,
+            controller.steer,
+            controller.pitch,
+            controller.yaw,
+            controller.roll,
+            controller.jump,
+            controller.boost,
+            controller.handbrake,
         ]

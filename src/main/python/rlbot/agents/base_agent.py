@@ -19,7 +19,7 @@ class BaseAgent:
     # 'team' is an integer: 0 towards positive goal, 1 towards negative goal.
     # 0 is blue team, 1 is orange team
     team = None
-    # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.gamecars
+    # 'index' is an integer: it is index at which the bot appears inside game_tick_packet.game_cars
     index = None
     __quick_chat_func = None
     renderer = None

@@ -111,8 +111,14 @@ table GameInfo {
   gameTimeRemaining:float;
   isOvertime:bool;
   isUnlimitedTime:bool;
+  /// True when cars are allowed to move, and during the pause menu. False during replays.
   isRoundActive:bool;
+  /// Only false during a kickoff, when the car is allowed to move, and the ball has not been hit,
+  /// and the game clock has not started yet. If both players sit still, game clock will eventually
+  /// start and this will become true.
   isKickoffPause:bool;
+  /// Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
+  /// countdown. Turns false again the moment the 'choose team' screen appears.
   isMatchEnded:bool;
 }
 

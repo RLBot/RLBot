@@ -36,6 +36,14 @@ namespace FlatbufferTranslator {
 		structVec->Roll = convertToURot(rot->roll());
 	}
 
+	void fillPhsyicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
+	{
+		fillVector3Struct(physics->location(), &structPhysics->Location);
+		fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
+		fillVector3Struct(physics->velocity(), &structPhysics->Velocity);
+		fillVector3Struct(physics->angularVelocity(), &structPhysics->AngularVelocity);
+	}
+
 	void fillScoreStruct(const rlbot::flat::ScoreInfo* score, ScoreInfo* structScore)
 	{
 		structScore->Assists = score->assists();
@@ -49,12 +57,7 @@ namespace FlatbufferTranslator {
 
 	void fillPlayerStruct(const rlbot::flat::PlayerInfo* player, PlayerInfo* structPlayer)
 	{
-		auto physics = player->physics();
-		fillVector3Struct(physics->location(), &structPlayer->Location);
-		fillRotatorStruct(physics->rotation(), &structPlayer->Rotation);
-		fillVector3Struct(physics->velocity(), &structPlayer->Velocity);
-		fillVector3Struct(physics->angularVelocity(), &structPlayer->AngularVelocity);
-
+		fillPhsyicsStruct(player->physics(), &structPlayer->Physics);
 
 		structPlayer->Boost = player->boost();
 		structPlayer->Bot = player->isBot();
@@ -86,11 +89,7 @@ namespace FlatbufferTranslator {
 
 	void fillBallStruct(const rlbot::flat::BallInfo* ball, BallInfo* structBall)
 	{
-		auto physics = ball->physics();
-		fillVector3Struct(physics->location(), &structBall->Location);
-		fillRotatorStruct(physics->rotation(), &structBall->Rotation);
-		fillVector3Struct(physics->velocity(), &structBall->Velocity);
-		fillVector3Struct(physics->angularVelocity(), &structBall->AngularVelocity);
+		fillPhsyicsStruct(ball->physics(), &structBall->Physics);
 
 		if (flatbuffers::IsFieldPresent(ball, rlbot::flat::BallInfo::VT_LATESTTOUCH))
 		{
@@ -144,22 +143,6 @@ namespace FlatbufferTranslator {
 		if (flatbuffers::IsFieldPresent(flatPacket, rlbot::flat::GameTickPacket::VT_GAMEINFO))
 		{
 			fillGameInfoStruct(flatPacket->gameInfo(), &packet->GameInfo);
-		}
-	}
-
-	void applyFieldInfoToStruct(ByteBuffer flatbufferData, LiveDataPacket* packet) 
-	{
-		if (flatbufferData.size == 0)
-		{
-			return; // Nothing to do. Return now to avoid a "Message did not contain a root pointer" error.
-		}
-
-		auto fieldInfo = flatbuffers::GetRoot<rlbot::flat::FieldInfo>(flatbufferData.ptr);
-
-		auto boostPads = fieldInfo->boostPads();
-		for (int i = 0; i < boostPads->size() && i < packet->NumBoosts; i++)
-		{
-			fillVector3Struct(boostPads->Get(i)->location(), &packet->GameBoosts[i].Location);
 		}
 	}
 

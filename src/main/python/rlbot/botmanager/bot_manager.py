@@ -136,7 +136,7 @@ class BotManager:
             # game_tick_packet = self.game_interface.get
             # Read from game data shared memory
 
-            # Run the Agent only if the gameInfo has updated.
+            # Run the Agent only if the game_info has updated.
             tick_game_time = self.get_game_time()
             should_call_while_paused = datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
             if tick_game_time != last_tick_game_time or should_call_while_paused:
