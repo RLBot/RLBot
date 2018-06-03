@@ -316,27 +316,26 @@ table QuickChat {
 
 root_type QuickChat;
 
-table PlayerConfiguration
-{
+table PlayerConfiguration {
 	bot:bool;
 	rlbot_controlled:bool;
-	float					BotSkill;
-	int						HumanIndex;
-	wchar_t					Name[32];
-	unsigned char			Team;
-	unsigned char			TeamColorID;
-	unsigned char			CustomColorID;
-	int						CarID;
-	int						DecalID;
-	int						WheelsID;
-	int						BoostID;
-	int						AntennaID;
-	int						HatID;
-	int						PaintFinishID;
-	int						CustomFinishID;
-	int						EngineAudioID;
-	int						TrailsID;
-	int						GoalExplosionID;
+	bot_skill:float;
+	human_index:int;
+	name:string;
+	team:byte;
+	team_color_id:byte;
+	custom_color_id:byte;
+	car_id:int;
+	decal_id:int;
+	wheels_id:int;
+	boost_id:int;
+	antenna_id:int;
+	hat_id:int;
+	paint_finish_id:int;
+	custom_finish_id:int;
+	engine_audio_id:int;
+	trails_id:int;
+	goal_explosion_id:int;
 };
 
 enum GameMode : byte {
@@ -401,18 +400,17 @@ enum BoostOption : byte {
 	No_Boost
 };
 
-struct MutatorSettings
-{
-	MatchLength				MatchLength;
-	BoostOption				BoostOptions;
+table MutatorSettings {
+	match_length: MatchLength = 0;
+	boost_options: BoostOption = 0;
 };
 
 table MatchSettings {
-	PlayerConfiguration		PlayerConfiguration[CONST_MaxPlayers];
-	int						NumPlayers;
-	GameMode				GameMode;
-	GameMap					GameMap;
-	bool					SkipReplays;
-	bool					InstantStart;
-	MutatorSettings			MutatorSettings;
-}
+	player_configuration:[PlayerConfiguration];
+	num_players:int;
+	game_mode:GameMode = 0;
+	game_map:GameMap = 0;
+	skip_replays:bool;
+	instant_start:bool;
+	mutator_settings:MutatorSettings;
+};
