@@ -192,7 +192,7 @@ table DesiredCarState {
 
 table DesiredGameState {
   ballState:[DesiredBallState];
-  carSates:[DesiredCarState];
+  carStates:[DesiredCarState];
 }
 
 root_type DesiredGameState;
@@ -322,7 +322,7 @@ table QuickChat {
     playerIndex:    int;
 
     /// True if the chat is team only false if everyone can see it.
-    team_only:      bool;
+    teamOnly:      bool;
 }
 
 root_type QuickChat;
