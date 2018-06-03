@@ -1,4 +1,4 @@
-package rlbot.cpp;
+package rlbot.cppinterop;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
