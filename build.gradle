@@ -20,6 +20,8 @@ repositories {
     jcenter()
 }
 
+def javaDllDir = 'build/dll'
+
 dependencies {
     compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
@@ -28,7 +30,7 @@ dependencies {
 
     // This directory will be created and the interface dll copied into it at runtime.
     // The end result is that the interface dll will be on the classpath.
-    testRuntime files('build/dll')
+    testRuntime files(javaDllDir)
 }
 
 project.setGroup('org.rlbot.commons')
@@ -85,8 +87,13 @@ task cppSetup {
     dependsOn 'generateFlatbuffersCpp'
 }
 
+task createJavaDllFolder {
+    mkdir javaDllDir
+}
+
 task javaSetup {
     dependsOn 'generateFlatbuffersJava'
+    dependsOn 'createJavaDllFolder'
 }
 
 // This task creates a jar file which contains the java source files.
