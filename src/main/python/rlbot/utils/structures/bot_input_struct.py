@@ -2,11 +2,11 @@ import ctypes
 
 
 class PlayerInput(ctypes.Structure):
-    _fields_ = [("fThrottle", ctypes.c_float),
-                ("fSteer", ctypes.c_float),
-                ("fPitch", ctypes.c_float),
-                ("fYaw", ctypes.c_float),
-                ("fRoll", ctypes.c_float),
-                ("bJump", ctypes.c_bool),
-                ("bBoost", ctypes.c_bool),
-                ("bHandbrake", ctypes.c_bool)]
+    _fields_ = [("throttle", ctypes.c_float),
+                ("steer", ctypes.c_float),
+                ("pitch", ctypes.c_float),
+                ("yaw", ctypes.c_float),
+                ("roll", ctypes.c_float),
+                ("jump", ctypes.c_bool),
+                ("boost", ctypes.c_bool),
+                ("handbrake", ctypes.c_bool)]

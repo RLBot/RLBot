@@ -59,7 +59,7 @@ class LoadoutPreset(Preset):
     A class extending Preset to handle a LoadoutPreset, which is based on the looks configurations file
     """
     def __init__(self, name, file_path=None):
-        super().__init__(BaseAgent.create_looks_configurations(), file_path, name)
+        super().__init__(BaseAgent._create_looks_configurations(), file_path, name)
 
 
 class AgentPreset(Preset):
