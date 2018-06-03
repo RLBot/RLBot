@@ -1,13 +1,6 @@
-package rlbot.py;
+package rlbot.pyinterop;
 
 import py4j.GatewayServer;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class PythonServer {
 

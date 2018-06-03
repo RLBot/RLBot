@@ -1,4 +1,4 @@
-package rlbot.py;
+package rlbot.pyinterop;
 
 /**
  * The public methods of implementing classes will be called directly from the python component of the RLBot framework.

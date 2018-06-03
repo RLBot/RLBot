@@ -2,7 +2,7 @@ package rlbot.manager;
 
 import rlbot.ControllerState;
 import rlbot.Bot;
-import rlbot.cpp.RLBotDll;
+import rlbot.cppinterop.RLBotDll;
 import rlbot.flat.GameTickPacket;
 
 import java.io.IOException;
