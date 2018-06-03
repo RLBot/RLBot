@@ -5,6 +5,7 @@ import time
 import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
+from rlbot.utils.structures import game_interface
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.utils.logging_utils import get_logger
@@ -41,7 +42,7 @@ class BaseJavaAgent(BaseIndependentAgent):
             # These functions can be called repeatedly without any bad effects.
             # This is useful for re-engaging the java server if it gets restarted during development.
             try:
-                self.javaInterface.ensureStarted()
+                self.javaInterface.ensureStarted(game_interface.get_dll_location())
                 self.javaInterface.ensureBotRegistered(self.index, self.name, self.team)
             except Exception as e:
                 self.logger.warn(str(e))
