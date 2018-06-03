@@ -1,6 +1,6 @@
 import math
 
-from rlbot.agents.base_agent import BaseAgent
+from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.parsing.custom_config import ConfigObject
 
@@ -77,8 +77,8 @@ class Atba(BaseAgent):
 
     @staticmethod
     def create_agent_configurations(config: ConfigObject):
-        config.add_header_name('Bot Parameters').add_value('flip_turning', bool, default=False,
-                                                           description='if true bot will turn opposite way')
+        config.get_header(BOT_CONFIG_AGENT_HEADER).add_value('flip_turning', bool, default=False,
+                                                             description='if true bot will turn opposite way')
 
 
 class Vector2:
