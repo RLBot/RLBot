@@ -318,25 +318,25 @@ root_type QuickChat;
 
 table PlayerConfiguration {
 	bot:bool;
-	rlbot_controlled:bool;
-	bot_skill:float;
-	human_index:int;
+	rlbotControlled:bool;
+	botSkill:float;
+	humanIndex:int;
 	name:string;
 	team:byte;
-	team_color_id:byte;
-	custom_color_id:byte;
-	car_id:int;
-	decal_id:int;
-	wheels_id:int;
-	boost_id:int;
-	antenna_id:int;
-	hat_id:int;
-	paint_finish_id:int;
-	custom_finish_id:int;
-	engine_audio_id:int;
-	trails_id:int;
-	goal_explosion_id:int;
-};
+	teamColorId:byte;
+	customColorId:byte;
+	carId:int;
+	decalId:int;
+	wheelsId:int;
+	boostId:int;
+	antennaId:int;
+	hatId:int;
+	paintFinishId:int;
+	customFinishId:int;
+	engineAudioId:int;
+	trailsId:int;
+	goalExplosionId:int;
+}
 
 enum GameMode : byte {
     Soccer,
@@ -390,7 +390,7 @@ enum MatchLength : byte {
 	Ten_Minutes,
 	Twenty_Minutes,
 	Unlimited
-};
+}
 
 enum BoostOption : byte {
 	Normal_Boost,
@@ -398,19 +398,19 @@ enum BoostOption : byte {
 	Slow_Recharge,
 	Rapid_Recharge,
 	No_Boost
-};
+}
 
 table MutatorSettings {
-	match_length: MatchLength = 0;
-	boost_options: BoostOption = 0;
-};
+	matchLength: MatchLength = 0;
+	boostOptions: BoostOption = 0;
+}
 
 table MatchSettings {
-	player_configuration:[PlayerConfiguration];
-	num_players:int;
-	game_mode:GameMode = 0;
-	game_map:GameMap = 0;
-	skip_replays:bool;
-	instant_start:bool;
-	mutator_settings:MutatorSettings;
-};
+	playerConfiguration:[PlayerConfiguration];
+	numPlayers:int;
+	gameMode:GameMode = 0;
+	gameMap:GameMap = 0;
+	skipReplays:bool;
+	instantStart:bool;
+	mutatorSettings:MutatorSettings;
+}
