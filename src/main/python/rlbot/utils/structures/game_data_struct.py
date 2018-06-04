@@ -1,4 +1,5 @@
 import ctypes
+import math
 
 from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
 
@@ -11,10 +12,11 @@ class Vector3(ctypes.Structure):
                 ("z", ctypes.c_float)]
 
 
+# Note: this is now expressed in radians (it used to be unreal rotation units).
 class Rotator(ctypes.Structure):
-    _fields_ = [("pitch", ctypes.c_int),
-                ("yaw", ctypes.c_int),
-                ("roll", ctypes.c_int)]
+    _fields_ = [("pitch", ctypes.c_float),
+                ("yaw", ctypes.c_float),
+                ("roll", ctypes.c_float)]
 
 
 class Physics(ctypes.Structure):
@@ -121,7 +123,7 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
 
     # Rotate yaw 180 degrees is all that is necessary.
     ball_yaw = game_tick_packet.game_ball.rotation.yaw
-    game_tick_packet.game_ball.rotation.yaw = ball_yaw + 32768 if ball_yaw < 0 else ball_yaw - 32768
+    game_tick_packet.game_ball.rotation.yaw = ball_yaw + math.pi if ball_yaw < 0 else ball_yaw - math.pi
 
     for i in range(game_tick_packet.num_cars):
         game_tick_packet.game_cars[i].physics.location.x = -1 * game_tick_packet.game_cars[i].physics.location.x
@@ -132,4 +134,4 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
         game_tick_packet.game_cars[i].physics.angular_velocity.y = -1 * game_tick_packet.game_cars[i].physics.angular_velocity.y
 
         car_yaw = game_tick_packet.game_cars[i].physics.rotation.yaw
-        game_tick_packet.game_cars[i].physics.rotation.yaw = car_yaw + 32768 if car_yaw < 0 else car_yaw - 32768
+        game_tick_packet.game_cars[i].physics.rotation.yaw = car_yaw + math.pi if car_yaw < 0 else car_yaw - math.pi

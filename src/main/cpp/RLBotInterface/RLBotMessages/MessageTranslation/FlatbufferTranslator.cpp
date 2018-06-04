@@ -24,16 +24,11 @@ namespace FlatbufferTranslator {
 		structVec->Z = vec->z();
 	}
 
-	int convertToURot(float radians)
-	{
-		return roundf(radians * 32768 / M_PI);
-	}
-
 	void fillRotatorStruct(const rlbot::flat::Rotator* rot, PyStruct::Rotator* structVec)
 	{
-		structVec->Pitch = convertToURot(rot->pitch());
-		structVec->Yaw = convertToURot(rot->yaw());
-		structVec->Roll = convertToURot(rot->roll());
+		structVec->Pitch = rot->pitch();
+		structVec->Yaw = rot->yaw();
+		structVec->Roll = rot->roll();
 	}
 
 	void fillPhysicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)

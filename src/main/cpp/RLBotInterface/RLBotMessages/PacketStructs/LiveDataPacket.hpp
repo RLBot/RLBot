@@ -27,9 +27,9 @@ namespace PyStruct
 
 	struct Rotator
 	{
-		int Pitch;
-		int Yaw;
-		int Roll;
+		float Pitch;
+		float Yaw;
+		float Roll;
 	};
 
 	struct Color

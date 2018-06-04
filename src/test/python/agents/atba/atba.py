@@ -1,12 +1,9 @@
 import math
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleControllerState
-from rlbot.utils.logging_utils import get_logger
+from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.quick_chats import QuickChats
-from rlbot.parsing.custom_config import ConfigObject
-
-URotationToRadians = math.pi / float(32768)
 
 
 class Atba(BaseAgent):
@@ -19,12 +16,6 @@ class Atba(BaseAgent):
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
                                 game_tick_packet.game_ball.physics.location.y)
 
-        # testing that conversion works
-        legacy = self.convert_packet_to_v3(game_tick_packet)
-
-        field_info = self.get_field_info()
-        get_logger("atba").debug("atbaying")
-
         my_car = game_tick_packet.game_cars[self.index]
         car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
         car_direction = get_car_facing_vector(my_car)
@@ -34,7 +25,7 @@ class Atba(BaseAgent):
 
         if steer_correction_radians > 0:
             # Positive radians in the unit circle is a turn to the left.
-            turn = -1.0 # Negative value for a turn to the left.
+            turn = -1.0  # Negative value for a turn to the left.
         else:
             turn = 1.0
 
@@ -55,7 +46,7 @@ class Atba(BaseAgent):
             color = self.renderer.create_color(121, 121, 0, 121)
             color2 = self.renderer.create_color(255, 0, 255, 255)
             self.renderer.draw_line_2d(100, 100, 1000, 500, self.renderer.black())
-            self.renderer.draw_rect_2d(0, 0, 1000, 1000, True, color)
+            self.renderer.draw_rect_2d(0, 0, 50, 50, True, color)
             self.renderer.draw_line_3d((50, 50, 50),
                                        car_render_location, color2).draw_line_2d_3d(100, 100,
                                                                                     car_render_location, color2)
@@ -93,8 +84,9 @@ class Atba(BaseAgent):
         config.get_header(BOT_CONFIG_AGENT_HEADER).add_value('flip_turning', bool, default=False,
                                                              description='if true bot will turn opposite way')
 
+
 class Vector2:
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0.0, y=0.0):
         self.x = float(x)
         self.y = float(y)
 
@@ -125,7 +117,7 @@ def get_car_facing_vector(car):
     pitch = float(car.physics.rotation.pitch)
     yaw = float(car.physics.rotation.yaw)
 
-    facing_x = math.cos(pitch * URotationToRadians) * math.cos(yaw * URotationToRadians)
-    facing_y = math.cos(pitch * URotationToRadians) * math.sin(yaw * URotationToRadians)
+    facing_x = math.cos(pitch) * math.cos(yaw)
+    facing_y = math.cos(pitch) * math.sin(yaw)
 
     return Vector2(facing_x, facing_y)
