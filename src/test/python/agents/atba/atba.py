@@ -1,7 +1,8 @@
 import math
 
-from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER
+from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleControllerState
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.parsing.custom_config import ConfigObject
 
@@ -12,7 +13,8 @@ class Atba(BaseAgent):
     flip_turning = False
     cleared = False
 
-    def get_output_vector(self, game_tick_packet):
+    def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
+        controller_state = SimpleControllerState()
 
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
                                 game_tick_packet.game_ball.physics.location.y)
@@ -21,6 +23,7 @@ class Atba(BaseAgent):
         legacy = self.convert_packet_to_v3(game_tick_packet)
 
         field_info = self.get_field_info()
+        get_logger("atba").debug("atbaying")
 
         my_car = game_tick_packet.game_cars[self.index]
         car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
@@ -68,7 +71,10 @@ class Atba(BaseAgent):
         else:
             self.cleared = False
 
-        return [
+        controller_state.throttle = 1.0
+        controller_state.steer = turn
+
+        return self.convert_output_to_v4([
             1.0,  # throttle
             turn,  # steer
             0.0,  # pitch
@@ -77,7 +83,7 @@ class Atba(BaseAgent):
             0,  # jump
             0,  # boost
             0  # handbrake
-        ]
+        ])
 
     def load_config(self, config_header):
         self.flip_turning = config_header.getboolean('flip_turning')
@@ -86,7 +92,6 @@ class Atba(BaseAgent):
     def create_agent_configurations(config: ConfigObject):
         config.get_header(BOT_CONFIG_AGENT_HEADER).add_value('flip_turning', bool, default=False,
                                                              description='if true bot will turn opposite way')
-
 
 class Vector2:
     def __init__(self, x=0, y=0):
