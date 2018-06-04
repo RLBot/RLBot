@@ -57,7 +57,7 @@ class BaseAgent:
         self.index = index
         self.logger = get_logger('nameless_bot')
 
-    def get_output_vector(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
+    def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
         Where all the logic of your bot gets its input and returns its output.
         :param game_tick_packet: see https://github.com/drssoccer55/RLBot/wiki/Input-and-Output-Data-(current)

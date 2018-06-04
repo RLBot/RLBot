@@ -23,7 +23,7 @@ class BotManagerStruct(BotManager):
         self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
     def call_agent(self, agent: BaseAgent, agent_class):
-        controller_input = agent.get_output_vector(self.game_tick_packet)
+        controller_input = agent.get_output(self.game_tick_packet)
         if controller_input is None:
             get_logger("BotManager" + str(self.index))\
                 .error("Agent %s did not return any output.", str(agent_class.__name__))

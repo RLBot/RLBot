@@ -13,7 +13,7 @@ class Atba(BaseAgent):
     flip_turning = False
     cleared = False
 
-    def get_output_vector(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
+    def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         controller_state = SimpleControllerState()
 
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
@@ -74,7 +74,16 @@ class Atba(BaseAgent):
         controller_state.throttle = 1.0
         controller_state.steer = turn
 
-        return controller_state
+        return self.convert_output_to_v4([
+            1.0,  # throttle
+            turn,  # steer
+            0.0,  # pitch
+            0.0,  # yaw
+            0.0,  # roll
+            0,  # jump
+            0,  # boost
+            0  # handbrake
+        ])
 
     def load_config(self, config_header):
         self.flip_turning = config_header.getboolean('flip_turning')
