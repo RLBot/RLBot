@@ -7,7 +7,7 @@ setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
     install_requires=['psutil', 'inputs'],
-    version='0.0.4',
+    version='0.0.9',
     description='A framework for writing custom Rocket League bots that run offline.',
     long_description=long_description,
     long_description_content_type="text/markdown",
