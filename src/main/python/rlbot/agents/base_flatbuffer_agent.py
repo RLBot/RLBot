@@ -1,25 +1,8 @@
 from rlbot.pylibs import flatbuffers
-from rlbot.agents.base_agent import BaseAgent
+from rlbot.agents.base_agent import BaseAgent, SimpleControllerState
 from rlbot.messages.flat import ControllerState
 from rlbot.messages.flat import PlayerInput
 from rlbot.messages.flat import GameTickPacket
-
-
-class SimpleControllerState:
-    """
-    Building flatbuffer objects is verbose and error prone. This class provides a friendlier
-    interface to bot makers.
-    """
-
-    def __init__(self):
-        self.steer = 0.0
-        self.throttle = 0.0
-        self.pitch = 0.0
-        self.yaw = 0.0
-        self.roll = 0.0
-        self.jump = False
-        self.boost = False
-        self.handbrake = False
 
 
 class BaseFlatbufferAgent(BaseAgent):
