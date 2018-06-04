@@ -1,3 +1,5 @@
+from rlbot.utils.structures.game_data_struct import GameTickPacket
+
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.logging_utils import get_logger
@@ -12,6 +14,23 @@ BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 PYTHON_FILE_KEY = 'python_file'
 LOOKS_CONFIG_KEY = 'looks_config'
 BOT_NAME_KEY = "name"
+
+
+class SimpleControllerState:
+    """
+    Building flatbuffer objects is verbose and error prone. This class provides a friendlier
+    interface to bot makers.
+    """
+
+    def __init__(self):
+        self.steer = 0.0
+        self.throttle = 0.0
+        self.pitch = 0.0
+        self.yaw = 0.0
+        self.roll = 0.0
+        self.jump = False
+        self.boost = False
+        self.handbrake = False
 
 
 class BaseAgent:
@@ -38,22 +57,13 @@ class BaseAgent:
         self.index = index
         self.logger = get_logger('nameless_bot')
 
-    def get_output_vector(self, game_tick_packet):
+    def get_output_vector(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
         Where all the logic of your bot gets its input and returns its output.
         :param game_tick_packet: see https://github.com/drssoccer55/RLBot/wiki/Input-and-Output-Data-(current)
         :return: [throttle, steer, pitch, yaw, roll, jump, boost, handbrake]
         """
-        return [
-            1.0,  # throttle
-            0.0,  # steer
-            0.0,  # pitch
-            0.0,  # yaw
-            0.0,  # roll
-            0,    # jump
-            0,    # boost
-            0     # handbrake
-        ]
+        return SimpleControllerState()
 
     def send_quick_chat(self, team_only, quick_chat):
         """
@@ -121,6 +131,20 @@ class BaseAgent:
         :param config: A ConfigObject instance.
         """
         pass
+
+    def convert_output_to_v4(self, controller_input):
+        """Converts a v3 output to a v4 controller state"""
+        player_input = SimpleControllerState()
+        player_input.throttle = controller_input[0]
+        player_input.steer = controller_input[1]
+        player_input.pitch = controller_input[2]
+        player_input.yaw = controller_input[3]
+        player_input.roll = controller_input[4]
+        player_input.jump = controller_input[5]
+        player_input.boost = controller_input[6]
+        player_input.handbrake = controller_input[7]
+
+        return player_input
 
     def convert_packet_to_v3(self, game_tick_packet):
         """Converts the current game tick packet to v3
