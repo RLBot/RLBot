@@ -1,7 +1,10 @@
 import ctypes
+import math
 
 from rlbot.utils.structures.game_data_struct import MAX_BOOSTS
 from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
+
+UNREAL_ROT_PER_RADIAN = 32768 / math.pi
 
 
 class Vector3(ctypes.Structure):
@@ -113,6 +116,8 @@ def convert_to_legacy_v3(game_tick_packet):
 
     convert_game_info(legacy_packet.gameInfo, game_tick_packet.game_info)
 
+    return legacy_packet
+
 
 def convert_game_info(legacy_game_info, game_info):
     legacy_game_info.TimeSeconds = game_info.seconds_elapsed
@@ -173,6 +178,6 @@ def convert_vector(legacy_vector, vector):
 
 
 def convert_rotator(legacy_rotator, rotator):
-    legacy_rotator.Pitch = rotator.pitch
-    legacy_rotator.Yaw = rotator.yaw
-    legacy_rotator.Roll = rotator.roll
+    legacy_rotator.Pitch = int(rotator.pitch * UNREAL_ROT_PER_RADIAN)
+    legacy_rotator.Yaw = int(rotator.yaw * UNREAL_ROT_PER_RADIAN)
+    legacy_rotator.Roll = int(rotator.roll * UNREAL_ROT_PER_RADIAN)

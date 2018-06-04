@@ -2,7 +2,7 @@
 @cd /D "%~dp0"
 
 
-copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\x64\Debug\RLBotInterface.dll ^
+copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\x64\Release\RLBotInterface.dll ^
  .\src\main\python\rlbot\dll\RLBot_Core_Interface.dll
 
 @echo off
@@ -24,7 +24,7 @@ IF %count% GEQ 2 (
 
 @echo on
 
-copy /Y "%core_folder%\RLBot Core\Bin\Win32\Debug-SDK\RLBot Core.dll" ^
+copy /Y "%core_folder%\RLBot Core\Bin\Win32\Release-SDK\RLBot Core.dll" ^
  .\src\main\python\rlbot\dll\RLBot_Core.dll
 
 pause
