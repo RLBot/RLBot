@@ -4,6 +4,7 @@ import math
 from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
 
 MAX_BOOSTS = 50
+MAX_GOALS = 2
 
 
 class Vector3(ctypes.Structure):
@@ -44,8 +45,7 @@ class ScoreInfo(ctypes.Structure):
 
 
 class PlayerInfo(ctypes.Structure):
-    _fields_ = [
-                ("physics", Physics),
+    _fields_ = [("physics", Physics),
                 ("score_info", ScoreInfo),
                 ("is_demolished", ctypes.c_bool),
                 # True if your wheels are on the ground, the wall, or the ceiling. False if you're midair or turtling.
@@ -96,6 +96,24 @@ class GameTickPacket(ctypes.Structure):
                 ("num_boost", ctypes.c_int),
                 ("game_ball", BallInfo),
                 ("game_info", GameInfo)]
+
+
+class BoostPad(ctypes.Structure):
+    _fields_ = [("location", Vector3),
+                ("is_full_boost", ctypes.c_bool)]
+
+
+class GoalInfo(ctypes.Structure):
+    _fields_ = [("team_num", ctypes.c_ubyte),
+                ("location", Vector3),
+                ("direction", Vector3)]
+
+
+class FieldInfoPacket(ctypes.Structure):
+    _fields_ = [("boost_pads", BoostPad * MAX_BOOSTS),
+                ("num_boosts", ctypes.c_int),
+                ("goals", GoalInfo * MAX_GOALS),
+                ("num_goals", ctypes.c_int)]
 
 
 # Helps us return raw bytes from protobuf functions.

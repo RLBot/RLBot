@@ -141,6 +141,43 @@ namespace FlatbufferTranslator {
 		}
 	}
 
+	void fillBoostPadStruct(const rlbot::flat::BoostPad* boostPad, BoostPad* structBoostPad)
+	{
+		fillVector3Struct(boostPad->location(), &structBoostPad->Location);
+		structBoostPad->FullBoost = boostPad->isFullBoost();
+	}
+
+	void fillGoalInfoStruct(const rlbot::flat::GoalInfo* goalInfo, GoalInfo* structGoalInfo)
+	{
+		structGoalInfo->TeamNum = goalInfo->teamNum();
+		fillVector3Struct(goalInfo->location(), &structGoalInfo->Location);
+		fillVector3Struct(goalInfo->direction(), &structGoalInfo->Direction);
+	}
+
+	void translateToFieldInfoStruct(ByteBuffer flatbufferData, FieldInfo* packet)
+	{
+		if (flatbufferData.size == 0)
+		{
+			return; // Nothing to do. Return now to avoid a "Message did not contain a root pointer" error.
+		}
+
+		auto fieldInfo = flatbuffers::GetRoot<rlbot::flat::FieldInfo>(flatbufferData.ptr);
+
+		auto boostPads = fieldInfo->boostPads();
+		packet->NumBoosts = boostPads->size();
+		for (int i = 0; i < boostPads->size(); i++)
+		{
+			fillBoostPadStruct(boostPads->Get(i), &packet->BoostPads[i]);
+		}
+
+		auto goals = fieldInfo->goals();
+		packet->NumGoals = goals->size();
+		for (int i = 0; i < goals->size(); i++)
+		{
+			fillGoalInfoStruct(goals->Get(i), &packet->Goals[i]);
+		}
+	}
+
 	void inputStructToFlatbuffer(flatbuffers::FlatBufferBuilder* builder, const PlayerInput& playerInput, int playerIndex)
 	{
 		auto controls = rlbot::flat::CreateControllerState(

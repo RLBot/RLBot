@@ -7,7 +7,7 @@ import time
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.class_importer import get_python_root
 from rlbot.utils.structures.bot_input_struct import PlayerInput
-from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer
+from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
 from rlbot.utils import rlbot_exception
@@ -50,6 +50,10 @@ class GameInterface:
         func.argtypes = [ctypes.POINTER(GameTickPacket)]
         func.restype = ctypes.c_int
 
+        func = self.game.UpdateFieldInfo
+        func.argtypes = [ctypes.POINTER(FieldInfoPacket)]
+        func.restype = ctypes.c_int
+
         func = self.game.UpdateLiveDataPacketFlatbuffer
         func.argtypes = []
         func.restype = ByteBuffer
@@ -89,10 +93,15 @@ class GameInterface:
         func = self.game.Free
         func.argtypes = [ctypes.c_void_p]
 
-    def update_live_data_packet(self, game_tick_packet):
+    def update_live_data_packet(self, game_tick_packet: GameTickPacket):
         rlbot_status = self.game.UpdateLiveDataPacket(game_tick_packet)
         self.game_status(None, rlbot_status)
         return game_tick_packet
+
+    def update_field_info_packet(self, field_info_packet: FieldInfoPacket):
+        rlbot_status = self.game.UpdateFieldInfo(field_info_packet)
+        self.game_status(None, rlbot_status)
+        return field_info_packet
 
     def update_match_data_packet(self):
         pass
