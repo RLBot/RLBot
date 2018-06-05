@@ -22,6 +22,11 @@ class BotManagerStruct(BotManager):
         # Set up shared memory for game data
         self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
+    def get_field_info(self):
+        field_info = gd.FieldInfoPacket()
+        self.game_interface.update_field_info_packet(field_info)
+        return field_info
+
     def call_agent(self, agent: BaseAgent, agent_class):
         controller_input = agent.get_output(self.game_tick_packet)
         if controller_input is None:

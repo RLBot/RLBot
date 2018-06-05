@@ -3,23 +3,23 @@
 
 struct GoalInfo
 {
-	PyStruct::Vector3		Location;
-	PyStruct::Rotator		Rotation;
-	PyStruct::Vector3		Direction;
-	PyStruct::Vector3		LocalMin;
-	PyStruct::Vector3		LocalMax;
-	PyStruct::Vector3		LocalExtent;
-	unsigned char			TeamNum;
+	unsigned char           TeamNum;
+	PyStruct::Vector3       Location;
+	PyStruct::Vector3       Direction;
+};
+
+struct BoostPad
+{
+	PyStruct::Vector3       Location;
+	bool                    FullBoost;
 };
 
 struct FieldInfo
 {
-	PyStruct::Rotator		FieldOrientation;
-	PyStruct::Vector3		FieldSize;
-	PyStruct::Vector3		FieldExtent;
-	PyStruct::Vector3		FieldCenter;
-	float					GroundZ;
-	GoalInfo				Goals[2];
+	BoostPad                BoostPads[CONST_MaxBoosts];
+	int                     NumBoosts;
+	GoalInfo                Goals[2];
+	int                     NumGoals;
 };
 
 #endif

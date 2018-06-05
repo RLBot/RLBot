@@ -8,11 +8,18 @@ URotationToRadians = math.pi / float(32768)
 
 class Legacy(BaseAgent):
 
+    def __init__(self, name, team, index):
+        super().__init__(name, team, index)
+        self.field_info = None
+
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         controller_state = SimpleControllerState()
 
+        if self.field_info is None or self.field_info.num_boosts == 0:
+            self.field_info = self.get_field_info()
+
         # testing that conversion works
-        legacy = self.convert_packet_to_v3(game_tick_packet)
+        legacy = self.convert_packet_to_v3(game_tick_packet, self.field_info)
 
         ball_location = Vector2(legacy.gameball.Location.X,
                                 legacy.gameball.Location.Y)

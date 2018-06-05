@@ -9,12 +9,25 @@
 
 namespace GameFunctions
 {
+	//////////////
 	// FIELD INFO
+	//////////////
+
 	static BoostUtilities::SharedMemReader flatFieldMem(BoostConstants::FieldInfoFlatName);
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
 	{
 		return flatFieldMem.fetchData();
+	}
+
+	// Ctypes
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateFieldInfo(FieldInfo* pFieldInfo)
+	{
+		ByteBuffer fieldInfo = UpdateFieldInfoFlatbuffer();
+		FlatbufferTranslator::translateToFieldInfoStruct(fieldInfo, pFieldInfo);
+		delete[] fieldInfo.ptr;
+
+		return RLBotCoreStatus::Success;
 	}
 
 	//////////////
@@ -34,9 +47,6 @@ namespace GameFunctions
 		ByteBuffer flatbuffer = UpdateLiveDataPacketFlatbuffer();
 		FlatbufferTranslator::translateToStruct(flatbuffer, pLiveData);
 		delete[] flatbuffer.ptr;
-
-		ByteBuffer fieldInfo = UpdateFieldInfoFlatbuffer();
-		delete[] fieldInfo.ptr;
 
 		return RLBotCoreStatus::Success;
 	}
