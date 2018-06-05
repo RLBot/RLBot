@@ -1,4 +1,4 @@
-from rlbot.utils.structures.game_data_struct import GameTickPacket
+from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
 
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
@@ -146,10 +146,13 @@ class BaseAgent:
 
         return player_input
 
-    def convert_packet_to_v3(self, game_tick_packet):
+    def convert_packet_to_v3(self, game_tick_packet: GameTickPacket, field_info_packet: FieldInfoPacket = None):
         """Converts the current game tick packet to v3
+        :param game_tick_packet a game tick packet in the v4 struct format.
+        :param field_info_packet a field info packet in the v4 struct format. Optional. If this is not supplied,
+        none of the boost locations will be filled in.
         :return: A v3 version of the game tick packet"""
-        return convert_to_legacy_v3(game_tick_packet)
+        return convert_to_legacy_v3(game_tick_packet, field_info_packet)
 
 
     ############

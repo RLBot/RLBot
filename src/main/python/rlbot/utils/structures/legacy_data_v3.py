@@ -1,6 +1,7 @@
 import ctypes
 import math
 
+from rlbot.utils.structures import game_data_struct
 from rlbot.utils.structures.game_data_struct import MAX_BOOSTS
 from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
 
@@ -99,8 +100,15 @@ class GameTickPacket(ctypes.Structure):
                 ("gameInfo", GameInfo)]
 
 
-def convert_to_legacy_v3(game_tick_packet):
-    """Returns a legacy packet from v3"""
+def convert_to_legacy_v3(
+        game_tick_packet: game_data_struct.GameTickPacket,
+        field_info_packet: game_data_struct.FieldInfoPacket = None):
+    """
+    Returns a legacy packet from v3
+    :param game_tick_packet a game tick packet in the v4 struct format.
+    :param field_info_packet a field info packet in the v4 struct format. Optional. If this is not supplied,
+    none of the boost locations will be filled in.
+    """
     legacy_packet = GameTickPacket()
 
     legacy_packet.numBoosts = game_tick_packet.num_boost
@@ -111,6 +119,8 @@ def convert_to_legacy_v3(game_tick_packet):
 
     for i in range(game_tick_packet.num_boost):
         convert_boost_info(legacy_packet.gameBoosts[i], game_tick_packet.game_boosts[i])
+        if field_info_packet is not None:
+            convert_vector(legacy_packet.gameBoosts[i].Location, field_info_packet.boost_pads[i].location)
 
     convert_ball_info(legacy_packet.gameball, game_tick_packet.game_ball)
 
