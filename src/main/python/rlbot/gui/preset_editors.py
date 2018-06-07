@@ -94,7 +94,7 @@ class BasePresetEditor(QtWidgets.QWidget):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Config', '', 'Config Files (*.cfg)')[0]
         if not os.path.isfile(file_path):
             return
-        if os.path.splitext(file_path)[1] != "cfg":
+        if os.path.splitext(file_path)[1] != ".cfg":
             self.popup_message("This file is not a config file!", "Invalid File Extension", QtWidgets.QMessageBox.Warning)
             return
         try:
