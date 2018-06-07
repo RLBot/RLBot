@@ -433,7 +433,12 @@ class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
             start = get_python_root()
         else:
             start = os.path.dirname(preset.config_path)
-        rel_path = os.path.relpath(file_path, start)
+
+        try:
+            rel_path = os.path.relpath(file_path, start)
+        except ValueError:
+            rel_path = file_path
+
         preset.config.set_value("Locations", "python_file", rel_path)
         self.preset_python_file_lineedit.setText(rel_path)
 

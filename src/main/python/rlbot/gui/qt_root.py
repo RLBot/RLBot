@@ -205,10 +205,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 listwidget = self.orange_listwidget
             name = self.validate_name(value, agent)
             old_name = self.validate_name(agent.ingame_name, agent)
-            listwidget.findItems(old_name, QtCore.Qt.MatchExactly)[0].setText(name)
+            row = listwidget.currentRow()
             del self.bot_names_to_agent_dict[old_name]
             agent.set_name(value)
             self.bot_names_to_agent_dict[name] = agent
+            self.update_teams_listwidgets()
+            listwidget.setCurrentRow(row)
         elif sender is self.loadout_preset_combobox:
             if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
                 self.current_bot.set_loadout_preset(self.loadout_presets[value])

@@ -74,7 +74,10 @@ class AgentPreset(Preset):
             basic_config.parse_file(file_path)
         else:
             base_agent_path = os.path.join(get_python_root(), "rlbot", "agents", "base_agent.py")
-            rel_path = os.path.relpath(base_agent_path, get_python_root())
+            try:
+                rel_path = os.path.relpath(base_agent_path, get_python_root())
+            except ValueError:
+                rel_path = base_agent_path
             basic_config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, rel_path)
 
         python_file_path = os.path.realpath(os.path.join(os.path.dirname(
