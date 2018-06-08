@@ -13,7 +13,6 @@ def get_rlbot_directory() -> str:
 
 def contains_locked_file(directory: str):
     """
-    Avoid moving or renaming this! It is considered part of the API of this package.
     :return: True if any of the files in the directory are in use. For example, if the dll is injected
     into the game, this will definitely return true.
     """
@@ -24,6 +23,6 @@ def contains_locked_file(directory: str):
                 with open(file_path, 'a'):
                     pass
             except IOError:
-                print(file_path)
+                print("Locked file: {}".format(file_path))
                 return True
     return False
