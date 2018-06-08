@@ -1,3 +1,9 @@
-psutil
-inputs
-PyQt5
+# This installs the rlbot package in 'editable' mode
+# - Your changes to python files will still be reflected, even though pip is involved.
+# - This will automatically install any runtime dependencies indicated in src/main/python/setup.py (see install_requires)
+#   If you add a runtime dependency you should be adding it there, not here!
+# See https://stackoverflow.com/a/49684835 for more details.
+-e ./src/main/python
+
+
+# If there are any dependencies needed for development only, e.g. lint tools, unit testing, etc, add them below.
