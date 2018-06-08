@@ -1,2 +1,5 @@
 psutil
 inputs
+
+# See https://stackoverflow.com/questions/13566200/how-can-i-install-from-a-git-subdirectory-with-pip
+git+git://github.com/google/flatbuffers.git@v1.9.0#egg=flatbuffers&subdirectory=python

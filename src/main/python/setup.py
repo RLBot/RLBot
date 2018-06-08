@@ -6,7 +6,11 @@ with open("README.md", "r") as readme_file:
 setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
-    install_requires=['psutil', 'inputs'],
+    install_requires=[
+        'psutil',
+        'inputs',
+        'git+git://github.com/google/flatbuffers.git@v1.9.0#egg=flatbuffers&subdirectory=python'
+    ],
     version='0.0.9',
     description='A framework for writing custom Rocket League bots that run offline.',
     long_description=long_description,
