@@ -6,7 +6,7 @@ import configparser
 from rlbot.gui.design.car_customisation import Ui_LoadoutPresetCustomiser
 from rlbot.gui.design.agent_customisation import Ui_AgentPresetCustomiser
 from rlbot.gui.presets import AgentPreset, LoadoutPreset
-from rlbot.utils.class_importer import get_python_root
+from rlbot.utils.file_util import get_python_root
 
 
 class BasePresetEditor(QtWidgets.QWidget):

@@ -4,7 +4,8 @@ import configparser
 
 from rlbot.agents.base_agent import BaseAgent
 from rlbot.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
-from rlbot.utils.class_importer import import_agent, get_python_root
+from rlbot.utils.class_importer import import_agent
+from rlbot.utils.file_util import get_python_root
 
 
 class Preset:
