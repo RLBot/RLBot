@@ -7,10 +7,6 @@ from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QCo
 import threading
 import configparser
 
-# Make sure the flatbuffers dir can be located on sys.path so that the generated files can find it.
-# TODO: Use pip for flatbuffers if they ever get their act together: https://github.com/google/flatbuffers/issues/4507
-sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../pylibs")))
-
 from rlbot.gui.presets import AgentPreset, LoadoutPreset
 from rlbot.gui.index_manager import IndexManager
 from rlbot.gui.design.qt_gui import Ui_MainWindow

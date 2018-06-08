@@ -2,12 +2,7 @@ import msvcrt
 import multiprocessing as mp
 import os
 import queue
-import sys
 import time
-
-# Make sure the flatbuffers dir can be located on sys.path so that the generated files can find it.
-# TODO: Use pip for flatbuffers if they ever get their act together: https://github.com/google/flatbuffers/issues/4507
-sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pylibs")))
 
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.base_extension import BaseExtension
