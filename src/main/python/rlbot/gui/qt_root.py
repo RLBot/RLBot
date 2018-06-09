@@ -2,7 +2,7 @@ import os
 import pathlib
 import sys
 from PyQt5.QtCore import QTimer
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QStyle, QProgressDialog, QMessageBox, QProgressBar
 import threading
@@ -14,7 +14,7 @@ from rlbot.gui.design.qt_gui import Ui_MainWindow
 from rlbot.gui.gui_agent import GUIAgent
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
 
-from rlbot.utils.file_util import get_python_root
+from rlbot.utils.file_util import get_python_root, get_rlbot_directory
 from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
 from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 
@@ -628,6 +628,16 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         :return:
         """
         app = QApplication(sys.argv)
-        window = RLBotQTGui()
-        window.show()
-        app.exec_()
+        rlbot_icon = QtGui.QIcon(os.path.join(get_rlbot_directory(), 'img', 'rlbot_icon.png'))
+        app.setWindowIcon(rlbot_icon)
+        if sys.maxsize <= 2**32:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setWindowTitle('RLBot Error')
+            error_dialog.setText('You appear to have a 32 bit version of Python installed.\n'
+                                 'RLBot only works with 64 bit!')
+            error_dialog.exec()
+        else:
+            window = RLBotQTGui()
+            window.show()
+            app.exec_()
