@@ -1,5 +1,9 @@
 import os
 
+from rlbot.utils.logging_utils import get_logger
+
+logger = get_logger('file util')
+
 
 def get_python_root() -> str:
     """Gets the path of the python root directory that rlbot lives in."""
@@ -13,7 +17,6 @@ def get_rlbot_directory() -> str:
 
 def contains_locked_file(directory: str):
     """
-    Avoid moving or renaming this! It is considered part of the API of this package.
     :return: True if any of the files in the directory are in use. For example, if the dll is injected
     into the game, this will definitely return true.
     """
@@ -24,6 +27,6 @@ def contains_locked_file(directory: str):
                 with open(file_path, 'a'):
                     pass
             except IOError:
-                print(file_path)
+                logger.info("Locked file: {}".format(file_path))
                 return True
     return False
