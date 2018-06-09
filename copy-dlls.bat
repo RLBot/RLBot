@@ -5,6 +5,9 @@
 copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\x64\Debug\RLBotInterface.dll ^
  .\src\main\python\rlbot\dll\RLBot_Core_Interface.dll
 
+copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\Win32\Debug\RLBotInterface.dll ^
+ .\src\main\python\rlbot\dll\RLBot_Core_Interface_32.dll
+
 @echo off
 echo.
 

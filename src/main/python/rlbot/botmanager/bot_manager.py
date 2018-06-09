@@ -144,10 +144,10 @@ class BotManager:
                 last_tick_game_time = tick_game_time
                 last_call_real_time = datetime.now()
 
-                try:
-                    # Reload the Agent if it has been modified.
-                    new_module_modification_time = os.stat(agent_class_file).st_mtime
-                    if new_module_modification_time != last_module_modification_time:
+                # Reload the Agent if it has been modified.
+                new_module_modification_time = os.stat(agent_class_file).st_mtime
+                if new_module_modification_time != last_module_modification_time:
+                    try:
                         last_module_modification_time = new_module_modification_time
                         self.logger.info('Reloading Agent: ' + agent_class_file)
                         self.agent_class_wrapper.reload()
@@ -156,11 +156,14 @@ class BotManager:
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
+                    except Exception as e:
+                        self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
 
-                    # Call agent
+                # Call agent
+                try:
                     self.call_agent(agent, self.agent_class_wrapper.get_loaded_class())
                 except Exception as e:
-                    self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
+                    self.logger.error("Call to agent failed:\n" + traceback.format_exc())
 
             # Ratelimit here
             after = datetime.now()
