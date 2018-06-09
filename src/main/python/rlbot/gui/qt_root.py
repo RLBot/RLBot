@@ -628,6 +628,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         :return:
         """
         app = QApplication(sys.argv)
-        window = RLBotQTGui()
-        window.show()
-        app.exec_()
+        if sys.maxsize <= 2**32:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setWindowTitle('RLBot 32 Bit Error')
+            error_dialog.setText('You appear to have a 32 bit version of Python installed.\n'
+                                 'RLBot only works with 64 bit!')
+            error_dialog.exec()
+        else:
+            window = RLBotQTGui()
+            window.show()
+            app.exec_()
