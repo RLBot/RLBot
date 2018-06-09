@@ -2,6 +2,7 @@ import os
 import json
 from PyQt5 import QtWidgets, QtCore
 import configparser
+import pathlib
 
 from rlbot.gui.design.car_customisation import Ui_LoadoutPresetCustomiser
 from rlbot.gui.design.agent_customisation import Ui_AgentPresetCustomiser
@@ -94,11 +95,11 @@ class BasePresetEditor(QtWidgets.QWidget):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Config', '', 'Config Files (*.cfg)')[0]
         if not os.path.isfile(file_path):
             return
-        if os.path.splitext(file_path)[1] != ".cfg":
+        if pathlib.Path(file_path).suffix != '.cfg':
             self.popup_message("This file is not a config file!", "Invalid File Extension", QtWidgets.QMessageBox.Warning)
             return
         try:
-            preset = self.preset_class(self.validate_name(os.path.basename(file_path).replace(".cfg", ""), None), file_path)
+            preset = self.preset_class(self.validate_name(pathlib.Path(file_path).stem, None), file_path)
         except configparser.NoSectionError:
             self.popup_message("This file does not have the right sections!", "Invalid Config File", QtWidgets.QMessageBox.Warning)
             return
@@ -115,7 +116,7 @@ class BasePresetEditor(QtWidgets.QWidget):
             preset.config_path = file_path
             del self.presets[preset.get_name()]
             old_name = preset.name
-            new_name = self.validate_name(os.path.basename(preset.config_path).replace(".cfg", ""), preset)
+            new_name = self.validate_name(pathlib.Path(preset.config_path).stem, preset)
             preset.name = new_name
             self.presets[preset.get_name()] = preset
             preset.save_config(time_out=0)

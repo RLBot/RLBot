@@ -1,4 +1,5 @@
 import os
+import pathlib
 import sys
 from PyQt5.QtCore import QTimer
 from PyQt5 import QtCore
@@ -287,8 +288,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 return
         if config_path is None or not os.path.isfile(config_path):
             return
-        paths = os.path.splitext(config_path)
-        if paths[-1] != ".cfg":
+        if pathlib.Path(config_path).suffix != '.cfg':
             self.popup_message("This file is not a config file!", "Invalid File Extension", QMessageBox.Warning)
             return
         raw_parser = configparser.RawConfigParser()
@@ -549,7 +549,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         :return preset: the loadout preset created
         """
         if file_path is not None and os.path.isfile(file_path):
-            name = os.path.basename(file_path).replace(".cfg", "")
+            name = pathlib.Path(file_path).stem
         else:
             name = "new preset"
         if name in self.loadout_presets:
@@ -565,7 +565,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         :return preset: the agent preset created
         """
         if os.path.isfile(file_path):
-            name = os.path.basename(file_path).replace(".cfg", "")
+            name = pathlib.Path(file_path).stem
         else:
             name = "new preset"
         if name in self.agent_presets:
