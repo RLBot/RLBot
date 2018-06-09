@@ -1,4 +1,4 @@
-from rlbot.pylibs import flatbuffers
+import flatbuffers
 from rlbot.agents.base_agent import BaseAgent, SimpleControllerState
 from rlbot.messages.flat import ControllerState
 from rlbot.messages.flat import PlayerInput
