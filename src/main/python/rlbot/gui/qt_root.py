@@ -17,7 +17,7 @@ from rlbot.gui.design.qt_gui import Ui_MainWindow
 from rlbot.gui.gui_agent import GUIAgent
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
 
-from rlbot.utils.class_importer import get_python_root
+from rlbot.utils.file_util import get_python_root
 from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
 from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 

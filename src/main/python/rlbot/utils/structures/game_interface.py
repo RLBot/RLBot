@@ -5,7 +5,7 @@ import sys
 import time
 
 from rlbot.utils.rendering.rendering_manager import RenderingManager
-from rlbot.utils.class_importer import get_python_root
+from rlbot.utils.file_util import get_python_root
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
 from rlbot.utils.structures.game_status import RLBotCoreStatus
