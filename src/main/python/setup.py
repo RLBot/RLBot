@@ -6,8 +6,8 @@ with open("README.md", "r") as readme_file:
 setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
-    install_requires=['psutil', 'inputs'],
-    version='0.0.9',
+    install_requires=['psutil', 'inputs', 'PyQt5'],
+    version='0.0.10',
     description='A framework for writing custom Rocket League bots that run offline.',
     long_description=long_description,
     long_description_content_type="text/markdown",
