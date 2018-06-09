@@ -1,7 +1,7 @@
 import ctypes
 import hashlib
 
-from rlbot.pylibs import flatbuffers
+import flatbuffers
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.logging_utils import get_logger
 
