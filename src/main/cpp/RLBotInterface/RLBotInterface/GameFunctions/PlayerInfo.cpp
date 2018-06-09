@@ -46,7 +46,7 @@ namespace GameFunctions
 	}
 
 	// Player info
-	RLBotCoreStatus checkInputConfiguration(const PlayerInput& playerInput)
+	RLBotCoreStatus checkInputConfiguration(PlayerInput playerInput)
 	{
 		if (playerInput.Throttle < -1.0f || playerInput.Throttle > 1.0f)
 			return RLBotCoreStatus::InvalidThrottle;
@@ -67,7 +67,7 @@ namespace GameFunctions
 	}
 
 	// Ctypes
-	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(const PlayerInput& playerInput, int playerIndex)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(PlayerInput playerInput, int playerIndex)
 	{
 		RLBotCoreStatus status = checkInputConfiguration(playerInput);
 

@@ -24,6 +24,13 @@ def wrap_callback(callback_func):
 def get_dll_location():
     return os.path.join(get_dll_directory(), 'RLBot_Core_Interface.dll')
 
+def get_dll_32_location():
+    return os.path.join(get_dll_directory(), 'RLBot_Core_Interface_32.dll')
+
+
+def is_32_bit_python():
+    return sys.maxsize <= 2**32
+
 
 def get_dll_directory():
     return os.path.join(get_python_root(), 'rlbot', 'dll')
@@ -39,7 +46,7 @@ class GameInterface:
 
     def __init__(self, logger):
         self.logger = logger
-        self.dll_path = get_dll_location()
+        self.dll_path = get_dll_32_location() if is_32_bit_python() else get_dll_location()
         self.renderer = RenderingManager()
         # wait for the dll to load
 
@@ -151,7 +158,7 @@ class GameInterface:
     def load_interface(self):
         self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)
         self.callback_func = self.game_status_callback_type(wrap_callback(self.game_status))
-        self.game = ctypes.WinDLL(self.dll_path)
+        self.game = ctypes.CDLL(self.dll_path)
         time.sleep(1)
         self.setup_function_types()
 

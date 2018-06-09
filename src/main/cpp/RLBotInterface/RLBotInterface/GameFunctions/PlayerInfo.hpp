@@ -20,8 +20,7 @@ extern "C"
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback = nullptr, unsigned int* pID = nullptr);
 
-		RLBotCoreStatus checkInputConfiguration(const PlayerInput& playerInput);
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(const PlayerInput& playerInput, int playerIndex);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(PlayerInput playerInput, int playerIndex);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* playerInput, int size);
 	}
 
