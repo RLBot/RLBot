@@ -1,5 +1,9 @@
 import os
 
+from rlbot.utils.logging_utils import get_logger
+
+logger = get_logger('file util')
+
 
 def get_python_root() -> str:
     """Gets the path of the python root directory that rlbot lives in."""
@@ -23,6 +27,6 @@ def contains_locked_file(directory: str):
                 with open(file_path, 'a'):
                     pass
             except IOError:
-                print("Locked file: {}".format(file_path))
+                logger.info("Locked file: {}".format(file_path))
                 return True
     return False
