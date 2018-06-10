@@ -115,3 +115,14 @@ ENV/
 
 # Gradle
 .gradle
+
+# Generated integration test data
+/src/test/python/integration_test/history.pb.bin
+
+src/main/cpp/RLBotInterface/.vs/RLBotInterface/
+/src/generated
+/src/main/python/rlbot/messages/flat
+
+# File with api keys, passwords, etc
+local.properties
+.vs/

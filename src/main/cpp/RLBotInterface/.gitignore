@@ -1,0 +1,58 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Preprocessed files
+*.i
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDE
+.idea
+*.iml
+.vs/
+RLBotInterface/Bin/
+RLBotInterface/Obj/
+RLBotMessages/Bin/
+RLBotMessages/Obj/
+*.vcxproj.user
+*.VC.VC.opendb
+*.VC.db
+
+# test files
+test.cpp
+
+# nuget packages
+packages/
+
+*.cpp_backup
+
+!lib/
+!lib/**/*.lib

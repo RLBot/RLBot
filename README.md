@@ -5,27 +5,61 @@
 </p>
 
 ### Short Description
-RLBot is a framework to create bots to play Rocket League that reads values from the game and outputs button presses to the game. RLBot works for up to 10 bots.
+The RLBot framework helps people create bots for use in Rocket League's offline modes, just for fun.
+It provides values from the game like car and ball position, and carries back button presses.
+RLBot works for up to 10 bots.
 
-#### ToDo
-- General bug fixes as they come up
+If you just want to make a bot, you don't need to be here. Instead, just start with one of these:
+ - Python - https://github.com/RLBot/RLBotPythonExample
+ - Java - https://github.com/RLBot/RLBotJavaExample
+
+If you want to make improvements that help out everyone, you're in the right place!
 
 ### Requirements
-Windows, Rocket League, Python 3. If you are running my Tensorflow bot then you definitely need (Python 3.5, Google Tensorflow).
+Windows, Rocket League, Python 3.6.
 
-### Longer Description
+### Quick Start
 
-#### Good Information
- - Start with the [Setup guide](https://github.com/RLBot/RLBot/wiki/Setup-Instructions-%28current%29). When you're done, there are [more wikis](https://github.com/RLBot/RLBot/wiki) with additional information.
+1. Double-click on setup.bat
+2. Run `pip install -r .\src\main\python\requirements.txt`
+(may be slightly different for you if you don't have pip on your PATH)
+3. Open up Rocket League
+4. Open a terminal and execute `python runner.py`
+
+### Useful Scripts
+
+- `setup.bat` - This generates some code from our message spec, and also installs python package dependencies.
+- `copy-dlls.bat` - This copies any built dlls from visual studio into the correct folder to speed up compile -> run time.
+
+#### Gradle
+
+Gradle is a build / dependency management system. You can execute various tasks with `gradlew.bat some_task`.
+To use gradle, you'll need to install JDK 8 or higher.
+
+
+- `publishToPyPI` - Uploads our package to [PyPI](https://pypi.org/project/rlbot/).
+This is done when we want to make an update available to bot makers.
+To run this successfully, you will need to create a [.pypirc](https://docs.python.org/3.6/distutils/packageindex.html#pypirc) file.
+Ask somebody for the username and password.
+- `build` - Generates and builds Java code.
+- `bintrayUpload` - Uploads Java artifacts to
+[bintray](https://bintray.com/rlbotofficial/RLBotMaven/rlbot-framework). This is done when we're ready to
+make an update available to java bots. To run this successfully, you will need to create a local.properties file.
+  See the build.gradle file for details.
+
+### Wikis
+
+For more details, visit the [Setup guide](https://github.com/RLBot/RLBot/wiki/Setup-Instructions-%28current%29). When you're done, there are [more wikis](https://github.com/RLBot/RLBot/wiki) with additional information.
+
+### Extras
+
+#### Community Info
  - We have a [Discord server](https://discord.gg/zbaAKPt) (the heart of the community, please join!)
  - [We also have a subreddit.](https://www.reddit.com/r/RocketLeagueBots/) 
- - We are now on v3 of RLBot so be wary of outdated information.
+ - We are now on v4 of RLBot so be wary of outdated information.
 
 #### Video Example
 [![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb6.JPG)](https://youtu.be/aAXe21m0vWo)
-
-#### Reading Values From Game
-RLBot is fed values from an injected dll. These values include amount of boost, xyz positional coordinates for player, ball, and opponent, rotational values, and score from the game to name a few.
 
 #### Tournament History
 Tournament results are recorded in our [braacket league](https://braacket.com/league/rlbot).
