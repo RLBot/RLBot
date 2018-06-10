@@ -7,7 +7,7 @@ setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
     install_requires=['psutil', 'inputs', 'PyQt5'],
-    version='0.0.10',
+    version='0.0.11',
     description='A framework for writing custom Rocket League bots that run offline.',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -21,6 +21,6 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
     ],
     package_data={
-        'rlbot': ['**/*.dll', '**/*.exe', '**/*.json', 'gui/design/*.ui']
+        'rlbot': ['**/*.dll', '**/*.exe', '**/*.json', 'gui/design/*.ui', '**/*.png']
     },
 )
