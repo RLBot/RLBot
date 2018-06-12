@@ -7,6 +7,7 @@ import com.sun.jna.Pointer;
 import rlbot.ControllerState;
 import rlbot.flat.FieldInfo;
 import rlbot.flat.GameTickPacket;
+import rlbot.render.RenderPacket;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class RLBotDll {
     private static native ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
     private static native int UpdatePlayerInputFlatbuffer(Pointer ptr, int size);
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
+    private static native int RenderGroup(Pointer ptr, int size);
 
     private static boolean isInitialized = false;
     private static Object fileLock = new Object();
@@ -108,6 +110,17 @@ public class RLBotDll {
         final byte[] protoBytes = builder.sizedByteArray();
         final Memory memory = getMemory(protoBytes);
         UpdatePlayerInputFlatbuffer(memory, protoBytes.length);
+    }
+
+    /**
+     * Send a render packet to the game to be displayed on screen.
+     * It will remain there until replaced or erased.
+     */
+    public static void sendRenderPacket(final RenderPacket finishedRender) {
+
+        byte[] bytes = finishedRender.getBytes();
+        final Memory memory = getMemory(bytes);
+        RenderGroup(memory, bytes.length);
     }
 
     private static Memory getMemory(byte[] protoBytes) {

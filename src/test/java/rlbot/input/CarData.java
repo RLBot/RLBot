@@ -1,7 +1,7 @@
 package rlbot.input;
 
 
-import rlbot.vector.Vector3;
+import rlbot.vec.Vector3;
 
 public class CarData {
     public final Vector3 position;

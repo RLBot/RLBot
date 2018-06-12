@@ -1,4 +1,4 @@
-package rlbot.vector;
+package rlbot.vec;
 
 public class Vector2 {
 
