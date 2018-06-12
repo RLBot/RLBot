@@ -25,27 +25,29 @@ public class RLBotDll {
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
 
     private static boolean isInitialized = false;
+    private static Object fileLock = new Object();
 
     public static void initialize(final String interfaceDllPath) throws IOException {
+        synchronized(fileLock) {
+            if (isInitialized) {
+                return;
+            }
 
-        if (isInitialized) {
-            return;
+            File directory = new File(LOCAL_DLL_DIR);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Copy the interface dll to a known location that is already on the classpath.
+            Files.copy(
+                    Paths.get(interfaceDllPath),
+                    Paths.get( LOCAL_DLL_DIR, DLL_NAME_SANS_EXTENSION + ".dll"),
+                    StandardCopyOption.REPLACE_EXISTING);
+
+            Native.register(DLL_NAME_SANS_EXTENSION);
+
+            isInitialized = true;
         }
-
-        File directory = new File(LOCAL_DLL_DIR);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        // Copy the interface dll to a known location that is already on the classpath.
-        Files.copy(
-                Paths.get(interfaceDllPath),
-                Paths.get( LOCAL_DLL_DIR, DLL_NAME_SANS_EXTENSION + ".dll"),
-                StandardCopyOption.REPLACE_EXISTING);
-
-        Native.register(DLL_NAME_SANS_EXTENSION);
-
-        isInitialized = true;
     }
 
     public static GameTickPacket getFlatbufferPacket() throws IOException {
