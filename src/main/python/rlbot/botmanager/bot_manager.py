@@ -81,7 +81,6 @@ class BotManager:
         agent = agent_class(self.name, self.team, self.index)
         agent.logger = self.logger
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
-        agent.initialize_agent()
 
         self.update_metadata_queue(agent)
         self.set_render_manager(agent)
@@ -90,6 +89,9 @@ class BotManager:
         agent._register_quick_chat(self.send_quick_chat_from_agent)
         agent._register_field_info(self.get_field_info)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
+
+        # Once all engine setup is done, do the agent-specific initialization, if any:
+        agent.initialize_agent()
         return agent, agent_class_file
 
     def set_render_manager(self, agent):
