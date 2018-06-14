@@ -4,16 +4,19 @@
   <img width="512" height="158" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot.png">
 </p>
 
-### Short Description
-The RLBot framework helps people create bots for use in Rocket League's offline modes, just for fun.
-It provides values from the game like car and ball position, and carries back button presses.
-RLBot works for up to 10 bots.
+## Bot Makers Read This!
 
-If you just want to make a bot, you don't need to be here. Instead, just start with one of these:
+***If you just want to make a bot, you don't need to be here. Instead, start with one of these:***
  - Python - https://github.com/RLBot/RLBotPythonExample
  - Java - https://github.com/RLBot/RLBotJavaExample
 
-If you want to make improvements that help out everyone, you're in the right place!
+But if you want to make improvements that help out everyone, you're in the right place!
+
+## Framework Info
+
+The RLBot framework helps people create bots for use in Rocket League's offline modes, just for fun.
+It provides values from the game like car and ball position, and carries back button presses.
+RLBot works for up to 10 bots.
 
 ### Requirements
 Windows, Rocket League, Python 3.6.
