@@ -316,7 +316,7 @@ enum QuickChatSelection : byte {
 }
 
 table QuickChat {
-    quickChat:      QuickChatSelection;
+    quickChatSelection:      QuickChatSelection;
 
     /// The index of the player that sent the quick chat
     playerIndex:    int;
