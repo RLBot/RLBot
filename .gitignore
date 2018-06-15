@@ -122,6 +122,7 @@ ENV/
 src/main/cpp/RLBotInterface/.vs/RLBotInterface/
 /src/generated
 /src/main/python/rlbot/messages/flat
+/src/main/cs/RLBotDotNet/RLBotDotNet/flat
 
 # File with api keys, passwords, etc
 local.properties
