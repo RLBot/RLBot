@@ -1,11 +1,5 @@
-import msvcrt
-import os
+import socket
 import time
-
-import psutil
-from py4j.java_gateway import GatewayParameters
-from py4j.java_gateway import JavaGateway
-from rlbot.utils.structures import game_interface
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.utils.logging_utils import get_logger
@@ -14,16 +8,33 @@ from rlbot.utils.logging_utils import get_logger
 class BaseDotNetAgent(BaseIndependentAgent):
 
     def __init__(self, name, team, index):
-        # TODO: Set up what is needed to connect to server
-        raise NotImplementedError
+        self.name = name
+        self.team = team
+        self.index = index
 
     def run_independently(self, terminate_request_event):
-        # TODO: Connect to C# server and give information
-        raise NotImplementedError
+
+        while not terminate_request_event.is_set():
+            port = self.read_port_from_file()
+            message = "add {0} {1} {2}".format(self.name, self.team, self.index)
+
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(("127.0.0.1", port))
+            s.send(bytes(message), "ASCII")
+            s.close()
+
+            time.sleep(1)
+        else:
+            self.retire()
 
     def retire(self):
-        # TODO: Tell C# server to retire the bot
-        raise NotImplementedError
+        port = self.read_port_from_file()
+        message = "remove {0}".format(self.index)
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(("127.0.0.1", port))
+        s.send(bytes(message), "ASCII")
+        s.close()
     
     def read_port_from_file(self):
         try:
