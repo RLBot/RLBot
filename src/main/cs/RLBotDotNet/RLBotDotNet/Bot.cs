@@ -11,15 +11,15 @@ namespace RLBotDotNet
         /// <summary>
         /// The name given to the bot in its configuration file.
         /// </summary>
-        public string name;
+        public readonly string name;
         /// <summary>
         /// The team the bot is on (0 for blue, 1 for orange).
         /// </summary>
-        public int team;
+        public readonly int team;
         /// <summary>
         /// The index of the bot in the match.
         /// </summary>
-        public int index;
+        public readonly int index;
 
         /// <summary>
         /// Creates a bot instance. To be used by the BotManager.
