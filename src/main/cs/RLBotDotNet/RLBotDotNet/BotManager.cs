@@ -1,6 +1,7 @@
 ﻿using rlbot.flat;
 using RLBotDotNet.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace RLBotDotNet
 {
@@ -9,6 +10,7 @@ namespace RLBotDotNet
     /// </summary>
     public class BotManager
     {
+        private List<BotProcess> botProcesses;
         private GameTickPacket currentGameTickPacket;
         private FieldInfo fieldInfo;
 
@@ -36,6 +38,16 @@ namespace RLBotDotNet
             */
         }
 
+
+        private void RunBot(Bot bot)
+        {
+            
+        }
+
+        private void MainBotLoop()
+        {
+
+        }
 
         /// <summary>
         /// Calls <see cref="RLBotInterface.GetGameTickPacket"/>, and also sets <see cref="currentGameTickPacket"/>.
