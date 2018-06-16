@@ -80,7 +80,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BotManager.cs" />
+    <Compile Include="BotManagerServer.cs" />
     <Compile Include="BotProcess.cs" />
+    <Compile Include="BotReceivedEventArgs.cs" />
     <Compile Include="ByteBufferStruct.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="flat\BallInfo.cs" />
