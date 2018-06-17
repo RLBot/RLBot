@@ -1,5 +1,6 @@
 ﻿using rlbot.flat;
 using RLBotDotNet.Utils;
+using RLBotDotNet.Server;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,7 +11,8 @@ namespace RLBotDotNet
     /// <summary>
     /// Manages the C# bots and runs them.
     /// </summary>
-    public class BotManager
+    /// <typeparam name="T">The custom bot class that should be run.</typeparam>
+    public class BotManager<T> where T : Bot
     {
         private ManualResetEvent botRunEvent = new ManualResetEvent(false);
         private List<BotProcess> botProcesses;
@@ -20,9 +22,8 @@ namespace RLBotDotNet
         /// <summary>
         /// Creates a new BotManager instance to run the bots.
         /// </summary>
-        /// <param name="bot">The bot that this BotManager controls.</param>
         /// <param name="port">The port that the manager listens to for the Python clients.</param>
-        public BotManager(Bot bot, int port)
+        public BotManager(int port)
         {
             throw new NotImplementedException();
 
@@ -35,16 +36,16 @@ namespace RLBotDotNet
             */
         }
 
-
         /// <summary>
-        /// Adds the given bot to the <see cref="botProcesses"/> list if it's not there already.
+        /// Adds a bot to the <see cref="botProcesses"/> list if the index is not there already.
         /// </summary>
         /// <param name="bot"></param>
-        private void RegisterBot(Bot bot)
+        private void RegisterBot(string name, int team, int index)
         {
-            // Only run the code if botProcesses doesn't contain the Bot given in the parameters.
-            if (!botProcesses.Any(b => b.bot == bot))
+            // Only add a bot if botProcesses doesn't contain the index given in the parameters.
+            if (!botProcesses.Any(b => b.bot.index == index))
             {
+                T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
                 Thread thread = new Thread(() => RunBot(bot));
 
                 BotProcess botProcess = new BotProcess()
@@ -56,7 +57,6 @@ namespace RLBotDotNet
                 botProcesses.Add(botProcess);
             }
         }
-
 
         /// <summary>
         /// Calls the given bot's <see cref="Bot.GetOutput(GameTickPacket)"/> method and
