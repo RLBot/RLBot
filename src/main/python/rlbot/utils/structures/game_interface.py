@@ -132,7 +132,6 @@ class GameInterface:
     def send_chat(self, index, team_only, message_details):
         rlbot_status = self.game.SendChat(message_details, index, team_only, self.create_status_callback(), None)
         self.game_status(None, rlbot_status)
-        pass
 
     def send_chat_flat(self, chat_message_builder):
         buf = chat_message_builder.Output()
@@ -149,7 +148,7 @@ class GameInterface:
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
         is_loaded = self.game.IsInitialized()
-        if not is_loaded:
+        if is_loaded:
             self.logger.debug('DLL is loaded!')
         if not is_loaded:
             time.sleep(1)
