@@ -79,11 +79,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BotManager.cs" />
-    <Compile Include="BotManagerServer.cs" />
-    <Compile Include="BotProcess.cs" />
-    <Compile Include="BotReceivedEventArgs.cs" />
-    <Compile Include="ByteBufferStruct.cs" />
+    <Compile Include="Manager\BotManager.cs" />
+    <Compile Include="Server\BotManagerServer.cs" />
+    <Compile Include="Manager\BotProcess.cs" />
+    <Compile Include="Server\BotReceivedEventArgs.cs" />
+    <Compile Include="Interface\ByteBufferStruct.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="flat\BallInfo.cs" />
     <Compile Include="flat\BoostPad.cs" />
@@ -115,7 +115,8 @@
     <Compile Include="flat\Vector3Partial.cs" />
     <Compile Include="Bot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RLBotInterface.cs" />
+    <Compile Include="Interface\RLBotInterface.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

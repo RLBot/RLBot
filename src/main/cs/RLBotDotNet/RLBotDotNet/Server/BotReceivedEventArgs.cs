@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RLBotDotNet
+namespace RLBotDotNet.Server
 {
     /// <summary>
     /// Event arguments that contain the message of the client to the server.

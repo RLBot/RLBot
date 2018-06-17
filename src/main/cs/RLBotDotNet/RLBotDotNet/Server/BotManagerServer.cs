@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace RLBotDotNet
+namespace RLBotDotNet.Server
 {
     /// <summary>
     /// A class used for running a server to get bot data from Python clients.
