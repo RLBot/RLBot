@@ -67,10 +67,17 @@ namespace RLBotDotNet
         {
             while (true)
             {
-                GetGameTickPacket();
-                botRunEvent.Set();
-                botRunEvent.Reset();
-                Thread.Sleep(16);
+                try
+                {
+                    GetGameTickPacket();
+                    botRunEvent.Set();
+                    botRunEvent.Reset();
+                    Thread.Sleep(16);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
         }
 
