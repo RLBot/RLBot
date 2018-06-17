@@ -7,7 +7,7 @@ namespace RLBotDotNet.Server
     /// </summary>
     public class BotReceivedEventArgs : EventArgs
     {
-        string message;
+        public string message;
 
         public BotReceivedEventArgs(string eventMessage)
         {

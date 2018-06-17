@@ -12,14 +12,15 @@ namespace RLBotDotNet.Server
     public class BotManagerServer
     {
         private TcpListener listener;
-        public event EventHandler BotReceived;
+        public event Action<string> BotReceivedEvent;
 
         /// <summary>
         /// Event that gets raised whenever a message is received from the Python client.
         /// </summary>
-        protected virtual void OnBotReceived(BotReceivedEventArgs e)
+        protected virtual void OnBotReceived(string message)
         {
-            BotReceived?.Invoke(this, e);
+            if (message != "" || message != null)
+                BotReceivedEvent?.Invoke(message);
         }
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace RLBotDotNet.Server
                     int bytes = stream.Read(buffer, 0, client.ReceiveBufferSize);
 
                     string receivedString = Encoding.ASCII.GetString(buffer, 0, bytes);
-                    OnBotReceived(new BotReceivedEventArgs(receivedString));
+                    OnBotReceived(receivedString);
 
                     // TODO: Do some verification to know that the data was sent correctly.
                     // E.g. Echo check

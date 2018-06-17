@@ -18,6 +18,7 @@ namespace RLBotDotNet
         private List<BotProcess> botProcesses;
         private GameTickPacket currentGameTickPacket;
         private FieldInfo fieldInfo;
+        private Thread serverThread;
 
         /// <summary>
         /// Creates a new BotManager instance to run the bots.
@@ -25,15 +26,6 @@ namespace RLBotDotNet
         /// <param name="port">The port that the manager listens to for the Python clients.</param>
         public BotManager(int port)
         {
-            throw new NotImplementedException();
-
-            /*
-             * BotManager should handle the running of the bots.
-             * 
-             * The server should receive data about what bot processes it controls from the Python clients.
-             * E.g. "{ name = "Bot1", team = 1, index = 3 }"
-             * After receiving this data, it should create instances of the bots, each on different threads.
-            */
         }
 
         /// <summary>
@@ -45,6 +37,7 @@ namespace RLBotDotNet
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
             if (!botProcesses.Any(b => b.bot.index == index))
             {
+                // Create a bot instance, run it in a separate thread, and add it to botProcesses.
                 T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
                 Thread thread = new Thread(() => RunBot(bot));
 
@@ -96,9 +89,45 @@ namespace RLBotDotNet
         /// <summary>
         /// Start the server and be ready to manage the bots.
         /// </summary>
-        public void Start()
+        /// <param name="port">The port that the manager listens to for the Python clients.</param>
+        public void Start(int port)
         {
-            throw new NotImplementedException();
+            BotManagerServer server = new BotManagerServer();
+            server.BotReceivedEvent += OnBotReceived;
+            serverThread = new Thread(() => server.Start(port));
+
+        }
+
+        /// <summary>
+        /// Method that is subscribed to <see cref="BotManagerServer.BotReceivedEvent"/>.
+        /// This method parses the event's message and calls the appropriate methods.
+        /// </summary>
+        /// <param name="message">The message from the event.</param>
+        private void OnBotReceived(string message)
+        {
+            try
+            {
+                string[] split = message.Split(' ');
+
+                if (split.Length < 2)
+                    throw new Exception("Server received too few command arguments from client");
+
+
+                if (split[0] == "add")
+                    RegisterBot(split[1], int.Parse(split[2]), int.Parse(split[3]));
+                else if (split[0] == "remove")
+                {
+                    int index = int.Parse(split[1]);
+                    BotProcess proc = botProcesses.Find(b => b.bot.index == index);
+                    StopBotProcess(proc);
+                }
+                else
+                    throw new Exception("Server received bad command from client: " + split[0]);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         /// <summary>
