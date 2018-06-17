@@ -15,7 +15,7 @@ namespace RLBotDotNet
     public class BotManager<T> where T : Bot
     {
         private ManualResetEvent botRunEvent = new ManualResetEvent(false);
-        private List<BotProcess> botProcesses;
+        private List<BotProcess> botProcesses = new List<BotProcess>();
         private GameTickPacket currentGameTickPacket;
         private FieldInfo fieldInfo;
         private Thread serverThread;
@@ -71,10 +71,13 @@ namespace RLBotDotNet
         /// </summary>
         private void MainBotLoop()
         {
-            //GetGameTickPacket();
-            //botRunEvent.Set();
-            //botRunEvent.Reset();
-            throw new NotImplementedException();
+            while (true)
+            {
+                GetGameTickPacket();
+                botRunEvent.Set();
+                botRunEvent.Reset();
+                Thread.Sleep(16);
+            }
         }
 
         /// <summary>
@@ -95,6 +98,7 @@ namespace RLBotDotNet
             BotManagerServer server = new BotManagerServer();
             server.BotReceivedEvent += OnBotReceived;
             serverThread = new Thread(() => server.Start(port));
+            serverThread.Start();
 
         }
 
@@ -120,6 +124,7 @@ namespace RLBotDotNet
                     int index = int.Parse(split[1]);
                     BotProcess proc = botProcesses.Find(b => b.bot.index == index);
                     StopBotProcess(proc);
+                    botProcesses.Remove(proc);
                 }
                 else
                     throw new Exception("Server received bad command from client: " + split[0]);
@@ -127,6 +132,7 @@ namespace RLBotDotNet
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
         }
 
