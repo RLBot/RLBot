@@ -21,14 +21,6 @@ namespace RLBotDotNet
         private Thread serverThread;
 
         /// <summary>
-        /// Creates a new BotManager instance to run the bots.
-        /// </summary>
-        /// <param name="port">The port that the manager listens to for the Python clients.</param>
-        public BotManager(int port)
-        {
-        }
-
-        /// <summary>
         /// Adds a bot to the <see cref="botProcesses"/> list if the index is not there already.
         /// </summary>
         /// <param name="bot"></param>
@@ -99,6 +91,8 @@ namespace RLBotDotNet
             server.BotReceivedEvent += OnBotReceived;
             serverThread = new Thread(() => server.Start(port));
             serverThread.Start();
+
+            MainBotLoop();
 
         }
 
