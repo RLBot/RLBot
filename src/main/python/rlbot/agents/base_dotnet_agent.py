@@ -20,7 +20,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
 
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(("127.0.0.1", port))
-            s.send(bytes(message), "ASCII")
+            s.send(bytes(message, "ASCII"))
             s.close()
 
             time.sleep(1)
