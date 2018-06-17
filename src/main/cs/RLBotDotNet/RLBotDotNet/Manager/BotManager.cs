@@ -32,6 +32,7 @@ namespace RLBotDotNet
                 // Create a bot instance, run it in a separate thread, and add it to botProcesses.
                 T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
                 Thread thread = new Thread(() => RunBot(bot));
+                thread.Start();
 
                 BotProcess botProcess = new BotProcess()
                 {
@@ -40,6 +41,7 @@ namespace RLBotDotNet
                 };
 
                 botProcesses.Add(botProcess);
+                Console.WriteLine("Registered bot: name={0}, team={1}, index={2}", name, team, index);
             }
         }
 
@@ -91,6 +93,10 @@ namespace RLBotDotNet
             server.BotReceivedEvent += OnBotReceived;
             serverThread = new Thread(() => server.Start(port));
             serverThread.Start();
+
+            // Don't start main loop until botProcesses has at least 1 bot
+            while (botProcesses.Count == 0)
+                Thread.Sleep(16);
 
             MainBotLoop();
 
