@@ -18,10 +18,13 @@ class BaseDotNetAgent(BaseIndependentAgent):
             port = self.read_port_from_file()
             message = "add {0} {1} {2}".format(self.name, self.team, self.index)
 
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(("127.0.0.1", port))
-            s.send(bytes(message, "ASCII"))
-            s.close()
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect(("127.0.0.1", port))
+                s.send(bytes(message, "ASCII"))
+                s.close()
+            except ConnectionRefusedError:
+                self.logger.warn("Could not connect to server!")
 
             time.sleep(1)
         else:
@@ -31,10 +34,13 @@ class BaseDotNetAgent(BaseIndependentAgent):
         port = self.read_port_from_file()
         message = "remove {0}".format(self.index)
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(("127.0.0.1", port))
-        s.send(bytes(message, "ASCII"))
-        s.close()
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(("127.0.0.1", port))
+            s.send(bytes(message, "ASCII"))
+            s.close()
+        except ConnectionRefusedError:
+            self.logger.warn("Could not connect to server!")
     
     def read_port_from_file(self):
         try:
