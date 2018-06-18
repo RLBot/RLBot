@@ -88,6 +88,8 @@ namespace RLBotDotNet
         private void StopBotProcess(BotProcess botProcess)
         {
             botProcess.thread.Abort();
+            Console.WriteLine("Stopped bot: name={0}, team={1}, index={2}",
+                botProcess.bot.name, botProcess.bot.team, botProcess.bot.index);
         }
 
         /// <summary>
