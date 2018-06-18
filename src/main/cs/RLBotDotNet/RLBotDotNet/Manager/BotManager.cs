@@ -132,8 +132,14 @@ namespace RLBotDotNet
                 {
                     int index = int.Parse(split[1]);
                     BotProcess proc = botProcesses.Find(b => b.bot.index == index);
-                    StopBotProcess(proc);
-                    botProcesses.Remove(proc);
+
+                    // Only call the bot stopping/removing methods if proc references an object and not a default value.
+                    // Referencing a default value happens when Linq's Find method can't find any matches.
+                    if (!proc.Equals(default(BotProcess)))
+                    {
+                        StopBotProcess(proc);
+                        botProcesses.Remove(proc);
+                    }
                 }
                 else
                     throw new Exception("Server received bad command from client: " + split[0]);
