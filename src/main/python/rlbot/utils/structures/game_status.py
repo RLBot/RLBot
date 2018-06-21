@@ -16,7 +16,8 @@ def create_status_object():
                    "InvalidYaw",
                    "InvalidRoll",
                    "InvalidPlayerIndex",
-                   "InvalidQuickChatPreset"]
+                   "InvalidQuickChatPreset",
+                   "InvalidRenderType"]
 
     def result():
         return None

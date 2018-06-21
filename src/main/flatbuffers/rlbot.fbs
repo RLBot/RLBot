@@ -204,7 +204,8 @@ enum RenderType : byte {
     DrawRect2D = 4,
     DrawRect3D = 5,
     DrawString2D = 6,
-    DrawString3D = 7
+    DrawString3D = 7,
+    DrawCenteredRect3D = 8
 }
 
 table Color {
