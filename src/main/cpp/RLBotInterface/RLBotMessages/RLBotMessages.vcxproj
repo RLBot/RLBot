@@ -31,7 +31,6 @@
     <ClInclude Include="MessageStructs\CallbackMessages.hpp" />
     <ClInclude Include="MessageStructs\GameMessages.hpp" />
     <ClInclude Include="MessageStructs\Message.hpp" />
-    <ClInclude Include="MessageStructs\RendererMessages.hpp" />
     <ClInclude Include="MessageTranslation\FlatbufferTranslator.hpp" />
     <ClInclude Include="PacketStructs\LiveDataPacket.hpp" />
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />

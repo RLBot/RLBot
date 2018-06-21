@@ -7,7 +7,6 @@
 #include "MessageProcessor\MessageProcessor.hpp"
 #include "MessageStructs\CallbackMessages.hpp"
 #include "MessageStructs\GameMessages.hpp"
-#include "MessageStructs\RendererMessages.hpp"
 #include "PacketStructs\PacketStructs.hpp"
 
 #endif

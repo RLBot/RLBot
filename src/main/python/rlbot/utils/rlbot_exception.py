@@ -7,10 +7,10 @@ class RLBotException(Exception):
             msg = "An error occurred attempting to set RLBot configuration on the dll side"
         super(RLBotException, self).__init__(msg)
         self.error_dict = {1: BufferOverfilledError(), 2: MessageLargerThanMaxError(), 3: InvalidNumPlayerError(),
-                           4: InvalidBotSkillError(), 5: InvalidPlayerIndexError(), 6: InvalidName(),
+                           4: InvalidBotSkillError(), 5: InvalidHumanIndex, 6: InvalidName(),
                            7: InvalidTeam, 8: InvalidTeamColor(), 9: InvalidCustomColor, 10: InvalidGameValues,
-                           11: InvalidThrottle, 12: InvalidSteer, 13: InvalidPitch, 14: InvalidRoll,
-                           15: InvalidSteer}
+                           11: InvalidThrottle, 12: InvalidSteer, 13: InvalidPitch, 14: InvalidYaw, 15: InvalidRoll,
+                           16: InvalidPlayerIndexError, 17: InvalidQuickChatPreset, 18: InvalidRenderType}
 
     def raise_exception_from_error_code(self, error_code):
         try:
@@ -37,6 +37,11 @@ class InvalidNumPlayerError(RLBotException):
 class InvalidBotSkillError(RLBotException):
     def __init__(self):
         super(RLBotException, self).__init__("Invalid bot skill specified in configuration")
+
+
+class InvalidHumanIndex(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Invalid human index")
 
 
 class InvalidPlayerIndexError(RLBotException):
@@ -92,3 +97,13 @@ class InvalidYaw(RLBotException):
 class InvalidRoll(RLBotException):
     def __init__(self):
         super(RLBotException, self).__init__("Invalid roll input")
+
+
+class InvalidQuickChatPreset(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Invalid quick chat preset")
+
+
+class InvalidRenderType(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Invalid render type")

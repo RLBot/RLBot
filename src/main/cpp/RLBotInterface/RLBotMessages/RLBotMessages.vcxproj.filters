@@ -47,9 +47,6 @@
     <ClInclude Include="PacketStructs\PacketStructs.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
-    <ClInclude Include="MessageStructs\RendererMessages.hpp">
-      <Filter>Header Files\MessageStructs</Filter>
-    </ClInclude>
     <ClInclude Include="MessageStructs\GameMessages.hpp">
       <Filter>Header Files\MessageStructs</Filter>
     </ClInclude>
