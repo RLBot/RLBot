@@ -34,6 +34,8 @@ namespace RLBotDotNet.Server
                 listener = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
                 listener.Start();
 
+                Console.WriteLine("Listening for clients on 127.0.0.1 on port {0}...", port);
+
                 while (true)
                 {
                     TcpClient client = listener.AcceptTcpClient();
