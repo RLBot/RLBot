@@ -91,7 +91,7 @@ struct GameInfo
 	bool					OverTime;
 	bool					UnlimitedTime;
 	bool					RoundActive;
-	bool					BallHasBeenHit;
+	bool					KickoffPause;
 	bool					MatchEnded;
 };
 

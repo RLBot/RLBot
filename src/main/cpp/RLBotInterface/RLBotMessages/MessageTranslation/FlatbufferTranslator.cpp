@@ -99,7 +99,7 @@ namespace FlatbufferTranslator {
 
 	void fillGameInfoStruct(const rlbot::flat::GameInfo* gameInfo, GameInfo* structGameInfo)
 	{
-		structGameInfo->BallHasBeenHit = !gameInfo->isKickoffPause();
+		structGameInfo->KickoffPause = gameInfo->isKickoffPause();
 		structGameInfo->GameTimeRemaining = gameInfo->gameTimeRemaining();
 		structGameInfo->MatchEnded = gameInfo->isMatchEnded();
 		structGameInfo->OverTime = gameInfo->isOvertime();
