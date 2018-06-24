@@ -1,19 +1,19 @@
 package rlbot.manager;
 
-import rlbot.ControllerState;
 import rlbot.Bot;
+import rlbot.ControllerState;
 import rlbot.cppinterop.RLBotDll;
 import rlbot.flat.GameTickPacket;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class BotManager {
 
-    private final Map<Integer, BotProcess> botProcesses = new HashMap<>();
+    private final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
 
     private boolean keepRunning;
 
@@ -25,9 +25,8 @@ public class BotManager {
             return;
         }
 
-        final Bot bot = botSupplier.get();
-
         botProcesses.computeIfAbsent(index, (idx) -> {
+            final Bot bot = botSupplier.get();
             final AtomicBoolean runFlag = new AtomicBoolean(true);
             Thread botThread = new Thread(() -> doRunBot(bot, index, runFlag));
             botThread.start();
