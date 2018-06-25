@@ -29,7 +29,7 @@ public class BotLoopRenderer extends Renderer {
 
     void finishAndSendIfDifferent() {
         RenderPacket packet = doFinishPacket();
-        if (previousPacket == null || !previousPacket.equals(packet)) {
+        if (!packet.equals(previousPacket)) {
             RLBotDll.sendRenderPacket(packet);
             previousPacket = packet;
         }
