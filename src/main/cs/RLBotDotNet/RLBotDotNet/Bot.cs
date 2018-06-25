@@ -1,4 +1,5 @@
 ﻿using rlbot.flat;
+using RLBotDotNet.Utils;
 
 namespace RLBotDotNet
 {
@@ -37,5 +38,10 @@ namespace RLBotDotNet
         /// <param name="gameTickPacket">The game data input.</param>
         /// <returns>Should return the Controller outputs that the bot should execute.</returns>
         public abstract Controller GetOutput(GameTickPacket gameTickPacket);
+
+        protected FieldInfo GetFieldInfo()
+        {
+            return RLBotInterface.GetFieldInfo();
+        }
     }
 }

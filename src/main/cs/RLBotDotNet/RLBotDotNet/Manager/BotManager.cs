@@ -17,7 +17,6 @@ namespace RLBotDotNet
         private ManualResetEvent botRunEvent = new ManualResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private GameTickPacket currentGameTickPacket;
-        private FieldInfo fieldInfo;
         private Thread serverThread;
 
         /// <summary>
@@ -108,7 +107,6 @@ namespace RLBotDotNet
                 Thread.Sleep(16);
 
             MainBotLoop();
-
         }
 
         /// <summary>
@@ -124,7 +122,6 @@ namespace RLBotDotNet
 
                 if (split.Length < 2)
                     throw new Exception("Server received too few command arguments from client");
-
 
                 if (split[0] == "add")
                     RegisterBot(split[1], int.Parse(split[2]), int.Parse(split[3]));
@@ -159,19 +156,6 @@ namespace RLBotDotNet
         {
             currentGameTickPacket = RLBotInterface.GetGameTickPacket();
             return currentGameTickPacket;
-        }
-
-        /// <summary>
-        /// Calls <see cref="RLBotInterface.GetFieldInfo"/>, and also sets <see cref="fieldInfo"/>.
-        /// </summary>
-        /// <returns>The game's FieldInfo.</returns>
-        private FieldInfo GetFieldInfo()
-        {
-            // Since FieldInfo will never change during a match, we only call RLBotInterface.GetFieldInfo once.
-            if (fieldInfo.Equals(null) && RLBotInterface.IsInitialized())
-                fieldInfo = RLBotInterface.GetFieldInfo();
-
-            return fieldInfo;
         }
     }
 }
