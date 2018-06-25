@@ -2,11 +2,11 @@ package rlbot.render;
 
 import com.google.flatbuffers.FlatBufferBuilder;
 import rlbot.cppinterop.RLBotDll;
-import rlbot.flat.*;
 import rlbot.flat.Color;
+import rlbot.flat.*;
 
 import java.awt.*;
-import java.util.*;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class Renderer {
@@ -71,7 +71,7 @@ public abstract class Renderer {
      */
     public void drawLine2d(java.awt.Color color, Point start, Point end) {
 
-        int colorOffset = Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        int colorOffset = insertColor(builder, color);
 
         RenderMessage.startRenderMessage(builder);
         RenderMessage.addRenderType(builder, RenderType.DrawLine2D);
@@ -88,7 +88,7 @@ public abstract class Renderer {
      */
     public void drawLine3d(java.awt.Color color, rlbot.vector.Vector3 start, rlbot.vector.Vector3 end) {
 
-        int colorOffset = Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        int colorOffset = insertColor(builder, color);
 
         RenderMessage.startRenderMessage(builder);
         RenderMessage.addRenderType(builder, RenderType.DrawLine3D);
@@ -105,7 +105,7 @@ public abstract class Renderer {
      */
     public void drawLine2d3d(java.awt.Color color, Point start, rlbot.vector.Vector3 end) {
 
-        int colorOffset = Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        int colorOffset = insertColor(builder, color);
 
         RenderMessage.startRenderMessage(builder);
         RenderMessage.addRenderType(builder, RenderType.DrawLine2D_3D);
@@ -126,7 +126,7 @@ public abstract class Renderer {
      */
     public void drawRectangle2d(java.awt.Color color, Point upperLeft, int width, int height, boolean filled) {
 
-        int colorOffset = Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        int colorOffset = insertColor(builder, color);
 
         RenderMessage.startRenderMessage(builder);
         RenderMessage.addRenderType(builder, RenderType.DrawRect2D);
@@ -164,7 +164,7 @@ public abstract class Renderer {
 
     private void drawRect3d(java.awt.Color color, rlbot.vector.Vector3 position, int width, int height, boolean filled, boolean centered) {
 
-        int colorOffset = Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        int colorOffset = insertColor(builder, color);
 
         RenderMessage.startRenderMessage(builder);
         RenderMessage.addRenderType(builder, centered ? RenderType.DrawCenteredRect3D : RenderType.DrawRect3D);
@@ -186,7 +186,7 @@ public abstract class Renderer {
      */
     public void drawString2d(String text, java.awt.Color color, Point upperLeft, int scaleX, int scaleY) {
 
-        int colorOffset = Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        int colorOffset = insertColor(builder, color);
         int textOffset = builder.createString(text);
 
         RenderMessage.startRenderMessage(builder);
@@ -208,7 +208,7 @@ public abstract class Renderer {
      */
     public void drawString3d(String text, java.awt.Color color, rlbot.vector.Vector3 upperLeft, int scaleX, int scaleY) {
 
-        int colorOffset = Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        int colorOffset = insertColor(builder, color);
         int textOffset = builder.createString(text);
 
         RenderMessage.startRenderMessage(builder);
@@ -221,5 +221,9 @@ public abstract class Renderer {
         int finalOffset = RenderMessage.endRenderMessage(builder);
 
         renderMessageOffsets.add(finalOffset);
+    }
+
+    private static int insertColor(FlatBufferBuilder builder, java.awt.Color color) {
+        return Color.createColor(builder, color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
     }
 }
