@@ -35,14 +35,18 @@ public class BotManager {
     }
 
     private void doRunBot(final Bot bot, final int index, final AtomicBoolean runFlag) {
+
+        final BotLoopRenderer renderer = BotLoopRenderer.forBotLoop(bot);
         while (keepRunning && runFlag.get()) {
             try {
                 synchronized (dinnerBell) {
                     dinnerBell.wait(1000);
                 }
                 if (latestPacket != null) {
+                    renderer.startPacket();
                     ControllerState controllerState = bot.processInput(latestPacket);
                     RLBotDll.setPlayerInputFlatbuffer(controllerState, index);
+                    renderer.finishAndSendIfDifferent();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
