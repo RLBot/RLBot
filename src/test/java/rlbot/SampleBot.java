@@ -1,17 +1,31 @@
 package rlbot;
 
+import rlbot.cppinterop.RLBotDll;
 import rlbot.input.CarData;
 import rlbot.input.DataPacket;
+import rlbot.manager.BotLoopRenderer;
+import rlbot.render.NamedRenderer;
+import rlbot.render.Renderer;
 import rlbot.output.ControlsOutput;
-import rlbot.vector.Vector2;
+import rlbot.vec.Vector2;
+
+import java.awt.*;
 
 public class SampleBot implements Bot {
 
     private final int playerIndex;
+    private final NamedRenderer triangleRenderer;
 
     public SampleBot(int playerIndex) {
         this.playerIndex = playerIndex;
         System.out.println("Constructed sample bot " + playerIndex);
+
+        triangleRenderer = new NamedRenderer("Triangle" + playerIndex);
+        triangleRenderer.startPacket();
+        triangleRenderer.drawLine2d(Color.cyan, new Point(50, 50), new Point(20, 80));
+        triangleRenderer.drawLine2d(Color.cyan, new Point(20, 80), new Point(80, 80));
+        triangleRenderer.drawLine2d(Color.cyan, new Point(50, 50), new Point(80, 80));
+        triangleRenderer.finishAndSend();
     }
 
     private ControlsOutput processInput(DataPacket input) {
@@ -28,6 +42,15 @@ public class SampleBot implements Bot {
             steer = -1;
         } else {
             steer = 1;
+        }
+
+        Renderer renderer = BotLoopRenderer.forBotLoop(this);
+        renderer.drawLine3d(Color.BLUE, myCar.position, input.ball.position);
+        renderer.drawString3d("It's me", Color.green, myCar.position, 2, 2);
+        renderer.drawCenteredRectangle3d(Color.black, input.ball.position, 20, 20, false);
+
+        if (input.ball.position.z > 1000) {
+            triangleRenderer.eraseFromScreen();
         }
 
         return new ControlsOutput()

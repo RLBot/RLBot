@@ -2,7 +2,7 @@ package rlbot.input;
 
 
 import rlbot.flat.PlayerInfo;
-import rlbot.vector.Vector3;
+import rlbot.vec.Vector3;
 
 public class CarOrientation {
 

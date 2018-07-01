@@ -10,15 +10,6 @@ enum MessageType
 	CallbackMessageType = 0,
 	StartMatchMessageType,
 	SendChatMessageType,
-	DrawLine2DMessageType,
-	DrawLine3DMessageType,
-	DrawLine2D_3DMessageType,
-	DrawRect2DMessageType,
-	DrawRect3DMessageType,
-	DrawString2DMessageType,
-	DrawString3DMessageType,
-	ToggleNullRendererMessageType,
-	FlatRenderMessageType,
 	MaxMessageType
 };
 

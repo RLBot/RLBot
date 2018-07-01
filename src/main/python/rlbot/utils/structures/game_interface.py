@@ -6,11 +6,11 @@ import time
 
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
+from rlbot.utils.rlbot_exception import get_exception_from_error_code
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
-from rlbot.utils import rlbot_exception
 from rlbot.messages.flat import FieldInfo
 
 
@@ -121,7 +121,8 @@ class GameInterface:
                                                 None if self.extension is None else self.extension.onMatchStart), None)
 
         if rlbot_status != 0:
-            raise rlbot_exception.RLBotException().raise_exception_from_error_code(rlbot_status)
+            exception_class = get_exception_from_error_code(rlbot_status)
+            raise exception_class()
 
         self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
 
@@ -132,7 +133,6 @@ class GameInterface:
     def send_chat(self, index, team_only, message_details):
         rlbot_status = self.game.SendChat(message_details, index, team_only, self.create_status_callback(), None)
         self.game_status(None, rlbot_status)
-        pass
 
     def send_chat_flat(self, chat_message_builder):
         buf = chat_message_builder.Output()
@@ -149,7 +149,7 @@ class GameInterface:
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
         is_loaded = self.game.IsInitialized()
-        if not is_loaded:
+        if is_loaded:
             self.logger.debug('DLL is loaded!')
         if not is_loaded:
             time.sleep(1)

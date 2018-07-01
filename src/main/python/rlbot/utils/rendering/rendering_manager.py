@@ -135,11 +135,13 @@ class RenderingManager:
         self.render_list.append(message)
         return self
 
-    def draw_rect_3d(self, vec, width, height, filled, color):
+    def draw_rect_3d(self, vec, width, height, filled, color, centered=False):
         messageBuilder = self.builder
 
         RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect3D)
+        RenderMessage.RenderMessageAddRenderType(
+            messageBuilder,
+            RenderType.DrawCenteredRect3D if centered else RenderType.DrawRect3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
         RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)

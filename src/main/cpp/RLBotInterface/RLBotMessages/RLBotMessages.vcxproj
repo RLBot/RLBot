@@ -31,7 +31,6 @@
     <ClInclude Include="MessageStructs\CallbackMessages.hpp" />
     <ClInclude Include="MessageStructs\GameMessages.hpp" />
     <ClInclude Include="MessageStructs\Message.hpp" />
-    <ClInclude Include="MessageStructs\RendererMessages.hpp" />
     <ClInclude Include="MessageTranslation\FlatbufferTranslator.hpp" />
     <ClInclude Include="PacketStructs\LiveDataPacket.hpp" />
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />
@@ -156,7 +155,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED;BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -231,7 +230,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED;BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=0;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -306,7 +305,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED;BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -372,7 +371,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED;BOOST_DATE_TIME_NO_LIB;USE_SDK;_NO_CRT_STDIO_INLINE;_HAS_EXCEPTIONS=0;_HAS_ITERATOR_DEBUGGING=1;_ITERATOR_DEBUG_LEVEL=2;_NO_LOCALES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
