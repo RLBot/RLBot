@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <RLBotDir>$(ProjectDir)..\..\..\..\..\</RLBotDir>
     <FlatbufferDir>$(RLBotDir)src\generated\cpp\flatbuffers\</FlatbufferDir>
+    <FlatbufferSrcDir>$(RLBotDir)src\main\flatbuffers\</FlatbufferSrcDir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -13,6 +14,9 @@
     </BuildMacro>
     <BuildMacro Include="FlatbufferDir">
       <Value>$(FlatbufferDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FlatbufferSrcDir">
+      <Value>$(FlatbufferSrcDir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
