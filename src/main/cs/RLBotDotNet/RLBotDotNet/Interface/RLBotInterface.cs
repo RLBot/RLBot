@@ -14,9 +14,9 @@ namespace RLBotDotNet.Utils
         // There is a 32 bit version and a 64 bit version of the interface.
         // We want to use the right one depending on the RLBotDotNet build.
 #if (X64)
-        private const string InterfaceDllPath = "dll/RLBot_Core_Interface.dll";
+        public const string InterfaceDllPath = "dll/RLBot_Core_Interface.dll";
 #else
-        private const string InterfaceDllPath = "dll/RLBot_Core_Interface_32.dll";
+        public const string InterfaceDllPath = "dll/RLBot_Core_Interface_32.dll";
 #endif
 
         #region DllImports

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using System.IO;
 
 namespace RLBotDotNet
 {
@@ -118,13 +119,16 @@ namespace RLBotDotNet
         {
             try
             {
-                string[] split = message.Split(' ');
+                string[] split = message.Split(new char[] { ' ' }, 5);
 
                 if (split.Length < 2)
                     throw new Exception("Server received too few command arguments from client");
 
                 if (split[0] == "add")
+                {
+                    PlaceInterfaceDlls(split[4]);
                     RegisterBot(split[1], int.Parse(split[2]), int.Parse(split[3]));
+                }
                 else if (split[0] == "remove")
                 {
                     int index = int.Parse(split[1]);
@@ -143,8 +147,30 @@ namespace RLBotDotNet
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.GetType());
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
+            }
+        }
+
+        /// <summary>
+        /// Places the interface DLLs from the given directory into
+        /// </summary>
+        /// <param name="dllDirectory"></param>
+        private void PlaceInterfaceDlls(string dllDirectory)
+        {
+            if (Directory.Exists(dllDirectory))
+            {
+                string dllName = RLBotInterface.InterfaceDllPath.Split('/')[1];
+                Directory.CreateDirectory("dll");
+                try
+                {
+                    File.Copy(Path.Combine(dllDirectory, dllName), RLBotInterface.InterfaceDllPath, true);
+                }
+                catch (IOException)
+                {
+                    // DLL is being used, therefore don't copy.
+                }
             }
         }
 

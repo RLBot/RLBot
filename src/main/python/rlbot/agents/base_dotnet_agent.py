@@ -3,6 +3,7 @@ import time
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures import game_interface
 
 
 class BaseDotNetAgent(BaseIndependentAgent):
@@ -16,7 +17,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
 
         while not terminate_request_event.is_set():
             port = self.read_port_from_file()
-            message = "add {0} {1} {2}".format(self.name, self.team, self.index)
+            message = "add {0} {1} {2} {3}".format(self.name, self.team, self.index, game_interface.get_dll_directory())
 
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
