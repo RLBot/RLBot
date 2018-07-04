@@ -119,7 +119,10 @@
     <Compile Include="Interface\RLBotInterface.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FlatBuffers.dll" />
+    <None Include="FlatBuffers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RLBotDotNet.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
