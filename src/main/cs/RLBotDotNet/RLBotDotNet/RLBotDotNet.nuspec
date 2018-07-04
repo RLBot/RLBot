@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>RLBot.Framework</id>
-    <version>0.0.1</version>
+    <version>$version$</version>
     <title>RLBot Framework</title>
     <authors>Redox, Tyler Arehart</authors>
     <owners>rlbotofficial</owners>
@@ -16,6 +16,7 @@
     <tags>rocket-league</tags>
   </metadata>
   <files>
+    <file src="bin\Release\*.pdb" target="lib\net461\" />
     <file src="FlatBuffers.dll" target="lib\net461\" />
   </files>
 </package>
