@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>RLBot.Framework</id>
+    <version>0.0.1</version>
+    <title>RLBot Framework</title>
+    <authors>Redox, Tyler Arehart</authors>
+    <owners>rlbotofficial</owners>
+    <licenseUrl>https://opensource.org/licenses/mit-license.php</licenseUrl>
+    <projectUrl>https://github.com/RLBot/RLBot</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/RLBot/RLBot/master/images/RLBot_logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Framework for writing Rocket League bots in .NET languages.</description>
+    <releaseNotes>Initial version of framework.</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>rocket-league</tags>
+  </metadata>
+  <files>
+    <file src="FlatBuffers.dll" target="lib\net461\" />
+  </files>
+</package>
