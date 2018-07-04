@@ -17,7 +17,6 @@ namespace RLBotDotNet
     {
         private ManualResetEvent botRunEvent = new ManualResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
-        private GameTickPacket currentGameTickPacket;
         private Thread serverThread;
 
         /// <summary>
@@ -54,7 +53,8 @@ namespace RLBotDotNet
         {
             while (true)
             {
-                Controller botInput = bot.GetOutput(currentGameTickPacket);
+                GameTickPacket gameTickPacket = RLBotInterface.GetGameTickPacket();
+                Controller botInput = bot.GetOutput(gameTickPacket);
                 RLBotInterface.SetBotInput(botInput, bot.index);
                 botRunEvent.WaitOne();
             }
@@ -69,7 +69,6 @@ namespace RLBotDotNet
             {
                 try
                 {
-                    GetGameTickPacket();
                     botRunEvent.Set();
                     botRunEvent.Reset();
                     Thread.Sleep(16);
@@ -172,16 +171,6 @@ namespace RLBotDotNet
                     // DLL is being used, therefore don't copy.
                 }
             }
-        }
-
-        /// <summary>
-        /// Calls <see cref="RLBotInterface.GetGameTickPacket"/>, and also sets <see cref="currentGameTickPacket"/>.
-        /// </summary>
-        /// <returns>The current frame's GameTickPacket.</returns>
-        private GameTickPacket GetGameTickPacket()
-        {
-            currentGameTickPacket = RLBotInterface.GetGameTickPacket();
-            return currentGameTickPacket;
         }
     }
 }
