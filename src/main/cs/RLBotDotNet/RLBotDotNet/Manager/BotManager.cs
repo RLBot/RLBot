@@ -1,7 +1,9 @@
-﻿using rlbot.flat;
+using rlbot.flat;
 using RLBotDotNet.Utils;
 using RLBotDotNet.Server;
 using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
@@ -9,6 +11,20 @@ using System.IO;
 
 namespace RLBotDotNet
 {
+    class TimerResolutionInterop
+    {
+        [DllImport("ntdll.dll", SetLastError = true)]
+        static extern int NtSetTimerResolution(int DesiredResolution, bool SetResolution, out int CurrentResolution);
+        public static void SetResolution(int desiredResolution) => NtSetTimerResolution(desiredResolution, true, out _);
+
+        [DllImport("ntdll.dll", SetLastError = true)]
+        static extern int NtQueryTimerResolution(out int MinimumResolution, out int MaximumResolution, out int CurrentResolution);
+        public static void Query(out int minResolution, out int maxResolution, out int currResolution) => NtQueryTimerResolution(out minResolution, out maxResolution, out currResolution);
+        public static TimeSpan MinimumResolution { get { NtQueryTimerResolution(out int minRes, out _, out _); return new TimeSpan(minRes); } }
+        public static TimeSpan MaximumResolution { get { NtQueryTimerResolution(out _, out int maxRes, out _); return new TimeSpan(maxRes); } }
+        public static TimeSpan CurrentResolution { get { NtQueryTimerResolution(out _, out _, out int currRes); return new TimeSpan(currRes); } }
+    }
+
     /// <summary>
     /// Manages the C# bots and runs them.
     /// </summary>
@@ -18,7 +34,7 @@ namespace RLBotDotNet
         private ManualResetEvent botRunEvent = new ManualResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private Thread serverThread;
-
+        
         /// <summary>
         /// Adds a bot to the <see cref="botProcesses"/> list if the index is not there already.
         /// </summary>
@@ -65,13 +81,20 @@ namespace RLBotDotNet
         /// </summary>
         private void MainBotLoop()
         {
+            TimeSpan timerResolution = TimerResolutionInterop.CurrentResolution;
+            TimeSpan targetSleepTime = new TimeSpan(166667); // 16.6667 ms, or 60 FPS
+
+            Stopwatch stopwatch = new Stopwatch();
             while (true)
             {
                 try
                 {
+                    stopwatch.Restart();
                     botRunEvent.Set();
                     botRunEvent.Reset();
-                    Thread.Sleep(16);
+
+                    Thread.Sleep(targetSleepTime - stopwatch.Elapsed - timerResolution);
+                    while (stopwatch.Elapsed < targetSleepTime);
                 }
                 catch (Exception e)
                 {
@@ -105,6 +128,10 @@ namespace RLBotDotNet
             // Don't start main loop until botProcesses has at least 1 bot
             while (botProcesses.Count == 0)
                 Thread.Sleep(16);
+
+            // Ensure best available resolution before starting the main loop to reduce CPU usage
+            TimerResolutionInterop.Query(out int minRes, out _, out int currRes);
+            if (currRes > minRes) TimerResolutionInterop.SetResolution(minRes);
 
             MainBotLoop();
         }
