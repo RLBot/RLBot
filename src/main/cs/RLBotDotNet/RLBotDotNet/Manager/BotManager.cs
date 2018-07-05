@@ -53,9 +53,24 @@ namespace RLBotDotNet
         {
             while (true)
             {
-                GameTickPacket gameTickPacket = RLBotInterface.GetGameTickPacket();
-                Controller botInput = bot.GetOutput(gameTickPacket);
-                RLBotInterface.SetBotInput(botInput, bot.index);
+                try
+                {
+                    GameTickPacket gameTickPacket = RLBotInterface.GetGameTickPacket();
+                    Controller botInput = bot.GetOutput(gameTickPacket);
+                    RLBotInterface.SetBotInput(botInput, bot.index);
+                }
+                catch (FlatbuffersPacketException)
+                {
+                    // Ignore if the packet size is too small. No need to warn the user.
+                }
+                catch (Exception e)
+                {
+                    // Don't crash the bot and give the user the details of the exception instead.
+                    Console.WriteLine(e.GetType());
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                }
+
                 botRunEvent.WaitOne();
             }
         }

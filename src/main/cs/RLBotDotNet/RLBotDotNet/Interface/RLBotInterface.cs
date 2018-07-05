@@ -40,6 +40,9 @@ namespace RLBotDotNet.Utils
         public static GameTickPacket GetGameTickPacket()
         {
             ByteBufferStruct byteBuffer = UpdateLiveDataPacketFlatbuffer();
+            if (byteBuffer.size < 4)
+                throw new FlatbuffersPacketException("Flatbuffers packet is too small. Match is probably not running!");
+
             byte[] bufferBytes = new byte[byteBuffer.size];
             Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
 
@@ -53,6 +56,9 @@ namespace RLBotDotNet.Utils
         public static FieldInfo GetFieldInfo()
         {
             ByteBufferStruct byteBuffer = UpdateFieldInfoFlatbuffer();
+            if (byteBuffer.size < 4)
+                throw new FlatbuffersPacketException("Flatbuffers packet is too small. Match is probably not running!");
+
             byte[] bufferBytes = new byte[byteBuffer.size];
             Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
 
