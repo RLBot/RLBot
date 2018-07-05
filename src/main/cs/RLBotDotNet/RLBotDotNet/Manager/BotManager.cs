@@ -72,19 +72,20 @@ namespace RLBotDotNet
             Stopwatch stopwatch = new Stopwatch();
             while (true)
             {
-                try
-                {
-                    stopwatch.Restart();
-                    botRunEvent.Set();
-                    botRunEvent.Reset();
+                // Start the timer
+                stopwatch.Restart();
 
-                    Thread.Sleep(targetSleepTime - stopwatch.Elapsed - timerResolution);
-                    while (stopwatch.Elapsed < targetSleepTime);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                // Set off events that end up running the bot code later down the line
+                botRunEvent.Set();
+                botRunEvent.Reset();
+
+                // Sleep efficiently (but inaccurately) for as long as we can
+                TimeSpan maxInaccurateSleepTime = targetSleepTime - stopwatch.Elapsed - timerResolution;
+                if (maxInaccurateSleepTime > TimeSpan.Zero)
+                    Thread.Sleep(maxInaccurateSleepTime);
+
+                // Sleep the rest of the time accurately with the use of a tight loop
+                while (stopwatch.Elapsed < targetSleepTime);
             }
         }
 
