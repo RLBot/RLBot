@@ -41,7 +41,17 @@ namespace RLBotDotNet
 
         protected FieldInfo GetFieldInfo()
         {
-            return RLBotInterface.GetFieldInfo();
+            try
+            {
+                return RLBotInterface.GetFieldInfo();
+            }
+            catch (FlatbuffersPacketException)
+            {
+                throw new FlatbuffersPacketException("The game did not send any information. " +
+                    "This could mean that the match has not started yet. " +
+                    "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
+                    "and the game has not started the match yet. This usually happens on the map loading screen.");
+            }
         }
     }
 }
