@@ -4,14 +4,14 @@
     <id>RLBot.Framework</id>
     <version>$version$</version>
     <title>RLBot Framework</title>
-    <authors>Redox, Tyler Arehart</authors>
+    <authors>Tangil Jahangir, Tyler Arehart, alion02</authors>
     <owners>rlbotofficial</owners>
     <licenseUrl>https://opensource.org/licenses/mit-license.php</licenseUrl>
     <projectUrl>https://github.com/RLBot/RLBot</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/RLBot/RLBot/master/images/RLBot_logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
-    <releaseNotes>Initial version of framework.</releaseNotes>
+    <releaseNotes>Fixed "Specified argument" bug, and improved timing accuracy of the main bot loop.</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>rocket-league</tags>
   </metadata>
