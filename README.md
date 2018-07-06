@@ -9,6 +9,7 @@
 ***If you just want to make a bot, you don't need to be here. Instead, start with one of these:***
  - Python - https://github.com/RLBot/RLBotPythonExample
  - Java - https://github.com/RLBot/RLBotJavaExample
+ - .NET (C#, VB.NET, F# and other CLI languages) - https://github.com/RLBot/RLBotCSharpExample
 
 But if you want to make improvements that help out everyone, you're in the right place!
 
