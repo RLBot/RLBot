@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="Interface\FlatbuffersPacketException.cs" />
     <Compile Include="Manager\BotManager.cs" />
+    <Compile Include="Manager\TimerResolutionInterop.cs" />
     <Compile Include="Server\BotManagerServer.cs" />
     <Compile Include="Manager\BotProcess.cs" />
     <Compile Include="Server\BotReceivedEventArgs.cs" />

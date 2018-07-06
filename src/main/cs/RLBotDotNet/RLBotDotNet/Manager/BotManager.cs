@@ -1,7 +1,8 @@
-﻿using rlbot.flat;
+using rlbot.flat;
 using RLBotDotNet.Utils;
 using RLBotDotNet.Server;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace RLBotDotNet
         private ManualResetEvent botRunEvent = new ManualResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private Thread serverThread;
-
+        
         /// <summary>
         /// Adds a bot to the <see cref="botProcesses"/> list if the index is not there already.
         /// </summary>
@@ -80,18 +81,26 @@ namespace RLBotDotNet
         /// </summary>
         private void MainBotLoop()
         {
+            TimeSpan timerResolution = TimerResolutionInterop.CurrentResolution;
+            TimeSpan targetSleepTime = new TimeSpan(166667); // 16.6667 ms, or 60 FPS
+
+            Stopwatch stopwatch = new Stopwatch();
             while (true)
             {
-                try
-                {
-                    botRunEvent.Set();
-                    botRunEvent.Reset();
-                    Thread.Sleep(16);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                // Start the timer
+                stopwatch.Restart();
+
+                // Set off events that end up running the bot code later down the line
+                botRunEvent.Set();
+                botRunEvent.Reset();
+
+                // Sleep efficiently (but inaccurately) for as long as we can
+                TimeSpan maxInaccurateSleepTime = targetSleepTime - stopwatch.Elapsed - timerResolution;
+                if (maxInaccurateSleepTime > TimeSpan.Zero)
+                    Thread.Sleep(maxInaccurateSleepTime);
+
+                // We could sleep the rest of the time accurately with the use of a spin-wait, but since the main bot loop doesn't have to fire at precise intervals it's reasonable to omit this step
+                // while (stopwatch.Elapsed < targetSleepTime);
             }
         }
 
@@ -120,6 +129,10 @@ namespace RLBotDotNet
             // Don't start main loop until botProcesses has at least 1 bot
             while (botProcesses.Count == 0)
                 Thread.Sleep(16);
+
+            // Ensure best available resolution before starting the main loop to reduce CPU usage
+            TimerResolutionInterop.Query(out int minRes, out _, out int currRes);
+            if (currRes > minRes) TimerResolutionInterop.SetResolution(minRes);
 
             MainBotLoop();
         }
