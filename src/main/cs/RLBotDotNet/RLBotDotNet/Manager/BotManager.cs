@@ -84,8 +84,8 @@ namespace RLBotDotNet
                 if (maxInaccurateSleepTime > TimeSpan.Zero)
                     Thread.Sleep(maxInaccurateSleepTime);
 
-                // Sleep the rest of the time accurately with the use of a tight loop
-                while (stopwatch.Elapsed < targetSleepTime);
+                // We could sleep the rest of the time accurately with the use of a spin-wait, but since the main bot loop doesn't have to fire at precise intervals it's reasonable to omit this step
+                // while (stopwatch.Elapsed < targetSleepTime);
             }
         }
 
