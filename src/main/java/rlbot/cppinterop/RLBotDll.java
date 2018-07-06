@@ -18,7 +18,8 @@ import java.nio.file.StandardCopyOption;
 
 public class RLBotDll {
 
-    private static final String LOCAL_DLL_DIR = "build/dll";  // Java bots must this in their classpath
+    // Java bots must either add this in their classpath, or specify the jna.library.path JVM arg.
+    private static final String LOCAL_DLL_DIR = "build/dll";
     private static final String DLL_NAME_SANS_EXTENSION = "RLBot_Core_Interface";
 
     private static native ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
@@ -27,7 +28,7 @@ public class RLBotDll {
     private static native int RenderGroup(Pointer ptr, int size);
 
     private static boolean isInitialized = false;
-    private static Object fileLock = new Object();
+    private static final Object fileLock = new Object();
 
     public static void initialize(final String interfaceDllPath) throws IOException {
         synchronized(fileLock) {
@@ -35,7 +36,8 @@ public class RLBotDll {
                 return;
             }
 
-            File directory = new File(LOCAL_DLL_DIR);
+            final File directory = getDllDirectory();
+
             if (!directory.exists()) {
                 directory.mkdirs();
             }
@@ -43,13 +45,21 @@ public class RLBotDll {
             // Copy the interface dll to a known location that is already on the classpath.
             Files.copy(
                     Paths.get(interfaceDllPath),
-                    Paths.get( LOCAL_DLL_DIR, DLL_NAME_SANS_EXTENSION + ".dll"),
+                    Paths.get(directory.toString(), DLL_NAME_SANS_EXTENSION + ".dll"),
                     StandardCopyOption.REPLACE_EXISTING);
 
             Native.register(DLL_NAME_SANS_EXTENSION);
 
             isInitialized = true;
         }
+    }
+
+    private static File getDllDirectory() {
+        final String jnaPath = System.getProperty("jna.library.path");
+        if (jnaPath == null) {
+            return new File(LOCAL_DLL_DIR);
+        }
+        return new File(jnaPath);
     }
 
     public static GameTickPacket getFlatbufferPacket() throws IOException {
