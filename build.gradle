@@ -28,13 +28,12 @@ dependencies {
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
     compile 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
 
-    // This directory will be created and the interface dll copied into it at runtime.
-    // The end result is that the interface dll will be on the classpath.
+    // This is handy for running the test without needing to supply jna.library.path.
     testRuntime files(javaDllDir)
 }
 
 project.setGroup('org.rlbot.commons')
-project.setVersion('0.0.5')
+project.setVersion('0.0.9')
 
 def pythonRoot = './src/main/python/'
 
