@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLBotDotNet", "RLBotDotNet\RLBotDotNet.csproj", "{F97C012E-6C20-4E76-A075-6A274D73A69F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBot", "..\..\..\test\cs\TestBot\TestBot.csproj", "{60ABBF24-FE11-4B97-ACC6-991AC5F82E44}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F97C012E-6C20-4E76-A075-6A274D73A69F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F97C012E-6C20-4E76-A075-6A274D73A69F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F97C012E-6C20-4E76-A075-6A274D73A69F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60ABBF24-FE11-4B97-ACC6-991AC5F82E44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60ABBF24-FE11-4B97-ACC6-991AC5F82E44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60ABBF24-FE11-4B97-ACC6-991AC5F82E44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60ABBF24-FE11-4B97-ACC6-991AC5F82E44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
