@@ -21,12 +21,6 @@
     <Filter Include="Source Files\MessageStructs">
       <UniqueIdentifier>{76af8605-d375-48e8-bd79-6c7a885de9a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\FileMappings">
-      <UniqueIdentifier>{8f040e84-0ad2-4a5c-a192-d6296ba35440}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\FileMappings">
-      <UniqueIdentifier>{8600fe36-1ec7-4164-b918-b0119806cb15}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\ErrorCodes">
       <UniqueIdentifier>{5fad917b-6c0f-4984-94e7-4076577fa2a1}</UniqueIdentifier>
     </Filter>
@@ -58,9 +52,6 @@
     </ClInclude>
     <ClInclude Include="MessageProcessor\MessageProcessor.hpp">
       <Filter>Header Files\MessageProcessor</Filter>
-    </ClInclude>
-    <ClInclude Include="FileMappings\FileMappings.hpp">
-      <Filter>Header Files\FileMappings</Filter>
     </ClInclude>
     <ClInclude Include="MessageStructs\CallbackMessages.hpp">
       <Filter>Header Files\MessageStructs</Filter>
@@ -99,9 +90,6 @@
   <ItemGroup>
     <ClCompile Include="MessageStructs\Message.cpp">
       <Filter>Source Files\MessageStructs</Filter>
-    </ClCompile>
-    <ClCompile Include="FileMappings\FileMappings.cpp">
-      <Filter>Source Files\FileMappings</Filter>
     </ClCompile>
     <ClCompile Include="BoostUtilities\BoostConstants.cpp">
       <Filter>Source Files\BoostUtilities</Filter>

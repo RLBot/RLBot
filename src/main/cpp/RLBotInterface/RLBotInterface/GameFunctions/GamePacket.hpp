@@ -4,8 +4,8 @@
 #include <MessageStructs\ByteBuffer.hpp>
 #include <PacketStructs\LiveDataPacket.hpp>
 #include <ErrorCodes\ErrorCodes.hpp>
-#include "..\InterfaceBase\InterfaceBase.hpp"
 
+#include "..\InterfaceBase\InterfaceBase.hpp"
 
 #ifdef __cplusplus
 extern "C"

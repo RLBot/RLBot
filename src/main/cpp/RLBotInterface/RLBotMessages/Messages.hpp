@@ -2,7 +2,6 @@
 #define MESSAGES_HPP
 
 #include "ErrorCodes\ErrorCodes.hpp"
-#include "FileMappings\FileMappings.hpp"
 #include "MessageDefines\MessageDefines.hpp"
 #include "MessageProcessor\MessageProcessor.hpp"
 #include "MessageStructs\CallbackMessages.hpp"

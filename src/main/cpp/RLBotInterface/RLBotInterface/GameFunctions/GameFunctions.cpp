@@ -8,11 +8,8 @@
 #include "GameFunctions.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
 
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
-
 #include <chrono>
 #include <thread>
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
 
 namespace GameFunctions
 {
@@ -21,9 +18,8 @@ namespace GameFunctions
 		free(ptr);
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateMessage, int messageSize, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateMessage, int messageSize, /*CallbackFunction callback,*/ unsigned int* pID)
 	{
-
 		// TODO: send in the game state via a queue.
 		return RLBotCoreStatus::Success;
 	}
@@ -82,19 +78,24 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings, CallbackFunction callback, unsigned int* pID)
+	// FLAT
+	static BoostUtilities::QueueSender startMatchQueue(BoostConstants::StartMatchFlatQueueName);
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(void* startMatchMessage, int protoSize)
 	{
-		int numPlayers = matchSettings.NumPlayers;
-		//ToDo: Check the other settings
-		RLBotCoreStatus status = checkPlayerConfiguration(matchSettings.PlayerConfiguration, numPlayers);
+		//int numPlayers = matchSettings.NumPlayers;
+		////ToDo: Check the other settings
+		//RLBotCoreStatus status = checkPlayerConfiguration(matchSettings.PlayerConfiguration, numPlayers);
 
-		if (status != RLBotCoreStatus::Success)
-			return status;
+		//if (status != RLBotCoreStatus::Success)
+		//	return status;
 
-		BEGIN_GAME_FUNCTION(StartMatchMessage, pStartMatch);
-		REGISTER_CALLBACK(pStartMatch, callback, pID);
-		pStartMatch->MatchSettings = matchSettings;
-		END_GAME_FUNCTION;
+		//BEGIN_GAME_FUNCTION(StartMatchMessage, pStartMatch);
+		//REGISTER_CALLBACK(pStartMatch, callback, pID);
+		//pStartMatch->MatchSettings = matchSettings;
+		//END_GAME_FUNCTION;
+
+		return startMatchQueue.sendMessage(startMatchMessage, protoSize);
 
 		return RLBotCoreStatus::Success;
 	}

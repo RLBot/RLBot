@@ -23,7 +23,6 @@
     <ClInclude Include="BoostUtilities\BoostUtilities.hpp" />
     <ClInclude Include="DebugHelper.hpp" />
     <ClInclude Include="ErrorCodes\ErrorCodes.hpp" />
-    <ClInclude Include="FileMappings\FileMappings.hpp" />
     <ClInclude Include="MessageDefines\MessageDefines.hpp" />
     <ClInclude Include="MessageProcessor\MessageProcessor.hpp" />
     <ClInclude Include="Messages.hpp" />
@@ -41,7 +40,6 @@
   <ItemGroup>
     <ClCompile Include="BoostUtilities\BoostConstants.cpp" />
     <ClCompile Include="BoostUtilities\BoostUtilities.cpp" />
-    <ClCompile Include="FileMappings\FileMappings.cpp" />
     <ClCompile Include="MessageStructs\Message.cpp" />
     <ClCompile Include="MessageTranslation\FlatbufferTranslator.cpp" />
   </ItemGroup>

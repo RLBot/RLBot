@@ -1,6 +1,6 @@
 #include "FlatbufferTranslator.hpp"
 #include <rlbot_generated.h>
-#include <algorithm>
+#include <minmax.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 

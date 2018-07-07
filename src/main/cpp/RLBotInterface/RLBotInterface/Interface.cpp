@@ -1,19 +1,12 @@
 #include "Interface.hpp"
 
 #include <atomic>
-#include <Messages.hpp>
+#include <Windows.h>
 
-#include "CallbackProcessor\CallbackProcessor.hpp"
+#include <Messages.hpp>
 
 namespace Interface
 {
-	static std::atomic_bool bInitialized = false;
-
-	extern "C" bool RLBOT_CORE_API IsInitialized()
-	{
-		return bInitialized;
-	}
-
 	void Callback(unsigned int id, RLBotCoreStatus status)
 	{
 		DEBUG_LOG("SendChat callback has been called! ID: %i - Status: %i\n", id, status);
@@ -31,14 +24,6 @@ namespace Interface
 		DEBUG_LOG("RLBot Core Interface\n");
 		DEBUG_LOG("====================================================================\n");
 		DEBUG_LOG("Initializing...\n");
-
-		if (!FileMappings::Initialize())
-			return ERROR_FUNCTION_FAILED;
-
-		if (!CallbackProcessor::Initialize())
-			return ERROR_FUNCTION_FAILED;
-
-		bInitialized = true;
 		DEBUG_LOG("RLBot Core Interface has been successfully initialized!\n");
 
 		/*while (1)
@@ -130,10 +115,6 @@ namespace Interface
 
 	void Uninitialize()
 	{
-		bInitialized = false;
-		CallbackProcessor::Deinitialize();
-		FileMappings::Deinitialize();
-
 #ifdef _DEBUG
 		FreeConsole();
 #endif

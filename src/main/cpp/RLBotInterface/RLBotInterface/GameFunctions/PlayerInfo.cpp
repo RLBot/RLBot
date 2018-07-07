@@ -8,8 +8,6 @@
 #include <chrono>
 #include <thread>
 
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
-
 namespace GameFunctions
 {
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
@@ -26,23 +24,6 @@ namespace GameFunctions
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
 	{
 		return quickChatQueue.sendMessage(quickChatMessage, protoSize);
-	}
-
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback, unsigned int* pID)
-	{
-		RLBotCoreStatus status = checkQuickChatPreset(quickChatPreset);
-
-		if (status != RLBotCoreStatus::Success)
-			return status;
-
-		BEGIN_GAME_FUNCTION(SendChatMessage, pSendChat);
-		REGISTER_CALLBACK(pSendChat, callback, pID);
-		pSendChat->QuickChatPreset = quickChatPreset;
-		pSendChat->PlayerIndex = playerIndex;
-		pSendChat->bTeam = bTeam;
-		END_GAME_FUNCTION;
-
-		return RLBotCoreStatus::Success;
 	}
 
 	// Player info

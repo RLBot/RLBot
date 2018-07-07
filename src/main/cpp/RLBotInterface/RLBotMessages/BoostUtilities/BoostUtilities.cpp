@@ -1,13 +1,11 @@
 #include "BoostUtilities.hpp"
 #include "BoostConstants.hpp"
 
-namespace BoostUtilities {
-
-	
+namespace BoostUtilities
+{
 	SharedMemReader::SharedMemReader(const char* name)
 	{
 		// The intermediate variables in this function are necessary for some reason.
-
 		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
 		const char* sharedMemChar = sharedMemName.c_str();
 		sharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::open_only, sharedMemChar, boost::interprocess::read_only);
@@ -47,7 +45,6 @@ namespace BoostUtilities {
 	SharedMemWriter::SharedMemWriter(const char* name)
 	{
 		// The intermediate variables in this function are necessary for some reason.
-
 		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
 		const char* sharedMemChar = sharedMemName.c_str();
 		boost::interprocess::shared_memory_object::remove(sharedMemChar);

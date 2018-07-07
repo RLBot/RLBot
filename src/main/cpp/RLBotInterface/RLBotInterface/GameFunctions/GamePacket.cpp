@@ -1,11 +1,8 @@
-#include <DebugHelper.hpp>
-
 #include "GamePacket.hpp"
-#include <MessageTranslation\FlatbufferTranslator.hpp>
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
+
 #include <BoostUtilities\BoostUtilities.hpp>
 #include <BoostUtilities\BoostConstants.hpp>
+#include <MessageTranslation\FlatbufferTranslator.hpp>
 
 namespace GameFunctions
 {

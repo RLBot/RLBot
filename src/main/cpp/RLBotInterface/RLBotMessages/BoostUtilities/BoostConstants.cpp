@@ -21,6 +21,9 @@ namespace BoostConstants
 	// Chat
 	const char* QuickChatFlatQueueName = "quickChatQueue";
 
+	// Start Match
+	const char* StartMatchFlatQueueName = "StartMatchFlatQueue";
+
 	std::string buildSharedMemName(const char* baseName) {
 		std::string name(baseName);
 		name.append("-SharedMem");
