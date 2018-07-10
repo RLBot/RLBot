@@ -72,7 +72,7 @@ QuickChats = get_quick_chats()
 def send_quick_chat_flat(game_interface, index, team, team_only, quick_chat):
     builder = flatbuffers.Builder(0)
     QuickChat.QuickChatStart(builder)
-    QuickChatSelection.QuickChatAddQuickChat(builder, quick_chat)
+    QuickChat.QuickChatAddQuickChatSelection(builder, quick_chat)
     QuickChat.QuickChatAddPlayerIndex(builder, index)
     QuickChat.QuickChatAddTeamOnly(builder, team_only)
     result = QuickChat.QuickChatEnd(builder)
