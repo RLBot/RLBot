@@ -21,6 +21,7 @@ from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CONFIGURATION_HEADER
 from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, LOOKS_CONFIG_KEY
 from rlbot.parsing.match_settings_config_parser import *
+from rlbot.parsing.custom_config import ConfigObject
 
 
 class RLBotQTGui(QMainWindow, Ui_MainWindow):
@@ -51,10 +52,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         if os.path.isfile(DEFAULT_RLBOT_CONFIG_LOCATION):
             self.load_overall_config(DEFAULT_RLBOT_CONFIG_LOCATION)
         else:
-            self.load_overall_config("")
-            self.frame_3.setDisabled(True)
-            self.match_settings_groupbox.setDisabled(True)
-            self.cfg_save_pushbutton.setDisabled(True)
+            self.load_off_disk_overall_config()
 
         self.init_match_settings()
         self.update_match_settings()
@@ -268,6 +266,19 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.blue_color_spinbox.setValue(self.overall_config.getint(TEAM_CONFIGURATION_HEADER, "Team Blue Color"))
         self.orange_color_spinbox.setValue(self.overall_config.getint(TEAM_CONFIGURATION_HEADER, "Team Orange Color"))
 
+    def load_off_disk_overall_config(self):
+        if self.overall_config is None:
+            self.overall_config = create_bot_config_layout()
+        GUIAgent.overall_config = self.overall_config
+        self.overall_config.init_indices(10)
+        self.overall_config_path = ""
+        self.load_agents()
+        self.update_teams_listwidgets()
+        self.cfg_file_path_lineedit.setText(self.overall_config_path)
+        self.update_team_settings()
+        self.car_customisation.update_presets_widgets()
+        self.agent_customisation.update_presets_widgets()
+
     def load_overall_config(self, config_path=None):
         """
         Loads the overall config from the config path, or asks for a path if config_path is None
@@ -293,8 +304,6 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             if not raw_parser.has_section(section):
                 self.popup_message("Config file is missing the section {}, not loading it!".format(section), "Invalid Config File", QMessageBox.Warning)
                 return
-        for item in (self.frame_3, self.match_settings_groupbox, self.cfg_save_pushbutton):
-            item.setEnabled(True)
         self.overall_config_path = config_path
         self.overall_config.parse_file(raw_parser, 10)
         self.load_agents()
@@ -535,8 +544,6 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 self.orange_listwidget.setCurrentRow(self.orange_listwidget.count() - 1)
             else:
                 self.blue_listwidget.setCurrentRow(self.blue_listwidget.count() - 1)
-
-
 
     def add_loadout_preset(self, file_path: str):
         """
