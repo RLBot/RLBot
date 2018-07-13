@@ -231,7 +231,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.psyonix_bot_frame.setHidden(False)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(False)
-        elif self.bot_type_combobox.currentText() == 'Human' or self.bot_type_combobox.currentText() == 'Party Member Bot' or self.bot_type_combobox.currentText() == 'Controller Passthrough':
+        elif self.bot_type_combobox.currentText() == 'Human' or self.bot_type_combobox.currentText() == 'Party Member Bot':
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
@@ -362,7 +362,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         # load the bot parameters into the edit frame
         agent_type = agent.get_participant_type()
 
-        known_types = ['human', 'psyonix', 'rlbot', 'party_member_bot', 'controller_passthrough']
+        known_types = ['human', 'psyonix', 'rlbot', 'party_member_bot']
         assert agent_type in known_types, 'Bot has unknown type: %s' % agent_type
 
         self.bot_type_combobox.setCurrentIndex(known_types.index(agent_type))

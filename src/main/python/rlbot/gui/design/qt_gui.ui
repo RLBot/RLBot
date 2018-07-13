@@ -409,11 +409,6 @@
                  <string>Party Member Bot</string>
                 </property>
                </item>
-               <item>
-                <property name="text">
-                 <string>Controller Passthrough</string>
-                </property>
-               </item>
               </widget>
              </item>
             </layout>

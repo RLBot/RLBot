@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt_gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.11
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -171,7 +171,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.label)
         self.bot_type_combobox = QtWidgets.QComboBox(self.frame)
         self.bot_type_combobox.setObjectName("bot_type_combobox")
-        self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
@@ -469,7 +468,6 @@ class Ui_MainWindow(object):
         self.bot_type_combobox.setItemText(1, _translate("MainWindow", "Psyonix"))
         self.bot_type_combobox.setItemText(2, _translate("MainWindow", "RLBot"))
         self.bot_type_combobox.setItemText(3, _translate("MainWindow", "Party Member Bot"))
-        self.bot_type_combobox.setItemText(4, _translate("MainWindow", "Controller Passthrough"))
         self.blue_radiobutton.setText(_translate("MainWindow", "Blue"))
         self.orange_radiobutton.setText(_translate("MainWindow", "Orange"))
         self.label_3.setText(_translate("MainWindow", "IGN:"))
