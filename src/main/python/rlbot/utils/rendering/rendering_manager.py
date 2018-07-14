@@ -212,23 +212,29 @@ class RenderingManager:
     def __wrap_float(self, number):
         return Float.CreateFloat(self.builder, number)
 
-    def __create_vector(self, vec):
-        if isinstance(vec, list):
+    """Supports Flatbuffers Vector3, cTypes Vector3, list/tuple of numbers, or passing x,y,z (z optional)"""
+    def __create_vector(self, *vec):
+        if (isinstance(vec[0], int) or isinstance(vec[0], float)) and (isinstance(vec[1], int) or isinstance(vec[1], float)):
             x = vec[0]
             y = vec[1]
-            if len(vec) == 2:
+            if len(vec) == 3 and (isinstance(vec[2], int) or isinstance(vec[2], float)):
+                z = vec[2]
+        elif isinstance(vec[0], list) or isinstance(vec[0], tuple):
+            x = vec[0][0]
+            y = vec[0][1]
+            if len(vec[0]) == 2:
                 z = 0
             else:
-                z = vec[2]
-        elif isinstance(vec, Vector3.Vector3):
-            x = vec.X()
-            y = vec.Y()
-            z = vec.Z()
-        elif isinstance(vec, GameDataStructVector3):
-            x = vec.x
-            y = vec.y
-            z = vec.z
+                z = vec[0][2]
+        elif isinstance(vec[0], Vector3.Vector3):
+            x = vec[0].X()
+            y = vec[0].Y()
+            z = vec[0].Z()
+        elif isinstance(vec[0], GameDataStructVector3):
+            x = vec[0].x
+            y = vec[0].y
+            z = vec[0].z
         else:
-            raise ValueError("Unexpected type for creating vector: {0}".format(type(vec)))
+            raise ValueError("Unexpected type(s) for creating vector: {0}".format(type(vec)))
 
         return Vector3.CreateVector3(self.builder, x, y, z)
