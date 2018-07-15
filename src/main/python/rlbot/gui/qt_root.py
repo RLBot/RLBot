@@ -21,7 +21,6 @@ from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CONFIGURATION_HEADER
 from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, LOOKS_CONFIG_KEY
 from rlbot.parsing.match_settings_config_parser import *
-from rlbot.parsing.custom_config import ConfigObject
 
 
 class RLBotQTGui(QMainWindow, Ui_MainWindow):
@@ -215,6 +214,9 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         elif sender is self.bot_level_slider:
             agent.set_bot_skill(value / 100)
 
+        if self.cfg_autosave_checkbutton.isChecked() and os.path.isfile(self.overall_config_path):
+            self.save_overall_config(10)
+
     def update_bot_type_combobox(self):
         """
         Handles selecting another bot type in the combobox, hides some frames and shows others depending on the setting
@@ -256,6 +258,9 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         elif sender is self.orange_color_spinbox:
             self.overall_config.set_value(TEAM_CONFIGURATION_HEADER, "Team Orange Color", value)
 
+        if self.cfg_autosave_checkbutton.isChecked() and os.path.isfile(self.overall_config_path):
+            self.save_overall_config(10)
+
     def update_team_settings(self):
         """
         Sets all team settings widgets to the value in the overall config
@@ -267,6 +272,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.orange_color_spinbox.setValue(self.overall_config.getint(TEAM_CONFIGURATION_HEADER, "Team Orange Color"))
 
     def load_off_disk_overall_config(self):
+        self.cfg_autosave_checkbutton.setChecked(False)
+        self.cfg_autosave_checkbutton.setDisabled(True)
         if self.overall_config is None:
             self.overall_config = create_bot_config_layout()
         GUIAgent.overall_config = self.overall_config
@@ -316,26 +323,33 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
     def save_overall_config(self, time_out=0):
         """
         Schedules a save after given time_out
-        :param time_out: The amound of milliseconds it should wait before saving
+        :param time_out: The amount of seconds it should wait before saving
         :return:
         """
         def save():
             if not os.path.exists(self.overall_config_path):
                 return
-            with open(self.overall_config_path, "w") as f:
-                f.write(str(self.fixed_indices()))
+            self.overall_config_timer.setInterval(1000)
+            if self.remaining_save_timer > 0:
+                self.statusbar.showMessage("Saving Overall Config in " + str(self.remaining_save_timer) + " seconds")
+                self.remaining_save_timer -= 1
+            else:
+                with open(self.overall_config_path, "w") as f:
+                    f.write(str(self.fixed_indices()))
+                self.statusbar.showMessage("Saved Overall Config to " + self.overall_config_path, 5000)
+                self.overall_config_timer.stop()
         if self.overall_config_timer is None:
             self.overall_config_timer = QTimer()
-            self.overall_config_timer.setSingleShot(True)
             self.overall_config_timer.timeout.connect(save)
         save_path = self.overall_config_path
-        if save_path is None or not os.path.exists(save_path):
+        if save_path is None or not os.path.isfile(save_path):
             save_path = QFileDialog.getSaveFileName(self, "Save Overall Config", "", "Config Files (*.cfg)")[0]
             if not save_path:
-                self.statusbar.showMessage("Unable to save a config without location", 5000)
+                self.statusbar.showMessage("Unable to save the configuration without a path", 5000)
                 return
             self.overall_config_path = save_path
-        self.overall_config_timer.start(time_out)
+        self.remaining_save_timer = time_out
+        self.overall_config_timer.start(0)
 
     def load_selected_bot(self):
         """
@@ -619,6 +633,9 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, value)
         elif sender is self.boost_type_combobox:
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT, value)
+
+        if self.cfg_autosave_checkbutton.isChecked() and os.path.isfile(self.overall_config_path):
+            self.save_overall_config(10)
 
     def popup_message(self, message: str, title: str, icon=QMessageBox.Warning):
         popup = QMessageBox(self)

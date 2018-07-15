@@ -10,7 +10,7 @@ from rlbot.gui.presets import AgentPreset, LoadoutPreset
 from rlbot.utils.file_util import get_python_root
 
 
-class BasePresetEditor(QtWidgets.QWidget):
+class BasePresetEditor(QtWidgets.QMainWindow):
     """
     The Base of the popup windows to modify a Preset, handles the basic method of editing the preset
     """
@@ -107,7 +107,7 @@ class BasePresetEditor(QtWidgets.QWidget):
         self.update_presets_widgets()
         self.presets_listwidget.setCurrentItem(self.presets_listwidget.findItems(preset.get_name(), QtCore.Qt.MatchExactly)[0])
 
-    def save_preset_cfg(self):
+    def save_preset_cfg(self, time_out=0):
         preset = self.get_current_preset()
         if preset.config_path is None:
             file_path = os.path.realpath(QtWidgets.QFileDialog.getSaveFileName(self, 'Save Config', '', 'Config Files (*.cfg)')[0])
@@ -119,7 +119,7 @@ class BasePresetEditor(QtWidgets.QWidget):
             new_name = self.validate_name(pathlib.Path(preset.config_path).stem, preset)
             preset.name = new_name
             self.presets[preset.get_name()] = preset
-            preset.save_config(time_out=0)
+            preset.save_config(time_out=time_out, message_out=self.statusbar.showMessage)
             old_index = self.root_combobox.currentIndex()
             current_index = self.root_combobox.findText(old_name)
             self.root_combobox.removeItem(current_index)
@@ -130,7 +130,7 @@ class BasePresetEditor(QtWidgets.QWidget):
             self.load_selected_preset()
 
         else:
-            preset.save_config(time_out=0)
+            preset.save_config(time_out=time_out, message_out=self.statusbar.showMessage)
 
     def validate_name(self, name, preset):
         if name in self.presets and self.presets[name] is not preset:
@@ -225,6 +225,8 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
         preset_name = self.presets_listwidget.currentItem().text()
         preset = self.presets[preset_name]
         preset.config.set_value(config_headers[0], config_headers[1], item_id)
+        if self.preset_autosave_checkbox.isChecked() and preset.config_path is not None and os.path.isfile(preset.config_path):
+            self.save_preset_cfg(10)
 
     def load_selected_preset(self):
         super().load_selected_preset()
@@ -390,8 +392,9 @@ class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
 
             def update_event(new_value, config_item=config_value):
                 config_item.set_value(new_value)
-                # if self.preset_autosave_checkbox.isChecked():
-                #     self.save_preset()
+                preset = self.get_current_preset()
+                if self.preset_autosave_checkbox.isChecked() and preset.config_path is not None and os.path.isfile(preset.config_path):
+                    self.save_preset_cfg(10)
 
             if config_value.type is int:
                 value_widget = QtWidgets.QSpinBox(parent)

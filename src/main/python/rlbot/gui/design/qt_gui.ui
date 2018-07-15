@@ -58,6 +58,13 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QCheckBox" name="cfg_autosave_checkbutton">
+         <property name="text">
+          <string>Autosave</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
