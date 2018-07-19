@@ -71,6 +71,7 @@ enum GameMap
 	UtopiaRetro,
 	Hoops_DunkHouse,
 	DropShot_Core707,
+	ThrowbackStadium,
 	Workshop_Aerial_Map, // http://steamcommunity.com/sharedfiles/filedetails/?id=1212847139&searchtext=
 	Workshop_BeachVolley, // http://steamcommunity.com/sharedfiles/filedetails/?id=916532343&searchtext=
 	Workshop_DribblingChallenge2, // http://steamcommunity.com/sharedfiles/filedetails/?id=964271505&searchtext=

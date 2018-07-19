@@ -68,7 +68,8 @@ map_types = [
     "Underpass",
     "UtopiaRetro",
     "Hoops_DunkHouse",
-    "DropShot_Core707"
+    "DropShot_Core707",
+    "ThrowbackStadium"
 ]
 
 match_length_types = [
