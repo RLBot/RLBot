@@ -599,7 +599,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.mode_type_combobox.addItems(game_mode_types)
         self.map_type_combobox.addItems(map_types)
         self.match_length_combobox.addItems(match_length_types)
-        self.boost_type_combobox.addItems(boost_types)
+        self.boost_type_combobox.addItems(boost_amount_mutator_types)
 
     def update_match_settings(self):
         """
