@@ -231,35 +231,28 @@ def get_num_players(config):
     return config.getint(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
-def index_def_0(in_list, value):
-    try:
-        return in_list.index(value)
-    except ValueError:
-        return 0
-
-
 def parse_mutator_settings(mutator_settings, config):
     """
     Assigns the mutator settings to the settings object for the dll
     :param mutator_settings:
     :param config:
     """
-    mutator_settings.match_length = index_def_0(match_length_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
-    mutator_settings.max_score = index_def_0(max_score_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MAX_SCORE))
-    mutator_settings.overtime_option = index_def_0(overtime_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_OVERTIME))
-    mutator_settings.series_length_option = index_def_0(series_length_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_SERIES_LENGTH))
-    mutator_settings.game_speed_option = index_def_0(game_speed_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_GAME_SPEED))
-    mutator_settings.ball_max_speed_option = index_def_0(ball_max_speed_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_MAX_SPEED))
-    mutator_settings.ball_type_option = index_def_0(ball_type_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_TYPE))
-    mutator_settings.ball_weight_option = index_def_0(ball_weight_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_WEIGHT))
-    mutator_settings.ball_size_option = index_def_0(ball_size_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_SIZE))
-    mutator_settings.ball_bounciness_option = index_def_0(ball_bounciness_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_BOUNCINESS))
-    mutator_settings.boost_amount_option = index_def_0(boost_amount_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
-    mutator_settings.rumble_option = index_def_0(rumble_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_RUMBLE))
-    mutator_settings.boost_strength_option = index_def_0(boost_strength_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_STRENGTH))
-    mutator_settings.gravity_option = index_def_0(gravity_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_GRAVITY))
-    mutator_settings.demolish_option = index_def_0(demolish_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_DEMOLISH))
-    mutator_settings.respawn_time_option = index_def_0(respawn_time_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_RESPAWN_TIME))
+    mutator_settings.match_length = match_length_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
+    mutator_settings.max_score = max_score_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MAX_SCORE))
+    mutator_settings.overtime_option = overtime_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_OVERTIME))
+    mutator_settings.series_length_option = series_length_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_SERIES_LENGTH))
+    mutator_settings.game_speed_option = game_speed_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_GAME_SPEED))
+    mutator_settings.ball_max_speed_option = ball_max_speed_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_MAX_SPEED))
+    mutator_settings.ball_type_option = ball_type_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_TYPE))
+    mutator_settings.ball_weight_option = ball_weight_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_WEIGHT))
+    mutator_settings.ball_size_option = ball_size_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_SIZE))
+    mutator_settings.ball_bounciness_option = ball_bounciness_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_BOUNCINESS))
+    mutator_settings.boost_amount_option = boost_amount_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
+    mutator_settings.rumble_option = rumble_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_RUMBLE))
+    mutator_settings.boost_strength_option = boost_strength_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_STRENGTH))
+    mutator_settings.gravity_option = gravity_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_GRAVITY))
+    mutator_settings.demolish_option = demolish_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_DEMOLISH))
+    mutator_settings.respawn_time_option = respawn_time_mutator_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_RESPAWN_TIME))
 
 
 def parse_match_settings(match_settings, config):
