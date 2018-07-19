@@ -32,7 +32,21 @@ class PlayerConfiguration(ctypes.Structure):
 
 class MutatorSettings(ctypes.Structure):
     _fields_ = [("match_length", ctypes.c_uint),
-                ("boost_options", ctypes.c_uint),
+                ("max_score", ctypes.c_uint),
+                ("overtime_option", ctypes.c_uint),
+                ("series_length_option", ctypes.c_uint),
+                ("game_speed_option", ctypes.c_uint),
+                ("ball_max_speed_option", ctypes.c_uint),
+                ("ball_type_option", ctypes.c_uint),
+                ("ball_weight_option", ctypes.c_uint),
+                ("ball_size_option", ctypes.c_uint),
+                ("ball_bounciness_option", ctypes.c_uint),
+                ("boost_amount_option", ctypes.c_uint),
+                ("rumble_option", ctypes.c_uint),
+                ("boost_strength_option", ctypes.c_uint),
+                ("gravity_option", ctypes.c_uint),
+                ("demolish_option", ctypes.c_uint),
+                ("respawn_time_option", ctypes.c_uint),
                 ]
 
 

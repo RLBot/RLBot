@@ -1,6 +1,8 @@
 MUTATOR_CONFIGURATION_HEADER = "Mutator Configuration"
 MUTATOR_MATCH_LENGTH = "Match Length"
 MUTATOR_MAX_SCORE = "Max Score"
+MUTATOR_OVERTIME = "Overtime"
+MUTATOR_SERIES_LENGTH = "Series Length"
 MUTATOR_GAME_SPEED = "Game Speed"
 MUTATOR_BALL_MAX_SPEED = "Ball Max Speed"
 MUTATOR_BALL_TYPE = "Ball Type"
@@ -76,13 +78,114 @@ match_length_types = [
     "Unlimited"
 ]
 
-boost_types = [
+max_score_types = [
+    "Unlimited",
+    "1 Goal",
+    "3 Goals",
+    "5 Goals",
+]
+
+overtime_mutator_types = [
+    "Unlimited",
+    "+5 Max, First Score",
+    "+5 Max, Random Team"
+]
+
+series_length_mutator_types = [
+    "Unlimited",
+    "3 Games",
+    "5 Games",
+    "7 Games",
+]
+
+game_speed_mutator_types = [
+    "Default",
+    "Slo-Mo",
+    "Time Warp"
+]
+
+ball_max_speed_mutator_types = [
+    "Default",
+    "Slow",
+    "Fast",
+    "Super Fast"
+]
+
+ball_type_mutator_types = [
+    "Default",
+    "Cube",
+    "Puck",
+    "Basketball"
+]
+
+ball_weight_mutator_types = [
+    "Default",
+    "Light",
+    "Heavy",
+    "Super Light"
+]
+
+ball_size_mutator_types = [
+    "Default",
+    "Small",
+    "Large",
+    "Gigantic"
+]
+
+ball_bounciness_mutator_types = [
+    "Default",
+    "Low",
+    "High",
+    "Super High"
+]
+
+boost_amount_mutator_types = [
     "Default",
     "Unlimited",
     "Recharge (Slow)",
     "Recharge (Fast)",
     "No Boost"
 ]
+
+rumble_mutator_types = [
+    "None",
+    "Default",
+    "Slow",
+    "Civilized",
+    "Destruction Derby",
+    "Spring Loaded",
+    "Spikes Only"
+]
+
+boost_strength_mutator_types = [
+    "1x",
+    "1.5x",
+    "2x",
+    "10x"
+]
+
+gravity_mutator_types = [
+    "Default",
+    "Low",
+    "High",
+    "Super High"
+]
+
+demolish_mutator_types = [
+    "Default",
+    "Disabled",
+    "Friendly Fire",
+    "On Contact",
+    "On Contact (FF)"
+]
+
+respawn_time_mutator_types = [
+    "3 Seconds",
+    "2 Seconds",
+    "1 Second",
+    "Disable Goal Reset",
+]
+
 
 
 def add_match_settings_header(config_object):
@@ -102,43 +205,22 @@ def add_match_settings_header(config_object):
 
 def add_mutator_header(config_object):
     mutator_header = config_object.add_header_name(MUTATOR_CONFIGURATION_HEADER)
-    mutator_header.add_value(MUTATOR_MATCH_LENGTH, str, default="Unlimited",
-                             description="Changes the length of the match, possible options are:\n"
-                                         "5 Minutes, 10 Minutes, 20 Minutes and Unlimited")
-    mutator_header.add_value(MUTATOR_MAX_SCORE, int, default=0,
-                             description="Changes the number of goals needed to win")  # TODO explanation
-    mutator_header.add_value(MUTATOR_GAME_SPEED, str, default="Default",
-                             description="'Default', 'Slo-Mo' or 'Time Warp'\n"
-                                         "    Slo-Mo slows the game down\n"
-                                         "    Time Warp only slows the game down when a player touches the ball")
-    mutator_header.add_value(MUTATOR_BALL_MAX_SPEED, int, default=0,  # TODO find real default max
-                             description="Sets max speed of the ball in km/h, 0 for unlimited.")
-    mutator_header.add_value(MUTATOR_BALL_TYPE, str, default="Default",
-                             description="Changes the type of the ball (use 'Default', 'Cube', 'Puck' or 'Basketball')")
-    mutator_header.add_value(MUTATOR_BALL_WEIGHT, str, default="Default",
-                             description="Changes the weight of the ball (use 'Default', 'Super Light', "
-                                         "'Light' or 'Heavy')")
-    mutator_header.add_value(MUTATOR_BALL_SIZE, float, default=1.0,  # TODO find real default size
-                             description="Changes the size of the ball")
-    mutator_header.add_value(MUTATOR_BALL_BOUNCINESS, float, default=1.0,  # TODO find real default
-                             description="Changes the bounciness of the ball")
-    mutator_header.add_value(MUTATOR_BOOST_AMOUNT, str, default="Default",
-                             description="Changes the amount of boost\n (use 'Default', 'Unlimited', "
-                                         "'Recharge (Slow)', 'Recharge (Fast)' or 'No Boost')")
-    mutator_header.add_value(MUTATOR_RUMBLE, str, default="None",
-                             description="Changes rumble type\n(use 'None', 'Default', "
-                                         "'Slow', 'Civilized', 'Desctuction Derby' or 'Spring Loaded'")
-    mutator_header.add_value(MUTATOR_BOOST_STRENGTH, float, default=1.0,
-                             description="Amount to multiply default boost strength with")
-    mutator_header.add_value(MUTATOR_GRAVITY, str, default="Default",
-                             description="Changes gravity for both cars and ball\n"
-                                         "(use 'Default', 'Low', 'High' or 'Super High'")
-    mutator_header.add_value(MUTATOR_DEMOLISH, str, default="Default",
-                             description="Changes demolishment sensitivity\n(use 'Default', 'Disabled', "
-                                         "'Friendly Fire', 'On Contact' or 'On Contact (FF)'")
-    mutator_header.add_value(MUTATOR_RESPAWN_TIME, float, default=3,
-                             description="Time in seconds taken to respawn for demolished players\n"
-                                         "use -1 to set Disable Goal Reset")
+    mutator_header.add_value(MUTATOR_MATCH_LENGTH, str, default="5 Minutes")
+    mutator_header.add_value(MUTATOR_MAX_SCORE, str, default="Unlimited")
+    mutator_header.add_value(MUTATOR_OVERTIME, str, default="Unlimited")
+    mutator_header.add_value(MUTATOR_SERIES_LENGTH, str, default="Unlimited")
+    mutator_header.add_value(MUTATOR_GAME_SPEED, str, default="Default")
+    mutator_header.add_value(MUTATOR_BALL_MAX_SPEED, str, default="Default")
+    mutator_header.add_value(MUTATOR_BALL_TYPE, str, default="Default")
+    mutator_header.add_value(MUTATOR_BALL_WEIGHT, str, default="Default")
+    mutator_header.add_value(MUTATOR_BALL_SIZE, str, default="Default")
+    mutator_header.add_value(MUTATOR_BALL_BOUNCINESS, str, default="Default")
+    mutator_header.add_value(MUTATOR_BOOST_AMOUNT, str, default="Default")
+    mutator_header.add_value(MUTATOR_RUMBLE, str, default="None")
+    mutator_header.add_value(MUTATOR_BOOST_STRENGTH, str, default="Default")
+    mutator_header.add_value(MUTATOR_GRAVITY, str, default="Default")
+    mutator_header.add_value(MUTATOR_DEMOLISH, str, default="Default")
+    mutator_header.add_value(MUTATOR_RESPAWN_TIME, str, default="3 Seconds")
 
 
 def get_num_players(config):
@@ -148,15 +230,35 @@ def get_num_players(config):
     return config.getint(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
+def index_def_0(in_list, value):
+    try:
+        return in_list.index(value)
+    except ValueError:
+        return 0
+
+
 def parse_mutator_settings(mutator_settings, config):
     """
     Assigns the mutator settings to the settings object for the dll
     :param mutator_settings:
     :param config:
     """
-    mutator_settings.match_length = match_length_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
-
-    mutator_settings.boost_options = boost_types.index(config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
+    mutator_settings.match_length = index_def_0(match_length_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
+    mutator_settings.max_score = index_def_0(max_score_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MAX_SCORE))
+    mutator_settings.overtime_option = index_def_0(overtime_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_OVERTIME))
+    mutator_settings.series_length_option = index_def_0(series_length_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_SERIES_LENGTH))
+    mutator_settings.game_speed_option = index_def_0(game_speed_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_GAME_SPEED))
+    mutator_settings.ball_max_speed_option = index_def_0(ball_max_speed_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_MAX_SPEED))
+    mutator_settings.ball_type_option = index_def_0(ball_type_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_TYPE))
+    mutator_settings.ball_weight_option = index_def_0(ball_weight_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_WEIGHT))
+    mutator_settings.ball_size_option = index_def_0(ball_size_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_SIZE))
+    mutator_settings.ball_bounciness_option = index_def_0(ball_bounciness_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BALL_BOUNCINESS))
+    mutator_settings.boost_amount_option = index_def_0(boost_amount_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
+    mutator_settings.rumble_option = index_def_0(rumble_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_RUMBLE))
+    mutator_settings.boost_strength_option = index_def_0(boost_strength_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_STRENGTH))
+    mutator_settings.gravity_option = index_def_0(gravity_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_GRAVITY))
+    mutator_settings.demolish_option = index_def_0(demolish_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_DEMOLISH))
+    mutator_settings.respawn_time_option = index_def_0(respawn_time_mutator_types, config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_RESPAWN_TIME))
 
 
 def parse_match_settings(match_settings, config):
