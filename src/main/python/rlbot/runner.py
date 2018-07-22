@@ -7,6 +7,7 @@ def main():
     manager = SetupManager()
     manager.startup()
     manager.load_config()
+    manager.before_run()
     manager.launch_bot_processes()
     manager.run()  # Runs forever until interrupted
     manager.shut_down()

@@ -1,3 +1,6 @@
+from rlbot.setup_manager import SetupManager
+
+
 class BaseExtension:
     """
     Extend this class to get access to extensions that are run in the game.
@@ -6,8 +9,14 @@ class BaseExtension:
     """an instance of SetupManager that contains helpful methods for modifying the game state."""
     setup_manager = None
 
-    def __init__(self, setup_manager):
+    def __init__(self, setup_manager: SetupManager):
         self.setup_manager = setup_manager
+
+    def before_run(self):
+        """
+        Called before the match is run or the bot processes starts.
+        This is called after SetupManager#load_config
+        """
 
     def on_match_end(self, score, stats):
         """
@@ -29,7 +38,7 @@ class BaseExtension:
         :param team: The team that saved the ball
         """
 
-    def on_match_start(self, rlbot_status=None):
+    def on_match_start(self, rlbot_status):
         """
         Called when a match has started
         :return:

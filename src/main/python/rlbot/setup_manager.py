@@ -174,3 +174,7 @@ class SetupManager:
                     self.extension.on_match_end(scores, scoreboard_info)
         except Exception as e:
             self.logger.warn("Unable to check if the match has ended")
+
+    def before_run(self):
+        if self.extension is not None:
+            self.extension.before_run()
