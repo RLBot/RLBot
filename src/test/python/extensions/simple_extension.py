@@ -7,6 +7,9 @@ class SimpleExtension(BaseExtension):
         super().__init__(setup_manager)
         self.logger = get_logger("SimpleExtension")
 
-    def on_match_start(self, score, scoreboard):
-        self.logger.info("SCORE IS: %s", str(score))
+    def on_match_start(self):
+        self.logger.error("MATCH HAS STARTED")
+
+    def on_match_end(self, score, scoreboard):
+        self.logger.error("SCORE IS: %s", str(score))
 

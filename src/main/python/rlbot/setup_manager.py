@@ -110,6 +110,7 @@ class SetupManager:
         self.logger.info("Press any character to exit")
         while True:
             if msvcrt.kbhit() or self.stop_running:
+                self.logger.info("Keyboard event or programmatic exit has been requested.")
                 msvcrt.getch()
                 break
             try:
@@ -141,8 +142,11 @@ class SetupManager:
         self.logger.info("Match has shut down")
 
     def load_extension(self, extension_filename):
+        self.logger.info("Loading extension: %s", str(extension_filename))
         extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
         self.extension = extension_class(self)
+        if self.extension is not None:
+            self.logger.info("Extension loaded")
         self.game_interface.set_extension(self.extension)
 
     @staticmethod
@@ -163,7 +167,10 @@ class SetupManager:
         bm.run()
 
     def check_game_ended(self):
-        if self.extension is not None:
-            has_game_ended, scores, scoreboard_info = self.game_interface.has_game_ended()
-            if has_game_ended:
-                self.extension.on_match_end(scores, scoreboard_info)
+        try:
+            if self.extension is not None:
+                has_game_ended, scores, scoreboard_info = self.game_interface.has_game_ended()
+                if has_game_ended:
+                    self.extension.on_match_end(scores, scoreboard_info)
+        except Exception as e:
+            self.logger.warn("Unable to check if the match has ended")

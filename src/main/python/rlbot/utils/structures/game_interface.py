@@ -106,8 +106,12 @@ class GameInterface:
         return game_tick_packet
 
     def update_field_info_packet(self, field_info_packet: FieldInfoPacket):
-        rlbot_status = self.game.UpdateFieldInfo(field_info_packet)
-        self.game_status(None, rlbot_status)
+        try:
+            rlbot_status = self.game.UpdateFieldInfo(field_info_packet)
+            self.game_status(None, rlbot_status)
+        except OSError as e:
+            self.logger.error("Unable to update packet")
+            self.logger.error(e)
         return field_info_packet
 
     def update_match_data_packet(self):
