@@ -9,7 +9,7 @@ class BaseExtension:
     def __init__(self, setup_manager):
         self.setup_manager = setup_manager
 
-    def onMatchEnd(self, score, stats):
+    def on_match_end(self, score, stats):
         """
         Called when a match has ended.
         :param score: This contains a list of scores.  one score per a team.
@@ -17,19 +17,19 @@ class BaseExtension:
         """
         pass
 
-    def onGoalScored(self, team):
+    def on_goal_scored(self, team):
         """
         Called when a goal has been scored.
         :param team: Which team scored the goal.
         """
 
-    def onGoalSaved(self, team):
+    def on_goal_saved(self, team):
         """
         Called when a goal has been saved/epic saved
         :param team: The team that saved the ball
         """
 
-    def onMatchStart(self, rlbot_status):
+    def on_match_start(self, rlbot_status=None):
         """
         Called when a match has started
         :return:

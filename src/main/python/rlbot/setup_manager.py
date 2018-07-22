@@ -13,6 +13,7 @@ from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_co
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import configure_processes
+from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import QuickChatManager
 from rlbot.utils.structures.start_match_structures import MatchSettings
@@ -32,6 +33,7 @@ class SetupManager:
     start_match_configuration = None
     agent_metadata_queue = None
     extension = None
+    stop_running = False
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -107,10 +109,11 @@ class SetupManager:
 
         self.logger.info("Press any character to exit")
         while True:
-            if msvcrt.kbhit():
+            if msvcrt.kbhit() or self.stop_running:
                 msvcrt.getch()
                 break
             try:
+                self.check_game_ended()
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
@@ -123,17 +126,19 @@ class SetupManager:
 
     def shut_down(self):
         self.logger.info("Shutting Down")
+        self.stop_running = True
 
         self.quit_event.set()
-
         # Wait for all processes to terminate before terminating main process
         terminated = False
+
         while not terminated:
             terminated = True
             for callback in self.bot_quit_callbacks:
                 if not callback.is_set():
                     terminated = False
             time.sleep(0.1)
+        self.logger.info("Match has shut down")
 
     def load_extension(self, extension_filename):
         extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
@@ -156,3 +161,9 @@ class SetupManager:
             bm = BotManagerStruct(terminate_event, callback_event, config_file, name, team,
                                   index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         bm.run()
+
+    def check_game_ended(self):
+        if self.extension is not None:
+            has_game_ended, scores, scoreboard_info = self.game_interface.has_game_ended()
+            if has_game_ended:
+                self.extension.on_match_end(scores, scoreboard_info)

@@ -118,7 +118,7 @@ class GameInterface:
         # self.game_input_packet.bStartMatch = True
         rlbot_status = self.game.StartMatch(self.start_match_configuration,
                                             self.create_status_callback(
-                                                None if self.extension is None else self.extension.onMatchStart), None)
+                                                None if self.extension is None else self.extension.on_match_start), None)
 
         if rlbot_status != 0:
             exception_class = get_exception_from_error_code(rlbot_status)
@@ -255,3 +255,17 @@ class GameInterface:
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, "Success")
             return FieldInfo.FieldInfo.GetRootAsFieldInfo(proto_string, 0)
+
+    def has_game_ended(self):
+        game_tick_packet = GameTickPacket()
+        self.update_live_data_packet(game_tick_packet)
+        game_ended = game_tick_packet.game_info.is_match_ended and not game_tick_packet.game_info.is_kickoff_pause
+        if game_ended:
+            scores = [0, 0]
+            scoreboard_info = [{}, {}]
+            for i in range(game_tick_packet.num_cars):
+                car = game_tick_packet.game_cars[i]
+                scores[car.team] = scores[car.team] + car.score_info.goals
+                scoreboard_info[car.team][car.name] = car.score_info
+            return game_ended, scores, scoreboard_info
+        return game_ended, None, None
