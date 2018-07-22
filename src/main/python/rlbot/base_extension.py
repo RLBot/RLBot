@@ -1,4 +1,5 @@
 from rlbot.setup_manager import SetupManager
+from rlbot.utils.structures.game_interface import GameInterface
 
 
 class BaseExtension:
@@ -9,8 +10,9 @@ class BaseExtension:
     """an instance of SetupManager that contains helpful methods for modifying the game state."""
     setup_manager = None
 
-    def __init__(self, setup_manager: SetupManager):
+    def __init__(self, setup_manager: SetupManager, game_interface: GameInterface):
         self.setup_manager = setup_manager
+        self.game_interface = game_interface
 
     def before_run(self):
         """
