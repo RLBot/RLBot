@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt_gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.11
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -39,6 +39,9 @@ class Ui_MainWindow(object):
         self.cfg_save_pushbutton = QtWidgets.QPushButton(self.groupBox_5)
         self.cfg_save_pushbutton.setObjectName("cfg_save_pushbutton")
         self.horizontalLayout_9.addWidget(self.cfg_save_pushbutton)
+        self.cfg_autosave_checkbutton = QtWidgets.QCheckBox(self.groupBox_5)
+        self.cfg_autosave_checkbutton.setObjectName("cfg_autosave_checkbutton")
+        self.horizontalLayout_9.addWidget(self.cfg_autosave_checkbutton)
         self.verticalLayout_4.addWidget(self.groupBox_5)
         self.line_2 = QtWidgets.QFrame(self.centralwidget)
         self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
@@ -171,7 +174,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.label)
         self.bot_type_combobox = QtWidgets.QComboBox(self.frame)
         self.bot_type_combobox.setObjectName("bot_type_combobox")
-        self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
         self.bot_type_combobox.addItem("")
@@ -450,6 +452,7 @@ class Ui_MainWindow(object):
         self.label_6.setText(_translate("MainWindow", "CFG File Path:"))
         self.cfg_load_pushbutton.setText(_translate("MainWindow", "Load"))
         self.cfg_save_pushbutton.setText(_translate("MainWindow", "Save"))
+        self.cfg_autosave_checkbutton.setText(_translate("MainWindow", "Autosave"))
         self.groupBox.setTitle(_translate("MainWindow", "Blue"))
         self.label_17.setText(_translate("MainWindow", "Name:"))
         self.blue_name_lineedit.setText(_translate("MainWindow", "Blue"))
@@ -469,7 +472,6 @@ class Ui_MainWindow(object):
         self.bot_type_combobox.setItemText(1, _translate("MainWindow", "Psyonix"))
         self.bot_type_combobox.setItemText(2, _translate("MainWindow", "RLBot"))
         self.bot_type_combobox.setItemText(3, _translate("MainWindow", "Party Member Bot"))
-        self.bot_type_combobox.setItemText(4, _translate("MainWindow", "Controller Passthrough"))
         self.blue_radiobutton.setText(_translate("MainWindow", "Blue"))
         self.orange_radiobutton.setText(_translate("MainWindow", "Orange"))
         self.label_3.setText(_translate("MainWindow", "IGN:"))

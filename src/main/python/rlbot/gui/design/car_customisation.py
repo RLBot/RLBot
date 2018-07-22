@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'car_customisation.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.11
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,10 +11,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_LoadoutPresetCustomiser(object):
     def setupUi(self, LoadoutPresetCustomiser):
         LoadoutPresetCustomiser.setObjectName("LoadoutPresetCustomiser")
-        LoadoutPresetCustomiser.resize(750, 577)
-        self.horizontalLayout = QtWidgets.QHBoxLayout(LoadoutPresetCustomiser)
+        LoadoutPresetCustomiser.resize(725, 510)
+        self.centralwidget = QtWidgets.QWidget(LoadoutPresetCustomiser)
+        self.centralwidget.setObjectName("centralwidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.groupBox_3 = QtWidgets.QGroupBox(LoadoutPresetCustomiser)
+        self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_3.setObjectName("groupBox_3")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox_3)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -36,7 +38,7 @@ class Ui_LoadoutPresetCustomiser(object):
         self.horizontalLayout_2.addWidget(self.preset_load_pushbutton)
         self.verticalLayout.addWidget(self.frame)
         self.horizontalLayout.addWidget(self.groupBox_3)
-        self.right_frame = QtWidgets.QFrame(LoadoutPresetCustomiser)
+        self.right_frame = QtWidgets.QFrame(self.centralwidget)
         self.right_frame.setObjectName("right_frame")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.right_frame)
         self.verticalLayout_4.setContentsMargins(-1, -1, -1, 1)
@@ -52,20 +54,24 @@ class Ui_LoadoutPresetCustomiser(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.label_17 = QtWidgets.QLabel(self.preset_config_groupbox)
         self.label_17.setObjectName("label_17")
-        self.gridLayout_2.addWidget(self.label_17, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_17, 2, 0, 1, 1)
         self.label_16 = QtWidgets.QLabel(self.preset_config_groupbox)
         self.label_16.setObjectName("label_16")
         self.gridLayout_2.addWidget(self.label_16, 0, 0, 1, 1)
+        self.preset_autosave_checkbox = QtWidgets.QCheckBox(self.preset_config_groupbox)
+        self.preset_autosave_checkbox.setObjectName("preset_autosave_checkbox")
+        self.gridLayout_2.addWidget(self.preset_autosave_checkbox, 2, 3, 1, 1, QtCore.Qt.AlignHCenter)
         self.preset_path_lineedit = QtWidgets.QLineEdit(self.preset_config_groupbox)
+        self.preset_path_lineedit.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.preset_path_lineedit.setReadOnly(True)
         self.preset_path_lineedit.setObjectName("preset_path_lineedit")
-        self.gridLayout_2.addWidget(self.preset_path_lineedit, 1, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.preset_path_lineedit, 2, 1, 1, 1)
         self.preset_save_pushbutton = QtWidgets.QPushButton(self.preset_config_groupbox)
         self.preset_save_pushbutton.setObjectName("preset_save_pushbutton")
-        self.gridLayout_2.addWidget(self.preset_save_pushbutton, 1, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.preset_save_pushbutton, 2, 2, 1, 1)
         self.preset_name_lineedit = QtWidgets.QLineEdit(self.preset_config_groupbox)
         self.preset_name_lineedit.setObjectName("preset_name_lineedit")
-        self.gridLayout_2.addWidget(self.preset_name_lineedit, 0, 1, 1, 2)
+        self.gridLayout_2.addWidget(self.preset_name_lineedit, 0, 1, 1, 3)
         self.verticalLayout_4.addWidget(self.preset_config_groupbox)
         self.loadout_config_groupbox = QtWidgets.QGroupBox(self.right_frame)
         self.loadout_config_groupbox.setObjectName("loadout_config_groupbox")
@@ -391,6 +397,10 @@ class Ui_LoadoutPresetCustomiser(object):
         self.horizontalLayout.addWidget(self.right_frame)
         self.horizontalLayout.setStretch(0, 2)
         self.horizontalLayout.setStretch(1, 5)
+        LoadoutPresetCustomiser.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(LoadoutPresetCustomiser)
+        self.statusbar.setObjectName("statusbar")
+        LoadoutPresetCustomiser.setStatusBar(self.statusbar)
 
         self.retranslateUi(LoadoutPresetCustomiser)
         QtCore.QMetaObject.connectSlotsByName(LoadoutPresetCustomiser)
@@ -405,6 +415,7 @@ class Ui_LoadoutPresetCustomiser(object):
         self.preset_config_groupbox.setTitle(_translate("LoadoutPresetCustomiser", "Preset Config"))
         self.label_17.setText(_translate("LoadoutPresetCustomiser", "File Path:"))
         self.label_16.setText(_translate("LoadoutPresetCustomiser", "Preset Name:"))
+        self.preset_autosave_checkbox.setText(_translate("LoadoutPresetCustomiser", "Autosave"))
         self.preset_path_lineedit.setPlaceholderText(_translate("LoadoutPresetCustomiser", "Currently not stored on disk"))
         self.preset_save_pushbutton.setText(_translate("LoadoutPresetCustomiser", "Save"))
         self.loadout_config_groupbox.setTitle(_translate("LoadoutPresetCustomiser", "Loadout"))

@@ -327,3 +327,26 @@ table QuickChat {
 }
 
 root_type QuickChat;
+
+/// A minimal version of player data, useful when bandwidth needs to be conserved.
+table TinyPlayer {
+    location: Vector3;
+    rotation: Rotator;
+    velocity: Vector3;
+    hasWheelContact: bool;
+    isSupersonic: bool;
+    team: int;
+    boost: int;
+}
+
+/// A minimal version of the ball, useful when bandwidth needs to be conserved.
+table TinyBall {
+    location: Vector3;
+    velocity: Vector3;
+}
+
+/// A minimal version of the game tick packet, useful when bandwidth needs to be conserved.
+table TinyPacket {
+    players: [TinyPlayer];
+    ball: TinyBall;
+}

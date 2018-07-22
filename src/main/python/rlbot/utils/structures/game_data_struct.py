@@ -140,8 +140,8 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
     game_tick_packet.game_ball.latest_touch.hit_normal.y = -1 * game_tick_packet.game_ball.latest_touch.hit_normal.y
 
     # Rotate yaw 180 degrees is all that is necessary.
-    ball_yaw = game_tick_packet.game_ball.rotation.yaw
-    game_tick_packet.game_ball.rotation.yaw = ball_yaw + math.pi if ball_yaw < 0 else ball_yaw - math.pi
+    ball_yaw = game_tick_packet.game_ball.physics.rotation.yaw
+    game_tick_packet.game_ball.physics.rotation.yaw = ball_yaw + math.pi if ball_yaw < 0 else ball_yaw - math.pi
 
     for i in range(game_tick_packet.num_cars):
         game_tick_packet.game_cars[i].physics.location.x = -1 * game_tick_packet.game_cars[i].physics.location.x

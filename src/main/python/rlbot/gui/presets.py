@@ -35,21 +35,29 @@ class Preset:
         self.config.parse_file(raw_parser)
         return self.config
 
-    def save_config(self, file_path=None, time_out=0):
+    def save_config(self, file_path=None, time_out=0, message_out=None):
         if file_path is not None:
             self.config_path = file_path
 
         def save():
             if self.config_path is None or self.config_path == "":
                 return
-            with open(self.config_path, "w") as f:
-                f.write(str(self.config))
+
+            self.save_loadout_timer.setInterval(1000)
+            if self.remaining_save_timer > 0:
+                message_out("Saving preset " + self.name + " in " + str(self.remaining_save_timer) + " seconds", 1000)
+                self.remaining_save_timer -= 1
+            else:
+                with open(self.config_path, "w") as f:
+                    f.write(str(self.config))
+                message_out("Saved preset " + self.name + " to " + self.config_path, 5000)
+                self.save_loadout_timer.stop()
 
         if self.save_loadout_timer is None:
             self.save_loadout_timer = QTimer()
-            self.save_loadout_timer.setSingleShot(True)
             self.save_loadout_timer.timeout.connect(save)
-        self.save_loadout_timer.start(time_out)  # Time-out for timer over here
+        self.remaining_save_timer = time_out
+        self.save_loadout_timer.start(0)  # Time-out for timer over here
 
     def get_name(self):
         return self.name

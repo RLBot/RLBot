@@ -56,6 +56,10 @@ class ConfigObject:
     def getfloat(self, section, option, index=None):
         return self.get_header(section).getfloat(option, index=index)
 
+    def init_indices(self, max_index):
+        for header in self.headers.values():
+            header.init_indices(max_index)
+
     def parse_file(self, config, max_index=None):
         """
         Parses the file internally setting values
@@ -167,6 +171,13 @@ class ConfigHeader:
     def getfloat(self, option, index=None):
         return float(self.values[option].get_value(index=index))
 
+    def init_indices(self, max_index):
+        if not self.is_indexed:
+            return
+        self.max_index = max_index
+        for value_name in self.values:
+            self.values[value_name].init_indices(max_index)
+
     def parse_file(self, config_parser, max_index=None):
         if self.is_indexed and max_index is None:
             return  # if we do not know the index lets skip instead of crashing
@@ -236,7 +247,10 @@ class ConfigValue:
             return self.default
 
         if index is not None:
-            value = self.value[index]
+            if self.value[index] is None:
+                return self.default
+            else:
+                value = self.value[index]
         else:
             value = self.value
 
@@ -250,6 +264,9 @@ class ConfigValue:
 
     def copy(self):
         return ConfigValue(self.type, self.default, self.description, self.value)
+
+    def init_indices(self, max_index):
+        self.value = [None]*max_index
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if isinstance(config_parser, ConfigHeader):

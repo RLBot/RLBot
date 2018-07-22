@@ -58,6 +58,13 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QCheckBox" name="cfg_autosave_checkbutton">
+         <property name="text">
+          <string>Autosave</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -407,11 +414,6 @@
                <item>
                 <property name="text">
                  <string>Party Member Bot</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Controller Passthrough</string>
                 </property>
                </item>
               </widget>
