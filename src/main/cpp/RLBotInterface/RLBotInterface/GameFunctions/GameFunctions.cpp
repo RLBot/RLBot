@@ -98,4 +98,17 @@ namespace GameFunctions
 
 		return RLBotCoreStatus::Success;
 	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API ExitToMenu(CallbackFunction callback, unsigned int* pID)
+	{
+		DEBUG_LOG("Telling the core to exit to menu");
+
+		BEGIN_GAME_FUNCTION(ExitToMenuMessage, pExitMatch);
+		REGISTER_CALLBACK(pExitMatch, callback, pID);
+		END_GAME_FUNCTION;
+
+		DEBUG_LOG("Told the core to exit to the main menu");
+
+		return RLBotCoreStatus::Success;
+	}
 }

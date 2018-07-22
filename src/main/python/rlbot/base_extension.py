@@ -1,7 +1,3 @@
-from rlbot.setup_manager import SetupManager
-from rlbot.utils.structures.game_interface import GameInterface
-
-
 class BaseExtension:
     """
     Extend this class to get access to extensions that are run in the game.
@@ -10,7 +6,7 @@ class BaseExtension:
     """an instance of SetupManager that contains helpful methods for modifying the game state."""
     setup_manager = None
 
-    def __init__(self, setup_manager: SetupManager, game_interface: GameInterface):
+    def __init__(self, setup_manager, game_interface):
         self.setup_manager = setup_manager
         self.game_interface = game_interface
 

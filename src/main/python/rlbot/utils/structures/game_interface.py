@@ -74,6 +74,10 @@ class GameInterface:
         func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
 
+        func = self.game.ExitToMenu
+        func.argtypes = [self.game_status_callback_type, ctypes.c_void_p]
+        func.restype = ctypes.c_int
+
         # update player input
         func = self.game.UpdatePlayerInput
         func.argtypes = [PlayerInput, ctypes.c_int]
@@ -129,6 +133,17 @@ class GameInterface:
             raise exception_class()
 
         self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
+
+    def exit_to_menu(self):
+        self.logger.info('Attempting to exit to menu')
+        self.wait_until_loaded()
+        rlbot_status = self.game.ExitToMenu(self.create_status_callback(None), None)
+
+        if rlbot_status != 0:
+            exception_class = get_exception_from_error_code(rlbot_status)
+            raise exception_class()
+
+        self.logger.info('Exited to menu with status: %s', RLBotCoreStatus.status_list[rlbot_status])
 
     def update_player_input(self, player_input, index):
         rlbot_status = self.game.UpdatePlayerInput(player_input, index)

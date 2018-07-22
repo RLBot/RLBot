@@ -126,6 +126,10 @@ class SetupManager:
                 pass
 
     def shut_down(self):
+        try:
+            self.game_interface.exit_to_menu()
+        except Exception:
+            self.logger.info("Unable to exit the menu")
         self.logger.info("Shutting Down")
         self.stop_running = True
 
@@ -144,7 +148,7 @@ class SetupManager:
     def load_extension(self, extension_filename):
         self.logger.info("Loading extension: %s", str(extension_filename))
         extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
-        self.extension = extension_class(self)
+        self.extension = extension_class(self, self.game_interface)
         if self.extension is not None:
             self.logger.info("Extension loaded")
         self.game_interface.set_extension(self.extension)

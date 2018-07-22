@@ -27,6 +27,7 @@ extern "C"
 		bool isValidName(wchar_t* pName);
 		RLBotCoreStatus checkPlayerConfiguration(PlayerConfiguration playerConfiguration[CONST_MaxPlayers], int numPlayers);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings, CallbackFunction callback, unsigned int* pID);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API ExitToMenu(CallbackFunction callback, unsigned int* pID);
 	}
 
 #ifdef __cplusplus

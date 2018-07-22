@@ -10,6 +10,11 @@ struct StartMatchMessage : public Message<StartMatchMessageType, true>
 	MatchSettings		MatchSettings;
 };
 
+struct ExitToMenuMessage : public Message<ExitToMenuMessageType, true>
+{
+	// Intentially left blank
+};
+
 enum QuickChatPreset
 {
 	Information_IGotIt,

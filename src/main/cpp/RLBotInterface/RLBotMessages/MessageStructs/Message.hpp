@@ -10,6 +10,7 @@ enum MessageType
 	CallbackMessageType = 0,
 	StartMatchMessageType,
 	SendChatMessageType,
+	ExitToMenuMessageType,
 	MaxMessageType
 };
 
