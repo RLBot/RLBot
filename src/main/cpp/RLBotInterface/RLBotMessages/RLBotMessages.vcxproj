@@ -222,7 +222,7 @@
       <VerboseOutput>false</VerboseOutput>
     </Manifest>
     <PreBuildEvent>
-      <Command>$(FlatbufferSrcDir)\flatc.exe --cpp -o $(FlatbufferDir) $(FlatbufferSrcDir)\rlbot.fbs</Command>
+      <Command>"$(ProjectDir)\generate-flatbuffers.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -296,7 +296,7 @@
       <VerboseOutput>false</VerboseOutput>
     </Manifest>
     <PreBuildEvent>
-      <Command>$(FlatbufferSrcDir)\flatc.exe --cpp -o $(FlatbufferDir) $(FlatbufferSrcDir)\rlbot.fbs</Command>
+      <Command>"$(ProjectDir)\generate-flatbuffers.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -361,7 +361,7 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(FlatbufferSrcDir)\flatc.exe --cpp -o $(FlatbufferDir) $(FlatbufferSrcDir)\rlbot.fbs</Command>
+      <Command>"$(ProjectDir)\generate-flatbuffers.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -426,7 +426,7 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(FlatbufferSrcDir)\flatc.exe --cpp -o $(FlatbufferDir) $(FlatbufferSrcDir)\rlbot.fbs</Command>
+      <Command>"$(ProjectDir)\generate-flatbuffers.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
