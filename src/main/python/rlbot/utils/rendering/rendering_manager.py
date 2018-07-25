@@ -214,27 +214,50 @@ class RenderingManager:
 
     """Supports Flatbuffers Vector3, cTypes Vector3, list/tuple of numbers, or passing x,y,z (z optional)"""
     def __create_vector(self, *vec):
-        if (isinstance(vec[0], int) or isinstance(vec[0], float)) and (isinstance(vec[1], int) or isinstance(vec[1], float)):
-            x = vec[0]
-            y = vec[1]
-            if len(vec) == 3 and (isinstance(vec[2], int) or isinstance(vec[2], float)):
-                z = vec[2]
-        elif isinstance(vec[0], list) or isinstance(vec[0], tuple):
-            x = vec[0][0]
-            y = vec[0][1]
-            if len(vec[0]) == 2:
-                z = 0
+        import numbers
+
+        if len(vec) == 1:
+            if isinstance(vec[0], list) or isinstance(vec[0], tuple):
+                if 1 < len(vec[0]) <= 3:
+                    if isinstance(vec[0][0], numbers.Number) and isinstance(vec[0][1], numbers.Number):
+                        x = vec[0][0]
+                        y = vec[0][1]
+                    else:
+                        raise ValueError(
+                            "Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0][1]), type(vec[0][1])))
+                    if len(vec[0]) == 2:
+                        z = 0
+                    else:
+                        if isinstance(vec[0][2], numbers.Number):
+                            z = vec[0][2]
+                        else:
+                            raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0][2])))
+                else:
+                    raise ValueError("Unexpected list/tuple length for creating vector: {0}".format(len(vec)))
+            elif isinstance(vec[0], Vector3.Vector3):
+                x = vec[0].X()
+                y = vec[0].Y()
+                z = vec[0].Z()
+            elif isinstance(vec[0], GameDataStructVector3):
+                x = vec[0].x
+                y = vec[0].y
+                z = vec[0].z
             else:
-                z = vec[0][2]
-        elif isinstance(vec[0], Vector3.Vector3):
-            x = vec[0].X()
-            y = vec[0].Y()
-            z = vec[0].Z()
-        elif isinstance(vec[0], GameDataStructVector3):
-            x = vec[0].x
-            y = vec[0].y
-            z = vec[0].z
+                raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0])))
+        elif len(vec) == 2 or len(vec) == 3:
+            if isinstance(vec[0], numbers.Number) and isinstance(vec[1], numbers.Number):
+                x = vec[0]
+                y = vec[1]
+                if len(vec) == 2:
+                    z = 0
+                else:
+                    if isinstance(vec[2], numbers.Number):
+                        z = vec[2]
+                    else:
+                        raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0])))
+            else:
+                raise ValueError("Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0]), type(vec[1])))
         else:
-            raise ValueError("Unexpected type(s) for creating vector: {0}".format(type(vec)))
+            raise ValueError("Unexpected number of arguments for creating vector")
 
         return Vector3.CreateVector3(self.builder, x, y, z)
