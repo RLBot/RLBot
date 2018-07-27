@@ -3,6 +3,7 @@ import hashlib
 
 import flatbuffers
 from rlbot.utils.structures.game_status import RLBotCoreStatus
+from rlbot.utils.structures.game_data_struct import Vector3 as GameDataStructVector3
 from rlbot.utils.logging_utils import get_logger
 
 from rlbot.messages.flat import RenderGroup
@@ -100,8 +101,8 @@ class RenderingManager:
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec1))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(*vec2))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec1))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec2))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
@@ -114,7 +115,7 @@ class RenderingManager:
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D_3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
         RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(*vec))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
@@ -143,7 +144,7 @@ class RenderingManager:
             messageBuilder,
             RenderType.DrawCenteredRect3D if centered else RenderType.DrawRect3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
         RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
@@ -175,7 +176,7 @@ class RenderingManager:
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawString3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
         RenderMessage.RenderMessageAddText(messageBuilder, builtString)
@@ -211,7 +212,52 @@ class RenderingManager:
     def __wrap_float(self, number):
         return Float.CreateFloat(self.builder, number)
 
-    def __create_vector(self, x, y, z=None):
-        if z is None:
-            z = 0
+    """Supports Flatbuffers Vector3, cTypes Vector3, list/tuple of numbers, or passing x,y,z (z optional)"""
+    def __create_vector(self, *vec):
+        import numbers
+
+        if len(vec) == 1:
+            if isinstance(vec[0], list) or isinstance(vec[0], tuple):
+                if 1 < len(vec[0]) <= 3:
+                    if isinstance(vec[0][0], numbers.Number) and isinstance(vec[0][1], numbers.Number):
+                        x = vec[0][0]
+                        y = vec[0][1]
+                    else:
+                        raise ValueError(
+                            "Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0][1]), type(vec[0][1])))
+                    if len(vec[0]) == 2:
+                        z = 0
+                    else:
+                        if isinstance(vec[0][2], numbers.Number):
+                            z = vec[0][2]
+                        else:
+                            raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0][2])))
+                else:
+                    raise ValueError("Unexpected list/tuple length for creating vector: {0}".format(len(vec)))
+            elif isinstance(vec[0], Vector3.Vector3):
+                x = vec[0].X()
+                y = vec[0].Y()
+                z = vec[0].Z()
+            elif isinstance(vec[0], GameDataStructVector3):
+                x = vec[0].x
+                y = vec[0].y
+                z = vec[0].z
+            else:
+                raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0])))
+        elif len(vec) == 2 or len(vec) == 3:
+            if isinstance(vec[0], numbers.Number) and isinstance(vec[1], numbers.Number):
+                x = vec[0]
+                y = vec[1]
+                if len(vec) == 2:
+                    z = 0
+                else:
+                    if isinstance(vec[2], numbers.Number):
+                        z = vec[2]
+                    else:
+                        raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0])))
+            else:
+                raise ValueError("Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0]), type(vec[1])))
+        else:
+            raise ValueError("Unexpected number of arguments for creating vector")
+
         return Vector3.CreateVector3(self.builder, x, y, z)
