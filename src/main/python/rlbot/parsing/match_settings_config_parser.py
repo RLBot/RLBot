@@ -259,7 +259,7 @@ def parse_mutator_settings(mutator_settings, config):
     mutator_settings.respawn_time_option = safe_get_mutator(respawn_time_mutator_types, config, MUTATOR_RESPAWN_TIME, {'3.0': '3 Seconds', '3': '3 Seconds'})
 
 
-def safe_get_mutator(in_list, config, mutator_name, replacement_table = {}):
+def safe_get_mutator(mutator_options, config, mutator_name, replacement_table = {}):
 
     value = config.get(MUTATOR_CONFIGURATION_HEADER, mutator_name)
 
@@ -272,7 +272,7 @@ def safe_get_mutator(in_list, config, mutator_name, replacement_table = {}):
         value = replacement_table[value]
 
     try:
-        return in_list.index(value)
+        return mutator_options.index(value)
     except ValueError:
         logger.warn('**************************************')
         logger.warn('The value you\'ve set for {} ({}) is invalid, and will be ignored. Please check your rlbot.cfg!'.format(mutator_name, value))
