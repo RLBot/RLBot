@@ -212,6 +212,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         elif sender is self.agent_preset_combobox:
             if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
                 self.current_bot.set_agent_preset(self.agent_presets[value])
+                agent.set_name(agent.agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
+                self.ign_lineedit.setText(agent.ingame_name)
         elif sender is self.bot_level_slider:
             agent.set_bot_skill(value / 100)
 
