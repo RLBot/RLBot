@@ -3,6 +3,7 @@ from rlbot.utils.logging_utils import get_logger
 
 
 class SimpleExtension(BaseExtension):
+
     def __init__(self, setup_manager, game_interface):
         super().__init__(setup_manager, game_interface)
         self.logger = get_logger("SimpleExtension")
@@ -12,5 +13,6 @@ class SimpleExtension(BaseExtension):
 
     def on_match_end(self, score, scoreboard):
         self.logger.error("SCORE IS: %s", str(score))
-        self.game_interface.exit_to_menu()
+        # self.setup_manager.shut_down()
+        self.logger.error("I AM NOW SHUT DOWN")
 

@@ -43,6 +43,7 @@ class GameInterface:
     game_status_callback_type = None
     callback_func = None
     extension = None
+    dll_loaded = False
 
     def __init__(self, logger):
         self.logger = logger
@@ -74,10 +75,6 @@ class GameInterface:
         func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
         func.restype = ctypes.c_int
 
-        func = self.game.ExitToMenu
-        func.argtypes = [self.game_status_callback_type, ctypes.c_void_p]
-        func.restype = ctypes.c_int
-
         # update player input
         func = self.game.UpdatePlayerInput
         func.argtypes = [PlayerInput, ctypes.c_int]
@@ -105,6 +102,9 @@ class GameInterface:
         func.argtypes = [ctypes.c_void_p]
 
     def update_live_data_packet(self, game_tick_packet: GameTickPacket):
+        if not self.dll_loaded:
+            self.logger.warn("Grabbing data before the dll is loaded")
+            return game_tick_packet
         rlbot_status = self.game.UpdateLiveDataPacket(game_tick_packet)
         self.game_status(None, rlbot_status)
         return game_tick_packet
@@ -133,17 +133,6 @@ class GameInterface:
             raise exception_class()
 
         self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
-
-    def exit_to_menu(self):
-        self.logger.info('Attempting to exit to menu')
-        self.wait_until_loaded()
-        rlbot_status = self.game.ExitToMenu(self.create_status_callback(None), None)
-
-        if rlbot_status != 0:
-            exception_class = get_exception_from_error_code(rlbot_status)
-            raise exception_class()
-
-        self.logger.info('Exited to menu with status: %s', RLBotCoreStatus.status_list[rlbot_status])
 
     def update_player_input(self, player_input, index):
         rlbot_status = self.game.UpdatePlayerInput(player_input, index)
@@ -175,11 +164,15 @@ class GameInterface:
             self.wait_until_loaded()
 
     def load_interface(self):
+        if self.dll_loaded:
+            self.logger.warn("trying to reload dll is a bad idea")
+            return
         self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)
         self.callback_func = self.game_status_callback_type(wrap_callback(self.game_status))
         self.game = ctypes.CDLL(self.dll_path)
         time.sleep(1)
         self.setup_function_types()
+        self.dll_loaded = True
 
     def inject_dll(self):
         """
@@ -276,9 +269,14 @@ class GameInterface:
             return FieldInfo.FieldInfo.GetRootAsFieldInfo(proto_string, 0)
 
     def has_game_ended(self):
+        if not self.dll_loaded:
+            self.logger.warn("trying to reload dll is a bad idea")
+            return False, False, None, None
+
         game_tick_packet = GameTickPacket()
         self.update_live_data_packet(game_tick_packet)
-        game_ended = game_tick_packet.game_info.is_match_ended and not game_tick_packet.game_info.is_kickoff_pause
+        game_ended = game_tick_packet.game_info.is_match_ended
+
         if game_ended:
             scores = [0, 0]
             scoreboard_info = [{}, {}]
@@ -286,5 +284,5 @@ class GameInterface:
                 car = game_tick_packet.game_cars[i]
                 scores[car.team] = scores[car.team] + car.score_info.goals
                 scoreboard_info[car.team][car.name] = car.score_info
-            return game_ended, scores, scoreboard_info
-        return game_ended, None, None
+            return game_ended, game_tick_packet.game_info.is_kickoff_pause, scores, scoreboard_info
+        return game_ended, game_tick_packet.game_info.is_kickoff_pause, None, None

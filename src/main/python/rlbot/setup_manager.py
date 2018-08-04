@@ -34,6 +34,7 @@ class SetupManager:
     agent_metadata_queue = None
     extension = None
     stop_running = False
+    sub_processes = []
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -86,6 +87,7 @@ class SetupManager:
 
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
+        self.kill_sub_processes()
 
         # Launch processes
         for i in range(self.num_participants):
@@ -98,6 +100,7 @@ class SetupManager:
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue, queue_holder))
                 process.start()
+                self.sub_processes.append(process)
 
         self.logger.debug("Successfully started bot processes")
 
@@ -108,13 +111,25 @@ class SetupManager:
         self.logger.info("Match has started")
 
         self.logger.info("Press any character to exit")
+        self.extension.start_match()
+        can_end_game = False
+        kick_flag_turned_on = False
+        calls_to_wait = 3
         while True:
-            if msvcrt.kbhit() or self.stop_running:
+            self.logger.info("Can end game %s?", can_end_game)
+            if msvcrt.kbhit():
                 self.logger.info("Keyboard event or programmatic exit has been requested.")
                 msvcrt.getch()
-                break
             try:
-                self.check_game_ended()
+                if calls_to_wait <= 0:
+                    is_kickoff_pause = self.check_game_ended(can_end_game)
+                    if not kick_flag_turned_on and is_kickoff_pause:
+                        kick_flag_turned_on = True
+                        self.logger.info("can start a new game")
+                    if kick_flag_turned_on and not is_kickoff_pause:
+                        can_end_game = True
+                        self.logger.info("can end a new game")
+                calls_to_wait -= 1
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
@@ -126,10 +141,7 @@ class SetupManager:
                 pass
 
     def shut_down(self):
-        try:
-            self.game_interface.exit_to_menu()
-        except Exception:
-            self.logger.info("Unable to exit the menu")
+        self.kill_sub_processes()
         self.logger.info("Shutting Down")
         self.stop_running = True
 
@@ -170,15 +182,27 @@ class SetupManager:
                                   index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         bm.run()
 
-    def check_game_ended(self):
+    def check_game_ended(self, allow_game_to_end):
+        """
+        Checks if the game has ended
+        :param allow_game_to_end:
+        :return:
+        """
         try:
             if self.extension is not None:
-                has_game_ended, scores, scoreboard_info = self.game_interface.has_game_ended()
-                if has_game_ended:
+                has_game_ended, is_kickoff_pause, scores, scoreboard_info = self.game_interface.has_game_ended()
+                if has_game_ended and self.extension.match_started and allow_game_to_end:
                     self.extension.on_match_end(scores, scoreboard_info)
+                return is_kickoff_pause
         except Exception as e:
             self.logger.warn("Unable to check if the match has ended")
+            return False
 
     def before_run(self):
         if self.extension is not None:
             self.extension.before_run()
+
+    def kill_sub_processes(self):
+        for process in self.sub_processes:
+            process.terminate()
+        self.sub_processes = []

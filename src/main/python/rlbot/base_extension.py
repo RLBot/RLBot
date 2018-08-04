@@ -5,6 +5,7 @@ class BaseExtension:
 
     """an instance of SetupManager that contains helpful methods for modifying the game state."""
     setup_manager = None
+    match_started = False
 
     def __init__(self, setup_manager, game_interface):
         self.setup_manager = setup_manager
@@ -41,3 +42,9 @@ class BaseExtension:
         Called when a match has started
         :return:
         """
+
+    def start_match(self):
+        self.match_started = True
+
+    def end_match(self):
+        self.match_started = False
