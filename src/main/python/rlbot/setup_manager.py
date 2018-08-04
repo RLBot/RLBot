@@ -32,6 +32,7 @@ class SetupManager:
     start_match_configuration = None
     agent_metadata_queue = None
     extension = None
+    sub_processes = []
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -84,6 +85,7 @@ class SetupManager:
 
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
+        self.kill_sub_processes()
 
         # Launch processes
         for i in range(self.num_participants):
@@ -96,6 +98,7 @@ class SetupManager:
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue, queue_holder))
                 process.start()
+                self.sub_processes.append(process)
 
         self.logger.debug("Successfully started bot processes")
 
@@ -156,3 +159,8 @@ class SetupManager:
             bm = BotManagerStruct(terminate_event, callback_event, config_file, name, team,
                                   index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
         bm.run()
+
+    def kill_sub_processes(self):
+        for process in self.sub_processes:
+            process.terminate()
+        self.sub_processes = []
