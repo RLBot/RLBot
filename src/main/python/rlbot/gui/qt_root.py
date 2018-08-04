@@ -162,6 +162,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             elif isinstance(child, QCheckBox):
                 child.toggled.connect(self.match_settings_edit_event)
 
+        self.kill_bots_pushbutton.clicked.connect(self.kill_bots)
         self.run_button.clicked.connect(self.run_button_pressed)
 
     def bot_config_edit_event(self, value=None):
@@ -646,6 +647,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         popup.setText(message)
         popup.setStandardButtons(QMessageBox.Ok)
         popup.exec_()
+
+    def kill_bots(self):
+        if self.setup_manager is not None:
+            self.setup_manager.kill_sub_processes()
+        else:
+            print("There gotta be some setup manager already")
 
     @staticmethod
     def main():
