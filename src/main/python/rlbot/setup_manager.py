@@ -3,6 +3,8 @@ import multiprocessing as mp
 import os
 import queue
 import time
+import psutil
+from datetime import datetime, timedelta
 
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.base_extension import BaseExtension
@@ -12,7 +14,7 @@ from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
-from rlbot.utils.process_configuration import configure_processes
+from rlbot.utils import process_configuration
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import QuickChatManager
 from rlbot.utils.structures.start_match_structures import MatchSettings
@@ -109,7 +111,7 @@ class SetupManager:
         self.logger.info("Match has started")
 
         self.logger.info("Press any character to exit")
-        while True:
+        while not self.quit_event.is_set():
             if msvcrt.kbhit():
                 msvcrt.getch()
                 break
@@ -117,17 +119,18 @@ class SetupManager:
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
-                configure_processes(self.agent_metadata_map, self.logger)
+                process_configuration.configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
                 pass
             except Exception as ex:
                 self.logger.error(ex)
                 pass
 
-    def shut_down(self):
+    def shut_down(self, time_limit=5, kill_all_pids=False):
         self.logger.info("Shutting Down")
 
         self.quit_event.set()
+        end_time = datetime.now() + timedelta(seconds=time_limit)
 
         # Wait for all processes to terminate before terminating main process
         terminated = False
@@ -137,6 +140,14 @@ class SetupManager:
                 if not callback.is_set():
                     terminated = False
             time.sleep(0.1)
+            if datetime.now() > end_time:
+                self.logger.info("Taking too long to quit, trying harder...")
+                self.kill_sub_processes()
+                break
+
+        if kill_all_pids:
+            self.kill_process_ids()
+        self.logger.info("Shut down complete!")
 
     def load_extension(self, extension_filename):
         extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
@@ -164,3 +175,19 @@ class SetupManager:
         for process in self.sub_processes:
             process.terminate()
         self.sub_processes = []
+
+    def kill_process_ids(self):
+        pids = process_configuration.extract_all_pids(self.agent_metadata_map)
+        for pid in pids:
+            parent = psutil.Process(pid)
+            for child in parent.children(recursive=True):  # or parent.children() for recursive=False
+                self.logger.info("Killing {} (child of {})".format(child.pid, pid))
+                try:
+                    child.kill()
+                except NoSuchProcess:
+                    self.logger.info("Already dead.")
+            self.logger.info("Killing {}".format(pid))
+            try:
+                parent.kill()
+            except NoSuchProcess:
+                self.logger.info("Already dead.")
