@@ -69,7 +69,7 @@ class BallInfo(ctypes.Structure):
 
 class BoostPadState(ctypes.Structure):
     _fields_ = [("is_active", ctypes.c_bool),
-                ("timer", ctypes.c_int)]
+                ("timer", ctypes.c_float)]
 
 
 class GameInfo(ctypes.Structure):
