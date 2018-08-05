@@ -70,7 +70,7 @@ class BallInfo(ctypes.Structure):
 class BoostInfo(ctypes.Structure):
     _fields_ = [("Location", Vector3),
                 ("bActive", ctypes.c_bool),
-                ("Timer", ctypes.c_int)]
+                ("Timer", ctypes.c_float)]
 
 
 class GameInfo(ctypes.Structure):
