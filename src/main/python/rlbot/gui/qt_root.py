@@ -99,6 +99,13 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         Starts a match with the current configuration
         :return:
         """
+
+        if self.setup_manager is not None:
+            self.setup_manager.shut_down(time_limit=5, kill_all_pids=False)
+            # Leave any external processes alive, e.g. Java or C#, since it can
+            # be useful to keep them around. The user can kill them with the
+            # Kill Bots button instead.
+
         agent_configs_dict = {}
         loadout_configs_dict = {}
         for agent in self.agents:
@@ -650,7 +657,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
     def kill_bots(self):
         if self.setup_manager is not None:
-            self.setup_manager.kill_sub_processes()
+            self.setup_manager.shut_down(time_limit=5, kill_all_pids=True)
         else:
             print("There gotta be some setup manager already")
 

@@ -64,3 +64,10 @@ def configure_processes(agent_metadata_map, logger):
     for pid in shared_pids:
         p = psutil.Process(pid)  # Allow the process to run at high priority
         p.nice(psutil.HIGH_PRIORITY_CLASS)
+
+
+def extract_all_pids(agent_metadata_map):
+    pids = set()
+    for player_index, data in agent_metadata_map.items():
+        pids.update(data.pids)
+    return pids
