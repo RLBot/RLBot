@@ -31,6 +31,9 @@ namespace RLBotDotNet.Utils
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static int UpdatePlayerInputFlatbuffer(byte[] bytes, int size);
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static int SendQuickChat(byte[] quickChatMessage, int protoSize);
         #endregion
 
         /// <summary>
@@ -94,6 +97,28 @@ namespace RLBotDotNet.Utils
             builder.Finish(playerInputOffset.Value);
             byte[] bufferBytes = builder.SizedByteArray();
             UpdatePlayerInputFlatbuffer(bufferBytes, bufferBytes.Length);
+        }
+
+
+        /// <summary>
+        /// Sends a quick chat flat message.
+        /// </summary>
+        /// <param name="playerIndex">The index of the bot's car.</param>
+        /// <param name="teamOnly">Flag indicating whether the quick chat message is for the player's team only or not.</param>
+        /// <param name="quickChat">The quick chat selection to send.</param>
+        public static void SendQuickChatFlat(int playerIndex, bool teamOnly, QuickChatSelection quickChat)
+        {
+            FlatBufferBuilder builder = new FlatBufferBuilder(50);
+
+            var offset = QuickChat.CreateQuickChat(
+                builder,
+                quickChat,
+                playerIndex,
+                teamOnly);
+
+            builder.Finish(offset.Value);
+            byte[] bufferBytes = builder.SizedByteArray();
+            SendQuickChat(bufferBytes, bufferBytes.Length);
         }
     }
 }

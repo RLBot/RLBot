@@ -1,5 +1,6 @@
 ﻿using rlbot.flat;
 using RLBotDotNet.Utils;
+using System;
 
 namespace RLBotDotNet
 {
@@ -9,6 +10,9 @@ namespace RLBotDotNet
     /// </summary>
     public abstract class Bot
     {
+        private const float MAX_CHAT_RATE = 2.0f;
+        private const int MAX_CHAT_COUNT = 5;
+
         /// <summary>
         /// The name given to the bot in its configuration file.
         /// </summary>
@@ -21,6 +25,10 @@ namespace RLBotDotNet
         /// The index of the bot in the match.
         /// </summary>
         public readonly int index;
+
+        private DateTime lastChatTime;
+        private bool resetChatTime;
+        private int chatCounter;
 
         /// <summary>
         /// Creates a bot instance. To be used by the BotManager.
@@ -51,6 +59,49 @@ namespace RLBotDotNet
                     "This could mean that the match has not started yet. " +
                     "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
                     "and the game has not started the match yet. This usually happens on the map loading screen.");
+            }
+        }
+
+        protected void SendQuickChatFromAgent(bool teamOnly, QuickChatSelection quickChat)
+        {
+            /*
+                Passes the agents quick chats to the other bots.
+                This does perform limiting.
+                You are limited to 5 quick chats in a 2 second period starting from the first chat.
+                This means you can spread your chats out to be even within that 2 second period.
+                You could spam them in the first little bit but then will be throttled.
+           */
+            try
+            {
+                TimeSpan timeSinceLastChat = DateTime.Now - lastChatTime;
+                if (!resetChatTime && timeSinceLastChat.TotalSeconds >= MAX_CHAT_RATE)
+                {
+                    resetChatTime = true;
+                }
+
+                if (resetChatTime)
+                {
+                    lastChatTime = DateTime.Now;
+                    chatCounter = 0;
+                    resetChatTime = false;
+                }
+
+                if (chatCounter < MAX_CHAT_COUNT)
+                {
+                    RLBotInterface.SendQuickChatFlat(index, teamOnly, quickChat);
+                    chatCounter++;
+                }
+                else
+                {
+                    Console.WriteLine($"Quick chat disabled for {(int)(MAX_CHAT_RATE - timeSinceLastChat.TotalSeconds)} seconds.");
+                }
+            }
+            catch (FlatbuffersPacketException)
+            {
+                throw new FlatbuffersPacketException("The game did not send any information. " +
+                                                     "This could mean that the match has not started yet. " +
+                                                     "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
+                                                     "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
         }
     }
