@@ -70,8 +70,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Flatbuffers DLLs\FlatBuffers.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -80,9 +82,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\MediaColorExtensions.cs" />
+    <Compile Include="Common\NumericVector2Extensions.cs" />
+    <Compile Include="Common\NumericVector3Extensions.cs" />
     <Compile Include="Interface\FlatbuffersPacketException.cs" />
+    <Compile Include="Renderer\BotLoopRenderer.cs" />
     <Compile Include="Manager\BotManager.cs" />
     <Compile Include="Manager\TimerResolutionInterop.cs" />
+    <Compile Include="Renderer\NamedRenderer.cs" />
+    <Compile Include="Renderer\Renderer.cs" />
+    <Compile Include="Renderer\RenderPacket.cs" />
     <Compile Include="Server\BotManagerServer.cs" />
     <Compile Include="Manager\BotProcess.cs" />
     <Compile Include="Server\BotReceivedEventArgs.cs" />
