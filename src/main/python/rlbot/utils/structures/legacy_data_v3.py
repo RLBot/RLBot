@@ -135,7 +135,7 @@ def convert_game_info(legacy_game_info, game_info):
     legacy_game_info.bOverTime = game_info.is_overtime
     legacy_game_info.bUnlimitedTime = game_info.is_unlimited_time
     legacy_game_info.bRoundActive = game_info.is_round_active
-    legacy_game_info.bBallHasBeenHit = game_info.is_kickoff_pause
+    legacy_game_info.bBallHasBeenHit = not game_info.is_kickoff_pause
     legacy_game_info.bMatchEnded = game_info.is_match_ended
 
 
