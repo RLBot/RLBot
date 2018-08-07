@@ -15,6 +15,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
         self.team = team
         self.index = index
         self.port = self.read_port_from_file()
+        self.is_retired = False
 
     def run_independently(self, terminate_request_event):
 
@@ -38,9 +39,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
         Gets the list of process ids that should be marked as high priority.
         :return: A list of process ids that are used by this bot in addition to the ones inside the python process.
         """
-        while True:
-            if msvcrt.kbhit():
-                return []
+        while not self.is_retired:
             for proc in psutil.process_iter():
                 for conn in proc.connections():
                     if conn.laddr.port == self.port:
@@ -59,6 +58,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
             s.close()
         except ConnectionRefusedError:
             self.logger.warn("Could not connect to server!")
+        self.is_retired = True
     
     def read_port_from_file(self):
         try:

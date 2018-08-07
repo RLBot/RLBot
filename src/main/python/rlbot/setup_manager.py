@@ -114,6 +114,7 @@ class SetupManager:
         while not self.quit_event.is_set():
             if msvcrt.kbhit():
                 msvcrt.getch()
+                self.shut_down()
                 break
             try:
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
@@ -179,15 +180,18 @@ class SetupManager:
     def kill_process_ids(self):
         pids = process_configuration.extract_all_pids(self.agent_metadata_map)
         for pid in pids:
-            parent = psutil.Process(pid)
-            for child in parent.children(recursive=True):  # or parent.children() for recursive=False
-                self.logger.info("Killing {} (child of {})".format(child.pid, pid))
-                try:
-                    child.kill()
-                except NoSuchProcess:
-                    self.logger.info("Already dead.")
-            self.logger.info("Killing {}".format(pid))
             try:
-                parent.kill()
-            except NoSuchProcess:
-                self.logger.info("Already dead.")
+                parent = psutil.Process(pid)
+                for child in parent.children(recursive=True):  # or parent.children() for recursive=False
+                    self.logger.info("Killing {} (child of {})".format(child.pid, pid))
+                    try:
+                        child.kill()
+                    except psutil._exceptions.NoSuchProcess:
+                        self.logger.info("Already dead.")
+                self.logger.info("Killing {}".format(pid))
+                try:
+                    parent.kill()
+                except psutil._exceptions.NoSuchProcess:
+                    self.logger.info("Already dead.")
+            except psutil.NoSuchProcess:
+                self.logger.info("Can't fetch parent process, already dead.")
