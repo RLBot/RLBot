@@ -19,6 +19,7 @@ class BaseJavaAgent(BaseIndependentAgent):
         self.javaInterface = None
         self.logger = get_logger('ProtoJava' + str(self.index))
         self.port = self.read_port_from_file()
+        self.is_retired = False
 
     def read_port_from_file(self):
         try:
@@ -53,9 +54,7 @@ class BaseJavaAgent(BaseIndependentAgent):
         Gets the list of process ids that should be marked as high priority.
         :return: A list of process ids that are used by this bot in addition to the ones inside the python process.
         """
-        while True:
-            if msvcrt.kbhit():
-                return []
+        while not self.is_retired:
             for proc in psutil.process_iter():
                 for conn in proc.connections():
                     if conn.laddr.port == self.port:
@@ -68,6 +67,7 @@ class BaseJavaAgent(BaseIndependentAgent):
             self.javaInterface.retireBot(self.index)
         except Exception as e:
             self.logger.warn(str(e))
+        self.is_retired = True
 
     def init_py4j_stuff(self):
         self.logger.info("Connecting to Java Gateway on port " + str(self.port))
