@@ -164,8 +164,8 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
     def load_variables(self):
         super().load_variables()
         self.create_config_headers_dicts()
-        self.item_dicts = self.get_item_dicts()
-        self.prefill_boxes()
+        self.longlabel_to_id, self.id_to_longlabel = self.get_item_dicts()
+        self.prefill_comboboxes()
 
     def connect_functions(self):
         super().connect_functions()
@@ -191,34 +191,34 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
                 if widget_to_update is updated_widget:
                     # no need to update itself, therefore continue
                     continue
+                config_headers = self.config_widgets_to_headers[widget_to_update]
+                category = self.config_headers_to_categories[config_headers[1]]
                 if isinstance(widget_to_update, QtWidgets.QComboBox):
                     # update combobox by selecting decal_labels.index(self.categorised_items[updated_widget.value()])
                     item_id = updated_widget.value()
                     try:
-                        # try to get item name from id in self.item_dicts
-                        item_name = self.item_dicts['id_to_items'][item_id]['LongLabel']
+                        # try to get item name from id in self.id_to_longlabel
+                        item_name = self.id_to_longlabel[category][item_id]
                         try:
                             # try to select item in combobox
-                            config_headers = self.config_widgets_to_headers[widget_to_update]
-                            category = self.config_headers_to_categories[config_headers[1]]
-                            _index = self.item_dicts['categorised_items'][category].index(item_name)
-                            widget_to_update.setCurrentIndex(_index)
+                            widget_to_update.setCurrentText(item_name)
                         except ValueError:
                             # print('Error: Item ID entered does not belong in this category. (%s)' % item_name)
-                            pass
+                            widget_to_update.setCurrentText('Unknown')
                     except KeyError:
                         # unknown item selected, the id exists in no category
                         # print('Unknown item ID entered (%s) in %s' % (item_id, widget_to_update.objectName()))
-                        pass
                         widget_to_update.setCurrentText('Unknown')
 
                 elif isinstance(widget_to_update, QtWidgets.QAbstractSpinBox):
-                    # update spinbox by widget.setValue(item_id where label = label)
                     item_longlabel = updated_widget.currentText()
                     if item_longlabel == "Unknown":
                         item_id = 0
                         continue
-                    item_id = self.item_dicts['longlabels_to_id'][item_longlabel]
+                        # get the id of the item, if this throws an error the dict got somehow messed up,
+                        # since the combobox was originally loaded from the same dict
+                    item_id = self.longlabel_to_id[category][item_longlabel]
+                    # set the spinbox to the new value
                     widget_to_update.setValue(item_id)
         else:
             item_id = updated_widget.value()
@@ -294,57 +294,46 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
                     self.config_widgets_to_headers[_widget] = (header_1, header_2)
 
         self.config_headers_to_categories = {
-            'car_id': 'Bodies',
-            'decal_id': 'Decals',
+            'car_id': 'Body',
+            'decal_id': 'Decal',
             'wheels_id': 'Wheels',
-            'boost_id': 'Boosts',
-            'antenna_id': 'Antennas',
-            'hat_id': 'Toppers',
-            'paint_finish_id': 'Paints',
-            'custom_finish_id': 'Paints',
-            'engine_audio_id': 'EngineAudio',
-            'trails_id': 'Trails',
-            'goal_explosion_id': 'GoalExplosions'
+            'boost_id': 'Rocket Boost',
+            'antenna_id': 'Antenna',
+            'hat_id': 'Topper',
+            'paint_finish_id': 'Paint Finish',
+            'custom_finish_id': 'Paint Finish',
+            'engine_audio_id': 'Engine Audio',
+            'trails_id': 'Trail',
+            'goal_explosion_id': 'Goal Explosion'
         }
 
-    def prefill_boxes(self):
+    def prefill_comboboxes(self):
         for widget, config_headers in self.config_widgets_to_headers.items():
             if isinstance(widget, QtWidgets.QComboBox):
                 config_headers = self.config_widgets_to_headers[widget]
                 config_category = self.config_headers_to_categories[config_headers[1]]
-                widget.addItems(self.item_dicts['categorised_items'][config_category] + ['Unknown'])
+                widget.addItems(list(self.longlabel_to_id[config_category].keys()) + ['Unknown'])
 
     @staticmethod
     def get_item_dicts():
         """
-        Creates the id_to_items and items_to_id and categorised_items dicts.
-        items_to_id is LongLabel: ID
-        categorised_items is {category: [LongLabels]}
-        :return:
+        Creates two item dicts and returns them, both are sorted by the Slot type
+        :return: First dict is LongLabel to ID, second is ID to LongLabel
         """
 
-        json_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'categorised_items.json')
+        json_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'rocket_league_items.json')
         with open(json_path, 'r') as f:
-            _id_to_items = json.load(f, parse_int=True)
-            # convert keys to ints
-            id_to_items = {int(_id): _item for _id, _item in _id_to_items.items()}
+            sorted_items = json.load(f, parse_int=True).items()
 
-        longlabels_to_id = {_item_dict["LongLabel"]: int(_id) for _id, _item_dict in id_to_items.items()}
+        longlabel_to_id = {}
+        id_to_longlabel = {}
+        for slot, items in sorted_items:
+            type_longlabel_to_id = {item['LongLabel']: int(item['ID']) for item in items}
+            type_id_to_longlabel = {int(item['ID']): item['LongLabel'] for item in items}
+            longlabel_to_id[slot] = type_longlabel_to_id
+            id_to_longlabel[slot] = type_id_to_longlabel
 
-        categorised_items = {}
-        for item in id_to_items.values():
-            try:
-                categorised_items[item['Category']].append(item['LongLabel'])
-            except KeyError:
-                # item['Category'] not in categorised_items yet.
-                categorised_items[item['Category']] = [item['LongLabel']]
-
-        dicts = {
-            'id_to_items': id_to_items,
-            'longlabels_to_id': longlabels_to_id,
-            'categorised_items': categorised_items,
-        }
-        return dicts
+        return longlabel_to_id, id_to_longlabel
 
 
 class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
