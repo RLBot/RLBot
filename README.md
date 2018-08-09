@@ -10,6 +10,7 @@
  - Python - https://github.com/RLBot/RLBotPythonExample
  - Java - https://github.com/RLBot/RLBotJavaExample
  - .NET (C#, VB.NET, F# and other CLI languages) - https://github.com/RLBot/RLBotCSharpExample
+ - Scratch - https://github.com/RLBot/RLBotScratchInterface
 
 But if you want to make improvements that help out everyone, you're in the right place!
 
