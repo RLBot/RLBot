@@ -26,9 +26,7 @@ Windows, Rocket League, Python 3.6.
 ### Quick Start
 
 1. Double-click on setup.bat
-2. Run `pip install -r .\requirements.txt`
-(may be slightly different for you if you don't have pip on your PATH)
-3. Open up Rocket League
+2. Open up Rocket League
 4. Open a terminal and execute `python runner.py`
 
 ### Useful Scripts
