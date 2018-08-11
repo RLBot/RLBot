@@ -147,19 +147,23 @@ class BotManager:
                 last_call_real_time = datetime.now()
 
                 # Reload the Agent if it has been modified.
-                new_module_modification_time = os.stat(agent_class_file).st_mtime
-                if new_module_modification_time != last_module_modification_time:
-                    try:
-                        last_module_modification_time = new_module_modification_time
+                try:
+                    new_module_modification_time = os.stat(agent_class_file).st_mtime
+                    if new_module_modification_time != last_module_modification_time:
                         self.logger.info('Reloading Agent: ' + agent_class_file)
                         self.agent_class_wrapper.reload()
                         old_agent = agent
                         agent, agent_class_file = self.load_agent()
+                        last_module_modification_time = new_module_modification_time
                         # Retire after the replacement initialized properly.
                         if hasattr(old_agent, 'retire'):
                             old_agent.retire()
-                    except Exception as e:
-                        self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
+                except FileNotFoundError:
+                    self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))
+                    time.sleep(0.5)
+                except Exception:
+                    self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
+                    time.sleep(0.5)  # Avoid burning CPU / logs if this starts happening constantly
 
                 # Call agent
                 try:
