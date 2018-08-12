@@ -13,6 +13,7 @@ from rlbot.gui.index_manager import IndexManager
 from rlbot.gui.design.qt_gui import Ui_MainWindow
 from rlbot.gui.gui_agent import GUIAgent
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
+from rlbot.gui.mutator_editor import MutatorEditor
 
 from rlbot.utils.file_util import get_python_root, get_rlbot_directory
 from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
@@ -47,6 +48,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
+        self.mutator_customisation = MutatorEditor(self)
 
         if os.path.isfile(DEFAULT_RLBOT_CONFIG_LOCATION):
             self.load_overall_config(DEFAULT_RLBOT_CONFIG_LOCATION)
@@ -168,6 +170,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             elif isinstance(child, QCheckBox):
                 child.toggled.connect(self.match_settings_edit_event)
 
+        self.edit_mutators_pushbutton.clicked.connect(self.mutator_customisation.popup)
         self.kill_bots_pushbutton.clicked.connect(self.kill_bots)
         self.run_button.clicked.connect(self.run_button_pressed)
 
@@ -294,6 +297,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.update_team_settings()
         self.car_customisation.update_presets_widgets()
         self.agent_customisation.update_presets_widgets()
+        self.mutator_customisation.update_comboboxes()
 
     def load_overall_config(self, config_path=None):
         """
@@ -328,6 +332,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.update_team_settings()
         self.car_customisation.update_presets_widgets()
         self.agent_customisation.update_presets_widgets()
+        self.mutator_customisation.update_comboboxes()
 
     def save_overall_config(self, time_out=0):
         """
@@ -607,8 +612,6 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         """
         self.mode_type_combobox.addItems(game_mode_types)
         self.map_type_combobox.addItems(map_types)
-        self.match_length_combobox.addItems(match_length_types)
-        self.boost_type_combobox.addItems(boost_amount_mutator_types)
 
     def update_match_settings(self):
         """
@@ -619,8 +622,6 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.map_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
         self.skip_replays_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS))
         self.instant_start_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START))
-        self.match_length_combobox.setCurrentText(self.overall_config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH))
-        self.boost_type_combobox.setCurrentText(self.overall_config.get(MUTATOR_CONFIGURATION_HEADER, MUTATOR_BOOST_AMOUNT))
 
     def match_settings_edit_event(self, value):
         """
