@@ -17,7 +17,7 @@
 if __name__ == '__main__':
     import json
     items = {}
-    with open('items.txt', 'r') as f:
+    with open('Rocket_League_Items.txt', 'r') as f:
         item_lines = []
         for line in f:
             if line.startswith("LongLabel: ") and item_lines:  # We got to a new item, now parse latest one
