@@ -18,7 +18,7 @@ struct FieldInfo
 {
 	BoostPad                BoostPads[CONST_MaxBoosts];
 	int                     NumBoosts;
-	GoalInfo                Goals[2];
+	GoalInfo                Goals[CONST_MaxGoals];
 	int                     NumGoals;
 };
 

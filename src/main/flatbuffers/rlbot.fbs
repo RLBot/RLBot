@@ -110,6 +110,21 @@ table BoostPadState {
   timer:float;
 }
 
+enum TileState: byte {
+    UnKnown = 0,
+    /// The default state of the tiles.
+    Filled = 1,
+    /// The state when a tile has been damaged.
+    Damaged = 2,
+    /// The state of a tile when it is open and a goal can be scored.
+    Open = 3
+}
+
+table DropshotTile {
+  /// True if the tile is damaged
+  tileState: TileState;
+}
+
 table GameInfo {
   secondsElapsed:float;
   gameTimeRemaining:float;
@@ -129,6 +144,7 @@ table GameInfo {
 table GameTickPacket {
   players:[PlayerInfo];
   boostPadStates:[BoostPadState];
+  tileInformation:[DropshotTile];
   ball:BallInfo;
   gameInfo:GameInfo;
 }
