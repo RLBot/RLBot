@@ -101,6 +101,13 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         Starts a match with the current configuration
         :return:
         """
+
+        if self.setup_manager is not None:
+            self.setup_manager.shut_down(time_limit=5, kill_all_pids=False)
+            # Leave any external processes alive, e.g. Java or C#, since it can
+            # be useful to keep them around. The user can kill them with the
+            # Kill Bots button instead.
+
         agent_configs_dict = {}
         loadout_configs_dict = {}
         for agent in self.agents:
@@ -120,7 +127,6 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.setup_manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
         self.setup_manager.launch_bot_processes()
         self.setup_manager.run()
-        self.setup_manager.shut_down()
 
     def connect_functions(self):
         """
@@ -165,7 +171,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 child.toggled.connect(self.match_settings_edit_event)
 
         self.edit_mutators_pushbutton.clicked.connect(self.mutator_customisation.popup)
-
+        self.kill_bots_pushbutton.clicked.connect(self.kill_bots)
         self.run_button.clicked.connect(self.run_button_pressed)
 
     def bot_config_edit_event(self, value=None):
@@ -648,6 +654,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         popup.setText(message)
         popup.setStandardButtons(QMessageBox.Ok)
         popup.exec_()
+
+    def kill_bots(self):
+        if self.setup_manager is not None:
+            self.setup_manager.shut_down(time_limit=5, kill_all_pids=True)
+        else:
+            print("There gotta be some setup manager already")
 
     @staticmethod
     def main():

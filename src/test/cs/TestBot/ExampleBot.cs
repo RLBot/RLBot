@@ -1,6 +1,7 @@
 ﻿using System;
 using RLBotDotNet;
 using rlbot.flat;
+using Color = System.Windows.Media.Color;
 
 namespace TestBot
 {
@@ -40,6 +41,10 @@ namespace TestBot
                     controller.Steer = 1;
                 else
                     controller.Steer = -1;
+
+                Renderer.DrawLine3D(Color.FromRgb(255, 255, 0),
+                    new System.Numerics.Vector3(ballLocation.X, ballLocation.Y, ballLocation.Z),
+                    new System.Numerics.Vector3(carLocation.X, carLocation.Y, carLocation.Z));
 
                 // controller.Steer = 0;
 

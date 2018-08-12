@@ -2,11 +2,13 @@ using rlbot.flat;
 using RLBotDotNet.Utils;
 using RLBotDotNet.Server;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using System.IO;
+using RLBotDotNet.Renderer;
 
 namespace RLBotDotNet
 {
@@ -16,10 +18,19 @@ namespace RLBotDotNet
     /// <typeparam name="T">The custom bot class that should be run.</typeparam>
     public class BotManager<T> where T : Bot
     {
+        private readonly ConcurrentDictionary<int, BotLoopRenderer> _renderers;
         private ManualResetEvent botRunEvent = new ManualResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private Thread serverThread;
         
+        /// <summary>
+        /// Constructs a new instance of BotManager.
+        /// </summary>
+        public BotManager()
+        {
+            _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
+        }
+
         /// <summary>
         /// Adds a bot to the <see cref="botProcesses"/> list if the index is not there already.
         /// </summary>
@@ -52,13 +63,17 @@ namespace RLBotDotNet
         /// <param name="bot"></param>
         private void RunBot(Bot bot)
         {
+            var renderer = GetRendererForBot(bot);
+            bot.SetRenderer(renderer);
             while (true)
             {
                 try
                 {
+                    renderer.StartPacket();
                     GameTickPacket gameTickPacket = RLBotInterface.GetGameTickPacket();
                     Controller botInput = bot.GetOutput(gameTickPacket);
                     RLBotInterface.SetBotInput(botInput, bot.index);
+                    renderer.FinishAndSendIfDifferent();
                 }
                 catch (FlatbuffersPacketException)
                 {
@@ -199,6 +214,11 @@ namespace RLBotDotNet
                     // DLL is being used, therefore don't copy.
                 }
             }
+        }
+
+        private BotLoopRenderer GetRendererForBot(Bot bot)
+        {
+            return _renderers.GetOrAdd(bot.index, new BotLoopRenderer(bot.index));
         }
     }
 }

@@ -858,6 +858,13 @@
         <number>0</number>
        </property>
        <item>
+        <widget class="QPushButton" name="kill_bots_pushbutton">
+         <property name="text">
+          <string>Kill Bots</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>

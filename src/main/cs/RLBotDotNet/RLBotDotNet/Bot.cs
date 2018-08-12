@@ -1,6 +1,7 @@
 ﻿using rlbot.flat;
 using RLBotDotNet.Utils;
 using System;
+using RLBotDotNet.Renderer;
 
 namespace RLBotDotNet
 {
@@ -29,6 +30,7 @@ namespace RLBotDotNet
         private DateTime lastChatTime;
         private bool resetChatTime;
         private int chatCounter;
+        private Renderer.Renderer _renderer;
 
         /// <summary>
         /// Creates a bot instance. To be used by the BotManager.
@@ -46,6 +48,16 @@ namespace RLBotDotNet
         /// <param name="gameTickPacket">The game data input.</param>
         /// <returns>Should return the Controller outputs that the bot should execute.</returns>
         public abstract Controller GetOutput(GameTickPacket gameTickPacket);
+
+        /// <summary>
+        /// Gets the renderer.
+        /// </summary>
+        protected Renderer.Renderer Renderer => _renderer;
+
+        internal void SetRenderer(Renderer.Renderer renderBuilder)
+        {
+            _renderer = renderBuilder;
+        }
 
         protected FieldInfo GetFieldInfo()
         {

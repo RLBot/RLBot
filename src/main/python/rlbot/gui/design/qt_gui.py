@@ -423,6 +423,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout(self.frame_6)
         self.horizontalLayout_10.setContentsMargins(-1, 0, -1, 0)
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
+        self.kill_bots_pushbutton = QtWidgets.QPushButton(self.frame_6)
+        self.kill_bots_pushbutton.setObjectName("kill_bots_pushbutton")
+        self.horizontalLayout_10.addWidget(self.kill_bots_pushbutton)
         spacerItem = QtWidgets.QSpacerItem(489, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_10.addItem(spacerItem)
         self.label_7 = QtWidgets.QLabel(self.frame_6)
@@ -485,6 +488,7 @@ class Ui_MainWindow(object):
         self.label_14.setText(_translate("MainWindow", "Instant Start:"))
         self.edit_mutators_pushbutton.setText(_translate("MainWindow", "Edit Mutators"))
         self.label_13.setText(_translate("MainWindow", "Skip Replays:"))
+        self.kill_bots_pushbutton.setText(_translate("MainWindow", "Kill Bots"))
         self.label_7.setText(_translate("MainWindow", "Please make sure game is running"))
         self.run_button.setText(_translate("MainWindow", "RUN"))
 
