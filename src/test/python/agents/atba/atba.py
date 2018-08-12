@@ -94,15 +94,21 @@ class Atba(BaseAgent):
             num_damaged = 0
             num_open = 0
             num_unknown = 0
+            field_info = self.get_field_info()
+            field_info.goals
             for i in range(num_tiles):
                 tile = game_tick_packet.dropshot_tiles[i]
                 if tile.tile_state == DropshotTileState.UNKNOWN:
                     num_unknown += 1
                 if tile.tile_state == DropshotTileState.FILLED:
                     num_filled += 1
+                    location = field_info.goals[i].location
+
                 if tile.tile_state == DropshotTileState.DAMAGED:
+                    self.renderer.draw_line_2d_3d(0, 0, location, self.renderer.white())
                     num_damaged += 1
                 if tile.tile_state == DropshotTileState.OPEN:
+                    self.renderer.draw_line_2d_3d(0, 0, location, self.renderer.white())
                     num_open += 1
 
             self.renderer.draw_string_2d(50, 500, 10, 10, 'num filled: ' + str(num_filled), self.renderer.black())
