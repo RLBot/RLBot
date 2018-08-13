@@ -350,3 +350,19 @@ table TinyPacket {
     players: [TinyPlayer];
     ball: TinyBall;
 }
+
+table PredictionSlice {
+    /// The moment in game time that this prediction corresponds to.
+    /// This corresponds to 'secondsElapsed' in the GameInfo table.
+    gameSeconds: float;
+
+    /// The predicted location and motion of the object.
+    physics: Physics;
+}
+
+table BallPrediction {
+    /// A list of places the ball will be at specific times in the future.
+    /// It is guaranteed to sorted so that time increases with each slice.
+    /// It is NOT guaranteed to have a consistent amount of time between slices.
+    slices: [PredictionSlice];
+}
