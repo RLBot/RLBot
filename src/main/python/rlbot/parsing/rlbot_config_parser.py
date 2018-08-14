@@ -1,7 +1,6 @@
-import configparser
-
 from rlbot.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header, \
     get_looks_config
+from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.parsing.match_settings_config_parser import add_mutator_header, get_num_players, \
     add_match_settings_header, parse_match_settings
 from rlbot.parsing.custom_config import ConfigObject
@@ -59,6 +58,8 @@ def parse_configurations(start_match_configuration, config_parser, config_locati
 
     player_configuration_list = get_player_configuration_list(start_match_configuration)
 
+    human_index_tracker = IncrementingInteger(0)
+
     # Set configuration values for bots and store name and team
     for i in range(num_participants):
 
@@ -71,7 +72,8 @@ def parse_configurations(start_match_configuration, config_parser, config_locati
 
         bot_name, team_number, python_file, bot_parameters = load_bot_config(i, player_configuration_list[i],
                                                                              config_bundle, looks_config_object,
-                                                                             config_parser, name_dict)
+                                                                             config_parser, name_dict,
+                                                                             human_index_tracker)
 
         bot_names.append(bot_name)
         bot_teams.append(team_number)
