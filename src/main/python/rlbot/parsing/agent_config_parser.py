@@ -4,6 +4,7 @@ import os
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
     BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_NAME_KEY
+from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.utils.class_importer import import_agent
 from rlbot.utils.logging_utils import get_logger
 
@@ -149,7 +150,8 @@ def get_bot_options(bot_type):
     return is_bot, is_rlbot
 
 
-def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, looks_config_object, overall_config, name_dict):
+def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, looks_config_object, overall_config,
+                    name_dict, human_index_tracker: IncrementingInteger):
     """
     Loads the config data of a single bot
     :param index: This is the bot index (where it appears in game_cars)
@@ -157,6 +159,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     :param config_bundle: A config object for a single bot
     :param overall_config: This is the config for the entire session not one particular bot
     :param name_dict: A mapping of used names so we can make sure to not reuse bot names.
+    :param human_index_tracker: An object of type HumanIndexManager that helps set human_index correctly.
     :return:
     """
     team_num = get_team(overall_config, index)
@@ -170,7 +173,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
 
     if not bot_configuration.bot:
-        bot_configuration.human_index = index
+        bot_configuration.human_index = human_index_tracker.increment()
 
     loadout_header = BOT_CONFIG_LOADOUT_HEADER
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
