@@ -111,7 +111,7 @@ table BoostPadState {
 }
 
 enum TileState: byte {
-    UnKnown = 0,
+    Unknown = 0,
     /// The default state of the tiles.
     Filled = 1,
     /// The state when a tile has been damaged.

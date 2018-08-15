@@ -7,7 +7,7 @@ from rlbot.utils.structures.utils import create_enum_object
 
 MAX_BOOSTS = 50
 MAX_TILES = 200
-MAX_GOALS = 140
+MAX_GOALS = 200
 
 
 class Vector3(ctypes.Structure):

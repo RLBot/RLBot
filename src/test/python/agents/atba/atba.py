@@ -88,33 +88,33 @@ class Atba(BaseAgent):
     def do_dropshot_tile_test(self, game_tick_packet: GameTickPacket):
         num_tiles = game_tick_packet.num_tiles
         self.renderer.begin_rendering(group_id="dropshot")
-        self.renderer.draw_string_2d(50, 400, 10, 10, 'num tiles: ' + str(num_tiles), self.renderer.black())
+        self.renderer.draw_string_2d(10, 10, 2, 2, 'num tiles: ' + str(num_tiles), self.renderer.white())
         if num_tiles > 0:
             num_filled = 0
             num_damaged = 0
             num_open = 0
             num_unknown = 0
             field_info = self.get_field_info()
-            field_info.goals
+            red = self.renderer.create_color(255, 255, 60, 60)
+            green = self.renderer.create_color(255, 60, 255, 60)
             for i in range(num_tiles):
                 tile = game_tick_packet.dropshot_tiles[i]
+                location = field_info.goals[i].location
                 if tile.tile_state == DropshotTileState.UNKNOWN:
                     num_unknown += 1
                 if tile.tile_state == DropshotTileState.FILLED:
                     num_filled += 1
-                    location = field_info.goals[i].location
-
                 if tile.tile_state == DropshotTileState.DAMAGED:
-                    self.renderer.draw_line_2d_3d(0, 0, location, self.renderer.white())
+                    self.renderer.draw_rect_3d(location, 5, 5, True, green, True)
                     num_damaged += 1
                 if tile.tile_state == DropshotTileState.OPEN:
-                    self.renderer.draw_line_2d_3d(0, 0, location, self.renderer.white())
+                    self.renderer.draw_line_2d_3d(0, 0, location, red)
                     num_open += 1
 
-            self.renderer.draw_string_2d(50, 500, 10, 10, 'num filled: ' + str(num_filled), self.renderer.black())
-            self.renderer.draw_string_2d(50, 600, 10, 10, 'num damaged: ' + str(num_damaged), self.renderer.black())
-            self.renderer.draw_string_2d(50, 700, 10, 10, 'num open: ' + str(num_open), self.renderer.black())
-            self.renderer.draw_string_2d(50, 800, 10, 10, 'num unknown: ' + str(num_unknown), self.renderer.black())
+            self.renderer.draw_string_2d(10, 30, 2, 2, 'num filled: ' + str(num_filled), self.renderer.white())
+            self.renderer.draw_string_2d(10, 50, 2, 2, 'num damaged: ' + str(num_damaged), self.renderer.white())
+            self.renderer.draw_string_2d(10, 70, 2, 2, 'num open: ' + str(num_open), self.renderer.white())
+            self.renderer.draw_string_2d(10, 90, 2, 2, 'num unknown: ' + str(num_unknown), self.renderer.white())
 
         self.renderer.end_rendering()
 
