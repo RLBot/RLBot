@@ -1,12 +1,13 @@
 package rlbot;
 
-import rlbot.cppinterop.RLBotDll;
 import rlbot.input.CarData;
 import rlbot.input.DataPacket;
+import rlbot.input.DropshotTile;
+import rlbot.input.FieldInfoManager;
 import rlbot.manager.BotLoopRenderer;
+import rlbot.output.ControlsOutput;
 import rlbot.render.NamedRenderer;
 import rlbot.render.Renderer;
-import rlbot.output.ControlsOutput;
 import rlbot.vec.Vector2;
 
 import java.awt.*;
@@ -15,6 +16,7 @@ public class SampleBot implements Bot {
 
     private final int playerIndex;
     private final NamedRenderer triangleRenderer;
+    private FieldInfoManager fieldInfoManager = new FieldInfoManager();
 
     public SampleBot(int playerIndex) {
         this.playerIndex = playerIndex;
@@ -49,6 +51,12 @@ public class SampleBot implements Bot {
         renderer.drawString3d("It's me", Color.green, myCar.position, 2, 2);
         renderer.drawCenteredRectangle3d(Color.black, input.ball.position, 20, 20, false);
 
+        for (DropshotTile tile: fieldInfoManager.getDropshotTiles()) {
+            if (tile.state == DropshotTile.State.OPEN) {
+                renderer.drawCenteredRectangle3d(Color.BLACK, tile.location, 10, 10, true);
+            }
+        }
+
         if (input.ball.position.z > 1000) {
             triangleRenderer.eraseFromScreen();
         }
@@ -70,6 +78,7 @@ public class SampleBot implements Bot {
             return new ControlsOutput();
         }
         DataPacket dataPacket = new DataPacket(gameTickPacket, playerIndex);
+        fieldInfoManager.addPacketInfo(gameTickPacket);
         return processInput(dataPacket);
     }
 
