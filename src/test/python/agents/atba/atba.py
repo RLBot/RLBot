@@ -65,7 +65,8 @@ class Atba(BaseAgent):
             ball_render_location = [game_tick_packet.game_ball.physics.location.x,
                                     game_tick_packet.game_ball.physics.location.y,
                                     game_tick_packet.game_ball.physics.location.z]
-            text_render_strX = 'x:' + str(game_tick_packet.game_ball.physics.location.x)
+            text = 'touch x:' + str(game_tick_packet.game_ball.latest_touch.hit_location.x) + '\ntime: ' \
+                   + str(game_tick_packet.game_ball.latest_touch.time_seconds)
 
             self.renderer.begin_rendering()
             color = self.renderer.create_color(121, 121, 0, 121)
@@ -76,8 +77,8 @@ class Atba(BaseAgent):
                                        car_render_location, color2).draw_line_2d_3d(100, 100,
                                                                                     car_render_location, color2)
             self.renderer.draw_rect_3d(car_render_location, 100, 100, True, self.renderer.create_color(200, 0, 0, 0))
-            self.renderer.draw_string_2d(1000, 500, 10, 10, text_render_strX, self.renderer.white())
-            self.renderer.draw_string_3d(ball_render_location, 20, 20, "BALL", self.renderer.red())
+            self.renderer.draw_string_2d(100, 100, 2, 2, text, self.renderer.white())
+            self.renderer.draw_string_3d(ball_render_location, 2, 2, "BALL", self.renderer.red())
 
             if game_tick_packet.game_info.is_kickoff_pause:
                 # Color showcase
@@ -94,9 +95,8 @@ class Atba(BaseAgent):
                 self.renderer.draw_string_2d(10, 270, 1, 1, "blue", self.renderer.blue())
                 self.renderer.draw_string_2d(10, 285, 1, 1, "pink", self.renderer.pink())
                 self.renderer.draw_string_2d(10, 300, 1, 1, "purple", self.renderer.purple())
-
             self.renderer.end_rendering()
-        if my_car.physics.location.x > 0:
+        if my_car.physics.location.z > 50:
             self.cleared = True
         else:
             self.cleared = False
