@@ -74,6 +74,11 @@ namespace FlatbufferTranslator {
 		// Location is unavailable from BoostPadState. It will need to be added later from FieldInfo.
 	}
 
+	void fillTileStruct(const rlbot::flat::DropshotTile* tileInformation, TileInfo* structTile)
+	{
+		structTile->tileState = tileInformation->tileState();
+	}
+
 	void fillTouchStruct(const rlbot::flat::Touch* touch, Touch* structTouch)
 	{
 			fillStructName(touch->playerName()->str(), structTouch->PlayerName);
@@ -124,11 +129,20 @@ namespace FlatbufferTranslator {
 		}
 
 		auto boosts = flatPacket->boostPadStates();
-		packet->NumBoosts = boosts->size();
-		for (int i = 0; i < boosts->size(); i++) {
-			fillBoostStruct(boosts->Get(i), &packet->GameBoosts[i]);
+		if (boosts) {
+			packet->NumBoosts = boosts->size();
+			for (int i = 0; i < boosts->size(); i++) {
+				fillBoostStruct(boosts->Get(i), &packet->GameBoosts[i]);
+			}
 		}
 
+		auto tiles = flatPacket->tileInformation();
+		if (tiles) {
+			packet->NumTiles = tiles->size();
+			for (int i = 0; i < tiles->size() && i < CONST_MaxTiles; i++) {
+			fillTileStruct(tiles->Get(i), &packet->GameTiles[i]);
+			}
+		}
 
 		if (flatbuffers::IsFieldPresent(flatPacket, rlbot::flat::GameTickPacket::VT_BALL))
 		{

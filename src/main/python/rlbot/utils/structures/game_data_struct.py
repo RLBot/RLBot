@@ -3,8 +3,11 @@ import math
 
 from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
 
+from rlbot.utils.structures.utils import create_enum_object
+
 MAX_BOOSTS = 50
-MAX_GOALS = 2
+MAX_TILES = 200
+MAX_GOALS = 200
 
 
 class Vector3(ctypes.Structure):
@@ -71,6 +74,9 @@ class BoostPadState(ctypes.Structure):
     _fields_ = [("is_active", ctypes.c_bool),
                 ("timer", ctypes.c_float)]
 
+class TileInfo(ctypes.Structure):
+    _fields_ = [("tile_state", ctypes.c_int)]
+
 
 class GameInfo(ctypes.Structure):
     _fields_ = [("seconds_elapsed", ctypes.c_float),
@@ -87,7 +93,6 @@ class GameInfo(ctypes.Structure):
                 # countdown. Turns false again the moment the 'choose team' screen appears.
                 ("is_match_ended", ctypes.c_bool)]
 
-
 # On the c++ side this struct has a long at the beginning for locking.  This flag is removed from this struct so it isn't visible to users.
 class GameTickPacket(ctypes.Structure):
     _fields_ = [("game_cars", PlayerInfo * MAX_PLAYERS),
@@ -95,7 +100,9 @@ class GameTickPacket(ctypes.Structure):
                 ("game_boosts", BoostPadState * MAX_BOOSTS),
                 ("num_boost", ctypes.c_int),
                 ("game_ball", BallInfo),
-                ("game_info", GameInfo)]
+                ("game_info", GameInfo),
+                ("dropshot_tiles", TileInfo * MAX_TILES),
+                ("num_tiles", ctypes.c_int)]
 
 
 class BoostPad(ctypes.Structure):
@@ -153,3 +160,9 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
 
         car_yaw = game_tick_packet.game_cars[i].physics.rotation.yaw
         game_tick_packet.game_cars[i].physics.rotation.yaw = car_yaw + math.pi if car_yaw < 0 else car_yaw - math.pi
+
+
+DropshotTileState = create_enum_object(["UNKNOWN",
+                                        "FILLED",
+                                        "DAMAGED",
+                                        "OPEN"])

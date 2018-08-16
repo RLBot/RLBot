@@ -2,7 +2,7 @@ import math
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleControllerState
 from rlbot.parsing.custom_config import ConfigObject
-from rlbot.utils.structures.game_data_struct import GameTickPacket
+from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
 
 
@@ -10,6 +10,7 @@ class Atba(BaseAgent):
     flip_turning = False
     test_rendering = False
     test_quickchat = False
+    test_dropshot = False
     cleared = False
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
@@ -39,6 +40,9 @@ class Atba(BaseAgent):
 
         if self.test_rendering:
             self.do_rendering_test(game_tick_packet, my_car)
+
+        if self.test_dropshot:
+            self.do_dropshot_tile_test(game_tick_packet)
 
         controller_state.throttle = 1.0
         controller_state.steer = turn
@@ -81,10 +85,44 @@ class Atba(BaseAgent):
         else:
             self.cleared = False
 
+    def do_dropshot_tile_test(self, game_tick_packet: GameTickPacket):
+        num_tiles = game_tick_packet.num_tiles
+        self.renderer.begin_rendering(group_id="dropshot")
+        self.renderer.draw_string_2d(10, 10, 2, 2, 'num tiles: ' + str(num_tiles), self.renderer.white())
+        if num_tiles > 0:
+            num_filled = 0
+            num_damaged = 0
+            num_open = 0
+            num_unknown = 0
+            field_info = self.get_field_info()
+            red = self.renderer.create_color(255, 255, 60, 60)
+            green = self.renderer.create_color(255, 60, 255, 60)
+            for i in range(num_tiles):
+                tile = game_tick_packet.dropshot_tiles[i]
+                location = field_info.goals[i].location
+                if tile.tile_state == DropshotTileState.UNKNOWN:
+                    num_unknown += 1
+                if tile.tile_state == DropshotTileState.FILLED:
+                    num_filled += 1
+                if tile.tile_state == DropshotTileState.DAMAGED:
+                    self.renderer.draw_rect_3d(location, 5, 5, True, green, True)
+                    num_damaged += 1
+                if tile.tile_state == DropshotTileState.OPEN:
+                    self.renderer.draw_line_2d_3d(0, 0, location, red)
+                    num_open += 1
+
+            self.renderer.draw_string_2d(10, 30, 2, 2, 'num filled: ' + str(num_filled), self.renderer.white())
+            self.renderer.draw_string_2d(10, 50, 2, 2, 'num damaged: ' + str(num_damaged), self.renderer.white())
+            self.renderer.draw_string_2d(10, 70, 2, 2, 'num open: ' + str(num_open), self.renderer.white())
+            self.renderer.draw_string_2d(10, 90, 2, 2, 'num unknown: ' + str(num_unknown), self.renderer.white())
+
+        self.renderer.end_rendering()
+
     def load_config(self, config_header):
         self.flip_turning = config_header.getboolean('flip_turning')
         self.test_rendering = config_header.getboolean('test_rendering')
         self.test_quickchat = config_header.getboolean('test_quickchat')
+        self.test_dropshot = config_header.getboolean('test_dropshot')
 
     @staticmethod
     def create_agent_configurations(config: ConfigObject):
@@ -92,7 +130,7 @@ class Atba(BaseAgent):
         params.add_value('flip_turning', bool, default=False, description='if true bot will turn opposite way')
         params.add_value('test_rendering', bool, default=False, description='if true bot will render random stuff')
         params.add_value('test_quickchat', bool, default=False, description='if true bot will spam quickchats')
-
+        params.add_value('test_dropshot', bool, default=False, description='if true bot will render dropshot info')
 
 class Vector2:
     def __init__(self, x=0.0, y=0.0):

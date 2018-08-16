@@ -7,25 +7,22 @@ from rlbot.messages.flat import QuickChat
 from rlbot.messages.flat import QuickChatSelection
 from rlbot.utils.logging_utils import get_logger
 
-
-def get_quick_chats():
-    """
-    Look for quick chats from here:
-    https://github.com/RLBot/RLBot/blob/master/src/main/flatbuffers/rlbot.fbs
-    """
-    result = lambda: None
-    obj = QuickChatSelection.QuickChatSelection
-    quick_chat_list = [a for a in dir(obj) if not a.startswith('__') and not callable(getattr(obj,a))]
-    for i in range(len(quick_chat_list)):
-        setattr(result, quick_chat_list[i], getattr(obj, quick_chat_list[i]))
-    setattr(result, 'quick_chat_list', quick_chat_list)
-    setattr(result, 'CHAT_NONE', -1)
-    setattr(result, 'CHAT_EVERYONE', False)
-    setattr(result, 'CHAT_TEAM_ONLY', True)
-    return result
+from rlbot.utils.structures.utils import create_enum_object
 
 
-QuickChats = get_quick_chats()
+"""
+Look for quick chats from here:
+https://github.com/RLBot/RLBot/blob/master/src/main/flatbuffers/rlbot.fbs
+"""
+QuickChats = create_enum_object([chat for chat in dir(QuickChatSelection.QuickChatSelection)
+                                 if not chat.startswith('__')
+                                 and not callable(getattr(QuickChatSelection.QuickChatSelection, chat))],
+                                list_name='quick_chat_list',
+                                other_attributes=[
+                                    ('CHAT_NONE', -1),
+                                    ('CHAT_EVERYONE', False),
+                                    ('CHAT_TEAM_ONLY', True)
+                                ])
 
 
 def send_quick_chat_flat(game_interface, index, team, team_only, quick_chat):

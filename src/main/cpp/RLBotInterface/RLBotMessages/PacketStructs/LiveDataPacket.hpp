@@ -3,6 +3,8 @@
 
 
 #define CONST_MaxBoosts		50
+#define CONST_MaxTiles		200
+#define CONST_MaxGoals		200
 #define CONST_MaxPlayers	10
 
 struct ScoreInfo
@@ -70,6 +72,11 @@ struct BoostInfo
 	float 					Timer;
 };
 
+struct TileInfo
+{
+	int						tileState;
+};
+
 struct Touch
 {
 	wchar_t					PlayerName[32];
@@ -103,6 +110,8 @@ struct LiveDataPacket
 	int						NumBoosts;
 	BallInfo  				GameBall;
 	GameInfo				GameInfo;
+	TileInfo				GameTiles[CONST_MaxTiles];
+	int						NumTiles;
 };
 
 #endif
