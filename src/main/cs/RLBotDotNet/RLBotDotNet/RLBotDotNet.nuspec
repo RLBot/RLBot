@@ -11,7 +11,11 @@
     <iconUrl>https://raw.githubusercontent.com/RLBot/RLBot/master/images/RLBot_logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
-    <releaseNotes>Added rendering support.</releaseNotes>
+    <releaseNotes>
+      Added support for the Dropshot game mode.
+      Fixed crashing whenever there was a space in the bot's name.
+      (We have changed to semantic versioning, which is why we're at a 1.0.0 release now.)
+    </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>rocket-league</tags>
   </metadata>
