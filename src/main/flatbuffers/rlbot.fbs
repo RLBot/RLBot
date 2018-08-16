@@ -144,9 +144,9 @@ table GameInfo {
 table GameTickPacket {
   players:[PlayerInfo];
   boostPadStates:[BoostPadState];
-  tileInformation:[DropshotTile];
   ball:BallInfo;
   gameInfo:GameInfo;
+  tileInformation:[DropshotTile];
 }
 
 root_type GameTickPacket;
