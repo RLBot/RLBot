@@ -161,7 +161,7 @@ namespace RLBotDotNet
         {
             try
             {
-                string[] split = message.Split(new char[] { ' ' }, 5);
+                string[] split = message.Split(new char[] { '\n' }, 5);
 
                 if (split.Length < 2)
                     throw new Exception("Server received too few command arguments from client");

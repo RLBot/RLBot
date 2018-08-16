@@ -20,7 +20,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
     def run_independently(self, terminate_request_event):
 
         while not terminate_request_event.is_set():
-            message = "add {0} {1} {2} {3}".format(self.name, self.team, self.index, game_interface.get_dll_directory())
+            message = "add\n{0}\n{1}\n{2}\n{3}".format(self.name, self.team, self.index, game_interface.get_dll_directory())
 
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,7 +49,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
 
     def retire(self):
         port = self.read_port_from_file()
-        message = "remove {0}".format(self.index)
+        message = "remove\n{0}".format(self.index)
 
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
