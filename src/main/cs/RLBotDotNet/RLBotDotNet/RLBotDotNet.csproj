@@ -29,114 +29,48 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;X64</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;X64</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;X86</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;X86</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="FlatBuffers, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Flatbuffers DLLs\FlatBuffers.dll</HintPath>
+      <HintPath>FlatBuffers.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bot.cs" />
     <Compile Include="Common\MediaColorExtensions.cs" />
     <Compile Include="Common\NumericVector2Extensions.cs" />
     <Compile Include="Common\NumericVector3Extensions.cs" />
+    <Compile Include="Controller.cs" />
+    <Compile Include="flat\*.cs" />
+    <Compile Include="Interface\ByteBufferStruct.cs" />
     <Compile Include="Interface\FlatbuffersPacketException.cs" />
-    <Compile Include="Renderer\BotLoopRenderer.cs" />
+    <Compile Include="Interface\RLBotInterface.cs" />
     <Compile Include="Manager\BotManager.cs" />
+    <Compile Include="Manager\BotProcess.cs" />
     <Compile Include="Manager\TimerResolutionInterop.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Renderer\BotLoopRenderer.cs" />
     <Compile Include="Renderer\NamedRenderer.cs" />
     <Compile Include="Renderer\Renderer.cs" />
     <Compile Include="Renderer\RenderPacket.cs" />
     <Compile Include="Server\BotManagerServer.cs" />
-    <Compile Include="Manager\BotProcess.cs" />
     <Compile Include="Server\BotReceivedEventArgs.cs" />
-    <Compile Include="Interface\ByteBufferStruct.cs" />
-    <Compile Include="Controller.cs" />
-    <Compile Include="flat\BallInfo.cs" />
-    <Compile Include="flat\BoostPad.cs" />
-    <Compile Include="flat\BoostPadState.cs" />
-    <Compile Include="flat\Color.cs" />
-    <Compile Include="flat\ControllerState.cs" />
-    <Compile Include="flat\DesiredBallState.cs" />
-    <Compile Include="flat\DesiredCarState.cs" />
-    <Compile Include="flat\DesiredGameState.cs" />
-    <Compile Include="flat\DesiredPhysics.cs" />
-    <Compile Include="flat\FieldInfo.cs" />
-    <Compile Include="flat\Float.cs" />
-    <Compile Include="flat\GameInfo.cs" />
-    <Compile Include="flat\GameTickPacket.cs" />
-    <Compile Include="flat\GoalInfo.cs" />
-    <Compile Include="flat\Physics.cs" />
-    <Compile Include="flat\PlayerInfo.cs" />
-    <Compile Include="flat\PlayerInput.cs" />
-    <Compile Include="flat\QuickChat.cs" />
-    <Compile Include="flat\QuickChatSelection.cs" />
-    <Compile Include="flat\RenderGroup.cs" />
-    <Compile Include="flat\RenderMessage.cs" />
-    <Compile Include="flat\RenderType.cs" />
-    <Compile Include="flat\Rotator.cs" />
-    <Compile Include="flat\RotatorPartial.cs" />
-    <Compile Include="flat\ScoreInfo.cs" />
-    <Compile Include="flat\Touch.cs" />
-    <Compile Include="flat\Vector3.cs" />
-    <Compile Include="flat\Vector3Partial.cs" />
-    <Compile Include="Bot.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Interface\RLBotInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FlatBuffers.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="RLBotDotNet.nuspec" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="FlatBuffers.pdb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
