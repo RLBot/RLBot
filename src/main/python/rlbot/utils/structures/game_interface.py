@@ -173,7 +173,15 @@ class GameInterface:
 
         self.logger.info('Injecting DLL')
         # Inject DLL
-        injector_dir = os.path.join(get_dll_directory(), "RLBot_Injector.exe")
+        injector_dir = os.path.join(get_dll_directory(), 'RLBot_Injector.exe')
+
+        for file in ['RLBot_Injector.exe', 'RLBot_Core.dll', 'RLBot_Core_Interface.dll', 'RLBot_Core_Interface_32.dll']:
+            file_path = os.path.join(get_dll_directory(), file)
+            if not os.path.isfile(file_path):
+                raise FileNotFoundError('{} was not found in {}. '
+                                        'Please check that the file exists and your antivirus '
+                                        'is not removing it.'.format(file, get_dll_directory()))
+
         incode = subprocess.call([injector_dir, 'hidden'])
         injector_codes = ['INJECTION_SUCCESSFUL',
                           'INJECTION_FAILED',
@@ -189,7 +197,6 @@ class GameInterface:
             if injection_status == 'INJECTION_SUCCESSFUL':
                 # We need to wait for the injections to be finished
                 self.countdown(11)
-                pass
             return injection_status
         else:
             self.logger.error('Failed to inject DLL: ' + injection_status)
