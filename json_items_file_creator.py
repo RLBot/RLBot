@@ -24,7 +24,7 @@ if __name__ == '__main__':
                 item = {}
                 slot = ""
                 for s in item_lines:
-                    split_line = [x.strip() for x in s.split(':')]
+                    split_line = [x.strip() for x in s.split(':', 1)]
                     if not split_line[0]:
                         continue
                     key = split_line[0]
