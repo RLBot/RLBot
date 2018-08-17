@@ -11,15 +11,8 @@ namespace RLBotDotNet.Utils
     /// </summary>
     public static class RLBotInterface
     {
-        // The folder containing the bot runner executable MUST contain a dll folder containing the interface DLLs.
-        // There is a 32 bit version and a 64 bit version of the interface.
-        // We want to use the right one depending on the RLBotDotNet build.
-#if (X64)
         public const string InterfaceDllPath = "dll/RLBot_Core_Interface.dll";
-#else
-        public const string InterfaceDllPath = "dll/RLBot_Core_Interface_32.dll";
-#endif
-
+    
         #region DllImports
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static bool IsInitialized();

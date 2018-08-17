@@ -203,7 +203,15 @@ namespace RLBotDotNet
         {
             if (Directory.Exists(dllDirectory))
             {
-                string dllName = RLBotInterface.InterfaceDllPath.Split('/')[1];
+                // The folder containing the bot runner executable MUST contain a dll folder containing an interface DLL.
+                // There is a 32 bit version and a 64 bit version of the interface DLL.
+                // We want to use the right one depending on the bitness we are running on.
+                string dllName;
+                if (Environment.Is64BitProcess)
+                    dllName = "RLBot_Core_Interface.dll";
+                else 
+                    dllName = "RLBot_Core_Interface_32.dll";
+
                 Directory.CreateDirectory("dll");
                 try
                 {
