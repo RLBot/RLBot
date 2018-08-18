@@ -15,7 +15,6 @@ class Atba(BaseAgent):
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         controller_state = SimpleControllerState()
-
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
                                 game_tick_packet.game_ball.physics.location.y)
 
@@ -78,7 +77,24 @@ class Atba(BaseAgent):
                                                                                     car_render_location, color2)
             self.renderer.draw_rect_3d(car_render_location, 100, 100, True, self.renderer.create_color(200, 0, 0, 0))
             self.renderer.draw_string_2d(1000, 500, 10, 10, text_render_strX, self.renderer.white())
-            self.renderer.draw_string_3d(ball_render_location, 20, 20, "BALL", self.renderer.black())
+            self.renderer.draw_string_3d(ball_render_location, 20, 20, "BALL", self.renderer.red())
+
+            if game_tick_packet.game_info.is_kickoff_pause:
+                # Color showcase
+                self.renderer.draw_string_2d(10, 120, 1, 1, "black", self.renderer.black())
+                self.renderer.draw_string_2d(10, 135, 1, 1, "white", self.renderer.white())
+                self.renderer.draw_string_2d(10, 150, 1, 1, "gray", self.renderer.gray())
+                self.renderer.draw_string_2d(10, 165, 1, 1, "red", self.renderer.red())
+                self.renderer.draw_string_2d(10, 180, 1, 1, "orange", self.renderer.orange())
+                self.renderer.draw_string_2d(10, 195, 1, 1, "yellow", self.renderer.yellow())
+                self.renderer.draw_string_2d(10, 210, 1, 1, "lime", self.renderer.lime())
+                self.renderer.draw_string_2d(10, 225, 1, 1, "green", self.renderer.green())
+                self.renderer.draw_string_2d(10, 240, 1, 1, "cyan", self.renderer.cyan())
+                self.renderer.draw_string_2d(10, 255, 1, 1, "teal", self.renderer.teal())
+                self.renderer.draw_string_2d(10, 270, 1, 1, "blue", self.renderer.blue())
+                self.renderer.draw_string_2d(10, 285, 1, 1, "pink", self.renderer.pink())
+                self.renderer.draw_string_2d(10, 300, 1, 1, "purple", self.renderer.purple())
+
             self.renderer.end_rendering()
         if my_car.physics.location.x > 0:
             self.cleared = True

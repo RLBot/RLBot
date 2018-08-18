@@ -201,6 +201,39 @@ class RenderingManager:
     def white(self):
         return self.create_color(255, 255, 255, 255)
 
+    def gray(self):
+        return self.create_color(255, 128, 128, 128)
+
+    def blue(self):
+        return self.create_color(255, 0, 0, 255)
+
+    def red(self):
+        return self.create_color(255, 255, 0, 0)
+
+    def green(self):
+        return self.create_color(255, 0, 128, 0)
+
+    def lime(self):
+        return self.create_color(255, 0, 255, 0)
+
+    def yellow(self):
+        return self.create_color(255, 255, 255, 0)
+
+    def orange(self):
+        return self.create_color(255, 225, 128, 0)
+
+    def cyan(self):
+        return self.create_color(255, 0, 255, 255)
+
+    def pink(self):
+        return self.create_color(255, 255, 0, 255)
+
+    def purple(self):
+        return self.create_color(255, 128, 0, 128)
+
+    def teal(self):
+        return self.create_color(255, 0, 128, 128)
+
     def get_rendering_manager(self, bot_index=0):
         """
         Gets all the raw render functions but without giving access to any internal logic or the dll
