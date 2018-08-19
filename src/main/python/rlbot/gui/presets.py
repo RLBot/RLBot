@@ -28,7 +28,7 @@ class Preset:
             return
         self.config_path = file_path
         raw_parser = configparser.RawConfigParser()
-        raw_parser.read(file_path)
+        raw_parser.read(file_path, encoding='utf8')
         for section in self.config.headers.keys():
             if not raw_parser.has_section(section):
                 raise configparser.NoSectionError(section)
@@ -48,7 +48,7 @@ class Preset:
                 message_out("Saving preset " + self.name + " in " + str(self.remaining_save_timer) + " seconds", 1000)
                 self.remaining_save_timer -= 1
             else:
-                with open(self.config_path, "w") as f:
+                with open(self.config_path, "w", encoding='utf8') as f:
                     f.write(str(self.config))
                 message_out("Saved preset " + self.name + " to " + self.config_path, 5000)
                 self.save_loadout_timer.stop()

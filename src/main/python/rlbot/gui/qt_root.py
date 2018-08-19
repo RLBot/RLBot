@@ -319,7 +319,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.popup_message("This file is not a config file!", "Invalid File Extension", QMessageBox.Warning)
             return
         raw_parser = configparser.RawConfigParser()
-        raw_parser.read(config_path)
+        raw_parser.read(config_path, encoding='utf8')
         for section in self.overall_config.headers.keys():
             if not raw_parser.has_section(section):
                 self.popup_message("Config file is missing the section {}, not loading it!".format(section), "Invalid Config File", QMessageBox.Warning)
@@ -348,7 +348,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 self.statusbar.showMessage("Saving Overall Config in " + str(self.remaining_save_timer) + " seconds")
                 self.remaining_save_timer -= 1
             else:
-                with open(self.overall_config_path, "w") as f:
+                with open(self.overall_config_path, "w", encoding='utf8') as f:
                     f.write(str(self.fixed_indices()))
                 self.statusbar.showMessage("Saved Overall Config to " + self.overall_config_path, 5000)
                 self.overall_config_timer.stop()

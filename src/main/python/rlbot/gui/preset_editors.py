@@ -110,10 +110,10 @@ class BasePresetEditor(QtWidgets.QMainWindow):
     def save_preset_cfg(self, time_out=0):
         preset = self.get_current_preset()
         if preset.config_path is None:
-            file_path = os.path.realpath(QtWidgets.QFileDialog.getSaveFileName(self, 'Save Config', '', 'Config Files (*.cfg)')[0])
+            file_path = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Config', '', 'Config Files (*.cfg)')[0]
             if file_path is None or not file_path:
                 return
-            preset.config_path = file_path
+            preset.config_path = os.path.realpath(file_path)
             del self.presets[preset.get_name()]
             old_name = preset.name
             new_name = self.validate_name(pathlib.Path(preset.config_path).stem, preset)
@@ -322,7 +322,7 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
         """
 
         json_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'rocket_league_items.json')
-        with open(json_path, 'r') as f:
+        with open(json_path, 'r', encoding='utf8') as f:
             sorted_items = json.load(f, parse_int=True).items()
 
         longlabel_to_id = {}
