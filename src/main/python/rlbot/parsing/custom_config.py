@@ -70,7 +70,7 @@ class ConfigObject:
             if not os.path.isfile(config):
                 raise FileNotFoundError(config)
             self.raw_config_parser = RawConfigParser()
-            self.raw_config_parser.read(config)
+            self.raw_config_parser.read(config, encoding='utf8')
             config = self.raw_config_parser
         elif isinstance(config, RawConfigParser):
             self.raw_config_parser = config

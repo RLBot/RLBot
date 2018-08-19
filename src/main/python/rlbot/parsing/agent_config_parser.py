@@ -101,7 +101,7 @@ def get_team(config, index):
 
 def get_bot_config_bundle(bot_config_path):
     raw_bot_config = configparser.RawConfigParser()
-    raw_bot_config.read(bot_config_path)
+    raw_bot_config.read(bot_config_path, encoding='utf8')
     config_directory = os.path.dirname(os.path.realpath(bot_config_path))
     return BotConfigBundle(config_directory, raw_bot_config)
 

@@ -322,7 +322,7 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
         """
 
         json_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'rocket_league_items.json')
-        with open(json_path, 'r') as f:
+        with open(json_path, 'r', encoding='utf8') as f:
             sorted_items = json.load(f, parse_int=True).items()
 
         longlabel_to_id = {}
