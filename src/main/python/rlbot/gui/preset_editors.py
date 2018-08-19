@@ -110,10 +110,10 @@ class BasePresetEditor(QtWidgets.QMainWindow):
     def save_preset_cfg(self, time_out=0):
         preset = self.get_current_preset()
         if preset.config_path is None:
-            file_path = os.path.realpath(QtWidgets.QFileDialog.getSaveFileName(self, 'Save Config', '', 'Config Files (*.cfg)')[0])
+            file_path = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Config', '', 'Config Files (*.cfg)')[0]
             if file_path is None or not file_path:
                 return
-            preset.config_path = file_path
+            preset.config_path = os.path.realpath(file_path)
             del self.presets[preset.get_name()]
             old_name = preset.name
             new_name = self.validate_name(pathlib.Path(preset.config_path).stem, preset)
