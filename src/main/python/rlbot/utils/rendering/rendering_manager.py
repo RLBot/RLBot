@@ -27,6 +27,7 @@ class RenderingManager:
     render_list = []
     group_id = None
     bot_index = 0
+    bot_team = 0
 
     def setup_function_types(self, dll_instance):
         self.renderGroup = dll_instance.RenderGroup
@@ -34,8 +35,9 @@ class RenderingManager:
         self.renderGroup.argtypes = [ctypes.c_void_p, ctypes.c_int]
         self.renderGroup.restype = ctypes.c_int
 
-    def set_bot_index(self, bot_index=0):
+    def set_bot_index_and_team(self, bot_index=0, bot_team=0):
         self.bot_index = bot_index
+        self.bot_team = bot_team
 
     def send_group(self, buffer):
         rlbot_status = self.renderGroup(bytes(buffer), len(buffer))
@@ -234,12 +236,29 @@ class RenderingManager:
     def teal(self):
         return self.create_color(255, 0, 128, 128)
 
-    def get_rendering_manager(self, bot_index=0):
+    def team_color(self, team=None, alt_color=False):
+        """
+        Returns the team color of the bot. Team 0: blue, team 1: orange, other: white
+        :param team: Specify which team's color. If None, the associated bot's team color will be returned.
+        :param alt_color: If True, returns the alternate team colors instead. Team 0: cyan, team 1: red, other: gray
+        :return: a team color
+        """
+        if team is None:
+            team = self.bot_team
+
+        if team == 0:
+            return self.cyan() if alt_color else self.blue()
+        elif team == 1:
+            return self.red() if alt_color else self.orange()
+        else:
+            return self.gray() if alt_color else self.white()
+
+    def get_rendering_manager(self, bot_index=0, bot_team=0):
         """
         Gets all the raw render functions but without giving access to any internal logic or the dll
         :return: An object with the same interface as the functions above
         """
-        self.set_bot_index(bot_index)
+        self.set_bot_index_and_team(bot_index, bot_team)
         return self
 
     def __wrap_float(self, number):
