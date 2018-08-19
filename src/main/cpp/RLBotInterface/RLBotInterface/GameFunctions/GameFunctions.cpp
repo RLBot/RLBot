@@ -21,11 +21,11 @@ namespace GameFunctions
 		free(ptr);
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateMessage, int messageSize, CallbackFunction callback, unsigned int* pID)
-	{
+	static BoostUtilities::QueueSender gameStateQueue(BoostConstants::GameStateFlatQueueName);
 
-		// TODO: send in the game state via a queue.
-		return RLBotCoreStatus::Success;
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size)
+	{
+		return gameStateQueue.sendMessage(gameStateData, size);
 	}
 
 	// Start match

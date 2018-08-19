@@ -1,6 +1,8 @@
 import math
 
+import flatbuffers
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleControllerState
+from rlbot.messages.flat import Float, Vector3Partial, DesiredPhysics, DesiredGameState, DesiredCarState
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
@@ -45,6 +47,7 @@ class Atba(BaseAgent):
 
         controller_state.throttle = 1.0
         controller_state.steer = turn
+        self.set_state_test()
 
         return self.convert_output_to_v4([
             1.0,  # throttle
@@ -133,6 +136,36 @@ class Atba(BaseAgent):
             self.renderer.draw_string_2d(10, 90, 2, 2, 'num unknown: ' + str(num_unknown), self.renderer.white())
 
         self.renderer.end_rendering()
+        
+    def set_state_test(self):
+        builder = flatbuffers.Builder(0)
+        
+        float_offset = Float.CreateFloat(builder, 230)
+
+        Vector3Partial.Vector3PartialStart(builder)
+        Vector3Partial.Vector3PartialAddZ(builder, float_offset)
+        location_offset = Vector3Partial.Vector3PartialEnd(builder)
+
+        DesiredPhysics.DesiredPhysicsStart(builder)
+        DesiredPhysics.DesiredPhysicsAddLocation(builder, location_offset)
+        physics_offset = DesiredPhysics.DesiredPhysicsEnd(builder)
+
+        DesiredCarState.DesiredCarStateStart(builder)
+        DesiredCarState.DesiredCarStateAddPhysics(builder, physics_offset)
+        car_offset = DesiredCarState.DesiredCarStateEnd(builder)
+
+        DesiredGameState.DesiredGameStateStartCarStatesVector(builder, 1)
+        builder.PrependUOffsetTRelative(car_offset) # Add them in reverse order
+        cars_offset = builder.EndVector(1)
+
+        DesiredGameState.DesiredGameStateStart(builder)
+        DesiredGameState.DesiredGameStateAddCarStates(builder, cars_offset)
+        game_state_offset = DesiredGameState.DesiredGameStateEnd(builder)
+
+        self.logger.info(game_state_offset)
+        builder.Finish(game_state_offset)
+
+        self.set_game_state(builder)
 
     def load_config(self, config_header):
         self.flip_turning = config_header.getboolean('flip_turning')
