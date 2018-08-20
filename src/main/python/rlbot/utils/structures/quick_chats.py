@@ -22,7 +22,8 @@ QuickChats = create_enum_object([chat for chat in dir(QuickChatSelection.QuickCh
                                     ('CHAT_NONE', -1),
                                     ('CHAT_EVERYONE', False),
                                     ('CHAT_TEAM_ONLY', True)
-                                ])
+                                ],
+                                attribute_object=QuickChatSelection.QuickChatSelection)
 
 
 def send_quick_chat_flat(game_interface, index, team, team_only, quick_chat):
