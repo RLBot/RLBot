@@ -99,7 +99,7 @@ class BotManager:
         Sets the render manager for the agent.
         :param agent: An instance of an agent.
         """
-        rendering_manager = self.game_interface.renderer.get_rendering_manager(self.index)
+        rendering_manager = self.game_interface.renderer.get_rendering_manager(self.index, self.team)
         agent._set_renderer(rendering_manager)
 
     def update_metadata_queue(self, agent):
