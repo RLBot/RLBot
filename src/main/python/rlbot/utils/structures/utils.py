@@ -9,7 +9,7 @@ def create_enum_object(list, list_name=None, other_attributes=None, attribute_ob
     :param list_name: the name of the list if that is also wanting to be stored
     :param other_attributes:  This is a list of tuples.
         The first item in the tuple is the name of the field, the second is the value
-    :param get_attribute: An object we should get values for
+    :param attribute_object: An object we should get values for
     :return:
     """
     result = EmptyClass()
