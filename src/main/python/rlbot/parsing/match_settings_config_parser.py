@@ -201,7 +201,7 @@ def add_match_settings_header(config_object):
                            description="""What game mode the game should load.
                            Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble" """)
     match_header.add_value(GAME_MAP, str, default="DFHStadium",
-                           description="""What game mode the game should load into. Too many to list.""")
+                           description="""Which map the game should load into. Too many to list.""")
     match_header.add_value(SKIP_REPLAYS, bool, default=False,
                            description="""Automatically skip replays after a goal.""")
     match_header.add_value(INSTANT_START, bool, default=False,
