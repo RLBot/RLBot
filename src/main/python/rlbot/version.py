@@ -15,6 +15,7 @@ release_notes = {
     - Fix for GUI crash when saving preset then canceling - hallo-doei
     - Adding file checking before injection (Resolves #167) - Redox
     - Fixed typo in rlbot.cfg - Redox
+    - Fancy release notes - tarehart and Skyborg
     """
 }
 
