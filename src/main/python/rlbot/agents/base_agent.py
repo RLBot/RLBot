@@ -5,6 +5,7 @@ from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
+from rlbot.utils import game_state_util
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
@@ -93,8 +94,11 @@ class BaseAgent:
         This does not change during a match so it only needs to be called once after the everything is loaded."""
         return self.__field_info_func()
 
-    def set_game_state(self, game_state):
-        self.__game_state_func(game_state)
+    def set_game_state(self, game_state: game_state_util.GameState):
+        game_state_offset, builder = game_state.convert_to_flat()
+        builder.Finish(game_state_offset)
+
+        self.__game_state_func(builder)
 
     def load_config(self, config_object_header):
         """
