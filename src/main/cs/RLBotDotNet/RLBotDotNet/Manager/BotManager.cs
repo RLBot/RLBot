@@ -126,7 +126,18 @@ namespace RLBotDotNet
         private void StopBotProcess(BotProcess botProcess)
         {
             botProcess.thread.Abort();
-            botProcess.bot.Dispose();
+            try
+            {
+                botProcess.bot.Dispose();
+            }
+            catch (Exception e)
+            {
+                // Don't crash the bot and give the user the details of the exception instead.
+                Console.WriteLine("Bot threw an exception during termination.");
+                Console.WriteLine(e.GetType());
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
             Console.WriteLine("Stopped bot: name={0}, team={1}, index={2}",
                 botProcess.bot.name, botProcess.bot.team, botProcess.bot.index);
         }
