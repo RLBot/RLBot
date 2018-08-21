@@ -137,11 +137,11 @@ class Atba(BaseAgent):
         self.renderer.end_rendering()
 
     def set_state_test(self):
-        ball_state = BallState(Physics(location=Vector3(x=None, y=None, z=2000), rotation=Rotator(pitch=2000, yaw=2000, roll=2000)))
+        ball_state = BallState(Physics(location=Vector3(x=None, y=None, z=300), velocity=Vector3(x=None, y=None, z=5)))
 
-        car_state = CarState(Physics(location=Vector3(x=300)))
+        car_state = CarState(Physics(location=Vector3(z=300)))
 
-        game_state = GameState(ball=ball_state, cars=[car_state])
+        game_state = GameState(ball=ball_state, cars={self.index: car_state})
         self.set_game_state(game_state)
 
     def load_config(self, config_header):
