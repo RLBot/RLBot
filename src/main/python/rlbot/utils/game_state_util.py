@@ -2,10 +2,6 @@ import flatbuffers
 from rlbot.messages.flat import Float, RotatorPartial, Vector3Partial, DesiredPhysics, DesiredGameState, \
     DesiredCarState, DesiredBallState
 
-from rlbot.utils.logging_utils import get_logger
-
-logger = get_logger("game state")
-
 
 class Rotator:
 
@@ -58,7 +54,6 @@ class Physics:
 
     def convert_to_flat(self, builder):
         location_offset = None if self.location is None else self.location.convert_to_flat(builder)
-        logger.info(location_offset)
         rotation_offset = None if self.rotation is None else self.rotation.convert_to_flat(builder)
         velocity_offset = None if self.velocity is None else self.velocity.convert_to_flat(builder)
         angular_velocity_offset = None if self.angular_velocity is None else self.angular_velocity.convert_to_flat(
@@ -96,20 +91,16 @@ class BallState:
 
 class CarState:
 
-    def __init__(self, physics: Physics = None):
+    def __init__(self, physics: Physics):
         self.physics = physics
 
     def convert_to_flat(self, builder):
 
-        physics_offset = None if self.physics is None else self.physics.convert_to_flat(builder)
+        physics_offset = self.physics.convert_to_flat(builder)
 
-        if physics_offset is not None:
-            # unsure if the start and end should be there
-            DesiredCarState.DesiredCarStateStart(builder)
-            DesiredCarState.DesiredCarStateAddPhysics(builder, physics_offset)
-            return DesiredCarState.DesiredCarStateEnd(builder)
-        else:
-            return None  # Might be a dirty way but the None also gets caught by 'offset is not None'
+        DesiredCarState.DesiredCarStateStart(builder)
+        DesiredCarState.DesiredCarStateAddPhysics(builder, physics_offset)
+        return DesiredCarState.DesiredCarStateEnd(builder)
 
 
 class GameState:
@@ -124,11 +115,15 @@ class GameState:
         ball_offset = None if self.ball is None else self.ball.convert_to_flat(builder)
 
         car_offsets = []
-        if self.cars is not None and (isinstance(self.cars, list) or isinstance(self.cars, tuple)):
-            for i in reversed(range(0, len(self.cars))):
-                car_offset = self.cars[i].convert_to_flat(builder)
-                if car_offset is not None:
-                    car_offsets.append(car_offset)
+        if self.cars is not None:
+            max_index = max(self.cars.keys())
+            for i in range(0, max_index + 1):
+                if i in self.cars:
+                    car = self.cars[i]
+                else:
+                    car = CarState(Physics())
+                car_offset = car.convert_to_flat(builder)
+                car_offsets.append(car_offset)
 
         car_list_offset = None
         if len(car_offsets) > 0:
@@ -136,7 +131,7 @@ class GameState:
             for i in reversed(range(0, len(car_offsets))):
                 builder.PrependUOffsetTRelative(car_offsets[i])
             car_list_offset = builder.EndVector(len(car_offsets))
-            print(len(car_offsets))
+            # print(len(car_offsets))
 
         # IDK if order is right over here
         DesiredGameState.DesiredGameStateStart(builder)
