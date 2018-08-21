@@ -203,9 +203,12 @@ class GameInterface:
             sys.exit()
 
     def countdown(self, countdown_timer):
+        self.logger.info("Waiting {} seconds for DLL to load".format(countdown_timer))
         for i in range(countdown_timer):
-            self.logger.info(countdown_timer - i)
+            sys.stdout.write(".")
+            sys.stdout.flush()
             time.sleep(1)
+        print('')
 
     def create_status_callback(self, callback=None):
         """

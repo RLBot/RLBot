@@ -6,6 +6,7 @@ import time
 import psutil
 from datetime import datetime, timedelta
 
+from rlbot import version
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
@@ -48,7 +49,7 @@ class SetupManager:
     def startup(self):
         if self.has_started:
             return
-        self.logger.debug("Starting up game management")
+        version.print_current_release_notes()
         self.game_interface.inject_dll()
         self.game_interface.load_interface()
         self.agent_metadata_queue = mp.Queue()
