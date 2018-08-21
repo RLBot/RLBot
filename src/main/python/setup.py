@@ -15,7 +15,7 @@ setuptools.setup(
     description='A framework for writing custom Rocket League bots that run offline.',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author='Tyler Arehart',
+    author='RLBot Community',
     author_email='rlbotofficial@gmail.com',
     url='https://github.com/RLBot/RLBot',
     keywords=['rocket-league'],
