@@ -9,7 +9,7 @@ namespace RLBotDotNet
     /// Inherit from this class to make a bot.
     /// Bot logic that should be executed every frame goes in <see cref="GetOutput(GameTickPacket)"/>
     /// </summary>
-    public abstract class Bot
+    public abstract class Bot : IDisposable
     {
         private const float MAX_CHAT_RATE = 2.0f;
         private const int MAX_CHAT_COUNT = 5;
@@ -116,5 +116,7 @@ namespace RLBotDotNet
                                                      "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
         }
+
+        public virtual void Dispose() { } // Empty virtual Dispose() to preserve compatibility
     }
 }
