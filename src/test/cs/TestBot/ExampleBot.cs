@@ -63,7 +63,8 @@ namespace TestBot
 
         public override void Dispose()
         {
-            // This bot doesn't initialize any resources that cannot be automatically released by the managed runtime (threads, pointers, various IDisposables, etc.), but if it did, then it would release them here.
+            // This bot doesn't initialize any resources that cannot be automatically released by the managed runtime (threads, pointers, various IDisposables, etc.).
+            // If it did, then it would release them here.
         }
     }
 }
