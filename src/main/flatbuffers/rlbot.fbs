@@ -207,7 +207,7 @@ table DesiredCarState {
 }
 
 table DesiredGameState {
-  ballState:[DesiredBallState];
+  ballState:DesiredBallState;
   carStates:[DesiredCarState];
 }
 
