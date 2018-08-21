@@ -1,3 +1,4 @@
+import flatbuffers
 from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
 
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
@@ -95,7 +96,8 @@ class BaseAgent:
         return self.__field_info_func()
 
     def set_game_state(self, game_state: game_state_util.GameState):
-        game_state_offset, builder = game_state.convert_to_flat()
+        builder = flatbuffers.Builder(0)
+        game_state_offset = game_state.convert_to_flat(builder)
         builder.Finish(game_state_offset)
 
         self.__game_state_func(builder)
