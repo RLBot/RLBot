@@ -27,7 +27,7 @@ IF %count% GEQ 2 (
 
 @echo on
 
-copy /Y "%core_folder%\RLBot Core\Bin\Win32\Debug-SDK\RLBot Core.dll" ^
+copy /Y "%core_folder%\RLBot Core\Bin\Win32\Debug\RLBot Core.dll" ^
  .\src\main\python\rlbot\dll\RLBot_Core.dll
 
 pause
