@@ -126,9 +126,9 @@ namespace RLBotDotNet
         private void StopBotProcess(BotProcess botProcess)
         {
             botProcess.thread.Abort();
-            var botName = botProcess.bot.name;
-            var botTeam = botProcess.bot.team;
-            var botIndex = botProcess.bot.index;
+            string botName = botProcess.bot.name;
+            int botTeam = botProcess.bot.team;
+            int botIndex = botProcess.bot.index;
             try
             {
                 botProcess.bot.Dispose();
