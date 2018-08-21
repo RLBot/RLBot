@@ -126,6 +126,9 @@ namespace RLBotDotNet
         private void StopBotProcess(BotProcess botProcess)
         {
             botProcess.thread.Abort();
+            var botName = botProcess.bot.name;
+            var botTeam = botProcess.bot.team;
+            var botIndex = botProcess.bot.index;
             try
             {
                 botProcess.bot.Dispose();
@@ -139,7 +142,7 @@ namespace RLBotDotNet
                 Console.WriteLine(e.StackTrace);
             }
             Console.WriteLine("Stopped bot: name={0}, team={1}, index={2}",
-                botProcess.bot.name, botProcess.bot.team, botProcess.bot.index);
+                botName, botTeam, botIndex);
         }
 
         /// <summary>
