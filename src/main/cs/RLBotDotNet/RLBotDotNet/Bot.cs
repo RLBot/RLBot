@@ -117,6 +117,12 @@ namespace RLBotDotNet
             }
         }
 
-        public virtual void Dispose() { } // Empty virtual Dispose() to preserve compatibility
+        /// <summary>
+        /// This optional method will be called on bot shutdown and should contain code that cleans up resources used by the bot.
+        /// </summary>
+        public virtual void Dispose()
+        {
+            // Empty virtual Dispose() to preserve compatibility with previous versions of RLBot
+        }
     }
 }
