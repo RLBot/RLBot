@@ -177,6 +177,10 @@ struct Float {
   val:float;
 }
 
+struct Bool {
+  val:bool;
+}
+
 // Values are in "unreal units"
 table Vector3Partial {
   x:Float;
@@ -204,6 +208,9 @@ table DesiredBallState {
 
 table DesiredCarState {
   physics:DesiredPhysics;
+  boostAmount:Float;
+  jumped:Bool;
+  doubleJumped:Bool;
 }
 
 table DesiredGameState {
