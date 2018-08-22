@@ -98,6 +98,10 @@ class BaseAgent:
     def set_game_state(self, game_state: game_state_util.GameState):
         builder = flatbuffers.Builder(0)
         game_state_offset = game_state.convert_to_flat(builder)
+        if game_state_offset is None:
+            # There are no values to be set, so just skip it
+            return
+
         builder.Finish(game_state_offset)
 
         self.__game_state_func(builder)
