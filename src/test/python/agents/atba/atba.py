@@ -4,7 +4,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleCo
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
-from rlbot.utils.game_state_util import *
+from rlbot.utils.game_state_util import GameState, BallState, CarState, Physics, Vector3, Rotator
 
 
 class Atba(BaseAgent):
@@ -46,7 +46,6 @@ class Atba(BaseAgent):
 
         controller_state.throttle = 1.0
         controller_state.steer = turn
-        self.set_state_test()
 
         return self.convert_output_to_v4([
             1.0,  # throttle
@@ -137,12 +136,12 @@ class Atba(BaseAgent):
         self.renderer.end_rendering()
 
     def set_state_test(self):
-        ball_state = BallState(Physics(location=Vector3(x=None, y=None, z=300), velocity=Vector3(x=None, y=None, z=5)))
+        ball_state = BallState(Physics(location=Vector3(x=None, y=None, z=150), velocity=Vector3(x=None, y=None, z=5)))
 
-        car_state = CarState(Physics(location=Vector3(z=300)))
+        car_state = CarState(Physics(location=Vector3(z=150)))
+        other_car_state = CarState(Physics(location=Vector3(y=0), velocity=Vector3(z=5)), jumped=True, double_jumped=False)
 
-        game_state = GameState(ball=ball_state, cars={self.index: car_state})
-        self.set_game_state(game_state)
+        game_state = GameState(ball=ball_state, cars={self.index: car_state, bool(not self.index): other_car_state})
 
     def load_config(self, config_header):
         self.flip_turning = config_header.getboolean('flip_turning')
