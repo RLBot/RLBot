@@ -106,10 +106,12 @@ class CarState:
         self.double_jumped = double_jumped
 
     def convert_to_flat(self, builder):
+        """
+        In this conversion, we always want to return a valid flatbuffer pointer even if all the
+        contents are blank because sometimes we need to put empty car states into the car list
+        to make the indices line up.
+        """
         physics_offset = None if self.physics is None else self.physics.convert_to_flat(builder)
-
-        if physics_offset is None and self.boost_amount is None and self.jumped is None and self.double_jumped is None:
-            return None  # If no value has to be set this saves some bytes in the builder, will get handled correctly
 
         DesiredCarState.DesiredCarStateStart(builder)
         if physics_offset is not None:
@@ -171,7 +173,6 @@ class GameState:
             car_states = {}
             for i in range(game_tick_packet.num_cars):
                 car = game_tick_packet.game_cars[i]
-                print(car.physics.location.x)
                 car_states[i] = CarState(physics=Physics(location=Vector3(
                     x=car.physics.location.x,
                     y=car.physics.location.y,
