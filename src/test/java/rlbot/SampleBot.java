@@ -1,5 +1,7 @@
 package rlbot;
 
+import rlbot.cppinterop.RLBotDll;
+import rlbot.gamestate.*;
 import rlbot.input.CarData;
 import rlbot.input.DataPacket;
 import rlbot.input.DropshotTile;
@@ -8,6 +10,7 @@ import rlbot.manager.BotLoopRenderer;
 import rlbot.output.ControlsOutput;
 import rlbot.render.NamedRenderer;
 import rlbot.render.Renderer;
+import rlbot.vec.DesiredVec;
 import rlbot.vec.Vector2;
 
 import java.awt.*;
@@ -55,6 +58,22 @@ public class SampleBot implements Bot {
             if (tile.state == DropshotTile.State.OPEN) {
                 renderer.drawCenteredRectangle3d(Color.BLACK, tile.location, 10, 10, true);
             }
+        }
+
+        if (myCar.position.z > 100) {
+            GameState gameState = new GameState()
+                    .withCarState(this.playerIndex, new CarState()
+                            .withPhysics(new PhysicsState()
+                                    .withRotation(new DesiredRotation((float) Math.PI,0F, 0F))));
+
+            RLBotDll.setGameState(gameState.buildPacket());
+        } else {
+
+            Float xVel = input.ball.velocity.x + 20;
+            GameState gameState = new GameState()
+                    .withBallState(new BallState().withPhysics(new PhysicsState().withVelocity(new DesiredVec().withX(xVel))));
+
+            RLBotDll.setGameState(gameState.buildPacket());
         }
 
         if (input.ball.position.z > 1000) {
