@@ -213,9 +213,14 @@ table DesiredCarState {
   doubleJumped:Bool;
 }
 
+table DesiredBoostState {
+  respawnTime:Float;
+}
+
 table DesiredGameState {
   ballState:DesiredBallState;
   carStates:[DesiredCarState];
+  boostStates:[DesiredBoostState];
 }
 
 root_type DesiredGameState;
