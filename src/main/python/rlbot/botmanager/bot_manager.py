@@ -113,6 +113,24 @@ class BotManager:
 
         self.agent_metadata_queue.put(AgentMetadata(self.index, self.name, self.team, pids, helper_process_request))
 
+    def reload_agent(self, agent, agent_class_file):
+        """
+        Reloads the agent. Can throw exceptions.
+        :param agent: An instance of an agent.
+        :param agent_class_file: The agent's class file.
+        :return: The reloaded instance of the agent, and the agent class file.
+        """
+        self.logger.info('Reloading Agent: ' + agent_class_file)
+        self.agent_class_wrapper.reload()
+        old_agent = agent
+        agent, agent_class_file = self.load_agent()
+
+        # Retire after the replacement initialized properly.
+        if hasattr(old_agent, 'retire'):
+            old_agent.retire()
+
+        return agent, agent_class_file
+
     def run(self):
         """
         Loads interface for RLBot, prepares environment and agent, and calls the update for the agent.
@@ -150,14 +168,8 @@ class BotManager:
                 try:
                     new_module_modification_time = os.stat(agent_class_file).st_mtime
                     if new_module_modification_time != last_module_modification_time:
-                        self.logger.info('Reloading Agent: ' + agent_class_file)
-                        self.agent_class_wrapper.reload()
-                        old_agent = agent
-                        agent, agent_class_file = self.load_agent()
                         last_module_modification_time = new_module_modification_time
-                        # Retire after the replacement initialized properly.
-                        if hasattr(old_agent, 'retire'):
-                            old_agent.retire()
+                        agent, agent_class_file = self.reload_agent(agent, agent_class_file)
                 except FileNotFoundError:
                     self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))
                     time.sleep(0.5)
