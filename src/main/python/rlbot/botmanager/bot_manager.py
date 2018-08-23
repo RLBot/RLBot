@@ -1,3 +1,4 @@
+import multiprocessing as mp
 import os
 import time
 import traceback
@@ -19,11 +20,13 @@ MAX_CARS = 10
 
 
 class BotManager:
-    def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                 agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+    def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, reload_complete_event,
+                 bot_configuration, name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
+        :param reload_request_event: an Event (multiprocessing) which will be set from the outside to force a reload of the agent
+        :param reload_complete_event: an Event (multiprocessing) which should be set from inside this class when reloading has completed successfully
         :param bot_configuration: parameters which will be passed to the bot's constructor
         :param name: name which will be passed to the bot's constructor. Will probably be displayed in-game.
         :param team: 0 for blue team or 1 for orange team. Will be passed to the bot's constructor.
@@ -35,6 +38,8 @@ class BotManager:
         """
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
+        self.reload_request_event = reload_request_event
+        self.reload_complete_event = reload_complete_event
         self.bot_configuration = bot_configuration
         self.name = name
         self.team = team
@@ -115,7 +120,7 @@ class BotManager:
 
     def reload_agent(self, agent, agent_class_file):
         """
-        Reloads the agent. Can throw exceptions.
+        Reloads the agent. Can throw exceptions. External classes should use reload_event.set() instead.
         :param agent: An instance of an agent.
         :param agent_class_file: The agent's class file.
         :return: The reloaded instance of the agent, and the agent class file.
@@ -129,6 +134,8 @@ class BotManager:
         if hasattr(old_agent, 'retire'):
             old_agent.retire()
 
+        self.reload_request_event.clear()
+        self.reload_complete_event.set()
         return agent, agent_class_file
 
     def run(self):
@@ -164,11 +171,12 @@ class BotManager:
                 last_tick_game_time = tick_game_time
                 last_call_real_time = datetime.now()
 
-                # Reload the Agent if it has been modified.
+                # Reload the Agent if it has been modified or if reload is requested from outside.
                 try:
                     new_module_modification_time = os.stat(agent_class_file).st_mtime
-                    if new_module_modification_time != last_module_modification_time:
+                    if new_module_modification_time != last_module_modification_time or self.reload_request_event.is_set():
                         last_module_modification_time = new_module_modification_time
+                        # Reloading also clears event
                         agent, agent_class_file = self.reload_agent(agent, agent_class_file)
                 except FileNotFoundError:
                     self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))

@@ -7,13 +7,13 @@ from rlbot.utils.structures.bot_input_struct import PlayerInput
 
 
 class BotManagerStruct(BotManager):
-    def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                 agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+    def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, reload_complete_event,
+                 bot_configuration, name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
         """
         See documentation on BotManager.
         """
-        super().__init__(terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                         agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
+        super().__init__(terminate_request_event, termination_complete_event, reload_request_event, reload_complete_event,
+                         bot_configuration, name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
         self.game_tick_proto = None
 
     def prepare_for_run(self):
