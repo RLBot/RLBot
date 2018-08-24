@@ -4,7 +4,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleCo
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
-from rlbot.utils.game_state_util import GameState, BallState, CarState, Physics, Vector3, Rotator
+from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, Physics, Vector3, Rotator
 
 
 class Atba(BaseAgent):
@@ -155,7 +155,9 @@ class Atba(BaseAgent):
         if ball_phys.location.z > 500:
             ball_state = BallState(Physics(velocity=Vector3(z=-2000)))
 
-        game_state = GameState(ball=ball_state, cars={self.index: car_state})
+        boost_states = {i: BoostState(1.0) for i in range(34)}
+
+        game_state = GameState(ball=ball_state, cars={self.index: car_state}, boosts=boost_states)
         self.set_game_state(game_state)
 
     def load_config(self, config_header):

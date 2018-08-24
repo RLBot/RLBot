@@ -1,6 +1,6 @@
 import flatbuffers
 from rlbot.messages.flat import Float, RotatorPartial, Vector3Partial, DesiredPhysics, DesiredGameState, \
-    DesiredCarState, DesiredBallState, Bool
+    DesiredCarState, DesiredBallState, DesiredBoostState, Bool
 
 from rlbot.utils.structures import game_data_struct
 from rlbot.messages.flat import GameTickPacket
@@ -125,11 +125,30 @@ class CarState:
         return DesiredCarState.DesiredCarStateEnd(builder)
 
 
+class BoostState:
+
+    def __init__(self, respawn_time: float = None):
+        self.respawn_time = respawn_time
+
+    def convert_to_flat(self, builder):
+        """
+        In this conversion, we always want to return a valid flatbuffer pointer even if all the
+        contents are blank because sometimes we need to put empty boost states into the boost list
+        to make the indices line up.
+        """
+
+        DesiredBoostState.DesiredBoostStateStart(builder)
+        if self.respawn_time is not None:
+            DesiredBoostState.DesiredBoostStateAddRespawnTime(builder, Float.CreateFloat(builder, self.respawn_time))
+        return DesiredBoostState.DesiredBoostStateEnd(builder)
+
+
 class GameState:
 
-    def __init__(self, ball: BallState = None, cars=None):
+    def __init__(self, ball: BallState = None, cars=None, boosts=None):
         self.ball = ball
         self.cars = cars
+        self.boosts = boosts
 
     def convert_to_flat(self, builder=None):
         if self.ball is None and self.cars is None:
@@ -143,13 +162,22 @@ class GameState:
         car_offsets = []
         if self.cars is not None:
             max_index = max(self.cars.keys())
+            empty_offset = CarState().convert_to_flat(builder)
             for i in range(0, max_index + 1):
                 if i in self.cars:
-                    car = self.cars[i]
+                    car_offsets.append(self.cars[i].convert_to_flat(builder))
                 else:
-                    car = CarState()
-                car_offset = car.convert_to_flat(builder)
-                car_offsets.append(car_offset)
+                    car_offsets.append(empty_offset)
+
+        boost_offsets = []
+        if self.boosts is not None:
+            max_index = max(self.boosts.keys())
+            empty_offset = BoostState().convert_to_flat(builder)
+            for i in range(0, max_index + 1):
+                if i in self.boosts:
+                    boost_offsets.append(self.boosts[i].convert_to_flat(builder))
+                else:
+                    boost_offsets.append(empty_offset)
 
         car_list_offset = None
         if len(car_offsets) > 0:
@@ -158,11 +186,20 @@ class GameState:
                 builder.PrependUOffsetTRelative(car_offsets[i])
             car_list_offset = builder.EndVector(len(car_offsets))
 
+        boost_list_offset = None
+        if len(boost_offsets) > 0:
+            DesiredGameState.DesiredGameStateStartBoostStatesVector(builder, len(boost_offsets))
+            for i in reversed(range(0, len(boost_offsets))):
+                builder.PrependUOffsetTRelative(boost_offsets[i])
+            boost_list_offset = builder.EndVector(len(boost_offsets))
+
         DesiredGameState.DesiredGameStateStart(builder)
         if ball_offset is not None:
             DesiredGameState.DesiredGameStateAddBallState(builder, ball_offset)
         if car_list_offset is not None:
             DesiredGameState.DesiredGameStateAddCarStates(builder, car_list_offset)
+        if boost_list_offset is not None:
+            DesiredGameState.DesiredGameStateAddBoostStates(builder, boost_list_offset)
 
         return DesiredGameState.DesiredGameStateEnd(builder)
 
