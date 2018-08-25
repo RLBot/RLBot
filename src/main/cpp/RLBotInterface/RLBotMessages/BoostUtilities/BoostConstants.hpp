@@ -21,6 +21,9 @@ namespace BoostConstants
 	// Game State Setting
 	extern const char* GameStateFlatQueueName;
 
+	// Ball prediction
+	extern const char* BallPredictionName;
+
 	std::string buildSharedMemName(const char* baseName);
 	std::string buildMutexName(const char* baseName);
 };

@@ -50,6 +50,9 @@
     <ClCompile Include="GameFunctions\PlayerInfo.cpp">
       <Filter>Source Files\GameFunctions</Filter>
     </ClCompile>
+    <ClCompile Include="GameFunctions\BallPrediction.cpp">
+      <Filter>Source Files\GameFunctions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameFunctions\GameFunctions.hpp">
@@ -75,6 +78,9 @@
     </ClInclude>
     <ClInclude Include="CallbackProcessor\SharedMemoryDefinitions.hpp">
       <Filter>Header Files\CallbackProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunctions\BallPrediction.hpp">
+      <Filter>Header Files\GameFunctions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

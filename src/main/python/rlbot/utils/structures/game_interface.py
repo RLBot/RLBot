@@ -4,6 +4,8 @@ import subprocess
 import sys
 import time
 
+from rlbot.messages.flat.BallPrediction import BallPrediction
+from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
@@ -11,7 +13,6 @@ from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
-from rlbot.messages.flat import FieldInfo
 
 
 def wrap_callback(callback_func):
@@ -66,6 +67,10 @@ class GameInterface:
         func.restype = ByteBuffer
 
         func = self.game.UpdateFieldInfoFlatbuffer
+        func.argtypes = []
+        func.restype = ByteBuffer
+
+        func = self.game.FetchBallPrediction
         func.argtypes = []
         func.restype = ByteBuffer
 
@@ -237,7 +242,7 @@ class GameInterface:
         buf = player_input_builder.Output()
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
-        
+
     def set_game_state(self, set_state_builder):
         buf = set_state_builder.Output()
         rlbot_status = self.game.SetGameState(bytes(buf), len(buf))
@@ -261,7 +266,7 @@ class GameInterface:
             self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
 
-    def get_field_info(self):
+    def get_field_info(self) -> FieldInfo:
         """
         Gets the field information from the interface.
         :return: The field information
@@ -274,4 +279,19 @@ class GameInterface:
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, RLBotCoreStatus.Success)
-            return FieldInfo.FieldInfo.GetRootAsFieldInfo(proto_string, 0)
+            return FieldInfo.GetRootAsFieldInfo(proto_string, 0)
+
+    def fetch_ball_prediction(self) -> BallPrediction:
+        """
+        Gets the field information from the interface.
+        :return: The field information
+        """
+        byte_buffer = self.game.FetchBallPrediction()
+
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            self.game_status(None, RLBotCoreStatus.Success)
+            return BallPrediction.GetRootAsBallPrediction(proto_string, 0)

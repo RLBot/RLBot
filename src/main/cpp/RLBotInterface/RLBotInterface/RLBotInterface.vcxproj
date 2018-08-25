@@ -79,7 +79,7 @@
     <IncludePath>$(SolutionDir)\RLBotMessages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>RLBot_Core_Interface</TargetName>
     <GenerateManifest>false</GenerateManifest>
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
@@ -91,7 +91,7 @@
     <IncludePath>$(SolutionDir)\RLBotMessages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>RLBot_Core_Interface</TargetName>
     <GenerateManifest>false</GenerateManifest>
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
@@ -103,7 +103,7 @@
     <IncludePath>$(SolutionDir)\RLBotMessages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>RLBot_Core_Interface</TargetName>
     <GenerateManifest>false</GenerateManifest>
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
@@ -115,7 +115,7 @@
     <IncludePath>$(SolutionDir)\RLBotMessages;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>Bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>RLBot_Core_Interface</TargetName>
     <GenerateManifest>false</GenerateManifest>
     <IntDir>Obj\$(Platform)\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
@@ -404,6 +404,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CallbackProcessor\CallbackProcessor.cpp" />
+    <ClCompile Include="GameFunctions\BallPrediction.cpp" />
     <ClCompile Include="GameFunctions\GameFunctions.cpp" />
     <ClCompile Include="GameFunctions\GamePacket.cpp" />
     <ClCompile Include="GameFunctions\PlayerInfo.cpp" />
@@ -413,6 +414,7 @@
   <ItemGroup>
     <ClInclude Include="CallbackProcessor\CallbackProcessor.hpp" />
     <ClInclude Include="CallbackProcessor\SharedMemoryDefinitions.hpp" />
+    <ClInclude Include="GameFunctions\BallPrediction.hpp" />
     <ClInclude Include="GameFunctions\GameFunctions.hpp" />
     <ClInclude Include="GameFunctions\GamePacket.hpp" />
     <ClInclude Include="GameFunctions\PlayerInfo.hpp" />
