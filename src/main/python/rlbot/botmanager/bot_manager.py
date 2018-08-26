@@ -133,7 +133,6 @@ class BotManager:
         if hasattr(old_agent, 'retire'):
             old_agent.retire()
 
-        self.reload_request_event.clear()
         return agent, agent_class_file
 
     def run(self):
@@ -173,8 +172,8 @@ class BotManager:
                 try:
                     new_module_modification_time = os.stat(agent_class_file).st_mtime
                     if new_module_modification_time != last_module_modification_time or self.reload_request_event.is_set():
+                        self.reload_request_event.clear()
                         last_module_modification_time = new_module_modification_time
-                        # Reloading also clears event
                         agent, agent_class_file = self.reload_agent(agent, agent_class_file)
                 except FileNotFoundError:
                     self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))
