@@ -45,7 +45,6 @@ class SetupManager:
         self.helper_process_manager = HelperProcessManager(self.quit_event)
         self.bot_quit_callbacks = []
         self.bot_reload_requests = []
-        self.bot_reload_callbacks = []
         self.agent_metadata_map = {}
 
     def startup(self):
@@ -97,13 +96,11 @@ class SetupManager:
             if self.start_match_configuration.player_configuration[i].rlbot_controlled:
                 queue_holder = self.quick_chat_manager.create_queue_for_bot(i, self.teams[i])
                 reload_request = mp.Event()
-                reload_callback = mp.Event()
                 quit_callback = mp.Event()
                 self.bot_reload_requests.append(reload_request)
-                self.bot_reload_callbacks.append(reload_callback)
                 self.bot_quit_callbacks.append(quit_callback)
                 process = mp.Process(target=SetupManager.run_agent,
-                                     args=(self.quit_event, quit_callback, reload_request, reload_callback, self.parameters[i],
+                                     args=(self.quit_event, quit_callback, reload_request, self.parameters[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue, queue_holder))
                 process.start()
@@ -144,23 +141,9 @@ class SetupManager:
                 pass
 
     def reload_all_agents(self):
-        """
-        Tries to reload all agents.
-        :return:
-        """
         self.logger.info("Reloading all agents...")
-        for index in range(len(self.bot_reload_requests)):
-            self.bot_reload_requests[index].set()
-            self.bot_reload_callbacks[index].clear()
-            time_passed = 0
-            while not self.bot_reload_callbacks[index].is_set():
-                time.sleep(0.05)
-                time_passed += 0.05
-                if time_passed >= 2:
-                    # Bot did not respond in time
-                    self.bot_reload_requests[index].clear()
-                    self.logger.error("Unable to reload bot {}".format(index))
-        self.logger.info("Reloading finished")
+        for rr in self.bot_reload_requests:
+            rr.set()
 
     def shut_down(self, time_limit=5, kill_all_pids=False):
         self.logger.info("Shutting Down")
@@ -191,20 +174,20 @@ class SetupManager:
         self.game_interface.set_extension(self.extension)
 
     @staticmethod
-    def run_agent(terminate_event, callback_event, reload_request, reload_callback, config_file, name, team, index, python_file,
+    def run_agent(terminate_event, callback_event, reload_request, config_file, name, team, index, python_file,
                   agent_telemetry_queue, queue_holder):
 
         agent_class_wrapper = import_agent(python_file)
 
         if hasattr(agent_class_wrapper.get_loaded_class(), "run_independently"):
-            bm = BotManagerIndependent(terminate_event, callback_event, reload_request, reload_callback, config_file,
-                                       name, team, index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+            bm = BotManagerIndependent(terminate_event, callback_event, reload_request, config_file, name, team, index,
+                                       agent_class_wrapper, agent_telemetry_queue, queue_holder)
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
-            bm = BotManagerFlatbuffer(terminate_event, callback_event, reload_request, reload_callback, config_file,
-                                      name, team, index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+            bm = BotManagerFlatbuffer(terminate_event, callback_event, reload_request, config_file, name, team, index,
+                                      agent_class_wrapper, agent_telemetry_queue, queue_holder)
         else:
-            bm = BotManagerStruct(terminate_event, callback_event, reload_request, reload_callback, config_file,
-                                  name, team, index, agent_class_wrapper, agent_telemetry_queue, queue_holder)
+            bm = BotManagerStruct(terminate_event, callback_event, reload_request, config_file, name, team, index,
+                                  agent_class_wrapper, agent_telemetry_queue, queue_holder)
         bm.run()
 
     def kill_sub_processes(self):

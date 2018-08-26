@@ -20,8 +20,8 @@ MAX_CARS = 10
 
 
 class BotManager:
-    def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, reload_complete_event,
-                 bot_configuration, name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+    def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
+                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -39,7 +39,6 @@ class BotManager:
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
         self.reload_request_event = reload_request_event
-        self.reload_complete_event = reload_complete_event
         self.bot_configuration = bot_configuration
         self.name = name
         self.team = team
@@ -135,7 +134,6 @@ class BotManager:
             old_agent.retire()
 
         self.reload_request_event.clear()
-        self.reload_complete_event.set()
         return agent, agent_class_file
 
     def run(self):
