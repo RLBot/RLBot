@@ -123,12 +123,12 @@ class SetupManager:
             # Handle commands
             if msvcrt.kbhit():
                 command = msvcrt.getwch()
-                if command.lower() == 'r':  # reload
+                if command.lower() == 'r':  # r: reload
                     self.reload_all_agents()
-                elif command.lower() == 'q':  # quit
+                elif command.lower() == 'q' or command == '\u001b':  # q or ESC: quit
                     self.shut_down()
                     break
-                # Only print instructions if a alphabet character was pressed and no command was found
+                # Print instructions again if a alphabet character was pressed but no command was found
                 elif command.isalpha():
                     self.logger.info(instructions)
 
