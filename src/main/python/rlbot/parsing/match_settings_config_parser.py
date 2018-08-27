@@ -49,6 +49,7 @@ map_types = [
     "AquaDome",
     "StarbaseArc",
     "Farmstead",
+    "SaltyShores",
     "DFHStadium_Stormy",
     "DFHStadium_Day",
     "Mannfield_Stormy",
