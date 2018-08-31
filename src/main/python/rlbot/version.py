@@ -3,9 +3,17 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '0.0.31'
+__version__ = '0.0.32'
 
 release_notes = {
+    '0.0.32': """
+    More comprehensive fix for Rocket League patch 1.50. Compared to previous version:
+    - Dropshot tile data is fixed
+    - Boost pad data is fixed
+    - Loadout configuration is fixed
+    
+    Thanks to ccman32 and dtracers for delivering this fix quickly!
+    """,
     '0.0.31': """
     Rapid response to Rocket League patch 1.50 with the following known issues:
     - Dropshot tile data is missing
