@@ -146,16 +146,20 @@ class Atba(BaseAgent):
 
         car_state = CarState()
         if math.fabs(car_location.x) > 2000 and car_location.z < 100:
-            car_state = CarState(Physics(velocity=Vector3(z=500, x=-car_location.x * .5), rotation=Rotator(math.pi / 2, 0, 0),
-                                         angular_velocity=Vector3(0, 0, 0)),
-                                 jumped=False, double_jumped=False, boost_amount=87)
+            car_state = CarState(
+                Physics(velocity=Vector3(z=500, x=-car_location.x * .5), rotation=Rotator(math.pi / 2, 0, 0),
+                        angular_velocity=Vector3(0, 0, 0)),
+                jumped=False, double_jumped=False, boost_amount=87)
 
         ball_phys = game_tick_packet.game_ball.physics
         ball_state = BallState()
         if ball_phys.location.z > 500:
             ball_state = BallState(Physics(velocity=Vector3(z=-2000)))
 
-        boost_states = {i: BoostState(1.0) for i in range(34)}
+        if math.fabs(car_location.x) > 1000:
+            boost_states = {i: BoostState(1.0) for i in range(34)}
+        else:
+            boost_states = {i: BoostState(0.0) for i in range(34)}
 
         game_state = GameState(ball=ball_state, cars={self.index: car_state}, boosts=boost_states)
         self.set_game_state(game_state)
