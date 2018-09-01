@@ -160,7 +160,7 @@ class GameState:
         ball_offset = None if self.ball is None else self.ball.convert_to_flat(builder)
 
         car_offsets = []
-        if self.cars is not None:
+        if self.cars is not None and len(self.cars) > 0:
             max_index = max(self.cars.keys())
             empty_offset = CarState().convert_to_flat(builder)
             for i in range(0, max_index + 1):
@@ -170,7 +170,7 @@ class GameState:
                     car_offsets.append(empty_offset)
 
         boost_offsets = []
-        if self.boosts is not None:
+        if self.boosts is not None and len(self.boosts) > 0:
             max_index = max(self.boosts.keys())
             empty_offset = BoostState().convert_to_flat(builder)
             for i in range(0, max_index + 1):
