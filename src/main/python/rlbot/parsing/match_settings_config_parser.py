@@ -73,7 +73,7 @@ map_types = [
     "Underpass",
     "UtopiaRetro",
     "Hoops_DunkHouse",
-    "DropShot_Core707",
+    "Dropshot_Core707",
     "ThrowbackStadium"
 ]
 
