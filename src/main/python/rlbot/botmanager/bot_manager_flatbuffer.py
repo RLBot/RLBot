@@ -3,13 +3,13 @@ from rlbot.messages.flat import GameTickPacket
 
 
 class BotManagerFlatbuffer(BotManager):
-    def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                 agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+    def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
+                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
         """
         See documentation on BotManager.
         """
-        super().__init__(terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                         agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
+        super().__init__(terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
+                         name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
         self.game_tick_flat = None
         self.game_tick_flat_binary = None
 

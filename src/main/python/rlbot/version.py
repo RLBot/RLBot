@@ -3,9 +3,28 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '0.0.30'
+__version__ = '0.0.32'
 
 release_notes = {
+    '0.0.32': """
+    More comprehensive fix for Rocket League patch 1.50. Compared to previous version:
+    - Dropshot tile data is fixed
+    - Boost pad data is fixed
+    - Loadout configuration is fixed
+    
+    Thanks to ccman32 and dtracers for delivering this fix quickly!
+    """,
+    '0.0.31': """
+    Rapid response to Rocket League patch 1.50 with the following known issues:
+    - Dropshot tile data is missing
+    - Boost pad data is missing
+    - Loadout configuration is broken
+    
+    Thanks to ccman32 and dtracers for delivering this short-term fix quickly.
+
+    We will follow this up with a proper fix as soon as possible. You may also choose to stay on
+    Rocket League 1.49 and RLBot 0.0.30, ask for instructions on discord.
+    """,
     '0.0.30': """
     - New core dll that is less likely to break when Rocket League is patched - ccman32 and hallo-doei
     - Fixed bug resulting in incorrect quickchat - dtracers
