@@ -73,7 +73,7 @@ map_types = [
     "Underpass",
     "UtopiaRetro",
     "Hoops_DunkHouse",
-    "DropShot_Core707",
+    "Dropshot_Core707",
     "ThrowbackStadium"
 ]
 
@@ -289,7 +289,11 @@ def parse_match_settings(match_settings, config):
     """
 
     match_settings.game_mode = game_mode_types.index(config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
-    match_settings.game_map = map_types.index(config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
+    # Backwards compatibility
+    game_map = config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP)
+    if game_map == "DropShot_Core707":
+        game_map = "Dropshot_Core707"
+    match_settings.game_map = map_types.index(game_map)
     match_settings.skip_replays = config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS)
     match_settings.instant_start = config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START)
 
