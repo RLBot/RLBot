@@ -1,3 +1,4 @@
+import flatbuffers
 from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
 
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
@@ -5,6 +6,7 @@ from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
+from rlbot.utils import game_state_util
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
@@ -49,6 +51,7 @@ class BaseAgent:
 
     # passed in by the bot manager
     __field_info_func = None
+    __game_state_func = None
     renderer = None
 
     def __init__(self, name, team, index):
@@ -91,6 +94,17 @@ class BaseAgent:
         """Gets the information about the field.
         This does not change during a match so it only needs to be called once after the everything is loaded."""
         return self.__field_info_func()
+
+    def set_game_state(self, game_state: game_state_util.GameState):
+        builder = flatbuffers.Builder(0)
+        game_state_offset = game_state.convert_to_flat(builder)
+        if game_state_offset is None:
+            # There are no values to be set, so just skip it
+            return
+
+        builder.Finish(game_state_offset)
+
+        self.__game_state_func(builder)
 
     def load_config(self, config_object_header):
         """
@@ -179,6 +193,9 @@ class BaseAgent:
         This should not be overwritten by the agent.
         """
         self.__field_info_func = field_info_func
+
+    def _register_set_game_state(self, game_state_func):
+        self.__game_state_func = game_state_func
 
     def _set_renderer(self, renderer: RenderingManager):
         self.renderer = renderer

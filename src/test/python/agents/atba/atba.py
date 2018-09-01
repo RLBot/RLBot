@@ -4,6 +4,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleCo
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
+from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, Physics, Vector3, Rotator
 
 
 class Atba(BaseAgent):
@@ -11,6 +12,7 @@ class Atba(BaseAgent):
     test_rendering = False
     test_quickchat = False
     test_dropshot = False
+    test_state = False
     cleared = False
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
@@ -42,6 +44,9 @@ class Atba(BaseAgent):
 
         if self.test_dropshot:
             self.do_dropshot_tile_test(game_tick_packet)
+
+        if self.test_state:
+            self.set_state_test(game_tick_packet)
 
         controller_state.throttle = 1.0
         controller_state.steer = turn
@@ -134,11 +139,37 @@ class Atba(BaseAgent):
 
         self.renderer.end_rendering()
 
+    def set_state_test(self, game_tick_packet: GameTickPacket):
+
+        my_car = game_tick_packet.game_cars[self.index]
+        car_location = my_car.physics.location
+
+        car_state = CarState()
+        if math.fabs(car_location.x) > 2000 and car_location.z < 100:
+            car_state = CarState(
+                Physics(velocity=Vector3(z=500, x=-car_location.x * .5), rotation=Rotator(math.pi / 2, 0, 0),
+                        angular_velocity=Vector3(0, 0, 0)),
+                jumped=False, double_jumped=False, boost_amount=87)
+
+        ball_phys = game_tick_packet.game_ball.physics
+        ball_state = BallState()
+        if ball_phys.location.z > 500:
+            ball_state = BallState(Physics(velocity=Vector3(z=-2000)))
+
+        if math.fabs(car_location.x) > 1000:
+            boost_states = {i: BoostState(1.0) for i in range(34)}
+        else:
+            boost_states = {i: BoostState(0.0) for i in range(34)}
+
+        game_state = GameState(ball=ball_state, cars={self.index: car_state}, boosts=boost_states)
+        self.set_game_state(game_state)
+
     def load_config(self, config_header):
         self.flip_turning = config_header.getboolean('flip_turning')
         self.test_rendering = config_header.getboolean('test_rendering')
         self.test_quickchat = config_header.getboolean('test_quickchat')
         self.test_dropshot = config_header.getboolean('test_dropshot')
+        self.test_state = config_header.getboolean('test_state')
 
     @staticmethod
     def create_agent_configurations(config: ConfigObject):
@@ -147,6 +178,8 @@ class Atba(BaseAgent):
         params.add_value('test_rendering', bool, default=False, description='if true bot will render random stuff')
         params.add_value('test_quickchat', bool, default=False, description='if true bot will spam quickchats')
         params.add_value('test_dropshot', bool, default=False, description='if true bot will render dropshot info')
+        params.add_value('test_state', bool, default=False, description='if true bot will alter its game state')
+
 
 class Vector2:
     def __init__(self, x=0.0, y=0.0):

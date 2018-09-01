@@ -18,6 +18,9 @@ namespace BoostConstants
 	// Chat
 	extern const char* QuickChatFlatQueueName;
 
+	// Game State Setting
+	extern const char* GameStateFlatQueueName;
+
 	std::string buildSharedMemName(const char* baseName);
 	std::string buildMutexName(const char* baseName);
 };

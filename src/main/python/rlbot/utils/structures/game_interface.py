@@ -93,6 +93,11 @@ class GameInterface:
         func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
 
+        # set game state
+        func = self.game.SetGameState
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        func.restype = ctypes.c_int
+
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
@@ -143,8 +148,8 @@ class GameInterface:
         return
 
     def game_status(self, id, rlbot_status):
-        pass
-        # self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
+        if rlbot_status != RLBotCoreStatus.Success and rlbot_status != RLBotCoreStatus.BufferOverfilled:
+            self.logger.debug("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
@@ -232,6 +237,11 @@ class GameInterface:
         buf = player_input_builder.Output()
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
+        
+    def set_game_state(self, set_state_builder):
+        buf = set_state_builder.Output()
+        rlbot_status = self.game.SetGameState(bytes(buf), len(buf))
+        self.game_status(None, rlbot_status)
 
     def get_live_data_flat_binary(self):
         """
@@ -248,7 +258,7 @@ class GameInterface:
             # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-            self.game_status(None, "Success")
+            self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
 
     def get_field_info(self):
@@ -263,5 +273,5 @@ class GameInterface:
             # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-            self.game_status(None, "Success")
+            self.game_status(None, RLBotCoreStatus.Success)
             return FieldInfo.FieldInfo.GetRootAsFieldInfo(proto_string, 0)
