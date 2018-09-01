@@ -148,8 +148,8 @@ class GameInterface:
         return
 
     def game_status(self, id, rlbot_status):
-        pass
-        # self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
+        if rlbot_status != RLBotCoreStatus.Success and rlbot_status != RLBotCoreStatus.BufferOverfilled:
+            self.logger.debug("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
@@ -258,7 +258,7 @@ class GameInterface:
             # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-            self.game_status(None, "Success")
+            self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
 
     def get_field_info(self):
@@ -273,5 +273,5 @@ class GameInterface:
             # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-            self.game_status(None, "Success")
+            self.game_status(None, RLBotCoreStatus.Success)
             return FieldInfo.FieldInfo.GetRootAsFieldInfo(proto_string, 0)
