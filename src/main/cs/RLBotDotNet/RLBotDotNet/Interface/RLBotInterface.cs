@@ -33,7 +33,7 @@ namespace RLBotDotNet.Utils
         public extern static int RenderGroup(byte[] renderGroup, int protoSize);
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
-        public extern static int Free(IntPtr ptr);
+        public extern static void Free(IntPtr ptr);
         #endregion
 
         /// <summary>
