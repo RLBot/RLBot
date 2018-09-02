@@ -3,10 +3,8 @@
 
 namespace BallPrediction {
 
-
 	std::list<BallSlice>* PredictionService::updatePrediction(BallSlice inputSlice)
 	{
-
 		BallSlice baseSlice;
 
 		if (currentPredictionStillValid(inputSlice)) {
@@ -51,6 +49,8 @@ namespace BallPrediction {
 		return &prediction;
 	}
 
+	// Returns true if our cached ball prediction is still valid, i.e. the current location of the ball is still
+	// tracking along the predicted path. This is useful for reducing the amount of physics computation we do.
 	bool PredictionService::currentPredictionStillValid(BallSlice currentBallPosition)
 	{
 		BallSlice* predictedSlice = new BallSlice();
@@ -61,9 +61,6 @@ namespace BallPrediction {
 			float error = dot(toPredicted, toPredicted);
 			if (error < 12) {
 				valid = true;
-			}
-			else {
-				// printf("Expected ball position is %f off by dot product.\n", error);
 			}
 		}
 
@@ -110,5 +107,4 @@ namespace BallPrediction {
 
 		return true;
 	}
-
 }

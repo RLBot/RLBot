@@ -22,6 +22,8 @@ rlbot::flat::Vector3 convertVec(vec3 vec)
 	return rlbot::flat::Vector3(vec[0], vec[1], vec[2]);
 }
 
+// Places ball prediction data into shared memory. Bots will later be able to retrieve it by
+// calling a function on the interface dll.
 void emplacePrediction(std::list<BallPrediction::BallSlice>* prediction) {
 
 	std::vector<flatbuffers::Offset<rlbot::flat::PredictionSlice>> slices;
@@ -55,12 +57,11 @@ void emplacePrediction(std::list<BallPrediction::BallSlice>* prediction) {
 	ballPredictionWriter.writeData(builder.GetBufferPointer(), builder.GetSize());
 }
 
-
 int runBallPrediction()
 {
 	printf("Ball Prediction Service Started\n");
 
-	BallPrediction::PredictionService predictionService(6.0, 1.0 / 60);
+	BallPrediction::PredictionService predictionService(/* Number of seconds to predict */ 6.0, /* Seconds between prediction slices */ 1.0 / 60);
 
 	std::list<BallPrediction::BallSlice> empty;
 	emplacePrediction(&empty); // Clear out any previous predictions

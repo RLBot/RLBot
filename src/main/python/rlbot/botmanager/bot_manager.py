@@ -207,7 +207,7 @@ class BotManager:
         return self.game_interface.set_game_state(game_state)
 
     def get_ball_prediction(self):
-        return self.game_interface.fetch_ball_prediction()
+        return self.game_interface.get_ball_prediction()
 
     def prepare_for_run(self):
         raise NotImplementedError

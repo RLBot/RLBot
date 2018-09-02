@@ -70,7 +70,7 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
-        func = self.game.FetchBallPrediction
+        func = self.game.GetBallPrediction
         func.argtypes = []
         func.restype = ByteBuffer
 
@@ -281,12 +281,11 @@ class GameInterface:
             self.game_status(None, RLBotCoreStatus.Success)
             return FieldInfo.GetRootAsFieldInfo(proto_string, 0)
 
-    def fetch_ball_prediction(self) -> BallPrediction:
+    def get_ball_prediction(self) -> BallPrediction:
         """
-        Gets the field information from the interface.
-        :return: The field information
+        Gets the latest ball prediction available in shared memory. Only works if BallPrediction.exe is running.
         """
-        byte_buffer = self.game.FetchBallPrediction()
+        byte_buffer = self.game.GetBallPrediction()
 
         if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
             # We're counting on this copying the data over to a new memory location so that the original

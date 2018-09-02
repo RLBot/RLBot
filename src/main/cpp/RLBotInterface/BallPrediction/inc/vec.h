@@ -69,7 +69,6 @@ class vec {
 		return v;
 	}
 
-
     // in-place elementwise addition
     void operator+=(const vec < n > & other){
       for(int i = 0; i < n; i++){
@@ -122,7 +121,6 @@ class vec {
         data[i] /= other;
       }
     }
-
 };
 
 inline vec < 3 > cross(const vec < 3 > & a,

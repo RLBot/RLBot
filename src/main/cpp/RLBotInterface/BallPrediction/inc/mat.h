@@ -1,5 +1,7 @@
 #pragma once
 
+#include "linalg.h"
+
 #include <math.h>
 #include <initializer_list>
 
@@ -220,7 +222,7 @@ inline mat < 3, 3 > inv(const mat < 3, 3 > & A){
 
 } 
 
-inline mat < 4, 4 > inverse(const mat < 4, 4 > & A){
+inline mat < 4, 4 > inv(const mat < 4, 4 > & A){
 
   mat < 4, 4 > invA;
 
@@ -300,22 +302,17 @@ inline mat < m, p > dot(const mat < m, n > & A,
 
 }
 
-inline mat < 3, 3 > aa_rotation(const vec < 3 > & omega) {
+inline mat < 3, 3 > antisym(const vec < 3 > & w) {
 
-  vec3 axis = normalize(omega);
-  float theta = norm(omega);
-
-  mat < 3, 3 > K = {
-    {  0.0   , -axis[2],  axis[1]},
-    { axis[2],    0.0  , -axis[0]},
-    {-axis[1],  axis[0],    0.0  }
+  return mat < 3, 3 >{
+    {  0.0, -w[2],  w[1]},
+    { w[2],   0.0, -w[0]},
+    {-w[1],  w[0],   0.0}
   };
-
-  return eye< 3 >() + sin(theta) * K + (1.0f - cos(theta)) * dot(K, K);
 
 }
 
-inline mat < 3, 3 > ea_rotation(const vec < 3 > & pyr) {
+inline mat < 3, 3 > euler_rotation(const vec < 3 > & pyr) {
 
   float CP = cos(pyr[0]); 
   float SP = sin(pyr[0]);
