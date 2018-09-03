@@ -1,6 +1,8 @@
 package rlbot;
 
 import rlbot.cppinterop.RLBotDll;
+import rlbot.flat.BallPrediction;
+import rlbot.flat.Vector3;
 import rlbot.gamestate.*;
 import rlbot.input.CarData;
 import rlbot.input.DataPacket;
@@ -14,6 +16,7 @@ import rlbot.vec.DesiredVec;
 import rlbot.vec.Vector2;
 
 import java.awt.*;
+import java.io.IOException;
 
 public class SampleBot implements Bot {
 
@@ -78,6 +81,16 @@ public class SampleBot implements Bot {
 
         if (input.ball.position.z > 1000) {
             triangleRenderer.eraseFromScreen();
+        }
+
+        try {
+            final BallPrediction ballPrediction = RLBotDll.getBallPrediction();
+
+            Vector3 location = ballPrediction.slices(60).physics().location();
+            renderer.drawLine3d(Color.CYAN, input.ball.position, rlbot.vec.Vector3.fromFlatbuffer(location));
+
+        } catch (IOException e) {
+            // Ignore
         }
 
         return new ControlsOutput()

@@ -5,6 +5,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import rlbot.ControllerState;
+import rlbot.flat.BallPrediction;
 import rlbot.flat.FieldInfo;
 import rlbot.flat.GameTickPacket;
 import rlbot.gamestate.GameStatePacket;
@@ -28,6 +29,7 @@ public class RLBotDll {
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
     private static native int RenderGroup(Pointer ptr, int size);
     private static native int SetGameState(Pointer ptr, int size);
+    private static native ByteBufferStruct GetBallPrediction();
 
     private static boolean isInitialized = false;
     private static final Object fileLock = new Object();
@@ -139,6 +141,21 @@ public class RLBotDll {
         byte[] bytes = gameStatePacket.getBytes();
         final Memory memory = getMemory(bytes);
         SetGameState(memory, bytes.length);
+    }
+
+    public static BallPrediction getBallPrediction() throws IOException {
+        try {
+            final ByteBufferStruct struct = GetBallPrediction();
+            if (struct.size < 4) {
+                throw new IOException("Flatbuffer packet is too small, match is probably not running!");
+            }
+            final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            return BallPrediction.getRootAsBallPrediction(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new IOException("Could not find interface dll! Did initialize get called?", error);
+        } catch (final Error error) {
+            throw new IOException(error);
+        }
     }
 
     private static Memory getMemory(byte[] protoBytes) {
