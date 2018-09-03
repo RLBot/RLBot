@@ -31,6 +31,9 @@ namespace RLBotDotNet.Utils
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static int RenderGroup(byte[] renderGroup, int protoSize);
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static void Free(IntPtr ptr);
         #endregion
 
         /// <summary>
@@ -45,6 +48,7 @@ namespace RLBotDotNet.Utils
 
             byte[] bufferBytes = new byte[byteBuffer.size];
             Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
 
             return GameTickPacket.GetRootAsGameTickPacket(new ByteBuffer(bufferBytes));
         }
@@ -61,6 +65,7 @@ namespace RLBotDotNet.Utils
 
             byte[] bufferBytes = new byte[byteBuffer.size];
             Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
 
             return FieldInfo.GetRootAsFieldInfo(new ByteBuffer(bufferBytes));
         }
