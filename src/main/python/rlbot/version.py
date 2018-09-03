@@ -17,8 +17,9 @@ release_notes = {
 
     2. Ball prediction. We now provide a list of future ball positions based on chip's excellent
     physics modeling. Take advantage of this to do next-level wall reads, catches, and dribbles! You can
-    read about the math involved here - https://samuelpmish.github.io/notes/RocketLeague/ball_bouncing/
+    read about the math involved here: https://samuelpmish.github.io/notes/RocketLeague/ball_bouncing/
     Note: currently the wall bounces are only accurate on the standard arena, not hoops or dropshot.
+    Documentation and examples can be found here: https://github.com/RLBot/RLBot/wiki/Ball-Path-Prediction
     Code written by chip and tarehart
 
     Bonus: You can now play on Salty Shores thanks to hallo_doei
