@@ -4,6 +4,8 @@ import subprocess
 import sys
 import time
 
+from rlbot.messages.flat.BallPrediction import BallPrediction
+from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
@@ -11,7 +13,6 @@ from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
-from rlbot.messages.flat import FieldInfo
 
 
 def wrap_callback(callback_func):
@@ -69,6 +70,10 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
+        func = self.game.GetBallPrediction
+        func.argtypes = []
+        func.restype = ByteBuffer
+
         # start match
         func = self.game.StartMatch
         func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
@@ -90,6 +95,11 @@ class GameInterface:
         func.restype = ctypes.c_int
 
         func = self.game.SendQuickChat
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        func.restype = ctypes.c_int
+
+        # set game state
+        func = self.game.SetGameState
         func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
 
@@ -143,8 +153,8 @@ class GameInterface:
         return
 
     def game_status(self, id, rlbot_status):
-        pass
-        # self.logger.debug(RLBotCoreStatus.status_list[rlbot_status])
+        if rlbot_status != RLBotCoreStatus.Success and rlbot_status != RLBotCoreStatus.BufferOverfilled:
+            self.logger.debug("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
@@ -233,6 +243,11 @@ class GameInterface:
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
 
+    def set_game_state(self, set_state_builder):
+        buf = set_state_builder.Output()
+        rlbot_status = self.game.SetGameState(bytes(buf), len(buf))
+        self.game_status(None, rlbot_status)
+
     def get_live_data_flat_binary(self):
         """
         Gets the live data packet in flatbuffer binary format. You'll need to do something like
@@ -248,10 +263,10 @@ class GameInterface:
             # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-            self.game_status(None, "Success")
+            self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
 
-    def get_field_info(self):
+    def get_field_info(self) -> FieldInfo:
         """
         Gets the field information from the interface.
         :return: The field information
@@ -263,5 +278,19 @@ class GameInterface:
             # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-            self.game_status(None, "Success")
-            return FieldInfo.FieldInfo.GetRootAsFieldInfo(proto_string, 0)
+            self.game_status(None, RLBotCoreStatus.Success)
+            return FieldInfo.GetRootAsFieldInfo(proto_string, 0)
+
+    def get_ball_prediction(self) -> BallPrediction:
+        """
+        Gets the latest ball prediction available in shared memory. Only works if BallPrediction.exe is running.
+        """
+        byte_buffer = self.game.GetBallPrediction()
+
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            self.game_status(None, RLBotCoreStatus.Success)
+            return BallPrediction.GetRootAsBallPrediction(proto_string, 0)

@@ -1,15 +1,8 @@
 #ifndef GAMEFUNCTIONS_HPP
 #define GAMEFUNCTIONS_HPP
 
-#include <Messages.hpp>
-
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "..\InterfaceBase\InterfaceBase.hpp"
-
-#include <BoostUtilities\BoostUtilities.hpp>
-
-// Other dll functions related to the game itself
-#include "PlayerInfo.hpp"
+#include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "GamePacket.hpp"
 
 
@@ -21,8 +14,7 @@ extern "C"
 	namespace GameFunctions
 	{
 		DLL_EXPORT void RLBOT_CORE_API Free(void* ptr);
-
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameTickPacket, int protoSize, CallbackFunction callback, unsigned int* pID);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size);
 
 		bool isValidName(wchar_t* pName);
 		RLBotCoreStatus checkPlayerConfiguration(PlayerConfiguration playerConfiguration[CONST_MaxPlayers], int numPlayers);

@@ -19,6 +19,7 @@ from rlbot.utils import process_configuration
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import QuickChatManager
 from rlbot.utils.structures.start_match_structures import MatchSettings
+from rlbot.utils.prediction import prediction_util
 
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
@@ -46,12 +47,15 @@ class SetupManager:
         self.bot_quit_callbacks = []
         self.bot_reload_requests = []
         self.agent_metadata_map = {}
+        self.ball_prediction_process = None
 
     def startup(self):
         if self.has_started:
             return
         version.print_current_release_notes()
         self.game_interface.inject_dll()
+        prediction_util.copy_pitch_data_to_temp()
+        self.ball_prediction_process = prediction_util.launch()
         self.game_interface.load_interface()
         self.agent_metadata_queue = mp.Queue()
         self.has_started = True
@@ -150,6 +154,7 @@ class SetupManager:
 
         self.quit_event.set()
         end_time = datetime.now() + timedelta(seconds=time_limit)
+        self.ball_prediction_process.terminate()
 
         # Wait for all processes to terminate before terminating main process
         terminated = False
