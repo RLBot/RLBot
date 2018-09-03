@@ -74,6 +74,11 @@ namespace RLBotDotNet
             }
         }
 
+        protected BallPrediction GetBallPrediction()
+        {
+            return RLBotInterface.GetBallPredictionData();
+        }
+
         protected void SendQuickChatFromAgent(bool teamOnly, QuickChatSelection quickChat)
         {
             /*
