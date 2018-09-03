@@ -3,9 +3,27 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '0.0.32'
+__version__ = '1.0.0'
 
 release_notes = {
+    '1.0.0': """
+    Time for the big 1.0.0 release! We actually left "beta" a long time ago so this isn't as big
+    a milestone as the number implies, but we DO have two great new features!
+
+    1. Setting game state. You can manipulate the position, velocity, etc of the ball and the cars!
+    This can be a great help during bot development, and you can also get creative with it. Visit
+    the wiki for details and documentation - https://github.com/RLBot/RLBot/wiki/Manipulating-Game-State
+    Code written by hallo_doei, ccman32, and tarehart
+
+    2. Ball prediction. We now provide a list of future ball positions based on chip's excellent
+    physics modeling. Take advantage of this to do next-level wall reads, catches, and dribbles! You can
+    read about the math involved here: https://samuelpmish.github.io/notes/RocketLeague/ball_bouncing/
+    Note: currently the wall bounces are only accurate on the standard arena, not hoops or dropshot.
+    Documentation and examples can be found here: https://github.com/RLBot/RLBot/wiki/Ball-Path-Prediction
+    Code written by chip and tarehart
+
+    Bonus: You can now play on Salty Shores thanks to hallo_doei
+    """,
     '0.0.32': """
     More comprehensive fix for Rocket League patch 1.50. Compared to previous version:
     - Dropshot tile data is fixed
