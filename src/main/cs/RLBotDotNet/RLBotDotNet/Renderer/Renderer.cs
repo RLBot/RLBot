@@ -113,6 +113,17 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
+        /// Draws a line between two 3D coordinates.
+        /// </summary>
+        /// <param name="color">The color of the line.</param>
+        /// <param name="start">The start point of the line.</param>
+        /// <param name="end">The end point of the line.</param>
+        public void DrawLine3D(Color color, rlbot.flat.Vector3 start, rlbot.flat.Vector3 end)
+        {
+            DrawLine3D(color, new Vector3(start.X, start.Y, start.Z), new Vector3(end.X, end.Y, end.Z));
+        }
+
+        /// <summary>
         /// Draws a 2D line which starts at screen coordinates and ends at a 3D coordinate.
         /// </summary>
         /// <param name="color">The color of the line.</param>
@@ -132,7 +143,18 @@ namespace RLBotDotNet.Renderer
 
             _renderMessageOffsets.Add(finalOffset);
         }
-        
+
+        /// <summary>
+        /// Draws a 2D line which starts at screen coordinates and ends at a 3D coordinate.
+        /// </summary>
+        /// <param name="color">The color of the line.</param>
+        /// <param name="start">The start point of the line.</param>
+        /// <param name="end">The end point of the line.</param>
+        public void DrawLine2D3D(Color color, Vector2 start, rlbot.flat.Vector3 end)
+        {
+            DrawLine2D3D(color, start, new Vector3(end.X, end.Y, end.Z));
+        }
+
         /// <summary>
         /// This draws a 2D rectangle in screen coordinates.
         /// </summary>
@@ -170,7 +192,20 @@ namespace RLBotDotNet.Renderer
         {
             DrawRect3D(color, upperLeft, width, height, filled, false);
         }
-        
+
+        /// <summary>
+        /// This draws a 2D rectangle at a 3D-tracked position.
+        /// </summary>
+        /// <param name="color">The color of the rectangle.</param>
+        /// <param name="upperLeft">The upper left corner of the rectangle.</param>
+        /// <param name="width">The width in pixels.</param>
+        /// <param name="height">The height in pixels</param>
+        /// <param name="filled">Flag indicating whether the rectangle should be filled in</param>
+        public void DrawRectangle3D(Color color, rlbot.flat.Vector3 position, int width, int height, bool filled)
+        {
+            DrawRectangle3D(color, new Vector3(position.X, position.Y, position.Z), width, height, filled);
+        }
+
         /// <summary>
         /// This draws a 2D rectangle at a 3D-tracked position.
         /// </summary>
@@ -182,6 +217,19 @@ namespace RLBotDotNet.Renderer
         public void DrawCenteredRectangle3D(Color color, Vector3 position, int width, int height, bool filled)
         {
             DrawRect3D(color, position, width, height, filled, true);
+        }
+
+        /// <summary>
+        /// This draws a 2D rectangle at a 3D-tracked position.
+        /// </summary>
+        /// <param name="color">The color of the rectangle.</param>
+        /// <param name="position">The center of the rectangle.</param>
+        /// <param name="width">The width in pixels.</param>
+        /// <param name="height">The height in pixels</param>
+        /// <param name="filled">Flag indicating whether the rectangle should be filled in</param>
+        public void DrawCenteredRectangle3D(Color color, rlbot.flat.Vector3 position, int width, int height, bool filled)
+        {
+            DrawCenteredRectangle3D(color, new Vector3(position.X, position.Y, position.Z), width, height, filled);
         }
 
         private void DrawRect3D(Color color, Vector3 position, int width, int height, bool filled, bool centered)
@@ -249,6 +297,19 @@ namespace RLBotDotNet.Renderer
             var finalOffset = RenderMessage.EndRenderMessage(Builder);
 
             _renderMessageOffsets.Add(finalOffset);
+        }
+
+        /// <summary>
+        /// Draws a string in 2D, but the upper-left corner is at a 3D-tracked point.
+        /// </summary>
+        /// <param name="text">The text to draw.</param>
+        /// <param name="color">The color of the string.</param>
+        /// <param name="upperLeft">The location of the upper left corner of the text.</param>
+        /// <param name="scaleX">The multiplier for the width of the text.</param>
+        /// <param name="scaleY">The multiplier for the height of the text</param>
+        public void DrawString3D(String text, Color color, rlbot.flat.Vector3 upperLeft, int scaleX, int scaleY)
+        {
+            DrawString3D(text, color, new Vector3(upperLeft.X, upperLeft.Y, upperLeft.Z), scaleX, scaleY);
         }
 
         /// <summary>
