@@ -24,6 +24,9 @@ namespace RLBotDotNet.Utils
         public extern static ByteBufferStruct UpdateFieldInfoFlatbuffer();
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static ByteBufferStruct GetBallPrediction();
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static int UpdatePlayerInputFlatbuffer(byte[] bytes, int size);
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
@@ -68,6 +71,23 @@ namespace RLBotDotNet.Utils
             Free(byteBuffer.ptr);
 
             return FieldInfo.GetRootAsFieldInfo(new ByteBuffer(bufferBytes));
+        }
+
+        /// <summary>
+        /// Returns 6 seconds of the ball physics prediction.
+        /// </summary>
+        /// <returns>6 seconds of the ball physics prediction.</returns>
+        public static BallPrediction GetBallPredictionData()
+        {
+            ByteBufferStruct byteBuffer = GetBallPrediction();
+            if (byteBuffer.size < 4)
+                throw new FlatbuffersPacketException("Flatbuffers packet is too small. Match is probably not running!");
+
+            byte[] bufferBytes = new byte[byteBuffer.size];
+            Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
+
+            return BallPrediction.GetRootAsBallPrediction(new ByteBuffer(bufferBytes));
         }
 
 
