@@ -106,6 +106,10 @@ class BaseAgent:
 
         self.__game_state_func(builder)
 
+    def get_ball_prediction(self):
+        """Fetches a prediction of where the ball will go during the next few seconds."""
+        return self.__ball_prediction_func()
+
     def load_config(self, config_object_header):
         """
         Loads a config object this is called after the constructor but before anything else inside the bot.
@@ -196,6 +200,13 @@ class BaseAgent:
 
     def _register_set_game_state(self, game_state_func):
         self.__game_state_func = game_state_func
+
+    def _register_ball_prediction(self, ball_prediction_func):
+        """
+        Sets the function to grab ball predictions from the interface.
+        This should not be overwritten by the agent.
+        """
+        self.__ball_prediction_func = ball_prediction_func
 
     def _set_renderer(self, renderer: RenderingManager):
         self.renderer = renderer

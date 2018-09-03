@@ -1,15 +1,8 @@
 #ifndef GAMEFUNCTIONS_HPP
 #define GAMEFUNCTIONS_HPP
 
-#include <Messages.hpp>
-
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "..\InterfaceBase\InterfaceBase.hpp"
-
-#include <BoostUtilities\BoostUtilities.hpp>
-
-// Other dll functions related to the game itself
-#include "PlayerInfo.hpp"
+#include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include "GamePacket.hpp"
 
 

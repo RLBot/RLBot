@@ -7,6 +7,7 @@
 
 #include "GameFunctions.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
+#include <BoostUtilities\BoostUtilities.hpp>
 
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 
