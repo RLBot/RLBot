@@ -4,6 +4,9 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import rlbot.flat.DesiredPhysics;
 import rlbot.vector.Vector3;
 
+/**
+ * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State
+ */
 public class PhysicsState {
     private DesiredVector3 location;
     private DesiredRotation rotation;

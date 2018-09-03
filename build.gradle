@@ -33,7 +33,7 @@ dependencies {
 }
 
 project.setGroup('org.rlbot.commons')
-project.setVersion('0.0.11')
+project.setVersion('1.0.0')
 
 def pythonRoot = './src/main/python/'
 

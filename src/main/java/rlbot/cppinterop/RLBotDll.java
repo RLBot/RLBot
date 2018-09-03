@@ -66,6 +66,9 @@ public class RLBotDll {
         return new File(jnaPath);
     }
 
+    /**
+     * Retrieves up-to-date game information like the positions of the ball and cars, among many other things.
+     */
     public static GameTickPacket getFlatbufferPacket() throws IOException {
         try {
             final ByteBufferStruct struct = UpdateLiveDataPacketFlatbuffer();
@@ -81,6 +84,9 @@ public class RLBotDll {
         }
     }
 
+    /**
+     * Retrieves information about boost pad locations, goal locations, dropshot tile locations, etc.
+     */
     public static FieldInfo getFieldInfo() throws IOException {
         try {
             final ByteBufferStruct struct = UpdateFieldInfoFlatbuffer();
@@ -137,12 +143,20 @@ public class RLBotDll {
         RenderGroup(memory, bytes.length);
     }
 
+    /**
+     * Modifies the position, velocity, etc of the ball and cars, according to the contents of the gameStatePacket.
+     * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State for detailed documentation.
+     */
     public static void setGameState(final GameStatePacket gameStatePacket) {
         byte[] bytes = gameStatePacket.getBytes();
         final Memory memory = getMemory(bytes);
         SetGameState(memory, bytes.length);
     }
 
+    /**
+     * Gets the predicted path of the ball as a list of slices.
+     * See https://github.com/RLBot/RLBotJavaExample/wiki/Ball-Path-Prediction for more details.
+     */
     public static BallPrediction getBallPrediction() throws IOException {
         try {
             final ByteBufferStruct struct = GetBallPrediction();

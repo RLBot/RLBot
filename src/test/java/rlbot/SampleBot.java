@@ -86,7 +86,7 @@ public class SampleBot implements Bot {
         try {
             final BallPrediction ballPrediction = RLBotDll.getBallPrediction();
 
-            Vector3 location = ballPrediction.slices(60).physics().location();
+            Vector3 location = ballPrediction.slices(ballPrediction.slicesLength() / 2).physics().location();
             renderer.drawLine3d(Color.CYAN, input.ball.position, rlbot.vec.Vector3.fromFlatbuffer(location));
 
         } catch (IOException e) {

@@ -3,6 +3,9 @@ package rlbot.gamestate;
 import com.google.flatbuffers.FlatBufferBuilder;
 import rlbot.flat.RotatorPartial;
 
+/**
+ * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State
+ */
 public class DesiredRotation {
     public final Float pitch;
     public final Float yaw;

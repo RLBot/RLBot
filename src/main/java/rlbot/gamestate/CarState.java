@@ -4,6 +4,9 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import rlbot.flat.Bool;
 import rlbot.flat.DesiredCarState;
 
+/**
+ * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State
+ */
 public class CarState {
     private PhysicsState physics;
     private Boolean jumped;

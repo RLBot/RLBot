@@ -2,6 +2,9 @@ package rlbot.gamestate;
 
 import java.util.Arrays;
 
+/**
+ * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State
+ */
 public class GameStatePacket {
 
     private final byte[] bytes;
