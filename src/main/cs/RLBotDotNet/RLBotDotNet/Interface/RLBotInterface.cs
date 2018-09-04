@@ -3,6 +3,7 @@ using rlbot.flat;
 using FlatBuffers;
 using System.Runtime.InteropServices;
 using RLBotDotNet.Renderer;
+using RLBotDotNet.GameState;
 
 namespace RLBotDotNet.Utils
 {
@@ -37,6 +38,9 @@ namespace RLBotDotNet.Utils
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static void Free(IntPtr ptr);
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static int SetGameState(byte[] bytes, int size);
         #endregion
 
         /// <summary>
@@ -141,6 +145,16 @@ namespace RLBotDotNet.Utils
             builder.Finish(offset.Value);
             byte[] bufferBytes = builder.SizedByteArray();
             SendQuickChat(bufferBytes, bufferBytes.Length);
+        }
+
+        /// <summary>
+        /// Sets the current state of the game.
+        /// </summary>
+        /// <param name="gameState">The desired state.</param>
+        public static void SetGameStatePacket(GameStatePacket gameState)
+        {
+            byte[] data = gameState.Data;
+            SetGameState(data, data.Length);
         }
 
         /// <summary>
