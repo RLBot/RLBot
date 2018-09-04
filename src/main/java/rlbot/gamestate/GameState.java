@@ -7,6 +7,9 @@ import rlbot.render.RenderPacket;
 
 import java.util.*;
 
+/**
+ * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State
+ */
 public class GameState {
 
     private Map<Integer, CarState> carStates = new HashMap<>();

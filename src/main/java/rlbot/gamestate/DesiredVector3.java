@@ -3,6 +3,9 @@ package rlbot.gamestate;
 import com.google.flatbuffers.FlatBufferBuilder;
 import rlbot.flat.Vector3Partial;
 
+/**
+ * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State
+ */
 public class DesiredVector3 {
     private Float x;
     private Float y;

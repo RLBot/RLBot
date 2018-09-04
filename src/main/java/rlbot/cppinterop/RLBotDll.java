@@ -5,6 +5,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import rlbot.ControllerState;
+import rlbot.flat.BallPrediction;
 import rlbot.flat.FieldInfo;
 import rlbot.flat.GameTickPacket;
 import rlbot.gamestate.GameStatePacket;
@@ -28,6 +29,7 @@ public class RLBotDll {
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
     private static native int RenderGroup(Pointer ptr, int size);
     private static native int SetGameState(Pointer ptr, int size);
+    private static native ByteBufferStruct GetBallPrediction();
 
     private static boolean isInitialized = false;
     private static final Object fileLock = new Object();
@@ -64,6 +66,9 @@ public class RLBotDll {
         return new File(jnaPath);
     }
 
+    /**
+     * Retrieves up-to-date game information like the positions of the ball and cars, among many other things.
+     */
     public static GameTickPacket getFlatbufferPacket() throws IOException {
         try {
             final ByteBufferStruct struct = UpdateLiveDataPacketFlatbuffer();
@@ -79,6 +84,9 @@ public class RLBotDll {
         }
     }
 
+    /**
+     * Retrieves information about boost pad locations, goal locations, dropshot tile locations, etc.
+     */
     public static FieldInfo getFieldInfo() throws IOException {
         try {
             final ByteBufferStruct struct = UpdateFieldInfoFlatbuffer();
@@ -135,10 +143,33 @@ public class RLBotDll {
         RenderGroup(memory, bytes.length);
     }
 
+    /**
+     * Modifies the position, velocity, etc of the ball and cars, according to the contents of the gameStatePacket.
+     * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State for detailed documentation.
+     */
     public static void setGameState(final GameStatePacket gameStatePacket) {
         byte[] bytes = gameStatePacket.getBytes();
         final Memory memory = getMemory(bytes);
         SetGameState(memory, bytes.length);
+    }
+
+    /**
+     * Gets the predicted path of the ball as a list of slices.
+     * See https://github.com/RLBot/RLBotJavaExample/wiki/Ball-Path-Prediction for more details.
+     */
+    public static BallPrediction getBallPrediction() throws IOException {
+        try {
+            final ByteBufferStruct struct = GetBallPrediction();
+            if (struct.size < 4) {
+                throw new IOException("Flatbuffer packet is too small, match is probably not running!");
+            }
+            final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            return BallPrediction.getRootAsBallPrediction(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new IOException("Could not find interface dll! Did initialize get called?", error);
+        } catch (final Error error) {
+            throw new IOException(error);
+        }
     }
 
     private static Memory getMemory(byte[] protoBytes) {
