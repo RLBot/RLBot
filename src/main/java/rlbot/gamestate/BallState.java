@@ -4,6 +4,9 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import rlbot.flat.DesiredBallState;
 import rlbot.flat.DesiredPhysics;
 
+/**
+ * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State
+ */
 public class BallState {
     private PhysicsState physics;
 
