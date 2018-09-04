@@ -13,5 +13,5 @@ def copy_pitch_data_to_temp():
 
 
 def launch():
-    return subprocess.Popen(os.path.join(get_dll_directory(), "BallPrediction.exe"),
+    return subprocess.Popen([os.path.join(get_dll_directory(), "BallPrediction.exe"]),
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
