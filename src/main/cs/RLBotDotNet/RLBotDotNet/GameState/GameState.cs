@@ -50,6 +50,9 @@ namespace RLBotDotNet.GameState
 
         private static VectorOffset CreateCarStateVector(FlatBufferBuilder builder, Dictionary<int, CarState> carStates)
         {
+            if (carStates.Count == 0)
+                return DesiredGameState.CreateCarStatesVector(builder, new Offset<DesiredCarState>[0]);
+
             int numCars = carStates.Keys.Max() + 1;
 
             Offset<DesiredCarState>[] carStateOffsets = new Offset<DesiredCarState>[numCars];
