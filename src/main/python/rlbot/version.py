@@ -3,10 +3,10 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 release_notes = {
-    '1.0.2': """
+    '1.0.3': """
     Time for the big 1.0 release! We actually left "beta" a long time ago so this isn't as big
     a milestone as the number implies, but we DO have two great new features!
 
