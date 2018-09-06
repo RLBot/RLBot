@@ -7,14 +7,40 @@ namespace RLBotDotNet.GameState
 {
     public class CarState
     {
-        public PhysicsState PhysicsState;
+        public PhysicsState physicsState;
         public bool? Jumped;
         public bool? DoubleJumped;
         public float? Boost;
 
+        public PhysicsState PhysicsState
+        {
+            get
+            {
+                if (physicsState == null)
+                    physicsState = new PhysicsState();
+
+                return physicsState;
+            }
+
+            set
+            {
+                physicsState = value;
+            }
+        }
+
         public CarState()
         {
 
+        }
+
+        public CarState(PlayerInfo playerInfo)
+        {
+            if (playerInfo.Physics.HasValue)
+                PhysicsState = new PhysicsState(playerInfo.Physics.Value);
+
+            Jumped = playerInfo.Jumped;
+            DoubleJumped = playerInfo.DoubleJumped;
+            Boost = playerInfo.Boost;
         }
 
         public Offset<DesiredCarState> ToFlatBuffer(FlatBufferBuilder builder)

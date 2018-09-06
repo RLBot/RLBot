@@ -5,10 +5,76 @@ namespace RLBotDotNet.GameState
 {
     public class PhysicsState
     {
-        public DesiredVector3 Location;
-        public DesiredVector3 Velocity;
-        public DesiredRotator Rotation;
-        public DesiredVector3 AngularVelocity;
+        private DesiredVector3 location;
+        private DesiredVector3 velocity;
+        private DesiredRotator rotation;
+        private DesiredVector3 angularVelocity;
+
+        #region Getters/Setters
+        public DesiredVector3 Location
+        {
+            get
+            {
+                if (location == null)
+                    location = new DesiredVector3();
+
+                return location;
+            }
+
+            set
+            {
+                location = value;
+            }
+        }
+
+        public DesiredVector3 Velocity
+        {
+            get
+            {
+                if (velocity == null)
+                    velocity = new DesiredVector3();
+
+                return velocity;
+            }
+
+            set
+            {
+                velocity = value;
+            }
+        }
+
+        public DesiredRotator Rotation
+        {
+            get
+            {
+                if (rotation == null)
+                    rotation = new DesiredRotator();
+
+                return rotation;
+            }
+
+            set
+            {
+                rotation = value;
+            }
+        }
+
+        public DesiredVector3 AngularVelocity
+        {
+            get
+            {
+                if (angularVelocity == null)
+                    angularVelocity = new DesiredVector3();
+
+                return angularVelocity;
+            }
+
+            set
+            {
+                angularVelocity = value;
+            }
+        }
+        #endregion
 
         public PhysicsState()
         {
@@ -21,6 +87,21 @@ namespace RLBotDotNet.GameState
             Velocity = velocity;
             Rotation = rotation;
             AngularVelocity = angularVelocity;
+        }
+
+        public PhysicsState(Physics physics)
+        {
+            if (physics.Location.HasValue)
+                Location = new DesiredVector3(physics.Location.Value);
+
+            if (physics.Velocity.HasValue)
+                Velocity = new DesiredVector3(physics.Velocity.Value);
+
+            if (physics.Rotation.HasValue)
+                Rotation = new DesiredRotator(physics.Rotation.Value);
+
+            if (physics.AngularVelocity.HasValue)
+                AngularVelocity = new DesiredVector3(physics.AngularVelocity.Value);
         }
 
         public Offset<DesiredPhysics> ToFlatBuffer(FlatBufferBuilder builder)
