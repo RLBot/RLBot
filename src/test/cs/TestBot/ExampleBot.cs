@@ -2,6 +2,7 @@
 using RLBotDotNet;
 using rlbot.flat;
 using Color = System.Windows.Media.Color;
+using RLBotDotNet.GameState;
 
 namespace TestBot
 {
@@ -55,6 +56,25 @@ namespace TestBot
 
                     Renderer.DrawLine3D(Color.FromRgb(255, 0, 255), pointA, pointB);
                 }
+
+                // Test out setting game state
+                GameState gameState = new GameState();
+                DesiredVector3 hoverLoc = new DesiredVector3();
+                hoverLoc.Z = 300;
+                DesiredVector3 hoverVel = new DesiredVector3();
+                hoverVel.Z = 10;
+                gameState.BallState = new BallState(new PhysicsState(hoverLoc, hoverVel, null, null)); // Make the ball hover in midair
+
+                // If the ball stops moving, fling the car at it
+                Vector3 ballVelocity = gameTickPacket.Ball.Value.Physics.Value.Velocity.Value;
+                if (ballVelocity.X * ballVelocity.X + ballVelocity.Y * ballVelocity.Y < 100000 && carLocation.Z < 100)
+                {
+                    CarState carState = new CarState();
+                    carState.PhysicsState = new PhysicsState(new DesiredVector3(ballLocation.X -300, ballLocation.Y, 400), new DesiredVector3(500, 0, 0), null, null);
+                    gameState.SetCarState(index, carState);
+                }
+
+                SetGameState(gameState);
             }
             catch (Exception e)
             {
