@@ -9,6 +9,11 @@ namespace RLBotDotNet.GameState
         public float? Y;
         public float? Z;
 
+        public DesiredVector3()
+        {
+
+        }
+
         public DesiredVector3(float x, float y, float z)
         {
             X = x;
