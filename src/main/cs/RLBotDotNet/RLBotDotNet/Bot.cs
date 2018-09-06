@@ -2,6 +2,7 @@
 using RLBotDotNet.Utils;
 using System;
 using RLBotDotNet.Renderer;
+using RLBotDotNet.GameState;
 
 namespace RLBotDotNet
 {
@@ -120,6 +121,11 @@ namespace RLBotDotNet
                                                      "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
                                                      "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
+        }
+
+        protected void SetGameState(GameState.GameState gameState)
+        {
+            RLBotInterface.SetGameStatePacket(gameState.BuildGameStatePacket());
         }
 
         /// <summary>
