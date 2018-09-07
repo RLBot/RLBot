@@ -10,6 +10,7 @@ namespace RLBotDotNet.GameState
     {
         private Dictionary<int, CarState> carStates = new Dictionary<int, CarState>();
 
+<<<<<<< HEAD
         private BallState ballState;
 
         public BallState BallState
@@ -33,6 +34,12 @@ namespace RLBotDotNet.GameState
             if (!carStates.ContainsKey(index))
                 carStates.Add(index, new CarState());
 
+=======
+        public BallState BallState;
+        
+        public CarState GetCarState(int index)
+        {
+>>>>>>> upstream/master
             return carStates[index];
         }
 
@@ -44,11 +51,14 @@ namespace RLBotDotNet.GameState
                 carStates.Add(index, carState);
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Builds the flatbuffer containing the desired state.
         /// This is only used internally.
         /// </summary>
         /// <returns></returns>
+=======
+>>>>>>> upstream/master
         public GameStatePacket BuildGameStatePacket()
         {
             FlatBufferBuilder builder = new FlatBufferBuilder(100);
@@ -72,6 +82,7 @@ namespace RLBotDotNet.GameState
             return new GameStatePacket(builder.SizedByteArray());
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Creates a GameState from a GameTickPacket. Usefull for saving a scenario.
         /// </summary>
@@ -97,6 +108,8 @@ namespace RLBotDotNet.GameState
             return gameState;
         }
 
+=======
+>>>>>>> upstream/master
         private static VectorOffset CreateCarStateVector(FlatBufferBuilder builder, Dictionary<int, CarState> carStates)
         {
             if (carStates.Count == 0)

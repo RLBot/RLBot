@@ -5,6 +5,7 @@ namespace RLBotDotNet.GameState
 {
     public class BallState
     {
+<<<<<<< HEAD
         private PhysicsState physicsState;
 
         public PhysicsState PhysicsState
@@ -32,6 +33,18 @@ namespace RLBotDotNet.GameState
         {
             if (ballInfo.Physics.HasValue)
                 PhysicsState = new PhysicsState(ballInfo.Physics.Value);
+=======
+        public PhysicsState PhysicsState;
+
+        public BallState()
+        {
+
+        }
+
+        public BallState(PhysicsState physicsState)
+        {
+            PhysicsState = physicsState;
+>>>>>>> upstream/master
         }
 
         public Offset<DesiredBallState> ToFlatBuffer(FlatBufferBuilder builder)

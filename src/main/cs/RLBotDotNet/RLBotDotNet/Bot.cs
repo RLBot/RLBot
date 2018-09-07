@@ -123,6 +123,11 @@ namespace RLBotDotNet
             }
         }
 
+        protected void SetGameState(GameState.GameState gameState)
+        {
+            RLBotInterface.SetGameStatePacket(gameState.BuildGameStatePacket());
+        }
+
         /// <summary>
         /// Allows the bot to set the games' state just like in training mode.
         /// </summary>
