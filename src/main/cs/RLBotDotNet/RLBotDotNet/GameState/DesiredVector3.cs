@@ -9,18 +9,9 @@ namespace RLBotDotNet.GameState
         public float? Y;
         public float? Z;
 
-<<<<<<< HEAD
         public static DesiredVector3 Zero { get { return new DesiredVector3(0, 0, 0); } }
 
         public DesiredVector3(float? x = null, float? y = null, float? z = null)
-=======
-        public DesiredVector3()
-        {
-
-        }
-
-        public DesiredVector3(float x, float y, float z)
->>>>>>> upstream/master
         {
             X = x;
             Y = y;
@@ -34,7 +25,6 @@ namespace RLBotDotNet.GameState
             Z = vector.Z;
         }
 
-<<<<<<< HEAD
         public DesiredVector3(System.Numerics.Vector3 vector)
         {
             X = vector.X;
@@ -42,8 +32,6 @@ namespace RLBotDotNet.GameState
             Z = vector.Z;
         }
 
-=======
->>>>>>> upstream/master
         public Offset<Vector3Partial> ToFlatBuffer(FlatBufferBuilder builder)
         {
             Vector3Partial.StartVector3Partial(builder);

@@ -5,7 +5,6 @@ namespace RLBotDotNet.GameState
 {
     public class PhysicsState
     {
-<<<<<<< HEAD
         private DesiredVector3 location;
         private DesiredVector3 velocity;
         private DesiredRotator rotation;
@@ -78,19 +77,6 @@ namespace RLBotDotNet.GameState
         #endregion
 
         public PhysicsState(DesiredVector3 location = null, DesiredVector3 velocity = null, DesiredRotator rotation = null, DesiredVector3 angularVelocity = null)
-=======
-        public DesiredVector3 Location;
-        public DesiredVector3 Velocity;
-        public DesiredRotator Rotation;
-        public DesiredVector3 AngularVelocity;
-
-        public PhysicsState()
-        {
-
-        }
-
-        public PhysicsState(DesiredVector3 location, DesiredVector3 velocity, DesiredRotator rotation, DesiredVector3 angularVelocity)
->>>>>>> upstream/master
         {
             Location = location;
             Velocity = velocity;
@@ -98,7 +84,6 @@ namespace RLBotDotNet.GameState
             AngularVelocity = angularVelocity;
         }
 
-<<<<<<< HEAD
         public PhysicsState(Physics physics)
         {
             if (physics.Location.HasValue)
@@ -114,8 +99,6 @@ namespace RLBotDotNet.GameState
                 AngularVelocity = new DesiredVector3(physics.AngularVelocity.Value);
         }
 
-=======
->>>>>>> upstream/master
         public Offset<DesiredPhysics> ToFlatBuffer(FlatBufferBuilder builder)
         {
             int locationOffset = Location == null ? -1 : Location.ToFlatBuffer(builder).Value;

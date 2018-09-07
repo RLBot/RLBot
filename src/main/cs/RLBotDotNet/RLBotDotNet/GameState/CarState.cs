@@ -1,26 +1,16 @@
-<<<<<<< HEAD
-﻿using rlbot.flat;
-=======
-﻿using System;
-
 using rlbot.flat;
->>>>>>> upstream/master
 using FlatBuffers;
 
 namespace RLBotDotNet.GameState
 {
     public class CarState
     {
-<<<<<<< HEAD
         private PhysicsState physicsState;
-=======
-        public PhysicsState PhysicsState;
->>>>>>> upstream/master
+
         public bool? Jumped;
         public bool? DoubleJumped;
         public float? Boost;
 
-<<<<<<< HEAD
         public PhysicsState PhysicsState
         {
             get
@@ -53,11 +43,6 @@ namespace RLBotDotNet.GameState
             Jumped = playerInfo.Jumped;
             DoubleJumped = playerInfo.DoubleJumped;
             Boost = playerInfo.Boost;
-=======
-        public CarState()
-        {
-
->>>>>>> upstream/master
         }
 
         public Offset<DesiredCarState> ToFlatBuffer(FlatBufferBuilder builder)
