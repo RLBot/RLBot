@@ -1,13 +1,11 @@
-﻿using System;
-
-using rlbot.flat;
+﻿using rlbot.flat;
 using FlatBuffers;
 
 namespace RLBotDotNet.GameState
 {
     public class CarState
     {
-        public PhysicsState physicsState;
+        private PhysicsState physicsState;
         public bool? Jumped;
         public bool? DoubleJumped;
         public float? Boost;
