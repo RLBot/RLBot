@@ -76,12 +76,7 @@ namespace RLBotDotNet.GameState
         }
         #endregion
 
-        public PhysicsState()
-        {
-
-        }
-
-        public PhysicsState(DesiredVector3 location, DesiredVector3 velocity, DesiredRotator rotation, DesiredVector3 angularVelocity)
+        public PhysicsState(DesiredVector3 location = null, DesiredVector3 velocity = null, DesiredRotator rotation = null, DesiredVector3 angularVelocity = null)
         {
             Location = location;
             Velocity = velocity;

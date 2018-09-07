@@ -23,12 +23,7 @@ namespace RLBotDotNet.GameState
             }
         }
 
-        public BallState()
-        {
-
-        }
-
-        public BallState(PhysicsState physicsState)
+        public BallState(PhysicsState physicsState = null)
         {
             PhysicsState = physicsState;
         }

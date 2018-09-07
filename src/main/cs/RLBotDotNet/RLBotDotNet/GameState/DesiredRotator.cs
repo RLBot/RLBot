@@ -9,12 +9,7 @@ namespace RLBotDotNet.GameState
         public float? Yaw;
         public float? Roll;
 
-        public DesiredRotator()
-        {
-
-        }
-
-        public DesiredRotator(float pitch, float yaw, float roll)
+        public DesiredRotator(float? pitch = null, float? yaw = null, float? roll = null)
         {
             Pitch = pitch;
             Yaw = yaw;

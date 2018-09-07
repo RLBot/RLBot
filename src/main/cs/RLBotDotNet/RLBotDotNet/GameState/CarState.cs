@@ -28,9 +28,12 @@ namespace RLBotDotNet.GameState
             }
         }
 
-        public CarState()
+        public CarState(PhysicsState physicsState = null, bool? jumped = null, bool? doubleJumped = null, float? boost = null)
         {
-
+            PhysicsState = physicsState;
+            Jumped = jumped;
+            DoubleJumped = doubleJumped;
+            Boost = boost;
         }
 
         public CarState(PlayerInfo playerInfo)
