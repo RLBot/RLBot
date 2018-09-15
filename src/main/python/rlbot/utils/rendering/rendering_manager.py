@@ -29,6 +29,11 @@ class RenderingManager:
     bot_index = 0
     bot_team = 0
 
+    # This value represents the maximum amount of vectors for polyline functions.
+    # Amount was decided based on the maximum amount that overfills buffer,
+    # which is 276.
+    maxVectors = 200
+
     def setup_function_types(self, dll_instance):
         self.renderGroup = dll_instance.RenderGroup
 
@@ -97,19 +102,19 @@ class RenderingManager:
         self.render_list.append(message)
         return self
 
-    def draw_polyline_2d(self, vec, color):
-        if len(vec) < 2 or len(vec) > 200:
+    def draw_polyline_2d(self, vectors, color):
+        if len(vectors) < 2 or len(vectors) > maxVectors:
             get_logger("Renderer").error("draw_polyline_2d point limit!")
             return self
         
         messageBuilder = self.builder
 
-        for i in range(0, len(vec)-1):
+        for i in range(0, len(vectors)-1):
             RenderMessage.RenderMessageStart(messageBuilder)
             RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
             RenderMessage.RenderMessageAddColor(messageBuilder, color)
-            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec[i]))
-            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec[i+1]))
+            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i+1]))
             message = RenderMessage.RenderMessageEnd(messageBuilder)
             self.render_list.append(message)
 
@@ -128,8 +133,8 @@ class RenderingManager:
         self.render_list.append(message)
         return self
 
-    def draw_polyline_3d(self, vec, color):
-        if len(vec) < 2 or len(vec) > 200:
+    def draw_polyline_3d(self, vectors, color):
+        if len(vectors) < 2 or len(vectors) > maxVectors:
             get_logger("Renderer").error("draw_polyline_3d point limit!")
             return self
 
@@ -139,8 +144,8 @@ class RenderingManager:
             RenderMessage.RenderMessageStart(messageBuilder)
             RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
             RenderMessage.RenderMessageAddColor(messageBuilder, color)
-            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec[i]))
-            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec[i+1]))
+            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i+1]))
             message = RenderMessage.RenderMessageEnd(messageBuilder)
             self.render_list.append(message)
 

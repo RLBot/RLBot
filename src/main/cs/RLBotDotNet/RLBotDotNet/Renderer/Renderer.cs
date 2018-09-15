@@ -18,6 +18,11 @@ namespace RLBotDotNet.Renderer
         private readonly int _index;
         private readonly List<Offset<RenderMessage>> _renderMessageOffsets;
 
+        // This value represents the maximum amount of vectors for polyline functions.
+        // Amount was decided based on the maximum amount that overfills buffer,
+        // which is 276.
+        const int maxVectors = 200;
+
         /// <summary>
         /// Constructs a new instance of Renderer with the index of the renderer.
         /// </summary>
@@ -92,13 +97,17 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a polyline between screen coordinates.
+        /// Draws a polyline between screen coordinates. Limited to 200 vectors.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="vectors">The vectors of the line.</param>
         public void DrawPolyLine2D(Color color, Vector2[] vectors)
         {
-            if (vectors.Length < 2 || vectors.Length > 200) return;
+            if (vectors.Length < 2 || vectors.Length > maxVectors)
+            {
+                Console.WriteLine("Renderer: DrawPolyLine2D point limit!");
+                return;
+            };
 
             var colorOffset = color.ToOffsetColor(Builder);
 
@@ -136,13 +145,17 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a polyline between 3D coordinates.
+        /// Draws a polyline between 3D coordinates. Limited to 200 vectors.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="vectors">The vectors of the line.</param>
         public void DrawPolyLine3D(Color color, Vector3[] vectors)
         {
-            if (vectors.Length < 2 || vectors.Length > 200) return;
+            if (vectors.Length < 2 || vectors.Length > maxVectors)
+            {
+                Console.WriteLine("Renderer: DrawPolyLine3D point limit!");
+                return;
+            };
 
             var colorOffset = color.ToOffsetColor(Builder);
 
@@ -170,7 +183,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a polyline between 3D coordinates.
+        /// Draws a polyline between 3D coordinates. Limited to 200 vectors.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="vectors">The vectors of the line.</param>
