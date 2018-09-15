@@ -97,6 +97,24 @@ class RenderingManager:
         self.render_list.append(message)
         return self
 
+    def draw_polyline_2d(self, vec, color):
+        if len(vec) < 2 or len(vec) > 200:
+            get_logger("Renderer").error("draw_polyline_2d point limit!")
+            return self
+        
+        messageBuilder = self.builder
+
+        for i in range(0, len(vec)-1):
+            RenderMessage.RenderMessageStart(messageBuilder)
+            RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
+            RenderMessage.RenderMessageAddColor(messageBuilder, color)
+            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec[i]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec[i+1]))
+            message = RenderMessage.RenderMessageEnd(messageBuilder)
+            self.render_list.append(message)
+
+        return self
+
     def draw_line_3d(self, vec1, vec2, color):
         messageBuilder = self.builder
 
@@ -108,6 +126,24 @@ class RenderingManager:
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
+        return self
+
+    def draw_polyline_3d(self, vec, color):
+        if len(vec) < 2 or len(vec) > 200:
+            get_logger("Renderer").error("draw_polyline_3d point limit!")
+            return self
+
+        messageBuilder = self.builder
+
+        for i in range(0, len(vec)-1):
+            RenderMessage.RenderMessageStart(messageBuilder)
+            RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
+            RenderMessage.RenderMessageAddColor(messageBuilder, color)
+            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec[i]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec[i+1]))
+            message = RenderMessage.RenderMessageEnd(messageBuilder)
+            self.render_list.append(message)
+
         return self
 
     def draw_line_2d_3d(self, x, y, vec, color):

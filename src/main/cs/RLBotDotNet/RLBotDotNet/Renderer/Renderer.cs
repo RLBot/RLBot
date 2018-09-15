@@ -92,6 +92,29 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
+        /// Draws a polyline between screen coordinates.
+        /// </summary>
+        /// <param name="color">The color of the line.</param>
+        /// <param name="vectors">The vectors of the line.</param>
+        public void DrawPolyLine2D(Color color, Vector2[] vectors)
+        {
+            if (vectors.Length < 2 || vectors.Length > 200) return;
+
+            var colorOffset = color.ToOffsetColor(Builder);
+
+            for (int i = 0; i < vectors.Length-1; i++)
+            {
+                RenderMessage.StartRenderMessage(Builder);
+                RenderMessage.AddRenderType(Builder, RenderType.DrawLine2D);
+                RenderMessage.AddColor(Builder, colorOffset);
+                RenderMessage.AddStart(Builder, vectors[i].ToOffsetVector(Builder));
+                RenderMessage.AddEnd(Builder, vectors[i+1].ToOffsetVector(Builder));
+                var finalOffset = RenderMessage.EndRenderMessage(Builder);
+                _renderMessageOffsets.Add(finalOffset);
+            }
+        }
+
+        /// <summary>
         /// Draws a line between two 3D coordinates.
         /// </summary>
         /// <param name="color">The color of the line.</param>
@@ -113,6 +136,29 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
+        /// Draws a polyline between 3D coordinates.
+        /// </summary>
+        /// <param name="color">The color of the line.</param>
+        /// <param name="vectors">The vectors of the line.</param>
+        public void DrawPolyLine3D(Color color, Vector3[] vectors)
+        {
+            if (vectors.Length < 2 || vectors.Length > 200) return;
+
+            var colorOffset = color.ToOffsetColor(Builder);
+
+            for (int i = 0; i < vectors.Length - 1; i++)
+            {
+                RenderMessage.StartRenderMessage(Builder);
+                RenderMessage.AddRenderType(Builder, RenderType.DrawLine3D);
+                RenderMessage.AddColor(Builder, colorOffset);
+                RenderMessage.AddStart(Builder, vectors[i].ToOffsetVector(Builder));
+                RenderMessage.AddEnd(Builder, vectors[i + 1].ToOffsetVector(Builder));
+                var finalOffset = RenderMessage.EndRenderMessage(Builder);
+                _renderMessageOffsets.Add(finalOffset);
+            }
+        }
+
+        /// <summary>
         /// Draws a line between two 3D coordinates.
         /// </summary>
         /// <param name="color">The color of the line.</param>
@@ -121,6 +167,21 @@ namespace RLBotDotNet.Renderer
         public void DrawLine3D(Color color, rlbot.flat.Vector3 start, rlbot.flat.Vector3 end)
         {
             DrawLine3D(color, new Vector3(start.X, start.Y, start.Z), new Vector3(end.X, end.Y, end.Z));
+        }
+
+        /// <summary>
+        /// Draws a polyline between 3D coordinates.
+        /// </summary>
+        /// <param name="color">The color of the line.</param>
+        /// <param name="vectors">The vectors of the line.</param>
+        public void DrawPolyLine3D(Color color, rlbot.flat.Vector3[] vectors)
+        {
+            Vector3[] outVectors = new Vector3[vectors.Length];
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                outVectors[i] = new Vector3(vectors[i].X, vectors[i].Y, vectors[i].Z);
+            }
+            DrawPolyLine3D(color, outVectors);
         }
 
         /// <summary>
