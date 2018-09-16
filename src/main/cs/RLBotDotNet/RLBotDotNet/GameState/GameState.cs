@@ -108,7 +108,7 @@ namespace RLBotDotNet.GameState
 
             for (int i = 0; i < numCars; i++)
             {
-                if (carStates.ContainsKey(i))
+                if (carStates.ContainsKey(i) && carStates[i] != null)
                     carStateOffsets[i] = carStates[i].ToFlatBuffer(builder);
                 else
                     carStateOffsets[i] = new CarState().ToFlatBuffer(builder);

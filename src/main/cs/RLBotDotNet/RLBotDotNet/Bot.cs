@@ -129,6 +129,9 @@ namespace RLBotDotNet
         /// <param name="gameState"></param>
         protected void SetGameState(GameState.GameState gameState)
         {
+            if (gameState == null)
+                throw new ArgumentNullException("gameState");
+
             RLBotInterface.SetGameStatePacket(gameState.BuildGameStatePacket());
         }
 
