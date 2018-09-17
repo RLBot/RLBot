@@ -101,7 +101,7 @@ namespace RLBotDotNet.Renderer
             if (vectors.Length < 2)
             {
                 throw new ArgumentException("DrawPolyLine2D: Vectors array must contain atleast 2 vectors!");
-            };
+            }
 
             var colorOffset = color.ToOffsetColor(Builder);
 
@@ -148,7 +148,7 @@ namespace RLBotDotNet.Renderer
             if (vectors.Length < 2)
             {
                 throw new ArgumentException("DrawPolyLine3D: Vectors array must contain atleast 2 vectors!");
-            };
+            }
 
             var colorOffset = color.ToOffsetColor(Builder);
 
