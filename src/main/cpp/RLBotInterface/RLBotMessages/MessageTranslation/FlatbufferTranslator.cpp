@@ -123,9 +123,11 @@ namespace FlatbufferTranslator {
 		auto flatPacket = flatbuffers::GetRoot<rlbot::flat::GameTickPacket>(flatbufferData.ptr);
 
 		auto players = flatPacket->players();
-		packet->NumCars = players->size();
-		for (int i = 0; i < players->size(); i++) {
-			fillPlayerStruct(players->Get(i), &packet->GameCars[i]);
+		if (players) {
+			packet->NumCars = players->size();
+			for (int i = 0; i < players->size(); i++) {
+				fillPlayerStruct(players->Get(i), &packet->GameCars[i]);
+			}
 		}
 
 		auto boosts = flatPacket->boostPadStates();

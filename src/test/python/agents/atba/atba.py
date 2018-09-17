@@ -18,6 +18,10 @@ class Atba(BaseAgent):
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         controller_state = SimpleControllerState()
+
+        if not game_tick_packet.game_info.is_round_active:
+            return controller_state
+
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
                                 game_tick_packet.game_ball.physics.location.y)
 
@@ -174,16 +178,9 @@ class Atba(BaseAgent):
 
         if ball_prediction is not None:
 
-            self.renderer.begin_rendering('prediction1')
+            self.renderer.begin_rendering('prediction')
             colors = self.setup_rainbow()
-            for i in range(0, ball_prediction.SlicesLength() // 2):
-                current_slice = ball_prediction.Slices(i).Physics().Location()
-                self.renderer.draw_rect_3d(current_slice, 8, 8, True, colors[i % len(colors)], True)
-            self.renderer.end_rendering()
-
-            self.renderer.begin_rendering('prediction2')
-            colors = self.setup_rainbow()
-            for i in range(ball_prediction.SlicesLength() // 2, ball_prediction.SlicesLength()):
+            for i in range(0, ball_prediction.SlicesLength()):
                 current_slice = ball_prediction.Slices(i).Physics().Location()
                 self.renderer.draw_rect_3d(current_slice, 8, 8, True, colors[i % len(colors)], True)
             self.renderer.end_rendering()
