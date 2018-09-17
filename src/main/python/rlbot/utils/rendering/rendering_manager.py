@@ -29,11 +29,6 @@ class RenderingManager:
     bot_index = 0
     bot_team = 0
 
-    # This value represents the maximum amount of vectors for polyline functions.
-    # Amount was decided based on the maximum amount that overfills buffer,
-    # which is 276.
-    maxVectors = 200
-
     def setup_function_types(self, dll_instance):
         self.renderGroup = dll_instance.RenderGroup
 
@@ -103,8 +98,8 @@ class RenderingManager:
         return self
 
     def draw_polyline_2d(self, vectors, color):
-        if len(vectors) < 2 or len(vectors) > maxVectors:
-            get_logger("Renderer").error("draw_polyline_2d point limit!")
+        if len(vectors) < 2:
+            get_logger("Renderer").error("draw_polyline_2d requires atleast 2 vectors!")
             return self
         
         messageBuilder = self.builder
@@ -134,8 +129,8 @@ class RenderingManager:
         return self
 
     def draw_polyline_3d(self, vectors, color):
-        if len(vectors) < 2 or len(vectors) > maxVectors:
-            get_logger("Renderer").error("draw_polyline_3d point limit!")
+        if len(vectors) < 2:
+            get_logger("Renderer").error("draw_polyline_3d requires atleast 2 vectors!")
             return self
 
         messageBuilder = self.builder
