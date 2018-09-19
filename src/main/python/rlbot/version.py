@@ -3,9 +3,13 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 
 release_notes = {
+    '1.0.5': """
+    Maximum size for a render message has been decreased again because many people experienced
+    errors related to memory access. The limit is now only double the original.
+    """,
     '1.0.4': """
     - Maximum size for a render message has been increased by a factor of 100. This means you can
       draw a lot of lines at once without getting errors.
