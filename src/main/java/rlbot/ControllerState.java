@@ -1,5 +1,9 @@
 package rlbot;
 
+/**
+ * Holds all the data needed to control a car for one frame. This will be used
+ * when transmitting a bot's intentions back to the game.
+ */
 public interface ControllerState {
 
     /**

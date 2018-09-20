@@ -18,6 +18,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * This is the main communication gateway between Java and Rocket League.
+ * It contains methods for retrieving data, sending car controls, rendering graphics, etc.
+ *
+ * It does so via the "interface dll" which is vended in the rlbot python package at
+ * https://pypi.org/project/rlbot/ and authored at https://github.com/RLBot/RLBot
+ */
 public class RLBotDll {
 
     // Java bots must either add this in their classpath, or specify the jna.library.path JVM arg.

@@ -9,6 +9,10 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class helps you overlay lines, text, etc onto Rocket League. This functionality is useful
+ * for debugging your bot logic. Creativity is also encouraged :)
+ */
 public abstract class Renderer {
 
     private final int index;
