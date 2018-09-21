@@ -2,6 +2,7 @@ package rlbot;
 
 import rlbot.cppinterop.RLBotDll;
 import rlbot.flat.BallPrediction;
+import rlbot.flat.QuickChatSelection;
 import rlbot.flat.Vector3;
 import rlbot.gamestate.*;
 import rlbot.input.CarData;
@@ -70,13 +71,7 @@ public class SampleBot implements Bot {
                                     .withRotation(new DesiredRotation((float) Math.PI,0F, 0F))));
 
             RLBotDll.setGameState(gameState.buildPacket());
-        } else {
-
-            Float xVel = input.ball.velocity.x + 20;
-            GameState gameState = new GameState()
-                    .withBallState(new BallState().withPhysics(new PhysicsState().withVelocity(new DesiredVec().withX(xVel))));
-
-            RLBotDll.setGameState(gameState.buildPacket());
+            RLBotDll.sendQuickChat(this.playerIndex, false, QuickChatSelection.Apologies_Oops);
         }
 
         if (input.ball.position.z > 1000) {

@@ -18,5 +18,6 @@ RLBotCoreStatus = create_enum_object(["Success",
                                       "InvalidRoll",
                                       "InvalidPlayerIndex",
                                       "InvalidQuickChatPreset",
-                                      "InvalidRenderType"],
+                                      "InvalidRenderType",
+                                      "QuickChatRateExceeded"],
                                      list_name='status_list')

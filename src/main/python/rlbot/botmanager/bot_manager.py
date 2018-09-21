@@ -8,7 +8,8 @@ from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.utils import rate_limiter
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_interface import GameInterface
-from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat
+from rlbot.utils.structures.game_status import RLBotCoreStatus
+from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat, send_quick_chat
 
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
 MAX_CHAT_RATE = 2.0
@@ -62,19 +63,10 @@ class BotManager:
         This means you can spread your chats out to be even within that 2 second period.
         You could spam them in the first little bit but then will be throttled.
         """
-        time_since_last_chat = time.time() - self.last_chat_time
-        if not self.reset_chat_time and time_since_last_chat >= MAX_CHAT_RATE:
-            self.reset_chat_time = True
-        if self.reset_chat_time:
-            self.last_chat_time = time.time()
-            self.chat_counter = 0
-            self.reset_chat_time = False
-        if self.chat_counter < MAX_CHAT_COUNT:
-            send_quick_chat_flat(self.game_interface, self.index, self.team, team_only, quick_chat)
-            #send_quick_chat(self.quick_chat_queue_holder, self.index, self.team, team_only, quick_chat)
-            self.chat_counter += 1
-        else:
-            self.logger.debug('quick chat disabled for %s', MAX_CHAT_RATE - time_since_last_chat)
+        rlbot_status = send_quick_chat_flat(self.game_interface, self.index, self.team, team_only, quick_chat)
+
+        if rlbot_status == RLBotCoreStatus.QuickChatRateExceeded:
+            self.logger.debug('quick chat disabled')
 
     def load_agent(self):
         """
