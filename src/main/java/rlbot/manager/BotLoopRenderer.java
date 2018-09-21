@@ -9,6 +9,10 @@ import rlbot.render.Renderer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A renderer that will be managed automatically. Users of this renderer should expect the packet
+ * to be started and finished on a regular basis without their intervention.
+ */
 public class BotLoopRenderer extends Renderer {
 
     private static Map<Integer, BotLoopRenderer> botLoopMap = new ConcurrentHashMap<>();

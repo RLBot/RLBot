@@ -2,6 +2,9 @@ package rlbot.manager;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Simple container for a thread that's intended to be running bot logic.
+ */
 public class BotProcess {
     private AtomicBoolean runFlag;
     private Thread thread;
