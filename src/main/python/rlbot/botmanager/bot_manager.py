@@ -12,8 +12,6 @@ from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat, send_quick_chat
 
 GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
-MAX_CHAT_RATE = 2.0
-MAX_CHAT_COUNT = 5
 MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
@@ -57,16 +55,21 @@ class BotManager:
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
-        Passes the agents quick chats to the other bots.
+        Passes the agents quick chats to the game, and also to other python bots.
         This does perform limiting.
         You are limited to 5 quick chats in a 2 second period starting from the first chat.
         This means you can spread your chats out to be even within that 2 second period.
         You could spam them in the first little bit but then will be throttled.
         """
+
+        # Send the quick chat to the game
         rlbot_status = send_quick_chat_flat(self.game_interface, self.index, self.team, team_only, quick_chat)
 
         if rlbot_status == RLBotCoreStatus.QuickChatRateExceeded:
             self.logger.debug('quick chat disabled')
+        else:
+            # Make the quick chat visible to other python bots. Unfortunately other languages can't see it.
+            send_quick_chat(self.quick_chat_queue_holder, self.index, self.team, team_only, quick_chat)
 
     def load_agent(self):
         """
