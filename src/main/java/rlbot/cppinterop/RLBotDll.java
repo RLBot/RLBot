@@ -8,6 +8,7 @@ import rlbot.ControllerState;
 import rlbot.flat.BallPrediction;
 import rlbot.flat.FieldInfo;
 import rlbot.flat.GameTickPacket;
+import rlbot.flat.QuickChatSelection;
 import rlbot.gamestate.GameStatePacket;
 import rlbot.render.RenderPacket;
 
@@ -37,6 +38,7 @@ public class RLBotDll {
     private static native int RenderGroup(Pointer ptr, int size);
     private static native int SetGameState(Pointer ptr, int size);
     private static native ByteBufferStruct GetBallPrediction();
+    private static native int SendQuickChat(Pointer ptr, int size);
 
     private static boolean isInitialized = false;
     private static final Object fileLock = new Object();
@@ -177,6 +179,35 @@ public class RLBotDll {
         } catch (final Error error) {
             throw new IOException(error);
         }
+    }
+
+    /**
+     * Sends a quick chat message to the game. If you send too many too fast, you may receive a {@link RLBotCoreStatus}
+     * of QuickChatRateExceeded, which means your attempt at quick chat was ignored.
+     *
+     * Example usage:
+     * sendQuickChat(this.playerIndex, false, QuickChatSelection.Information_IGotIt);
+     *
+     * @param playerIndex the index of the player who is sending the quick chat.
+     * @param teamOnly whether this chat's visibility should be restricted to the player's team. Note: this is
+     *                 currently meaningless because we don't support receiving quickchat yet. It's write-only,
+     *                 a bit like the rendering feature.
+     * @param quickChatSelection The quick chat to send. Use the constants in {@link QuickChatSelection}.
+     */
+    public static RLBotCoreStatus sendQuickChat(int playerIndex, boolean teamOnly, byte quickChatSelection) {
+        FlatBufferBuilder builder = new FlatBufferBuilder(50);
+
+        int offset = rlbot.flat.QuickChat.createQuickChat(
+                builder,
+                quickChatSelection,
+                playerIndex,
+                teamOnly);
+
+        builder.finish(offset);
+
+        final byte[] protoBytes = builder.sizedByteArray();
+        final Memory memory = getMemory(protoBytes);
+        return RLBotCoreStatus.fromDllResult(SendQuickChat(memory, protoBytes.length));
     }
 
     private static Memory getMemory(byte[] protoBytes) {

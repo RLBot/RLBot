@@ -1,7 +1,8 @@
 #include <DebugHelper.hpp>
-#include <flatbuffers\flatbuffers.h>
+#include <rlbot_generated.h>
 
 #include "PlayerInfo.hpp"
+#include "QuickChatRateLimiter.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
 #include <MessageTranslation\FlatbufferTranslator.hpp>
 
@@ -22,10 +23,25 @@ namespace GameFunctions
 
 	// FLAT
 	static BoostUtilities::QueueSender quickChatQueue(BoostConstants::QuickChatFlatQueueName);
+	static QuickChat::QuickChatRateLimiter quickChatRateLimiter;
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
 	{
-		return quickChatQueue.sendMessage(quickChatMessage, protoSize);
+		auto parsedChat = flatbuffers::GetRoot<rlbot::flat::QuickChat>(quickChatMessage);
+		int playerIndex = parsedChat->playerIndex();
+
+		RLBotCoreStatus status = checkQuickChatPreset((QuickChatPreset) parsedChat->quickChatSelection());
+
+		if (status != RLBotCoreStatus::Success)
+			return status;
+
+		RLBotCoreStatus sendStatus = quickChatRateLimiter.CanSendChat(playerIndex);
+		if (sendStatus == RLBotCoreStatus::Success)
+		{
+			quickChatRateLimiter.RecordQuickChatSubmission(playerIndex);
+			return quickChatQueue.sendMessage(quickChatMessage, protoSize);
+		}
+		return sendStatus;
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback, unsigned int* pID)
@@ -35,14 +51,21 @@ namespace GameFunctions
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		BEGIN_GAME_FUNCTION(SendChatMessage, pSendChat);
-		REGISTER_CALLBACK(pSendChat, callback, pID);
-		pSendChat->QuickChatPreset = quickChatPreset;
-		pSendChat->PlayerIndex = playerIndex;
-		pSendChat->bTeam = bTeam;
-		END_GAME_FUNCTION;
 
-		return RLBotCoreStatus::Success;
+		RLBotCoreStatus sendStatus = quickChatRateLimiter.CanSendChat(playerIndex);
+		if (sendStatus == RLBotCoreStatus::Success)
+		{
+			quickChatRateLimiter.RecordQuickChatSubmission(playerIndex);
+			BEGIN_GAME_FUNCTION(SendChatMessage, pSendChat);
+			REGISTER_CALLBACK(pSendChat, callback, pID);
+			pSendChat->QuickChatPreset = quickChatPreset;
+			pSendChat->PlayerIndex = playerIndex;
+			pSendChat->bTeam = bTeam;
+			END_GAME_FUNCTION;
+
+			return RLBotCoreStatus::Success;
+		}
+		return sendStatus;
 	}
 
 	// Player info

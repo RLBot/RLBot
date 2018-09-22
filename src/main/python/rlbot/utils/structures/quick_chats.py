@@ -36,7 +36,7 @@ def send_quick_chat_flat(game_interface, index, team, team_only, quick_chat):
 
     builder.Finish(result)
 
-    game_interface.send_chat_flat(builder)
+    return game_interface.send_chat_flat(builder)
 
 def send_quick_chat(queue_holder, index, team, team_only, quick_chat):
     """

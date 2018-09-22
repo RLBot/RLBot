@@ -408,6 +408,7 @@
     <ClCompile Include="GameFunctions\GameFunctions.cpp" />
     <ClCompile Include="GameFunctions\GamePacket.cpp" />
     <ClCompile Include="GameFunctions\PlayerInfo.cpp" />
+    <ClCompile Include="GameFunctions\QuickChatRateLimiter.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="RenderFunctions\RenderFunctions.cpp" />
   </ItemGroup>
@@ -418,6 +419,7 @@
     <ClInclude Include="GameFunctions\GameFunctions.hpp" />
     <ClInclude Include="GameFunctions\GamePacket.hpp" />
     <ClInclude Include="GameFunctions\PlayerInfo.hpp" />
+    <ClInclude Include="GameFunctions\QuickChatRateLimiter.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="InterfaceBase\InterfaceBase.hpp" />
     <ClInclude Include="RenderFunctions\RenderFunctions.hpp" />
