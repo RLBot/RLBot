@@ -122,7 +122,10 @@ namespace RLBotDotNet.Utils
 
             builder.Finish(playerInputOffset.Value);
             byte[] bufferBytes = builder.SizedByteArray();
-            UpdatePlayerInputFlatbuffer(bufferBytes, bufferBytes.Length);
+            int status = UpdatePlayerInputFlatbuffer(bufferBytes, bufferBytes.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
         }
 
 
@@ -144,7 +147,10 @@ namespace RLBotDotNet.Utils
 
             builder.Finish(offset.Value);
             byte[] bufferBytes = builder.SizedByteArray();
-            SendQuickChat(bufferBytes, bufferBytes.Length);
+            int status = SendQuickChat(bufferBytes, bufferBytes.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
         }
 
         /// <summary>
@@ -154,7 +160,10 @@ namespace RLBotDotNet.Utils
         public static void SetGameStatePacket(GameStatePacket gameState)
         {
             byte[] data = gameState.Data;
-            SetGameState(data, data.Length);
+            int status = SetGameState(data, data.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
         }
 
         /// <summary>
@@ -164,7 +173,17 @@ namespace RLBotDotNet.Utils
         public static void RenderPacket(RenderPacket finishedRender)
         {
             byte[] bytes = finishedRender.Bytes;
-            RenderGroup(bytes, bytes.Length);
+            int status = RenderGroup(bytes, bytes.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
+        }
+
+
+        private static RLBotCoreException NewRLBotCoreException(RLBotCoreStatus status)
+        {
+            // Possible to add more code here to make the exception messages more verbose.
+            return new RLBotCoreException(status.ToString());
         }
     }
 }

@@ -61,6 +61,8 @@
     <Compile Include="GameState\PhysicsState.cs" />
     <Compile Include="Interface\ByteBufferStruct.cs" />
     <Compile Include="Interface\FlatbuffersPacketException.cs" />
+    <Compile Include="Interface\RLBotCoreException.cs" />
+    <Compile Include="Interface\RLBotCoreStatus.cs" />
     <Compile Include="Interface\RLBotInterface.cs" />
     <Compile Include="Manager\BotManager.cs" />
     <Compile Include="Manager\BotProcess.cs" />

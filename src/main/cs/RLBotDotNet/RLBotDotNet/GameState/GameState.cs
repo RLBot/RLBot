@@ -10,10 +10,29 @@ namespace RLBotDotNet.GameState
     {
         private Dictionary<int, CarState> carStates = new Dictionary<int, CarState>();
 
-        public BallState BallState;
-        
+        private BallState ballState;
+
+        public BallState BallState
+        {
+            get
+            {
+                if (ballState == null)
+                    ballState = new BallState();
+
+                return ballState;
+            }
+
+            set
+            {
+                ballState = value;
+            }
+        }
+
         public CarState GetCarState(int index)
         {
+            if (!carStates.ContainsKey(index))
+                carStates.Add(index, new CarState());
+
             return carStates[index];
         }
 
@@ -25,6 +44,11 @@ namespace RLBotDotNet.GameState
                 carStates.Add(index, carState);
         }
 
+        /// <summary>
+        /// Builds the flatbuffer containing the desired state.
+        /// This is only used internally.
+        /// </summary>
+        /// <returns></returns>
         public GameStatePacket BuildGameStatePacket()
         {
             FlatBufferBuilder builder = new FlatBufferBuilder(100);
@@ -48,6 +72,31 @@ namespace RLBotDotNet.GameState
             return new GameStatePacket(builder.SizedByteArray());
         }
 
+        /// <summary>
+        /// Creates a GameState from a GameTickPacket. Usefull for saving a scenario.
+        /// </summary>
+        /// <param name="gameTickPacket">The packet to create the GameState from.</param>
+        /// <returns></returns>
+        public static GameState CreateFromGameTickPacket(GameTickPacket gameTickPacket)
+        {
+            GameState gameState = new GameState();
+
+            if (gameTickPacket.Ball.HasValue)
+            {
+                gameState.BallState = new BallState(gameTickPacket.Ball.Value);
+            }
+
+            for (int i = 0; i < gameTickPacket.PlayersLength; i++)
+            {
+                if (gameTickPacket.Players(i).HasValue)
+                {
+                    gameState.SetCarState(i, new CarState(gameTickPacket.Players(i).Value));
+                }
+            }
+
+            return gameState;
+        }
+
         private static VectorOffset CreateCarStateVector(FlatBufferBuilder builder, Dictionary<int, CarState> carStates)
         {
             if (carStates.Count == 0)
@@ -59,7 +108,7 @@ namespace RLBotDotNet.GameState
 
             for (int i = 0; i < numCars; i++)
             {
-                if (carStates.ContainsKey(i))
+                if (carStates.ContainsKey(i) && carStates[i] != null)
                     carStateOffsets[i] = carStates[i].ToFlatBuffer(builder);
                 else
                     carStateOffsets[i] = new CarState().ToFlatBuffer(builder);

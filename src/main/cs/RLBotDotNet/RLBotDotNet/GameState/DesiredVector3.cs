@@ -9,12 +9,9 @@ namespace RLBotDotNet.GameState
         public float? Y;
         public float? Z;
 
-        public DesiredVector3()
-        {
+        public static DesiredVector3 Zero { get { return new DesiredVector3(0, 0, 0); } }
 
-        }
-
-        public DesiredVector3(float x, float y, float z)
+        public DesiredVector3(float? x = null, float? y = null, float? z = null)
         {
             X = x;
             Y = y;
@@ -22,6 +19,13 @@ namespace RLBotDotNet.GameState
         }
 
         public DesiredVector3(Vector3 vector)
+        {
+            X = vector.X;
+            Y = vector.Y;
+            Z = vector.Z;
+        }
+
+        public DesiredVector3(System.Numerics.Vector3 vector)
         {
             X = vector.X;
             Y = vector.Y;

@@ -1,5 +1,3 @@
-﻿using System;
-
 using rlbot.flat;
 using FlatBuffers;
 
@@ -7,14 +5,44 @@ namespace RLBotDotNet.GameState
 {
     public class CarState
     {
-        public PhysicsState PhysicsState;
+        private PhysicsState physicsState;
+
         public bool? Jumped;
         public bool? DoubleJumped;
         public float? Boost;
 
-        public CarState()
+        public PhysicsState PhysicsState
         {
+            get
+            {
+                if (physicsState == null)
+                    physicsState = new PhysicsState();
 
+                return physicsState;
+            }
+
+            set
+            {
+                physicsState = value;
+            }
+        }
+
+        public CarState(PhysicsState physicsState = null, bool? jumped = null, bool? doubleJumped = null, float? boost = null)
+        {
+            PhysicsState = physicsState;
+            Jumped = jumped;
+            DoubleJumped = doubleJumped;
+            Boost = boost;
+        }
+
+        public CarState(PlayerInfo playerInfo)
+        {
+            if (playerInfo.Physics.HasValue)
+                PhysicsState = new PhysicsState(playerInfo.Physics.Value);
+
+            Jumped = playerInfo.Jumped;
+            DoubleJumped = playerInfo.DoubleJumped;
+            Boost = playerInfo.Boost;
         }
 
         public Offset<DesiredCarState> ToFlatBuffer(FlatBufferBuilder builder)
