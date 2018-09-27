@@ -223,6 +223,13 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 self.current_bot.set_agent_preset(self.agent_presets[value])
                 agent.set_name(agent.agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
                 self.ign_lineedit.setText(agent.ingame_name)
+                if not agent.get_team():
+                    listwidget = self.blue_listwidget
+                else:
+                    listwidget = self.orange_listwidget
+                row = listwidget.currentRow()
+                self.update_teams_listwidgets()
+                listwidget.setCurrentRow(row)
         elif sender is self.bot_level_slider:
             agent.set_bot_skill(value / 100)
 
@@ -409,7 +416,9 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.orange_radiobutton.setChecked(True)
         self.ign_lineedit.setText(agent.ingame_name)
         self.loadout_preset_combobox.setCurrentText(agent.get_loadout_preset().get_name())
+        self.agent_preset_combobox.blockSignals(True)
         self.agent_preset_combobox.setCurrentText(agent.get_agent_preset().get_name())
+        self.agent_preset_combobox.blockSignals(False)
         self.bot_level_slider.setValue(int(agent.get_bot_skill() * 100))
 
     def update_teams_listwidgets(self):
