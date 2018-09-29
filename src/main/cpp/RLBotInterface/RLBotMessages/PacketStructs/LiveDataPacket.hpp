@@ -85,10 +85,18 @@ struct Touch
 	PyStruct::Vector3		HitNormal;
 };
 
+struct DropShotBallInfo
+{
+	float					AbsorbedForce;
+	int						DamageIndex;
+	float					ForceAccumRecent;
+};
+
 struct BallInfo
 {
 	Physics 				Physics;
 	Touch					LatestTouch;
+	DropShotBallInfo		DropShotInfo;
 };
 
 struct GameInfo

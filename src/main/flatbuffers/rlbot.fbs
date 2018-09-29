@@ -97,9 +97,16 @@ table PlayerInfo {
   boost:int;
 }
 
+table DropShotBallInfo {
+  absorbedForce:float;
+  damageIndex:int;
+  forceAccumRecent:float;
+}
+
 table BallInfo {
   physics:Physics;
   latestTouch:Touch;
+  dropShotInfo:DropShotBallInfo;
 }
 
 table BoostPadState {

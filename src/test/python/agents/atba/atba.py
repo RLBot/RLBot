@@ -146,6 +146,15 @@ class Atba(BaseAgent):
             self.renderer.draw_string_2d(10, 70, 2, 2, 'num open: ' + str(num_open), self.renderer.white())
             self.renderer.draw_string_2d(10, 90, 2, 2, 'num unknown: ' + str(num_unknown), self.renderer.white())
 
+            absorbed_force = game_tick_packet.game_ball.drop_shot_info.absorbed_force
+            self.renderer.draw_string_2d(10, 110, 2, 2, 'absorbed force: ' + str(absorbed_force), self.renderer.white())
+
+            damage_index = game_tick_packet.game_ball.drop_shot_info.damage_index
+            self.renderer.draw_string_2d(10, 130, 2, 2, 'damage index: ' + str(damage_index), self.renderer.white())
+
+            force_accum_recent = game_tick_packet.game_ball.drop_shot_info.force_accum_recent
+            self.renderer.draw_string_2d(10, 150, 2, 2, 'force accum recent: ' + str(force_accum_recent), self.renderer.white())
+
         self.renderer.end_rendering()
 
     def set_state_test(self, game_tick_packet: GameTickPacket):

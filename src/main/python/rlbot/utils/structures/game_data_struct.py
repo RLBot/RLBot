@@ -65,9 +65,16 @@ class PlayerInfo(ctypes.Structure):
                 ("boost", ctypes.c_int)]
 
 
+class DropShotInfo(ctypes.Structure):
+    _fields_ = [("absorbed_force", ctypes.c_float),
+                ("damage_index", ctypes.c_int),
+                ("force_accum_recent", ctypes.c_float)]
+
+
 class BallInfo(ctypes.Structure):
     _fields_ = [("physics", Physics),
-                ("latest_touch", Touch)]
+                ("latest_touch", Touch),
+                ("drop_shot_info", DropShotInfo)]
 
 
 class BoostPadState(ctypes.Structure):
