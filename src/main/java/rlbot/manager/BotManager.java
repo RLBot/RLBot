@@ -7,10 +7,15 @@ import rlbot.flat.GameTickPacket;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+/**
+ * This class keeps track of all the bots, runs the main logic loops, and retrieves the
+ * game data on behalf of the bots.
+ */
 public class BotManager {
 
     private final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
@@ -40,6 +45,7 @@ public class BotManager {
         while (keepRunning && runFlag.get()) {
             try {
                 synchronized (dinnerBell) {
+                    // Wait for the main thread to indicate that we have new game tick data.
                     dinnerBell.wait(1000);
                 }
                 if (latestPacket != null) {
@@ -65,6 +71,16 @@ public class BotManager {
         looper.start();
     }
 
+    /**
+     * Returns a set of every bot index that is currently registered and running in this java process.
+     * Will not include indices from humans, bots in other languages, or bots in other java processes.
+     *
+     * This may be useful for driving a basic status display.
+     */
+    public Set<Integer> getRunningBotIndices() {
+        return botProcesses.keySet();
+    }
+
     private void doLoop() {
         while (keepRunning) {
 
@@ -78,6 +94,7 @@ public class BotManager {
             }
 
             try {
+                // Fetch the latest game tick packet at 60 Hz.
                 Thread.sleep(16);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

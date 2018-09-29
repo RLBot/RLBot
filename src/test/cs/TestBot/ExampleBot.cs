@@ -1,5 +1,6 @@
 ﻿using System;
 using RLBotDotNet;
+using RLBotDotNet.GameState;
 using rlbot.flat;
 using Color = System.Windows.Media.Color;
 
@@ -42,12 +43,36 @@ namespace TestBot
                 else
                     controller.Steer = -1;
 
-                Renderer.DrawLine3D(Color.FromRgb(255, 255, 0),
-                    new System.Numerics.Vector3(ballLocation.X, ballLocation.Y, ballLocation.Z),
-                    new System.Numerics.Vector3(carLocation.X, carLocation.Y, carLocation.Z));
+                Renderer.DrawLine3D(Color.FromRgb(255, 255, 0), ballLocation, carLocation);
 
-                // controller.Steer = 0;
+                // Get the ball prediction data.
+                BallPrediction prediction = GetBallPrediction();
 
+                // Loop through every 10th point so we don't render too many lines.
+                for (int i = 10; i < prediction.SlicesLength; i += 10)
+                {
+                    Vector3 pointA = prediction.Slices(i - 10).Value.Physics.Value.Location.Value;
+                    Vector3 pointB = prediction.Slices(i).Value.Physics.Value.Location.Value;
+
+                    Renderer.DrawLine3D(Color.FromRgb(255, 0, 255), pointA, pointB);
+                }
+
+                // Test out setting game state
+                GameState gameState = new GameState();
+
+                // Make the ball hover in midair
+                gameState.BallState.PhysicsState = new PhysicsState(location: new DesiredVector3(z: 300), velocity: new DesiredVector3(z: 10));
+
+                // If the ball stops moving, fling the car at it
+                Vector3 ballVelocity = gameTickPacket.Ball.Value.Physics.Value.Velocity.Value;
+                if (ballVelocity.X * ballVelocity.X + ballVelocity.Y * ballVelocity.Y < 100000 && carLocation.Z < 100)
+                {
+                    PhysicsState carPhysicsState = gameState.GetCarState(index).PhysicsState;
+                    carPhysicsState.Location = new DesiredVector3(ballLocation.X - 300, ballLocation.Y, 400);
+                    carPhysicsState.Velocity = new DesiredVector3(500, 0, 0);
+                }
+
+                SetGameState(gameState);
             }
             catch (Exception e)
             {

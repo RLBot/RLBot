@@ -3,6 +3,7 @@ using rlbot.flat;
 using FlatBuffers;
 using System.Runtime.InteropServices;
 using RLBotDotNet.Renderer;
+using RLBotDotNet.GameState;
 
 namespace RLBotDotNet.Utils
 {
@@ -24,6 +25,9 @@ namespace RLBotDotNet.Utils
         public extern static ByteBufferStruct UpdateFieldInfoFlatbuffer();
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static ByteBufferStruct GetBallPrediction();
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static int UpdatePlayerInputFlatbuffer(byte[] bytes, int size);
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
@@ -31,6 +35,12 @@ namespace RLBotDotNet.Utils
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static int RenderGroup(byte[] renderGroup, int protoSize);
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static void Free(IntPtr ptr);
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static int SetGameState(byte[] bytes, int size);
         #endregion
 
         /// <summary>
@@ -45,6 +55,7 @@ namespace RLBotDotNet.Utils
 
             byte[] bufferBytes = new byte[byteBuffer.size];
             Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
 
             return GameTickPacket.GetRootAsGameTickPacket(new ByteBuffer(bufferBytes));
         }
@@ -61,8 +72,26 @@ namespace RLBotDotNet.Utils
 
             byte[] bufferBytes = new byte[byteBuffer.size];
             Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
 
             return FieldInfo.GetRootAsFieldInfo(new ByteBuffer(bufferBytes));
+        }
+
+        /// <summary>
+        /// Returns 6 seconds of the ball physics prediction.
+        /// </summary>
+        /// <returns>6 seconds of the ball physics prediction.</returns>
+        public static BallPrediction GetBallPredictionData()
+        {
+            ByteBufferStruct byteBuffer = GetBallPrediction();
+            if (byteBuffer.size < 4)
+                throw new FlatbuffersPacketException("Flatbuffers packet is too small. Match is probably not running!");
+
+            byte[] bufferBytes = new byte[byteBuffer.size];
+            Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
+
+            return BallPrediction.GetRootAsBallPrediction(new ByteBuffer(bufferBytes));
         }
 
 
@@ -93,7 +122,10 @@ namespace RLBotDotNet.Utils
 
             builder.Finish(playerInputOffset.Value);
             byte[] bufferBytes = builder.SizedByteArray();
-            UpdatePlayerInputFlatbuffer(bufferBytes, bufferBytes.Length);
+            int status = UpdatePlayerInputFlatbuffer(bufferBytes, bufferBytes.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
         }
 
 
@@ -115,7 +147,23 @@ namespace RLBotDotNet.Utils
 
             builder.Finish(offset.Value);
             byte[] bufferBytes = builder.SizedByteArray();
-            SendQuickChat(bufferBytes, bufferBytes.Length);
+            int status = SendQuickChat(bufferBytes, bufferBytes.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
+        }
+
+        /// <summary>
+        /// Sets the current state of the game.
+        /// </summary>
+        /// <param name="gameState">The desired state.</param>
+        public static void SetGameStatePacket(GameStatePacket gameState)
+        {
+            byte[] data = gameState.Data;
+            int status = SetGameState(data, data.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
         }
 
         /// <summary>
@@ -125,7 +173,17 @@ namespace RLBotDotNet.Utils
         public static void RenderPacket(RenderPacket finishedRender)
         {
             byte[] bytes = finishedRender.Bytes;
-            RenderGroup(bytes, bytes.Length);
+            int status = RenderGroup(bytes, bytes.Length);
+
+            if (status > 0)
+                throw NewRLBotCoreException((RLBotCoreStatus)status);
+        }
+
+
+        private static RLBotCoreException NewRLBotCoreException(RLBotCoreStatus status)
+        {
+            // Possible to add more code here to make the exception messages more verbose.
+            return new RLBotCoreException(status.ToString());
         }
     }
 }

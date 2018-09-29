@@ -25,6 +25,14 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
     ],
     package_data={
-        'rlbot': ['**/*.dll', '**/*.exe', '**/*.json', 'gui/design/*.ui', '**/*.png']
+        'rlbot': [
+            '**/*.dll',
+            '**/*.exe',
+            '**/*.json',
+            'gui/design/*.ui',
+            '**/*.png',
+            '**/*.md',
+            'utils/prediction/*.dat'
+        ]
     },
 )

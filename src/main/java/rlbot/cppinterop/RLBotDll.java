@@ -5,8 +5,11 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import rlbot.ControllerState;
+import rlbot.flat.BallPrediction;
 import rlbot.flat.FieldInfo;
 import rlbot.flat.GameTickPacket;
+import rlbot.flat.QuickChatSelection;
+import rlbot.gamestate.GameStatePacket;
 import rlbot.render.RenderPacket;
 
 import java.io.File;
@@ -16,6 +19,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * This is the main communication gateway between Java and Rocket League.
+ * It contains methods for retrieving data, sending car controls, rendering graphics, etc.
+ *
+ * It does so via the "interface dll" which is vended in the rlbot python package at
+ * https://pypi.org/project/rlbot/ and authored at https://github.com/RLBot/RLBot
+ */
 public class RLBotDll {
 
     // Java bots must either add this in their classpath, or specify the jna.library.path JVM arg.
@@ -26,6 +36,9 @@ public class RLBotDll {
     private static native int UpdatePlayerInputFlatbuffer(Pointer ptr, int size);
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
     private static native int RenderGroup(Pointer ptr, int size);
+    private static native int SetGameState(Pointer ptr, int size);
+    private static native ByteBufferStruct GetBallPrediction();
+    private static native int SendQuickChat(Pointer ptr, int size);
 
     private static boolean isInitialized = false;
     private static final Object fileLock = new Object();
@@ -62,6 +75,9 @@ public class RLBotDll {
         return new File(jnaPath);
     }
 
+    /**
+     * Retrieves up-to-date game information like the positions of the ball and cars, among many other things.
+     */
     public static GameTickPacket getFlatbufferPacket() throws IOException {
         try {
             final ByteBufferStruct struct = UpdateLiveDataPacketFlatbuffer();
@@ -77,6 +93,9 @@ public class RLBotDll {
         }
     }
 
+    /**
+     * Retrieves information about boost pad locations, goal locations, dropshot tile locations, etc.
+     */
     public static FieldInfo getFieldInfo() throws IOException {
         try {
             final ByteBufferStruct struct = UpdateFieldInfoFlatbuffer();
@@ -131,6 +150,64 @@ public class RLBotDll {
         byte[] bytes = finishedRender.getBytes();
         final Memory memory = getMemory(bytes);
         RenderGroup(memory, bytes.length);
+    }
+
+    /**
+     * Modifies the position, velocity, etc of the ball and cars, according to the contents of the gameStatePacket.
+     * See https://github.com/RLBot/RLBotJavaExample/wiki/Manipulating-Game-State for detailed documentation.
+     */
+    public static void setGameState(final GameStatePacket gameStatePacket) {
+        byte[] bytes = gameStatePacket.getBytes();
+        final Memory memory = getMemory(bytes);
+        SetGameState(memory, bytes.length);
+    }
+
+    /**
+     * Gets the predicted path of the ball as a list of slices.
+     * See https://github.com/RLBot/RLBotJavaExample/wiki/Ball-Path-Prediction for more details.
+     */
+    public static BallPrediction getBallPrediction() throws IOException {
+        try {
+            final ByteBufferStruct struct = GetBallPrediction();
+            if (struct.size < 4) {
+                throw new IOException("Flatbuffer packet is too small, match is probably not running!");
+            }
+            final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            return BallPrediction.getRootAsBallPrediction(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new IOException("Could not find interface dll! Did initialize get called?", error);
+        } catch (final Error error) {
+            throw new IOException(error);
+        }
+    }
+
+    /**
+     * Sends a quick chat message to the game. If you send too many too fast, you may receive a {@link RLBotCoreStatus}
+     * of QuickChatRateExceeded, which means your attempt at quick chat was ignored.
+     *
+     * Example usage:
+     * sendQuickChat(this.playerIndex, false, QuickChatSelection.Information_IGotIt);
+     *
+     * @param playerIndex the index of the player who is sending the quick chat.
+     * @param teamOnly whether this chat's visibility should be restricted to the player's team. Note: this is
+     *                 currently meaningless because we don't support receiving quickchat yet. It's write-only,
+     *                 a bit like the rendering feature.
+     * @param quickChatSelection The quick chat to send. Use the constants in {@link QuickChatSelection}.
+     */
+    public static RLBotCoreStatus sendQuickChat(int playerIndex, boolean teamOnly, byte quickChatSelection) {
+        FlatBufferBuilder builder = new FlatBufferBuilder(50);
+
+        int offset = rlbot.flat.QuickChat.createQuickChat(
+                builder,
+                quickChatSelection,
+                playerIndex,
+                teamOnly);
+
+        builder.finish(offset);
+
+        final byte[] protoBytes = builder.sizedByteArray();
+        final Memory memory = getMemory(protoBytes);
+        return RLBotCoreStatus.fromDllResult(SendQuickChat(memory, protoBytes.length));
     }
 
     private static Memory getMemory(byte[] protoBytes) {

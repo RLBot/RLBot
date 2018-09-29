@@ -2,6 +2,9 @@ package rlbot.render;
 
 import java.util.Arrays;
 
+/**
+ * Wraps the binary representation of a rendering request.
+ */
 public class RenderPacket {
 
     private final byte[] bytes;

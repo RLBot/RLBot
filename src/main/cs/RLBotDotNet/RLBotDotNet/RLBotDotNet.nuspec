@@ -4,7 +4,7 @@
     <id>RLBot.Framework</id>
     <version>$version$</version>
     <title>RLBot Framework</title>
-    <authors>Tangil Jahangir, Tyler Arehart, alion02, Whok</authors>
+    <authors>Tangil Jahangir, Tyler Arehart, alion02, Whok, kipje13</authors>
     <owners>rlbotofficial</owners>
     <licenseUrl>https://opensource.org/licenses/mit-license.php</licenseUrl>
     <projectUrl>https://github.com/RLBot/RLBot</projectUrl>
@@ -12,9 +12,10 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Added support for the Dropshot game mode.
-      Fixed crashing whenever there was a space in the bot's name.
-      (We have changed to semantic versioning, which is why we're at a 1.0.0 release now.)
+      Added support for ball path prediction, so you can do better wall reads, catches, aerials, and dribbles.
+      See https://github.com/RLBot/RLBotCSharpExample/wiki/Ball-Path-Prediction for details and documentation.
+
+      Thanks to kipje13 for wiring up the ball path prediction.
     </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>rocket-league</tags>

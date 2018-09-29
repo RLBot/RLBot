@@ -2,6 +2,9 @@ package rlbot.pyinterop;
 
 import py4j.GatewayServer;
 
+/**
+ * Listens for signals from the central RLBot framework which runs on python.
+ */
 public class PythonServer {
 
     private final Object pythonInterface;

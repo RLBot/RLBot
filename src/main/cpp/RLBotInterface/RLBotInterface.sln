@@ -7,6 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLBotMessages", "RLBotMessa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLBotInterface", "RLBotInterface\RLBotInterface.vcxproj", "{5340E767-57EC-4855-86E4-8F978201B39F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BallPrediction", "BallPrediction\BallPrediction.vcxproj", "{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{075F4B01-013A-4200-9720-95051226D748} = {075F4B01-013A-4200-9720-95051226D748}
+		{5340E767-57EC-4855-86E4-8F978201B39F} = {5340E767-57EC-4855-86E4-8F978201B39F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +37,14 @@ Global
 		{5340E767-57EC-4855-86E4-8F978201B39F}.Release|x64.Build.0 = Release|x64
 		{5340E767-57EC-4855-86E4-8F978201B39F}.Release|x86.ActiveCfg = Release|Win32
 		{5340E767-57EC-4855-86E4-8F978201B39F}.Release|x86.Build.0 = Release|Win32
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Debug|x64.ActiveCfg = Debug|x64
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Debug|x64.Build.0 = Debug|x64
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Debug|x86.ActiveCfg = Debug|Win32
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Debug|x86.Build.0 = Debug|Win32
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Release|x64.ActiveCfg = Release|x64
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Release|x64.Build.0 = Release|x64
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Release|x86.ActiveCfg = Release|Win32
+		{F74571F5-5ADA-4CC5-AAB8-69A4EE1E739D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -48,6 +48,8 @@ namespace BoostUtilities {
 	{
 		// The intermediate variables in this function are necessary for some reason.
 
+		memName = name;
+
 		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
 		const char* sharedMemChar = sharedMemName.c_str();
 		boost::interprocess::shared_memory_object::remove(sharedMemChar);
@@ -57,6 +59,14 @@ namespace BoostUtilities {
 		const char* mutexChar = mutexName.c_str();
 		boost::interprocess::named_sharable_mutex::remove(mutexChar);
 		mutex = new boost::interprocess::named_sharable_mutex(boost::interprocess::create_only, mutexChar);
+	}
+
+	SharedMemWriter::~SharedMemWriter()
+	{
+		std::string mutexName = BoostConstants::buildMutexName(memName);
+		const char* mutexChar = mutexName.c_str();
+		boost::interprocess::named_sharable_mutex::remove(mutexChar);
+		boost::interprocess::shared_memory_object::remove(sharedMem->get_name());
 	}
 
 	void SharedMemWriter::writeData(void* address, int size) {

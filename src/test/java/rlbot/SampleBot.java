@@ -1,5 +1,10 @@
 package rlbot;
 
+import rlbot.cppinterop.RLBotDll;
+import rlbot.flat.BallPrediction;
+import rlbot.flat.QuickChatSelection;
+import rlbot.flat.Vector3;
+import rlbot.gamestate.*;
 import rlbot.input.CarData;
 import rlbot.input.DataPacket;
 import rlbot.input.DropshotTile;
@@ -8,9 +13,11 @@ import rlbot.manager.BotLoopRenderer;
 import rlbot.output.ControlsOutput;
 import rlbot.render.NamedRenderer;
 import rlbot.render.Renderer;
+import rlbot.vec.DesiredVec;
 import rlbot.vec.Vector2;
 
 import java.awt.*;
+import java.io.IOException;
 
 public class SampleBot implements Bot {
 
@@ -57,8 +64,28 @@ public class SampleBot implements Bot {
             }
         }
 
+        if (myCar.position.z > 100) {
+            GameState gameState = new GameState()
+                    .withCarState(this.playerIndex, new CarState()
+                            .withPhysics(new PhysicsState()
+                                    .withRotation(new DesiredRotation((float) Math.PI,0F, 0F))));
+
+            RLBotDll.setGameState(gameState.buildPacket());
+            RLBotDll.sendQuickChat(this.playerIndex, false, QuickChatSelection.Apologies_Oops);
+        }
+
         if (input.ball.position.z > 1000) {
             triangleRenderer.eraseFromScreen();
+        }
+
+        try {
+            final BallPrediction ballPrediction = RLBotDll.getBallPrediction();
+
+            Vector3 location = ballPrediction.slices(ballPrediction.slicesLength() / 2).physics().location();
+            renderer.drawLine3d(Color.CYAN, input.ball.position, rlbot.vec.Vector3.fromFlatbuffer(location));
+
+        } catch (IOException e) {
+            // Ignore
         }
 
         return new ControlsOutput()

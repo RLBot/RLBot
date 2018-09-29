@@ -52,8 +52,17 @@
     <Compile Include="Common\NumericVector3Extensions.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="flat\*.cs" />
+    <Compile Include="GameState\BallState.cs" />
+    <Compile Include="GameState\CarState.cs" />
+    <Compile Include="GameState\DesiredRotator.cs" />
+    <Compile Include="GameState\DesiredVector3.cs" />
+    <Compile Include="GameState\GameState.cs" />
+    <Compile Include="GameState\GameStatePacket.cs" />
+    <Compile Include="GameState\PhysicsState.cs" />
     <Compile Include="Interface\ByteBufferStruct.cs" />
     <Compile Include="Interface\FlatbuffersPacketException.cs" />
+    <Compile Include="Interface\RLBotCoreException.cs" />
+    <Compile Include="Interface\RLBotCoreStatus.cs" />
     <Compile Include="Interface\RLBotInterface.cs" />
     <Compile Include="Manager\BotManager.cs" />
     <Compile Include="Manager\BotProcess.cs" />

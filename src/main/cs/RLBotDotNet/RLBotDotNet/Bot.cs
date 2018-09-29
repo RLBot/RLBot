@@ -2,6 +2,7 @@
 using RLBotDotNet.Utils;
 using System;
 using RLBotDotNet.Renderer;
+using RLBotDotNet.GameState;
 
 namespace RLBotDotNet
 {
@@ -74,6 +75,11 @@ namespace RLBotDotNet
             }
         }
 
+        protected BallPrediction GetBallPrediction()
+        {
+            return RLBotInterface.GetBallPredictionData();
+        }
+
         protected void SendQuickChatFromAgent(bool teamOnly, QuickChatSelection quickChat)
         {
             /*
@@ -115,6 +121,18 @@ namespace RLBotDotNet
                                                      "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
                                                      "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
+        }
+
+        /// <summary>
+        /// Allows the bot to set the games' state just like in training mode.
+        /// </summary>
+        /// <param name="gameState"></param>
+        protected void SetGameState(GameState.GameState gameState)
+        {
+            if (gameState == null)
+                throw new ArgumentNullException("gameState");
+
+            RLBotInterface.SetGameStatePacket(gameState.BuildGameStatePacket());
         }
 
         /// <summary>

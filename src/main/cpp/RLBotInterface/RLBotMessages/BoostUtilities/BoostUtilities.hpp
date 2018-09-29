@@ -46,8 +46,10 @@ namespace BoostUtilities {
 	private:
 		boost::interprocess::shared_memory_object* sharedMem;
 		boost::interprocess::named_sharable_mutex* mutex;
+		const char* memName;
 	public:
 		SharedMemWriter(const char* name);
+		~SharedMemWriter();
 		void writeData(void* address, int size);
 	};
 }
