@@ -100,6 +100,13 @@ namespace FlatbufferTranslator {
 			fillStructName(std::string(""), structBall->LatestTouch.PlayerName);
 		}
 
+		if (flatbuffers::IsFieldPresent(ball, rlbot::flat::BallInfo::VT_DROPSHOTINFO))
+		{
+			structBall->DropShotInfo.AbsorbedForce = ball->dropShotInfo()->absorbedForce();
+			structBall->DropShotInfo.DamageIndex = ball->dropShotInfo()->damageIndex();
+			structBall->DropShotInfo.ForceAccumRecent = ball->dropShotInfo()->forceAccumRecent();
+		}
+
 	}
 
 	void fillGameInfoStruct(const rlbot::flat::GameInfo* gameInfo, GameInfo* structGameInfo)
