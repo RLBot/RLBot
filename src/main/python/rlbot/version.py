@@ -3,17 +3,19 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 release_notes = {
-    '1.1.0': """
+    '1.1.1': """
     You can now get information about the ball's status in Dropshot mode thanks to hallo_doei!
     Read all about it at https://github.com/RLBot/RLBot/wiki/Dropshot
 
     Other changes:
+    - The loadout config for orange team is now respected again. - ccman32
     - Fixed a bug where the GUI would crash with a "KeyError". - hallo_doei
     - Avoiding and suppressing some game crashes, and also restoring the
       ability to get game tick data during replays and the postgame. - tarehart
+    - Fixed a bug where bots would dodge when they intended to double jump. -tarehart
     """,
     '1.0.6': """
     The latest Rocket League patch broke dodges for our bots; this update fixes it.
