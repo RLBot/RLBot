@@ -135,7 +135,7 @@ class RenderingManager:
 
         messageBuilder = self.builder
 
-        for i in range(0, len(vec)-1):
+        for i in range(0, len(vectors)-1):
             RenderMessage.RenderMessageStart(messageBuilder)
             RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
             RenderMessage.RenderMessageAddColor(messageBuilder, color)
