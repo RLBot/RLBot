@@ -330,6 +330,10 @@ class RenderingManager:
                 x = vec[0].x
                 y = vec[0].y
                 z = vec[0].z
+            elif type(vec[0]).__name__ == 'vec3': #Support Chip's LinearAlgebra.vec3
+                x = vec[0][0]
+                y = vec[0][1]
+                z = vec[0][2]
             else:
                 raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0])))
         elif len(vec) == 2 or len(vec) == 3:
