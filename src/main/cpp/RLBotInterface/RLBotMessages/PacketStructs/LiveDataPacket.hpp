@@ -6,6 +6,7 @@
 #define CONST_MaxTiles		200
 #define CONST_MaxGoals		200
 #define CONST_MaxPlayers	10
+#define CONST_MAXSLICES		3600
 
 struct ScoreInfo
 {
@@ -90,6 +91,17 @@ struct DropShotBallInfo
 	float					AbsorbedForce;
 	int						DamageIndex;
 	float					ForceAccumRecent;
+};
+
+struct Slices
+{
+	Physics 				Physics;
+};
+
+struct BallPredictionPacket
+{
+	Slices 				Slice[CONST_MAXSLICES];
+	int					SlicesLenght;
 };
 
 struct BallInfo

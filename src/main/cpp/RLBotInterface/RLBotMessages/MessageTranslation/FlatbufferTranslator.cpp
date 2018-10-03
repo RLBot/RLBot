@@ -164,6 +164,33 @@ namespace FlatbufferTranslator {
 		}
 	}
 
+	//void fillPlayerStruct(const rlbot::flat::PlayerInfo* player, PlayerInfo* structPlayer)
+	void fillSliceStruct(const rlbot::flat::PredictionSlice* Slice, Slices* structSlice)
+	{
+		//fillPhysicsStruct(player->physics(), &structPlayer->Physics);
+		fillPhysicsStruct(Slice->physics(), &structSlice->Physics);
+	}
+
+	void translateToPrediction(ByteBuffer flatbufferData, BallPredictionPacket* packet)
+	{
+		if (flatbufferData.size == 0)
+		{
+			return; // Nothing to do.
+		}
+
+		auto flatPacket = flatbuffers::GetRoot<rlbot::flat::BallPrediction>(flatbufferData.ptr);
+
+		auto slices = flatPacket->slices();
+		if (slices) {
+			packet->SlicesLenght = slices->size();
+			for (int i = 0; i < slices->size(); i++) {
+				//fillPlayerStruct(slices->Get(i), &packet->GameCars[i]);
+				//fillBallStruct(flatPacket->ball(), &packet->GameBall);
+				fillSliceStruct(slices->Get(i), &packet->Slice[i]);
+			}
+		}
+	}
+
 	void fillBoostPadStruct(const rlbot::flat::BoostPad* boostPad, BoostPad* structBoostPad)
 	{
 		fillVector3Struct(boostPad->location(), &structBoostPad->Location);

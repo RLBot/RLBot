@@ -4,13 +4,14 @@ import subprocess
 import sys
 import time
 
-from rlbot.messages.flat.BallPrediction import BallPrediction
+# from rlbot.messages.flat.BallPrediction import BallPrediction
 from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
+from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
 
@@ -282,16 +283,28 @@ class GameInterface:
             self.game_status(None, RLBotCoreStatus.Success)
             return FieldInfo.GetRootAsFieldInfo(proto_string, 0)
 
+    def update_ball_prediction(self, ball_prediction: BallPrediction):
+        rlbot_status = self.game.UpdateBallPrediction(ball_prediction)
+        self.game_status(None, rlbot_status)
+        return ball_prediction
+
     def get_ball_prediction(self) -> BallPrediction:
         """
         Gets the latest ball prediction available in shared memory. Only works if BallPrediction.exe is running.
         """
         byte_buffer = self.game.GetBallPrediction()
 
+        # if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+        #     # We're counting on this copying the data over to a new memory location so that the original
+        #     # pointer can be freed safely.
+        #     proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+        #     self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+        #     self.game_status(None, RLBotCoreStatus.Success)
+        #     return BallPrediction.GetRootAsBallPrediction(proto_string, 0)
         if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
             # We're counting on this copying the data over to a new memory location so that the original
             # pointer can be freed safely.
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, RLBotCoreStatus.Success)
-            return BallPrediction.GetRootAsBallPrediction(proto_string, 0)
+            return proto_string
