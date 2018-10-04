@@ -52,6 +52,7 @@ class BotManager:
         self.reset_chat_time = True
         self.game_tick_packet = None
         self.bot_input = None
+        self.ball_prediction = None
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """

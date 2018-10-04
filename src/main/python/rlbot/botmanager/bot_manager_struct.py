@@ -3,6 +3,7 @@ from rlbot.utils.logging_utils import get_logger
 
 from rlbot.botmanager.bot_manager import BotManager
 from rlbot.utils.structures import game_data_struct as gd
+from rlbot.utils.structures import ball_prediction_struct as bp
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 
 
@@ -21,6 +22,9 @@ class BotManagerStruct(BotManager):
         self.bot_input = PlayerInput()
         # Set up shared memory for game data
         self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
+        # Set up shared memory for Ball prediction
+        self.ball_prediction = bp.BallPrediction()
+
 
     def get_field_info(self):
         field_info = gd.FieldInfoPacket()
@@ -56,3 +60,6 @@ class BotManagerStruct(BotManager):
 
     def pull_data_from_game(self):
         self.game_interface.update_live_data_packet(self.game_tick_packet)
+
+    def get_ball_prediction(self):
+        return self.game_interface.get_ball_prediction_struct(self.ball_prediction)

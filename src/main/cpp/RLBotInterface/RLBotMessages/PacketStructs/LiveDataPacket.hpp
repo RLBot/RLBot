@@ -93,14 +93,14 @@ struct DropShotBallInfo
 	float					ForceAccumRecent;
 };
 
-struct Slices
+struct Slice
 {
 	Physics 				Physics;
 };
 
 struct BallPredictionPacket
 {
-	Slices 				Slice[CONST_MAXSLICES];
+	Slice				Slice[CONST_MAXSLICES];
 	int					SlicesLenght;
 };
 
