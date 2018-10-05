@@ -42,8 +42,9 @@ public class BotManager {
     private void doRunBot(final Bot bot, final int index, final AtomicBoolean runFlag) {
 
         final BotLoopRenderer renderer = BotLoopRenderer.forBotLoop(bot);
-        while (keepRunning && runFlag.get()) {
-            try {
+        try {
+            while (keepRunning && runFlag.get()) {
+
                 synchronized (dinnerBell) {
                     // Wait for the main thread to indicate that we have new game tick data.
                     dinnerBell.wait(1000);
@@ -54,11 +55,14 @@ public class BotManager {
                     RLBotDll.setPlayerInputFlatbuffer(controllerState, index);
                     renderer.finishAndSendIfDifferent();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            System.out.println("Bot died because an exception occurred in the run loop!");
+            e.printStackTrace();
+        } finally {
+            retireBot(index); // Unregister this bot internally.
+            bot.retire(); // Tell the bot to clean up its resources.
         }
-        bot.retire();
     }
 
     public void ensureStarted() {

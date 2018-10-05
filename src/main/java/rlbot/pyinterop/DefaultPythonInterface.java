@@ -27,7 +27,14 @@ public abstract class DefaultPythonInterface implements PythonInterface {
     }
 
     public void shutdown() {
+        System.out.println("Shutting down...");
         botManager.shutDown();
+        try {
+            Thread.sleep(1500); // Wait for the bots to finish up
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.exit(0);
     }
 
     public void ensureBotRegistered(final int index, final String botType, final int team) {
