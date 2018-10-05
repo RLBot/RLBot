@@ -183,14 +183,14 @@ class Atba(BaseAgent):
         self.set_game_state(game_state)
 
     def render_ball_prediction(self):
-        ball_prediction = self.get_ball_prediction()
+        ball_prediction = self.get_ball_prediction_struct()
 
         if ball_prediction is not None:
 
             self.renderer.begin_rendering('prediction')
             colors = self.setup_rainbow()
-            for i in range(0, ball_prediction.SlicesLength()):
-                current_slice = ball_prediction.Slices(i).Physics().Location()
+            for i in range(0, ball_prediction.slices_length):
+                current_slice = ball_prediction.slices[i].physics.location
                 self.renderer.draw_rect_3d(current_slice, 8, 8, True, colors[i % len(colors)], True)
             self.renderer.end_rendering()
 

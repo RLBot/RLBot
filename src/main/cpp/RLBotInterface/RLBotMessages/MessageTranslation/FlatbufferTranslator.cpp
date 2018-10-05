@@ -34,7 +34,8 @@ namespace FlatbufferTranslator {
 	void fillPhysicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
 	{
 		fillVector3Struct(physics->location(), &structPhysics->Location);
-		fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
+		if (physics->rotation())  // We don't always send a rotation value because it's useless info for the ball during predictions (which assume a round ball).
+			fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
 		fillVector3Struct(physics->velocity(), &structPhysics->Velocity);
 		fillVector3Struct(physics->angularVelocity(), &structPhysics->AngularVelocity);
 	}
@@ -161,6 +162,30 @@ namespace FlatbufferTranslator {
 		if (flatbuffers::IsFieldPresent(flatPacket, rlbot::flat::GameTickPacket::VT_GAMEINFO))
 		{
 			fillGameInfoStruct(flatPacket->gameInfo(), &packet->GameInfo);
+		}
+	}
+
+	//void fillPlayerStruct(const rlbot::flat::PlayerInfo* player, PlayerInfo* structPlayer)
+	void fillSliceStruct(const rlbot::flat::PredictionSlice* slice, Slice* structSlice)
+	{
+		fillPhysicsStruct(slice->physics(), &structSlice->Physics);
+	}
+
+	void translateToPrediction(ByteBuffer flatbufferData, BallPredictionPacket* packet)
+	{
+		if (flatbufferData.size == 0)
+		{
+			return; // Nothing to do.
+		}
+
+		auto flatPacket = flatbuffers::GetRoot<rlbot::flat::BallPrediction>(flatbufferData.ptr);
+
+		auto slices = flatPacket->slices();
+		if (slices) {
+			packet->SlicesLength = slices->size();
+			for (int i = 0; i < slices->size(); i++) {
+				fillSliceStruct(slices->Get(i), &packet->Slice[i]);
+			}
 		}
 	}
 

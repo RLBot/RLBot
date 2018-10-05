@@ -52,6 +52,7 @@ class BotManager:
         self.reset_chat_time = True
         self.game_tick_packet = None
         self.bot_input = None
+        self.ball_prediction = None
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -89,6 +90,7 @@ class BotManager:
         agent._register_field_info(self.get_field_info)
         agent._register_set_game_state(self.set_game_state)
         agent._register_ball_prediction(self.get_ball_prediction)
+        agent._register_ball_prediction_struct(self.get_ball_prediction_struct)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
 
         # Once all engine setup is done, do the agent-specific initialization, if any:
@@ -203,6 +205,9 @@ class BotManager:
 
     def get_ball_prediction(self):
         return self.game_interface.get_ball_prediction()
+
+    def get_ball_prediction_struct(self):
+        raise NotImplementedError
 
     def prepare_for_run(self):
         raise NotImplementedError

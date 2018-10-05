@@ -4,13 +4,14 @@ import subprocess
 import sys
 import time
 
-from rlbot.messages.flat.BallPrediction import BallPrediction
+from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
+from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
 
@@ -69,6 +70,10 @@ class GameInterface:
         func = self.game.UpdateFieldInfoFlatbuffer
         func.argtypes = []
         func.restype = ByteBuffer
+
+        func = self.game.GetBallPredictionStruct
+        func.argtypes = [ctypes.POINTER(BallPrediction)]
+        func.restype = ctypes.c_int
 
         func = self.game.GetBallPrediction
         func.argtypes = []
@@ -282,7 +287,12 @@ class GameInterface:
             self.game_status(None, RLBotCoreStatus.Success)
             return FieldInfo.GetRootAsFieldInfo(proto_string, 0)
 
-    def get_ball_prediction(self) -> BallPrediction:
+    def update_ball_prediction(self, ball_prediction: BallPrediction):
+        rlbot_status = self.game.GetBallPredictionStruct(ball_prediction)
+        self.game_status(None, rlbot_status)
+        return ball_prediction
+
+    def get_ball_prediction(self) -> BallPredictionPacket:
         """
         Gets the latest ball prediction available in shared memory. Only works if BallPrediction.exe is running.
         """
@@ -294,4 +304,4 @@ class GameInterface:
             proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, RLBotCoreStatus.Success)
-            return BallPrediction.GetRootAsBallPrediction(proto_string, 0)
+            return BallPredictionPacket.GetRootAsBallPrediction(proto_string, 0)
