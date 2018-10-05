@@ -61,5 +61,9 @@ class BotManagerStruct(BotManager):
     def pull_data_from_game(self):
         self.game_interface.update_live_data_packet(self.game_tick_packet)
 
+    def get_ball_prediction_struct(self):
+        return self.game_interface.update_ball_prediction(self.ball_prediction)
+
     def get_ball_prediction(self):
-        return self.game_interface.get_ball_prediction_struct(self.ball_prediction)
+        #return self.game_interface.get_ball_prediction()
+        return self.game_interface.update_ball_prediction(self.ball_prediction)

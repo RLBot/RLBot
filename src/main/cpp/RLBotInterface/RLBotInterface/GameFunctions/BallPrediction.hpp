@@ -16,7 +16,7 @@ extern "C"
 	namespace BallPrediction
 	{
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API GetBallPrediction();
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API GetBallPredictionP(BallPredictionPacket* pLiveData);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API GetBallPredictionP(BallPredictionPacket* pBallPrediction);
 	}
 
 #ifdef __cplusplus

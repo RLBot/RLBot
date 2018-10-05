@@ -186,7 +186,7 @@ namespace FlatbufferTranslator {
 			for (int i = 0; i < slices->size(); i++) {
 				//fillPlayerStruct(slices->Get(i), &packet->GameCars[i]);
 				//fillBallStruct(flatPacket->ball(), &packet->GameBall);
-				fillSliceStruct(slices->Get(i), &packet->Slices[i]);
+				fillSliceStruct(slices->Get(i), &packet->Slice[i]);
 			}
 		}
 	}
