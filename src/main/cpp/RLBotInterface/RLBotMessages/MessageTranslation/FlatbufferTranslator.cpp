@@ -34,7 +34,7 @@ namespace FlatbufferTranslator {
 	void fillPhysicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
 	{
 		fillVector3Struct(physics->location(), &structPhysics->Location);
-		if (physics->rotation())  // We don't always send a rotation value because it's useless info for the ball during predicitions (which assume a round ball).
+		if (physics->rotation())  // We don't always send a rotation value because it's useless info for the ball during predictions (which assume a round ball).
 			fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
 		fillVector3Struct(physics->velocity(), &structPhysics->Velocity);
 		fillVector3Struct(physics->angularVelocity(), &structPhysics->AngularVelocity);

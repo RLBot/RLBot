@@ -6,6 +6,9 @@
 __version__ = '1.1.2'
 
 release_notes = {
+    '1.1.2': """
+    Faster way to access ball prediction data in python. - Skyborg
+    """,
     '1.1.1': """
     You can now get information about the ball's status in Dropshot mode thanks to hallo_doei!
     Read all about it at https://github.com/RLBot/RLBot/wiki/Dropshot

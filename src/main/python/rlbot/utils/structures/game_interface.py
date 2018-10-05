@@ -71,7 +71,7 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
-        func = self.game.GetBallPredictionP
+        func = self.game.GetBallPredictionStruct
         func.argtypes = [ctypes.POINTER(BallPrediction)]
         func.restype = ctypes.c_int
 
@@ -288,7 +288,7 @@ class GameInterface:
             return FieldInfo.GetRootAsFieldInfo(proto_string, 0)
 
     def update_ball_prediction(self, ball_prediction: BallPrediction):
-        rlbot_status = self.game.GetBallPredictionP(ball_prediction)
+        rlbot_status = self.game.GetBallPredictionStruct(ball_prediction)
         self.game_status(None, rlbot_status)
         return ball_prediction
 

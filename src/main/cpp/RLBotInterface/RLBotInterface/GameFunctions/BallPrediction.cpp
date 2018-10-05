@@ -16,7 +16,7 @@ namespace BallPrediction
 	}
 
 	// Ctypes
-	extern "C" RLBotCoreStatus RLBOT_CORE_API GetBallPredictionP(BallPredictionPacket* pBallPrediction)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API GetBallPredictionStruct(BallPredictionPacket* pBallPrediction)
 	{
 		ByteBuffer flatbuffer = GetBallPrediction();
 		FlatbufferTranslator::translateToPrediction(flatbuffer, pBallPrediction);
