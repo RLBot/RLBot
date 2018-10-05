@@ -25,7 +25,6 @@ class BotManagerStruct(BotManager):
         # Set up shared memory for Ball prediction
         self.ball_prediction = bp.BallPrediction()
 
-
     def get_field_info(self):
         field_info = gd.FieldInfoPacket()
         self.game_interface.update_field_info_packet(field_info)
@@ -62,8 +61,4 @@ class BotManagerStruct(BotManager):
         self.game_interface.update_live_data_packet(self.game_tick_packet)
 
     def get_ball_prediction_struct(self):
-        return self.game_interface.update_ball_prediction(self.ball_prediction)
-
-    def get_ball_prediction(self):
-        #return self.game_interface.get_ball_prediction()
         return self.game_interface.update_ball_prediction(self.ball_prediction)

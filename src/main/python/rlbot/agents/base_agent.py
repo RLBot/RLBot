@@ -1,4 +1,5 @@
 import flatbuffers
+from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
 
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
@@ -107,8 +108,12 @@ class BaseAgent:
         self.__game_state_func(builder)
 
     def get_ball_prediction(self):
-        """Fetches a prediction of where the ball will go during the next few seconds."""
+        """DEPRECATED! Please use get_ball_prediction_struct instead, because this is going away soon!"""
         return self.__ball_prediction_func()
+
+    def get_ball_prediction_struct(self) -> BallPrediction:
+        """Fetches a prediction of where the ball will go during the next few seconds."""
+        return self.__ball_prediction_struct_func()
 
     def load_config(self, config_object_header):
         """
@@ -203,10 +208,19 @@ class BaseAgent:
 
     def _register_ball_prediction(self, ball_prediction_func):
         """
+        Deprecated.  __ball_prediction_struct_func will be used instead.
+
         Sets the function to grab ball predictions from the interface.
         This should not be overwritten by the agent.
         """
         self.__ball_prediction_func = ball_prediction_func
+
+    def _register_ball_prediction_struct(self, ball_prediction_func):
+        """
+        Sets the function to grab ball predictions from the interface.
+        This should not be overwritten by the agent.
+        """
+        self.__ball_prediction_struct_func = ball_prediction_func
 
     def _set_renderer(self, renderer: RenderingManager):
         self.renderer = renderer

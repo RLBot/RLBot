@@ -34,7 +34,8 @@ namespace FlatbufferTranslator {
 	void fillPhysicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
 	{
 		fillVector3Struct(physics->location(), &structPhysics->Location);
-		fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
+		if (physics->rotation())  // We don't always send a rotation value because it's useless info for the ball during predicitions (which assume a round ball).
+			fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
 		fillVector3Struct(physics->velocity(), &structPhysics->Velocity);
 		fillVector3Struct(physics->angularVelocity(), &structPhysics->AngularVelocity);
 	}
@@ -167,7 +168,6 @@ namespace FlatbufferTranslator {
 	//void fillPlayerStruct(const rlbot::flat::PlayerInfo* player, PlayerInfo* structPlayer)
 	void fillSliceStruct(const rlbot::flat::PredictionSlice* slice, Slice* structSlice)
 	{
-		//fillPhysicsStruct(player->physics(), &structPlayer->Physics);
 		fillPhysicsStruct(slice->physics(), &structSlice->Physics);
 	}
 
@@ -182,10 +182,8 @@ namespace FlatbufferTranslator {
 
 		auto slices = flatPacket->slices();
 		if (slices) {
-			packet->SlicesLenght = slices->size();
+			packet->SlicesLength = slices->size();
 			for (int i = 0; i < slices->size(); i++) {
-				//fillPlayerStruct(slices->Get(i), &packet->GameCars[i]);
-				//fillBallStruct(flatPacket->ball(), &packet->GameBall);
 				fillSliceStruct(slices->Get(i), &packet->Slice[i]);
 			}
 		}
