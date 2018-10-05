@@ -3,9 +3,16 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 release_notes = {
+    '1.1.3': """
+    - Faster way to access ball prediction data in python. - Skyborg
+    - Java bots will now shut down when the python framework quits. This has been necessary recently
+    to avoid buggy situations.
+    - Shutting down the python framework will no longer attempt to kill bots twice in a row.
+    - Clicking on the "Run" button twice in a row in the GUI will no longer spawn duplicate processes.
+    """,
     '1.1.2': """
     Faster way to access ball prediction data in python. - Skyborg
     """,

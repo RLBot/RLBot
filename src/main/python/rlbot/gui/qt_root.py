@@ -93,6 +93,16 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         return config
 
     def run_button_pressed(self):
+        if self.setup_manager is not None:
+            if self.setup_manager.quit_event.is_set():
+                # Do nothing if the quit event is set. This means that we're already trying to shut down.
+                # Attempting to run again when we're in this state can result in duplicate processes.
+                return
+            self.setup_manager.shut_down(time_limit=5, kill_all_pids=False)
+            # Leave any external processes alive, e.g. Java or C#, since it can
+            # be useful to keep them around. The user can kill them with the
+            # Kill Bots button instead.
+
         self.match_process = threading.Thread(target=self.start_match)
         self.match_process.start()
 
@@ -101,12 +111,6 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         Starts a match with the current configuration
         :return:
         """
-
-        if self.setup_manager is not None:
-            self.setup_manager.shut_down(time_limit=5, kill_all_pids=False)
-            # Leave any external processes alive, e.g. Java or C#, since it can
-            # be useful to keep them around. The user can kill them with the
-            # Kill Bots button instead.
 
         agent_configs_dict = {}
         loadout_configs_dict = {}

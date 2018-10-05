@@ -1,14 +1,12 @@
-import msvcrt
-import os
 import time
 
 import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
-from rlbot.utils.structures import game_interface
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures import game_interface
 
 
 class BaseJavaAgent(BaseIndependentAgent):
@@ -64,7 +62,9 @@ class BaseJavaAgent(BaseIndependentAgent):
 
     def retire(self):
         try:
-            self.javaInterface.retireBot(self.index)
+            # Shut down the whole java process, because currently java is clumsy with the interface dll
+            # and cannot really survive a restart of the python framework.
+            self.javaInterface.shutdown()
         except Exception as e:
             self.logger.warn(str(e))
         self.is_retired = True
