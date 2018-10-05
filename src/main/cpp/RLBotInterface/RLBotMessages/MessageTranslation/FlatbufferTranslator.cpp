@@ -169,6 +169,7 @@ namespace FlatbufferTranslator {
 	void fillSliceStruct(const rlbot::flat::PredictionSlice* slice, Slice* structSlice)
 	{
 		fillPhysicsStruct(slice->physics(), &structSlice->Physics);
+		structSlice->GameSeconds = slice->gameSeconds();
 	}
 
 	void translateToPrediction(ByteBuffer flatbufferData, BallPredictionPacket* packet)

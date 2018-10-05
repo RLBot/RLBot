@@ -96,6 +96,7 @@ struct DropShotBallInfo
 struct Slice
 {
 	Physics 				Physics;
+	float					GameSeconds;
 };
 
 struct BallPredictionPacket
