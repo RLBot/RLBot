@@ -176,6 +176,7 @@ table RBState {
 
 table PlayerPhysicsInfo {
   state:RBState;
+  input:ControllerState;
 }
 
 table BallPhysicsInfo {

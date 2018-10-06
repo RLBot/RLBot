@@ -211,6 +211,7 @@ class Atba(BaseAgent):
         tick = self.get_physics_tick()
         ball_state = tick.Ball().State()
         car_state = tick.Players(0).State()
+        car_input = tick.Players(0).Input()
         dump(f'tick time: {game_tick_packet.game_info.seconds_elapsed}')
         dump(f'ball frame: {ball_state.Frame()}')
         dump(f'ball loc x: {ball_state.Location().X()}')
@@ -222,6 +223,7 @@ class Atba(BaseAgent):
         dump(f'car quat x: {car_state.Quaternion().X()}')
         dump(f'car vel x: {car_state.Velocity().X()}')
         dump(f'car ang vel x: {car_state.AngularVelocity().X()}')
+        dump(f'car steer: {car_input.Steer()}')
 
         self.renderer.end_rendering()
 
