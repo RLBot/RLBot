@@ -6,6 +6,7 @@ import time
 
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
+from rlbot.messages.flat.PhysicsTick import PhysicsTick
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
@@ -64,6 +65,10 @@ class GameInterface:
         func.restype = ctypes.c_int
 
         func = self.game.UpdateLiveDataPacketFlatbuffer
+        func.argtypes = []
+        func.restype = ByteBuffer
+
+        func = self.game.UpdatePhysicsTickFlatbuffer
         func.argtypes = []
         func.restype = ByteBuffer
 
@@ -271,6 +276,16 @@ class GameInterface:
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
+
+    def get_physics_tick(self):
+        byte_buffer = self.game.UpdatePhysicsTickFlatbuffer()
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            self.game_status(None, RLBotCoreStatus.Success)
+            return PhysicsTick.GetRootAsPhysicsTick(proto_string, 0)
 
     def get_field_info(self) -> FieldInfo:
         """

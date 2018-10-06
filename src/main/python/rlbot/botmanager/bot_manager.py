@@ -91,6 +91,7 @@ class BotManager:
         agent._register_set_game_state(self.set_game_state)
         agent._register_ball_prediction(self.get_ball_prediction)
         agent._register_ball_prediction_struct(self.get_ball_prediction_struct)
+        agent._register_get_physics_tick(self.get_physics_tick)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
 
         # Once all engine setup is done, do the agent-specific initialization, if any:
@@ -199,6 +200,9 @@ class BotManager:
 
     def get_field_info(self):
         return self.game_interface.get_field_info()
+
+    def get_physics_tick(self):
+        return self.game_interface.get_physics_tick()
 
     def set_game_state(self, game_state):
         return self.game_interface.set_game_state(game_state)

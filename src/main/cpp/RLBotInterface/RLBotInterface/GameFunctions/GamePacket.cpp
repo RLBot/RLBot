@@ -50,4 +50,15 @@ namespace GameFunctions
 
 		return RLBotCoreStatus::Success;
 	}
+
+	///////////////
+	// PHYSICS TICK
+	///////////////
+
+	static BoostUtilities::SharedMemReader physicsTickMem(BoostConstants::PhysicsTickFlatName);
+
+	extern "C" ByteBuffer RLBOT_CORE_API UpdatePhysicsTickFlatbuffer()
+	{
+		return physicsTickMem.fetchData();
+	}
 }
