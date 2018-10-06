@@ -1,5 +1,5 @@
 import flatbuffers
-from rlbot.messages.flat import PhysicsTick
+from rlbot.messages.flat.PhysicsTick import PhysicsTick
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
 
@@ -99,6 +99,7 @@ class BaseAgent:
         return self.__field_info_func()
 
     def get_physics_tick(self) -> PhysicsTick:
+        """Get the most recent state of the physics engine."""
         return self.__get_physics_tick_func()
 
     def set_game_state(self, game_state: game_state_util.GameState):

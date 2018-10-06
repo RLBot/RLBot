@@ -277,7 +277,8 @@ class GameInterface:
             self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
 
-    def get_physics_tick(self):
+    def get_physics_tick(self) -> PhysicsTick:
+        """Get the most recent state of the physics engine."""
         byte_buffer = self.game.UpdatePhysicsTickFlatbuffer()
         if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
             # We're counting on this copying the data over to a new memory location so that the original

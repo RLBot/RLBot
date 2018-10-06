@@ -5,6 +5,7 @@ import traceback
 from datetime import datetime, timedelta
 
 from rlbot.botmanager.agent_metadata import AgentMetadata
+from rlbot.messages.flat.PhysicsTick import PhysicsTick
 from rlbot.utils import rate_limiter
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_interface import GameInterface
@@ -201,7 +202,8 @@ class BotManager:
     def get_field_info(self):
         return self.game_interface.get_field_info()
 
-    def get_physics_tick(self):
+    def get_physics_tick(self) -> PhysicsTick:
+        """Get the most recent state of the physics engine."""
         return self.game_interface.get_physics_tick()
 
     def set_game_state(self, game_state):
