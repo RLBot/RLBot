@@ -6,6 +6,9 @@ namespace BoostConstants
 	// Game Data
 	extern const char* GameDataFlatName;
 
+	// Game Data
+	extern const char* PhysicsTickFlatName;
+
 	// Player Input
 	extern const char* PlayerInputFlatQueueName;
 

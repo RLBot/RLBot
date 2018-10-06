@@ -9,6 +9,9 @@ namespace BoostConstants
 	// Game Data
 	const char* GameDataFlatName = "gameDataFlat";
 
+	// Physics Ticks
+	const char* PhysicsTickFlatName = "physicsTickFlat";
+
 	// Player Input
 	const char* PlayerInputFlatQueueName = "playerInputFlatQueue";
 

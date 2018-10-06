@@ -48,6 +48,13 @@ struct Rotator {
   roll:float;
 }
 
+struct Quaternion {
+  x:float;
+  y:float;
+  z:float;
+  w:float;
+}
+
 table Touch {
   /// The name of the player involved with the touch.
   playerName:string;
@@ -157,6 +164,30 @@ table GameTickPacket {
 }
 
 root_type GameTickPacket;
+
+/// The state of a rigid body in RL's physics engine.
+table RBState {
+  frame:int;
+  quaternion:Quaternion;
+  location:Vector3;
+  velocity:Vector3;
+  angularVelocity:Vector3;
+}
+
+table PlayerPhysicsInfo {
+  state:RBState;
+}
+
+table BallPhysicsInfo {
+  state:RBState;
+}
+
+table PhysicsTick {
+  ball:BallPhysicsInfo;
+  players:[PlayerPhysicsInfo];
+}
+
+root_type PhysicsTick;
 
 // This section deals with arena information, e.g. where the goals and boost locations are.
 

@@ -1,4 +1,5 @@
 import flatbuffers
+from rlbot.messages.flat import PhysicsTick
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
 
@@ -53,6 +54,7 @@ class BaseAgent:
     # passed in by the bot manager
     __field_info_func = None
     __game_state_func = None
+    __get_physics_tick_func = None
     renderer = None
 
     def __init__(self, name, team, index):
@@ -95,6 +97,9 @@ class BaseAgent:
         """Gets the information about the field.
         This does not change during a match so it only needs to be called once after the everything is loaded."""
         return self.__field_info_func()
+
+    def get_physics_tick(self) -> PhysicsTick:
+        return self.__get_physics_tick_func()
 
     def set_game_state(self, game_state: game_state_util.GameState):
         builder = flatbuffers.Builder(0)
@@ -202,6 +207,9 @@ class BaseAgent:
         This should not be overwritten by the agent.
         """
         self.__field_info_func = field_info_func
+
+    def _register_get_physics_tick(self, get_physics_tick_func):
+        self.__get_physics_tick_func = get_physics_tick_func
 
     def _register_set_game_state(self, game_state_func):
         self.__game_state_func = game_state_func
