@@ -208,22 +208,25 @@ class Atba(BaseAgent):
             self.renderer.draw_string_2d(10, cur_y, 2, 2, text, color)
             cur_y += 25
 
-        tick = self.get_physics_tick()
-        ball_state = tick.Ball().State()
-        car_state = tick.Players(0).State()
-        car_input = tick.Players(0).Input()
+        tick = self.get_rigid_body_tick()
+        ball_state = tick.ball.state
+        car_state = tick.players[0].state
+        car_input = tick.players[0].input
         dump(f'tick time: {game_tick_packet.game_info.seconds_elapsed}')
-        dump(f'ball frame: {ball_state.Frame()}')
-        dump(f'ball loc x: {ball_state.Location().X()}')
-        dump(f'ball quat x: {ball_state.Quaternion().X()}')
-        dump(f'ball vel x: {ball_state.Velocity().X()}')
-        dump(f'ball ang vel x: {ball_state.AngularVelocity().X()}')
-        dump(f'car frame: {car_state.Frame()}')
-        dump(f'car loc x: {car_state.Location().X()}')
-        dump(f'car quat x: {car_state.Quaternion().X()}')
-        dump(f'car vel x: {car_state.Velocity().X()}')
-        dump(f'car ang vel x: {car_state.AngularVelocity().X()}')
-        dump(f'car steer: {car_input.Steer()}')
+        dump(f'ball frame: {ball_state.frame}')
+        dump(f'ball loc x: {ball_state.location.x}')
+        dump(f'ball quat x: {ball_state.rotation.x}')
+        dump(f'ball vel x: {ball_state.velocity.x}')
+        dump(f'ball ang vel x: {ball_state.angular_velocity.x}')
+        dump(f'car frame: {car_state.frame}')
+        dump(f'car loc x: {car_state.location.x}')
+        dump(f'car quat x: {car_state.rotation.x}')
+
+        q = car_state.rotation
+        dump(f'car quat mag: {math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)}')
+        dump(f'car vel x: {car_state.velocity.x}')
+        dump(f'car ang vel x: {car_state.angular_velocity.x}')
+        dump(f'car steer: {car_input.steer}')
 
         self.renderer.end_rendering()
 
