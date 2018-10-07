@@ -14,11 +14,11 @@ struct Quaternion
 
 struct RigidBodyState
 {
+	int						Frame;
 	PyStruct::Vector3 		Location;
 	Quaternion 				Rotation;
 	PyStruct::Vector3		Velocity;
 	PyStruct::Vector3		AngularVelocity;
-	unsigned long			Frame;
 };
 
 struct PlayerRigidBodyState

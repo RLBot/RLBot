@@ -49,8 +49,8 @@ struct Rotator {
 }
 
 /// Expresses the rotation state of an object.
-/// x, y, and z can be considered an axis of rotation, and w the amount of rotation.
-/// Go here to build an intuition: https://quaternions.online/
+/// Learn about quaternions here: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+/// You can tinker with them here to build an intuition: https://quaternions.online/
 struct Quaternion {
   x:float;
   y:float;
