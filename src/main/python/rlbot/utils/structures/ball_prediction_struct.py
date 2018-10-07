@@ -12,4 +12,4 @@ class Slice(ctypes.Structure):
 
 class BallPrediction(ctypes.Structure):
     _fields_ = [("slices", Slice * MAX_SLICES),
-                ('slices_length', ctypes.c_int)]
+                ('num_slices', ctypes.c_int)]

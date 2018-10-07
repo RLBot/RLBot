@@ -183,7 +183,7 @@ namespace FlatbufferTranslator {
 
 		auto slices = flatPacket->slices();
 		if (slices) {
-			packet->SlicesLength = slices->size();
+			packet->NumSlices = slices->size();
 			for (int i = 0; i < slices->size(); i++) {
 				fillSliceStruct(slices->Get(i), &packet->Slice[i]);
 			}

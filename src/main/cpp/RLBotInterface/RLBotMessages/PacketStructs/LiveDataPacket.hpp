@@ -102,7 +102,7 @@ struct Slice
 struct BallPredictionPacket
 {
 	Slice				Slice[CONST_MAXSLICES];
-	int					SlicesLength;
+	int					NumSlices;
 };
 
 struct BallInfo
