@@ -20,6 +20,9 @@ repositories {
     jcenter()
 }
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 def javaDllDir = 'build/dll'
 
 dependencies {

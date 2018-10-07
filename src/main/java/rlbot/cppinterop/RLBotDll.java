@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -31,6 +32,7 @@ public class RLBotDll {
     // Java bots must either add this in their classpath, or specify the jna.library.path JVM arg.
     private static final String LOCAL_DLL_DIR = "build/dll";
     private static final String DLL_NAME_SANS_EXTENSION = "RLBot_Core_Interface";
+    private static final String DLL_NAME_SANS_EXTENSION_32 = "RLBot_Core_Interface_32";
 
     private static native ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
     private static native int UpdatePlayerInputFlatbuffer(Pointer ptr, int size);
@@ -49,19 +51,33 @@ public class RLBotDll {
                 return;
             }
 
+            // https://www.quora.com/How-do-you-know-if-youre-running-Java-in-32-bits-or-64-bits
+            boolean is64Bit = System.getProperty("os.arch").contains("64");
+            System.out.println("Detected " + (is64Bit ? "64" : "32") + "bit JVM.");
+
+            final String dllNameSansExtension = is64Bit ? DLL_NAME_SANS_EXTENSION : DLL_NAME_SANS_EXTENSION_32;
+
             final File directory = getDllDirectory();
 
             if (!directory.exists()) {
                 directory.mkdirs();
             }
 
+            String dllName = dllNameSansExtension + ".dll";
+
+            // Currently interfaceDllPath points to a 64 or 32 bit dll based on the bitness
+            // of the python installation. That's not what we want, we care about the
+            // bitness of the JVM, so pick the correct one from the folder.
+            Path dllSource = Paths.get(interfaceDllPath).getParent().resolve(dllName);
+
             // Copy the interface dll to a known location that is already on the classpath.
             Files.copy(
-                    Paths.get(interfaceDllPath),
-                    Paths.get(directory.toString(), DLL_NAME_SANS_EXTENSION + ".dll"),
+                    dllSource,
+                    Paths.get(directory.toString(), dllName),
                     StandardCopyOption.REPLACE_EXISTING);
 
-            Native.register(DLL_NAME_SANS_EXTENSION);
+            System.out.println("Loading DLL from " + dllSource);
+            Native.register(dllNameSansExtension);
 
             isInitialized = true;
         }
