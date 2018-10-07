@@ -13,11 +13,11 @@ class Quaternion(ctypes.Structure):
 
 
 class RigidBodyState(ctypes.Structure):
-    _fields_ = [("location", Vector3),
+    _fields_ = [("frame", ctypes.c_int),
+                ("location", Vector3),
                 ("rotation", Quaternion),
                 ("velocity", Vector3),
-                ("angular_velocity", Vector3),
-                ("frame", ctypes.c_ulong)]
+                ("angular_velocity", Vector3)]
 
 
 class PlayerRigidBodyState(ctypes.Structure):
@@ -32,4 +32,4 @@ class BallRigidBodyState(ctypes.Structure):
 class RigidBodyTick(ctypes.Structure):
     _fields_ = [("ball", BallRigidBodyState),
                 ("players", PlayerRigidBodyState * MAX_PLAYERS),
-                ("players_length", ctypes.c_int)]
+                ("num_players", ctypes.c_int)]
