@@ -6,7 +6,6 @@ import time
 
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
-from rlbot.messages.flat.PhysicsTick import PhysicsTick
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
@@ -15,6 +14,7 @@ from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, 
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
+from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 
 def wrap_callback(callback_func):
@@ -68,9 +68,9 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
-        func = self.game.UpdatePhysicsTickFlatbuffer
-        func.argtypes = []
-        func.restype = ByteBuffer
+        func = self.game.UpdateRigidBodyTick
+        func.argtypes = [ctypes.POINTER(RigidBodyTick)]
+        func.restype = ctypes.c_int
 
         func = self.game.UpdateFieldInfoFlatbuffer
         func.argtypes = []
@@ -277,16 +277,11 @@ class GameInterface:
             self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
 
-    def get_physics_tick(self) -> PhysicsTick:
+    def update_rigid_body_tick(self, rigid_body_tick: RigidBodyTick):
         """Get the most recent state of the physics engine."""
-        byte_buffer = self.game.UpdatePhysicsTickFlatbuffer()
-        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
-            # We're counting on this copying the data over to a new memory location so that the original
-            # pointer can be freed safely.
-            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
-            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
-            self.game_status(None, RLBotCoreStatus.Success)
-            return PhysicsTick.GetRootAsPhysicsTick(proto_string, 0)
+        rlbot_status = self.game.UpdateRigidBodyTick(rigid_body_tick)
+        self.game_status(None, rlbot_status)
+        return rigid_body_tick
 
     def get_field_info(self) -> FieldInfo:
         """

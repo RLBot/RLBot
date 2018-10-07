@@ -1,15 +1,14 @@
 import flatbuffers
-from rlbot.messages.flat.PhysicsTick import PhysicsTick
-from rlbot.utils.structures.ball_prediction_struct import BallPrediction
-from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
-
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
+from rlbot.utils import game_state_util
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.rendering.rendering_manager import RenderingManager
+from rlbot.utils.structures.ball_prediction_struct import BallPrediction
+from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
 from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
-from rlbot.utils import game_state_util
-from rlbot.utils.rendering.rendering_manager import RenderingManager
+from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
@@ -54,7 +53,7 @@ class BaseAgent:
     # passed in by the bot manager
     __field_info_func = None
     __game_state_func = None
-    __get_physics_tick_func = None
+    __get_rigid_body_tick_func = None
     renderer = None
 
     def __init__(self, name, team, index):
@@ -98,9 +97,9 @@ class BaseAgent:
         This does not change during a match so it only needs to be called once after the everything is loaded."""
         return self.__field_info_func()
 
-    def get_physics_tick(self) -> PhysicsTick:
+    def get_rigid_body_tick(self) -> RigidBodyTick:
         """Get the most recent state of the physics engine."""
-        return self.__get_physics_tick_func()
+        return self.__get_rigid_body_tick_func()
 
     def set_game_state(self, game_state: game_state_util.GameState):
         builder = flatbuffers.Builder(0)
@@ -209,8 +208,8 @@ class BaseAgent:
         """
         self.__field_info_func = field_info_func
 
-    def _register_get_physics_tick(self, get_physics_tick_func):
-        self.__get_physics_tick_func = get_physics_tick_func
+    def _register_get_rigid_body_tick(self, get_rigid_body_tick_func):
+        self.__get_rigid_body_tick_func = get_rigid_body_tick_func
 
     def _register_set_game_state(self, game_state_func):
         self.__game_state_func = game_state_func

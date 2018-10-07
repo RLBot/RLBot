@@ -33,6 +33,7 @@
     <ClInclude Include="MessageStructs\Message.hpp" />
     <ClInclude Include="MessageTranslation\FlatbufferTranslator.hpp" />
     <ClInclude Include="PacketStructs\LiveDataPacket.hpp" />
+    <ClInclude Include="PacketStructs\RigidBodyStructs.hpp" />
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />
     <ClInclude Include="PacketStructs\MatchSettings.hpp" />
     <ClInclude Include="PacketStructs\PacketStructs.hpp" />

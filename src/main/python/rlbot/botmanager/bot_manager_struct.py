@@ -1,10 +1,10 @@
 from rlbot.agents.base_agent import BaseAgent
-from rlbot.utils.logging_utils import get_logger
-
 from rlbot.botmanager.bot_manager import BotManager
-from rlbot.utils.structures import game_data_struct as gd
+from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures import ball_prediction_struct as bp
+from rlbot.utils.structures import game_data_struct as gd
 from rlbot.utils.structures.bot_input_struct import PlayerInput
+from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 
 class BotManagerStruct(BotManager):
@@ -15,7 +15,7 @@ class BotManagerStruct(BotManager):
         """
         super().__init__(terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
                          name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
-        self.game_tick_proto = None
+        self.rigid_body_tick = None
 
     def prepare_for_run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
@@ -24,6 +24,8 @@ class BotManagerStruct(BotManager):
         self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
         # Set up shared memory for Ball prediction
         self.ball_prediction = bp.BallPrediction()
+        # Set up shared memory for rigid body tick
+        self.rigid_body_tick = RigidBodyTick()
 
     def get_field_info(self):
         field_info = gd.FieldInfoPacket()

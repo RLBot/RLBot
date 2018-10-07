@@ -41,13 +41,16 @@ struct Vector3 {
   z:float;
 }
 
-// Values are in radians
+/// Expresses the rotation state of an object in Euler angles, with values in radians.
 struct Rotator {
   pitch:float;
   yaw:float;
   roll:float;
 }
 
+/// Expresses the rotation state of an object.
+/// x, y, and z can be considered an axis of rotation, and w the amount of rotation.
+/// Go here to build an intuition: https://quaternions.online/
 struct Quaternion {
   x:float;
   y:float;
@@ -165,30 +168,34 @@ table GameTickPacket {
 
 root_type GameTickPacket;
 
-/// The state of a rigid body in RL's physics engine.
-table RBState {
+/// The state of a rigid body in Rocket League's physics engine.
+/// This gets updated in time with the physics tick, not the rendering framerate.
+/// The frame field will be incremented every time the physics engine ticks.
+table RigidBodyState {
   frame:int;
-  quaternion:Quaternion;
   location:Vector3;
+  rotation:Quaternion;
   velocity:Vector3;
   angularVelocity:Vector3;
 }
 
-table PlayerPhysicsInfo {
-  state:RBState;
+/// Rigid body state for a player / car in the game. Includes the latest
+/// controller input, which is otherwise difficult to correlate with consequences.
+table PlayerRigidBodyState {
+  state:RigidBodyState;
   input:ControllerState;
 }
 
-table BallPhysicsInfo {
-  state:RBState;
+/// Rigid body state for the ball.
+table BallRigidBodyState {
+  state:RigidBodyState;
 }
 
-table PhysicsTick {
-  ball:BallPhysicsInfo;
-  players:[PlayerPhysicsInfo];
+/// Contains all rigid body state information.
+table RigidBodyTick {
+  ball:BallRigidBodyState;
+  players:[PlayerRigidBodyState];
 }
-
-root_type PhysicsTick;
 
 // This section deals with arena information, e.g. where the goals and boost locations are.
 

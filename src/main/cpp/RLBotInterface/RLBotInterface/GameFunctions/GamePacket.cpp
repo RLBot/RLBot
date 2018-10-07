@@ -57,8 +57,17 @@ namespace GameFunctions
 
 	static BoostUtilities::SharedMemReader physicsTickMem(BoostConstants::PhysicsTickFlatName);
 
-	extern "C" ByteBuffer RLBOT_CORE_API UpdatePhysicsTickFlatbuffer()
+	extern "C" ByteBuffer RLBOT_CORE_API UpdateRigidBodyTickFlatbuffer()
 	{
 		return physicsTickMem.fetchData();
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateRigidBodyTick(RigidBodyTick* rigidBodyTick)
+	{
+		ByteBuffer flatbuffer = UpdateRigidBodyTickFlatbuffer();
+		FlatbufferTranslator::translateToRigidBodyStruct(flatbuffer, rigidBodyTick);
+		delete[] flatbuffer.ptr;
+
+		return RLBotCoreStatus::Success;
 	}
 }
