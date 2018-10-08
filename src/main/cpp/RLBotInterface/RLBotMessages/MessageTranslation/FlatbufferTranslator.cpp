@@ -169,6 +169,7 @@ namespace FlatbufferTranslator {
 	void fillSliceStruct(const rlbot::flat::PredictionSlice* slice, Slice* structSlice)
 	{
 		fillPhysicsStruct(slice->physics(), &structSlice->Physics);
+		structSlice->GameSeconds = slice->gameSeconds();
 	}
 
 	void translateToPrediction(ByteBuffer flatbufferData, BallPredictionPacket* packet)
@@ -182,7 +183,7 @@ namespace FlatbufferTranslator {
 
 		auto slices = flatPacket->slices();
 		if (slices) {
-			packet->SlicesLength = slices->size();
+			packet->NumSlices = slices->size();
 			for (int i = 0; i < slices->size(); i++) {
 				fillSliceStruct(slices->Get(i), &packet->Slice[i]);
 			}

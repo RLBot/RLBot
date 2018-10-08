@@ -6,9 +6,10 @@ MAX_SLICES = 3600
 
 
 class Slice(ctypes.Structure):
-    _fields_ = [("physics", Physics)]
+    _fields_ = [("physics", Physics),
+                ("game_seconds", ctypes.c_float)]
 
 
 class BallPrediction(ctypes.Structure):
     _fields_ = [("slices", Slice * MAX_SLICES),
-                ('slices_length', ctypes.c_int)]
+                ('num_slices', ctypes.c_int)]

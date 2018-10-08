@@ -96,12 +96,13 @@ struct DropShotBallInfo
 struct Slice
 {
 	Physics 				Physics;
+	float					GameSeconds;
 };
 
 struct BallPredictionPacket
 {
 	Slice				Slice[CONST_MAXSLICES];
-	int					SlicesLength;
+	int					NumSlices;
 };
 
 struct BallInfo

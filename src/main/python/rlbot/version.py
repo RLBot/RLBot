@@ -7,11 +7,13 @@ __version__ = '1.2.0'
 
 release_notes = {
     '1.2.0': """
-    We now offer a 'RigidBodyTick' thanks to whatisaphone! It's a lower-level representation of
+    - We now offer a 'RigidBodyTick' thanks to whatisaphone! It's a lower-level representation of
     physics data which updates at 120Hz and is not subject to interpolation. You can still make a 
     great bot without it, but this feature is quite nice for the scientists among us.
     
     See https://github.com/RLBot/RLBotPythonExample/wiki/Rigid-Body-Tick for more details!
+    
+    - Faster way to access ball prediction data in python. - Skyborg
     """,
     '1.1.3': """
     - Faster way to access ball prediction data in python. - Skyborg

@@ -193,7 +193,7 @@ class Atba(BaseAgent):
 
             self.renderer.begin_rendering('prediction')
             colors = self.setup_rainbow()
-            for i in range(0, ball_prediction.slices_length):
+            for i in range(0, ball_prediction.num_slices):
                 current_slice = ball_prediction.slices[i].physics.location
                 self.renderer.draw_rect_3d(current_slice, 8, 8, True, colors[i % len(colors)], True)
             self.renderer.end_rendering()
