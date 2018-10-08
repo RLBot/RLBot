@@ -14,6 +14,7 @@ from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, 
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
+from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 
 def wrap_callback(callback_func):
@@ -66,6 +67,10 @@ class GameInterface:
         func = self.game.UpdateLiveDataPacketFlatbuffer
         func.argtypes = []
         func.restype = ByteBuffer
+
+        func = self.game.UpdateRigidBodyTick
+        func.argtypes = [ctypes.POINTER(RigidBodyTick)]
+        func.restype = ctypes.c_int
 
         func = self.game.UpdateFieldInfoFlatbuffer
         func.argtypes = []
@@ -271,6 +276,12 @@ class GameInterface:
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, RLBotCoreStatus.Success)
             return proto_string
+
+    def update_rigid_body_tick(self, rigid_body_tick: RigidBodyTick):
+        """Get the most recent state of the physics engine."""
+        rlbot_status = self.game.UpdateRigidBodyTick(rigid_body_tick)
+        self.game_status(None, rlbot_status)
+        return rigid_body_tick
 
     def get_field_info(self) -> FieldInfo:
         """
