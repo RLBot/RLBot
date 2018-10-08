@@ -148,6 +148,7 @@ class GameInterface:
         buf = chat_message_builder.Output()
         rlbot_status = self.game.SendQuickChat(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
+        return rlbot_status
 
     def create_callback(self):
         return

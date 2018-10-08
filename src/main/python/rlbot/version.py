@@ -3,9 +3,24 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.0.3'
+__version__ = '1.0.6'
 
 release_notes = {
+    '1.0.6': """
+    The latest Rocket League patch broke dodges for our bots; this update fixes it.
+    """,
+    '1.0.5': """
+    Maximum size for a render message has been decreased again because many people experienced
+    errors related to memory access. The limit is now only double the original.
+    """,
+    '1.0.4': """
+    - Maximum size for a render message has been increased by a factor of 100. This means you can
+      draw a lot of lines at once without getting errors.
+    - Boost amount for cars will now round up to the nearest integer, so 0.3% boost will now appear
+      as 1 instead of 0.
+    - Fixed a crash that would commonly happen after a match ends. As a side effect, you can no longer
+      see up-to-date player data during instant replays.
+    """,
     '1.0.3': """
     Time for the big 1.0 release! We actually left "beta" a long time ago so this isn't as big
     a milestone as the number implies, but we DO have two great new features!
