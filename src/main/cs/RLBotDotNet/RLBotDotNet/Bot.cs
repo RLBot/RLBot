@@ -80,6 +80,11 @@ namespace RLBotDotNet
             return RLBotInterface.GetBallPredictionData();
         }
 
+        protected RigidBodyTick GetRigidBodyTick()
+        {
+            return RLBotInterface.GetRigidBodyTick();
+        }
+
         protected void SendQuickChatFromAgent(bool teamOnly, QuickChatSelection quickChat)
         {
             /*

@@ -22,6 +22,9 @@ namespace RLBotDotNet.Utils
         public extern static ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static ByteBufferStruct UpdateRigidBodyTickFlatbuffer();
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static ByteBufferStruct UpdateFieldInfoFlatbuffer();
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
@@ -58,6 +61,24 @@ namespace RLBotDotNet.Utils
             Free(byteBuffer.ptr);
 
             return GameTickPacket.GetRootAsGameTickPacket(new ByteBuffer(bufferBytes));
+        }
+
+
+        /// <summary>
+        /// Returns the current frame's RigidBodyTick. 
+        /// </summary>
+        /// <returns>The current frame's RigidBodyTick.</returns>
+        public static RigidBodyTick GetRigidBodyTick()
+        {
+            ByteBufferStruct byteBuffer = UpdateRigidBodyTickFlatbuffer();
+            if (byteBuffer.size < 4)
+                throw new FlatbuffersPacketException("Flatbuffers packet is too small. Match is probably not running!");
+
+            byte[] bufferBytes = new byte[byteBuffer.size];
+            Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
+
+            return RigidBodyTick.GetRootAsRigidBodyTick(new ByteBuffer(bufferBytes));
         }
 
         /// <summary>
