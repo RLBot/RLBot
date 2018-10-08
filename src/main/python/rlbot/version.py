@@ -6,6 +6,9 @@
 __version__ = '1.1.3'
 
 release_notes = {
+    '1.1.4': """
+    - Faster way to access ball prediction data in python. - Skyborg
+    """,
     '1.1.3': """
     - Faster way to access ball prediction data in python. - Skyborg
     - Java bots will now shut down when the python framework quits. This has been necessary recently
