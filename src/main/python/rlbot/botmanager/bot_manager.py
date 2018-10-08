@@ -1,4 +1,3 @@
-import multiprocessing as mp
 import os
 import time
 import traceback
@@ -52,6 +51,8 @@ class BotManager:
         self.reset_chat_time = True
         self.game_tick_packet = None
         self.bot_input = None
+        self.ball_prediction = None
+        self.rigid_body_tick = None
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -89,6 +90,8 @@ class BotManager:
         agent._register_field_info(self.get_field_info)
         agent._register_set_game_state(self.set_game_state)
         agent._register_ball_prediction(self.get_ball_prediction)
+        agent._register_ball_prediction_struct(self.get_ball_prediction_struct)
+        agent._register_get_rigid_body_tick(self.get_rigid_body_tick)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
 
         # Once all engine setup is done, do the agent-specific initialization, if any:
@@ -198,11 +201,18 @@ class BotManager:
     def get_field_info(self):
         return self.game_interface.get_field_info()
 
+    def get_rigid_body_tick(self):
+        """Get the most recent state of the physics engine."""
+        return self.game_interface.update_rigid_body_tick(self.rigid_body_tick)
+
     def set_game_state(self, game_state):
         return self.game_interface.set_game_state(game_state)
 
     def get_ball_prediction(self):
         return self.game_interface.get_ball_prediction()
+
+    def get_ball_prediction_struct(self):
+        raise NotImplementedError
 
     def prepare_for_run(self):
         raise NotImplementedError

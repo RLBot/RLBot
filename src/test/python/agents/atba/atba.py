@@ -14,6 +14,7 @@ class Atba(BaseAgent):
     test_dropshot = False
     test_state = False
     test_ball_prediction = False
+    test_physics_tick = False
     cleared = False
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
@@ -55,6 +56,9 @@ class Atba(BaseAgent):
 
         if self.test_ball_prediction:
             self.render_ball_prediction()
+
+        if self.test_physics_tick:
+            self.do_physics_tick_test(game_tick_packet)
 
         controller_state.throttle = 1.0
         controller_state.steer = turn
@@ -146,6 +150,15 @@ class Atba(BaseAgent):
             self.renderer.draw_string_2d(10, 70, 2, 2, 'num open: ' + str(num_open), self.renderer.white())
             self.renderer.draw_string_2d(10, 90, 2, 2, 'num unknown: ' + str(num_unknown), self.renderer.white())
 
+            absorbed_force = game_tick_packet.game_ball.drop_shot_info.absorbed_force
+            self.renderer.draw_string_2d(10, 110, 2, 2, 'absorbed force: ' + str(absorbed_force), self.renderer.white())
+
+            damage_index = game_tick_packet.game_ball.drop_shot_info.damage_index
+            self.renderer.draw_string_2d(10, 130, 2, 2, 'damage index: ' + str(damage_index), self.renderer.white())
+
+            force_accum_recent = game_tick_packet.game_ball.drop_shot_info.force_accum_recent
+            self.renderer.draw_string_2d(10, 150, 2, 2, 'force accum recent: ' + str(force_accum_recent), self.renderer.white())
+
         self.renderer.end_rendering()
 
     def set_state_test(self, game_tick_packet: GameTickPacket):
@@ -174,16 +187,48 @@ class Atba(BaseAgent):
         self.set_game_state(game_state)
 
     def render_ball_prediction(self):
-        ball_prediction = self.get_ball_prediction()
+        ball_prediction = self.get_ball_prediction_struct()
 
         if ball_prediction is not None:
 
             self.renderer.begin_rendering('prediction')
             colors = self.setup_rainbow()
-            for i in range(0, ball_prediction.SlicesLength()):
-                current_slice = ball_prediction.Slices(i).Physics().Location()
+            for i in range(0, ball_prediction.num_slices):
+                current_slice = ball_prediction.slices[i].physics.location
                 self.renderer.draw_rect_3d(current_slice, 8, 8, True, colors[i % len(colors)], True)
             self.renderer.end_rendering()
+
+    def do_physics_tick_test(self, game_tick_packet: GameTickPacket) -> None:
+        self.renderer.begin_rendering('physics_tick_test')
+        color = self.renderer.white()
+        cur_y = 200
+
+        def dump(text: str) -> None:
+            nonlocal cur_y
+            self.renderer.draw_string_2d(10, cur_y, 2, 2, text, color)
+            cur_y += 25
+
+        tick = self.get_rigid_body_tick()
+        ball_state = tick.ball.state
+        car_state = tick.players[0].state
+        car_input = tick.players[0].input
+        dump(f'tick time: {game_tick_packet.game_info.seconds_elapsed}')
+        dump(f'ball frame: {ball_state.frame}')
+        dump(f'ball loc x: {ball_state.location.x}')
+        dump(f'ball quat x: {ball_state.rotation.x}')
+        dump(f'ball vel x: {ball_state.velocity.x}')
+        dump(f'ball ang vel x: {ball_state.angular_velocity.x}')
+        dump(f'car frame: {car_state.frame}')
+        dump(f'car loc x: {car_state.location.x}')
+        dump(f'car quat x: {car_state.rotation.x}')
+
+        q = car_state.rotation
+        dump(f'car quat mag: {math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)}')
+        dump(f'car vel x: {car_state.velocity.x}')
+        dump(f'car ang vel x: {car_state.angular_velocity.x}')
+        dump(f'car steer: {car_input.steer}')
+
+        self.renderer.end_rendering()
 
     def setup_rainbow(self):
         return [
@@ -202,6 +247,7 @@ class Atba(BaseAgent):
         self.test_dropshot = config_header.getboolean('test_dropshot')
         self.test_state = config_header.getboolean('test_state')
         self.test_ball_prediction = config_header.getboolean('test_ball_prediction')
+        self.test_physics_tick = config_header.getboolean('test_physics_tick')
 
     @staticmethod
     def create_agent_configurations(config: ConfigObject):
@@ -212,6 +258,7 @@ class Atba(BaseAgent):
         params.add_value('test_dropshot', bool, default=False, description='if true bot will render dropshot info')
         params.add_value('test_state', bool, default=False, description='if true bot will alter its game state')
         params.add_value('test_ball_prediction', bool, default=False, description='if true bot will render ball prediction')
+        params.add_value('test_physics_tick', bool, default=False, description='if true bot will render ball prediction')
 
 class Vector2:
     def __init__(self, x=0.0, y=0.0):

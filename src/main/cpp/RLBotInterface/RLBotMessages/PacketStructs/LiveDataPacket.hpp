@@ -6,6 +6,7 @@
 #define CONST_MaxTiles		200
 #define CONST_MaxGoals		200
 #define CONST_MaxPlayers	10
+#define CONST_MAXSLICES		3600
 
 struct ScoreInfo
 {
@@ -85,10 +86,30 @@ struct Touch
 	PyStruct::Vector3		HitNormal;
 };
 
+struct DropShotBallInfo
+{
+	float					AbsorbedForce;
+	int						DamageIndex;
+	float					ForceAccumRecent;
+};
+
+struct Slice
+{
+	Physics 				Physics;
+	float					GameSeconds;
+};
+
+struct BallPredictionPacket
+{
+	Slice				Slice[CONST_MAXSLICES];
+	int					NumSlices;
+};
+
 struct BallInfo
 {
 	Physics 				Physics;
 	Touch					LatestTouch;
+	DropShotBallInfo		DropShotInfo;
 };
 
 struct GameInfo

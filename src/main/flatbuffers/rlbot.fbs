@@ -41,11 +41,21 @@ struct Vector3 {
   z:float;
 }
 
-// Values are in radians
+/// Expresses the rotation state of an object in Euler angles, with values in radians.
 struct Rotator {
   pitch:float;
   yaw:float;
   roll:float;
+}
+
+/// Expresses the rotation state of an object.
+/// Learn about quaternions here: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+/// You can tinker with them here to build an intuition: https://quaternions.online/
+struct Quaternion {
+  x:float;
+  y:float;
+  z:float;
+  w:float;
 }
 
 table Touch {
@@ -97,9 +107,16 @@ table PlayerInfo {
   boost:int;
 }
 
+table DropShotBallInfo {
+  absorbedForce:float;
+  damageIndex:int;
+  forceAccumRecent:float;
+}
+
 table BallInfo {
   physics:Physics;
   latestTouch:Touch;
+  dropShotInfo:DropShotBallInfo;
 }
 
 table BoostPadState {
@@ -150,6 +167,35 @@ table GameTickPacket {
 }
 
 root_type GameTickPacket;
+
+/// The state of a rigid body in Rocket League's physics engine.
+/// This gets updated in time with the physics tick, not the rendering framerate.
+/// The frame field will be incremented every time the physics engine ticks.
+table RigidBodyState {
+  frame:int;
+  location:Vector3;
+  rotation:Quaternion;
+  velocity:Vector3;
+  angularVelocity:Vector3;
+}
+
+/// Rigid body state for a player / car in the game. Includes the latest
+/// controller input, which is otherwise difficult to correlate with consequences.
+table PlayerRigidBodyState {
+  state:RigidBodyState;
+  input:ControllerState;
+}
+
+/// Rigid body state for the ball.
+table BallRigidBodyState {
+  state:RigidBodyState;
+}
+
+/// Contains all rigid body state information.
+table RigidBodyTick {
+  ball:BallRigidBodyState;
+  players:[PlayerRigidBodyState];
+}
 
 // This section deals with arena information, e.g. where the goals and boost locations are.
 

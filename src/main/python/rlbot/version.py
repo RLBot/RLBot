@@ -3,9 +3,39 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.0.6'
+__version__ = '1.2.0'
 
 release_notes = {
+    '1.2.0': """
+    - We now offer a 'RigidBodyTick' thanks to whatisaphone! It's a lower-level representation of
+    physics data which updates at 120Hz and is not subject to interpolation. You can still make a 
+    great bot without it, but this feature is quite nice for the scientists among us.
+    
+    See https://github.com/RLBot/RLBotPythonExample/wiki/Rigid-Body-Tick for more details!
+    
+    - Faster way to access ball prediction data in python. - Skyborg
+    """,
+    '1.1.3': """
+    - Faster way to access ball prediction data in python. - Skyborg
+    - Java bots will now shut down when the python framework quits. This has been necessary recently
+    to avoid buggy situations.
+    - Shutting down the python framework will no longer attempt to kill bots twice in a row.
+    - Clicking on the "Run" button twice in a row in the GUI will no longer spawn duplicate processes.
+    """,
+    '1.1.2': """
+    Faster way to access ball prediction data in python. - Skyborg
+    """,
+    '1.1.1': """
+    You can now get information about the ball's status in Dropshot mode thanks to hallo_doei!
+    Read all about it at https://github.com/RLBot/RLBot/wiki/Dropshot
+
+    Other changes:
+    - The loadout config for orange team is now respected again. - ccman32
+    - Fixed a bug where the GUI would crash with a "KeyError". - hallo_doei
+    - Avoiding and suppressing some game crashes, and also restoring the
+      ability to get game tick data during replays and the postgame. - tarehart
+    - Fixed a bug where bots would dodge when they intended to double jump. -tarehart
+    """,
     '1.0.6': """
     The latest Rocket League patch broke dodges for our bots; this update fixes it.
     """,

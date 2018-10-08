@@ -34,7 +34,8 @@ namespace FlatbufferTranslator {
 	void fillPhysicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
 	{
 		fillVector3Struct(physics->location(), &structPhysics->Location);
-		fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
+		if (physics->rotation())  // We don't always send a rotation value because it's useless info for the ball during predictions (which assume a round ball).
+			fillRotatorStruct(physics->rotation(), &structPhysics->Rotation);
 		fillVector3Struct(physics->velocity(), &structPhysics->Velocity);
 		fillVector3Struct(physics->angularVelocity(), &structPhysics->AngularVelocity);
 	}
@@ -100,6 +101,13 @@ namespace FlatbufferTranslator {
 			fillStructName(std::string(""), structBall->LatestTouch.PlayerName);
 		}
 
+		if (flatbuffers::IsFieldPresent(ball, rlbot::flat::BallInfo::VT_DROPSHOTINFO))
+		{
+			structBall->DropShotInfo.AbsorbedForce = ball->dropShotInfo()->absorbedForce();
+			structBall->DropShotInfo.DamageIndex = ball->dropShotInfo()->damageIndex();
+			structBall->DropShotInfo.ForceAccumRecent = ball->dropShotInfo()->forceAccumRecent();
+		}
+
 	}
 
 	void fillGameInfoStruct(const rlbot::flat::GameInfo* gameInfo, GameInfo* structGameInfo)
@@ -157,6 +165,31 @@ namespace FlatbufferTranslator {
 		}
 	}
 
+	//void fillPlayerStruct(const rlbot::flat::PlayerInfo* player, PlayerInfo* structPlayer)
+	void fillSliceStruct(const rlbot::flat::PredictionSlice* slice, Slice* structSlice)
+	{
+		fillPhysicsStruct(slice->physics(), &structSlice->Physics);
+		structSlice->GameSeconds = slice->gameSeconds();
+	}
+
+	void translateToPrediction(ByteBuffer flatbufferData, BallPredictionPacket* packet)
+	{
+		if (flatbufferData.size == 0)
+		{
+			return; // Nothing to do.
+		}
+
+		auto flatPacket = flatbuffers::GetRoot<rlbot::flat::BallPrediction>(flatbufferData.ptr);
+
+		auto slices = flatPacket->slices();
+		if (slices) {
+			packet->NumSlices = slices->size();
+			for (int i = 0; i < slices->size(); i++) {
+				fillSliceStruct(slices->Get(i), &packet->Slice[i]);
+			}
+		}
+	}
+
 	void fillBoostPadStruct(const rlbot::flat::BoostPad* boostPad, BoostPad* structBoostPad)
 	{
 		fillVector3Struct(boostPad->location(), &structBoostPad->Location);
@@ -210,5 +243,66 @@ namespace FlatbufferTranslator {
 		auto input = rlbot::flat::CreatePlayerInput(*builder, playerIndex, controls);
 
 		builder->Finish(input);
+	}
+
+
+	void fillQuaternionStruct(const rlbot::flat::Quaternion* quaternion, Quaternion* structQuaternion)
+	{
+		structQuaternion->X = quaternion->x();
+		structQuaternion->Y = quaternion->y();
+		structQuaternion->Z = quaternion->z();
+		structQuaternion->W = quaternion->w();
+	}
+
+	void fillRBStateStruct(const rlbot::flat::RigidBodyState* rbState, RigidBodyState* structRBState)
+	{
+		structRBState->Frame = rbState->frame();
+		fillVector3Struct(rbState->location(), &structRBState->Location);
+		fillQuaternionStruct(rbState->rotation(), &structRBState->Rotation);
+		fillVector3Struct(rbState->velocity(), &structRBState->Velocity);
+		fillVector3Struct(rbState->angularVelocity(), &structRBState->AngularVelocity);
+	}
+
+	void fillPlayerInputStruct(const rlbot::flat::ControllerState* controllerState, PlayerInput* structPlayerInput)
+	{
+		structPlayerInput->Throttle = controllerState->throttle();
+		structPlayerInput->Steer = controllerState->steer();
+		structPlayerInput->Pitch = controllerState->pitch();
+		structPlayerInput->Yaw = controllerState->yaw();
+		structPlayerInput->Roll = controllerState->roll();
+		structPlayerInput->Jump = controllerState->jump();
+		structPlayerInput->Boost = controllerState->boost();
+		structPlayerInput->Handbrake = controllerState->handbrake();
+	}
+
+	void fillPlayerPhysicsStruct(const rlbot::flat::PlayerRigidBodyState* playerState, PlayerRigidBodyState* structPlayerState)
+	{
+		fillRBStateStruct(playerState->state(), &structPlayerState->State);
+		fillPlayerInputStruct(playerState->input(), &structPlayerState->Input);
+	}
+
+	void fillBallPhysicsStruct(const rlbot::flat::BallRigidBodyState* ballState, BallRigidBodyState* structBallState)
+	{
+		fillRBStateStruct(ballState->state(), &structBallState->State);
+	}
+
+	void translateToRigidBodyStruct(ByteBuffer flatbufferData, RigidBodyTick* structTick)
+	{
+		if (flatbufferData.size == 0)
+		{
+			return; // Nothing to do.
+		}
+
+		auto physicsTick = flatbuffers::GetRoot<rlbot::flat::RigidBodyTick>(flatbufferData.ptr);
+
+		auto players = physicsTick->players();
+		if (players) {
+			structTick->NumPlayers = players->size();
+			for (int i = 0; i < players->size(); i++) {
+				fillPlayerPhysicsStruct(players->Get(i), &structTick->Players[i]);
+			}
+		}
+
+		fillBallPhysicsStruct(physicsTick->ball(), &structTick->Ball);
 	}
 }
