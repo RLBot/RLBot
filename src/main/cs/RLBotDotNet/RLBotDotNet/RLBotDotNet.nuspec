@@ -12,10 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Added support for ball path prediction, so you can do better wall reads, catches, aerials, and dribbles.
-      See https://github.com/RLBot/RLBotCSharpExample/wiki/Ball-Path-Prediction for details and documentation.
-
-      Thanks to kipje13 for wiring up the ball path prediction.
+      Adds support for reading raw physics data which contains non interpolated positions, rotations... etc.
     </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>rocket-league</tags>
