@@ -12,7 +12,7 @@ from rlbot.gui.presets import AgentPreset, LoadoutPreset
 from rlbot.gui.index_manager import IndexManager
 from rlbot.gui.design.qt_gui import Ui_MainWindow
 from rlbot.gui.gui_agent import GUIAgent
-from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog
+from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog, index_of_config_path_in_combobox
 from rlbot.gui.mutator_editor import MutatorEditor
 
 from rlbot.utils.file_util import get_python_root, get_rlbot_directory
@@ -167,6 +167,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 child.currentTextChanged.connect(self.bot_config_edit_event)
         self.loadout_preset_toolbutton.clicked.connect(self.car_customisation.popup)
         self.agent_preset_toolbutton.clicked.connect(self.agent_customisation.popup)
+        self.preset_load_toplevel_pushbutton.clicked.connect(self.load_preset_toplevel)
 
         for child in self.match_settings_groupbox.findChildren(QWidget):
             if isinstance(child, QComboBox):
@@ -177,6 +178,21 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.edit_mutators_pushbutton.clicked.connect(self.mutator_customisation.popup)
         self.kill_bots_pushbutton.clicked.connect(self.kill_bots)
         self.run_button.clicked.connect(self.run_button_pressed)
+
+    def load_preset_toplevel(self):
+        preset = self.agent_customisation.load_preset_cfg()
+        if preset is None:
+            return
+
+        self.agent_preset_combobox.setCurrentText(preset.get_name())
+
+        loadout_preset = self.add_loadout_preset(preset.looks_path)
+        self.car_customisation.update_presets_widgets()
+
+        loadout_index = index_of_config_path_in_combobox(self.loadout_preset_combobox, loadout_preset.config_path)
+        self.loadout_preset_combobox.setCurrentIndex(loadout_index)
+
+        self.current_bot.set_loadout_preset(loadout_preset)
 
     def bot_config_edit_event(self, value=None):
         """
@@ -220,11 +236,18 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.update_teams_listwidgets()
             listwidget.setCurrentRow(row)
         elif sender is self.loadout_preset_combobox:
-            if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
-                self.current_bot.set_loadout_preset(self.loadout_presets[value])
+            if self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
+
+                index = self.loadout_preset_combobox.currentIndex()
+                preset = self.loadout_preset_combobox.itemData(index)
+
+                self.current_bot.set_loadout_preset(preset)
         elif sender is self.agent_preset_combobox:
             if value and self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
-                self.current_bot.set_agent_preset(self.agent_presets[value])
+
+                preset = self.agent_preset_combobox.currentData()
+
+                self.current_bot.set_agent_preset(preset)
                 agent.set_name(agent.agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
                 self.ign_lineedit.setText(agent.ingame_name)
                 if not agent.get_team():
@@ -234,6 +257,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 row = listwidget.currentRow()
                 self.update_teams_listwidgets()
                 listwidget.setCurrentRow(row)
+
+                loadout_index = index_of_config_path_in_combobox(self.loadout_preset_combobox, preset.looks_path)
+                if loadout_index is not None:
+                    self.loadout_preset_combobox.setCurrentIndex(loadout_index)
+
         elif sender is self.bot_level_slider:
             agent.set_bot_skill(value / 100)
 
@@ -250,14 +278,22 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.rlbot_frame.setHidden(False)
             self.extra_line.setHidden(False)
             self.psyonix_bot_frame.setHidden(True)
+            self.appearance_frame.setHidden(False)
         elif self.bot_type_combobox.currentText() == 'Psyonix':
             self.psyonix_bot_frame.setHidden(False)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(False)
-        elif self.bot_type_combobox.currentText() == 'Human' or self.bot_type_combobox.currentText() == 'Party Member Bot':
+            self.appearance_frame.setHidden(False)
+        elif self.bot_type_combobox.currentText() == 'Human':
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
+            self.appearance_frame.setHidden(True)
+        elif self.bot_type_combobox.currentText() == 'Party Member Bot':
+            self.rlbot_frame.setHidden(False)
+            self.extra_line.setHidden(True)
+            self.psyonix_bot_frame.setHidden(True)
+            self.appearance_frame.setHidden(True)
         if self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
             config_type = self.bot_type_combobox.currentText().lower().replace(" ", "_")
             self.current_bot.set_participant_type(config_type)
@@ -419,7 +455,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         else:
             self.orange_radiobutton.setChecked(True)
         self.ign_lineedit.setText(agent.ingame_name)
-        self.loadout_preset_combobox.setCurrentText(agent.get_loadout_preset().get_name())
+
+        loadout_index = index_of_config_path_in_combobox(self.loadout_preset_combobox, agent.get_loadout_preset().config_path)
+        self.loadout_preset_combobox.setCurrentIndex(loadout_index or 0)
+
         self.agent_preset_combobox.blockSignals(True)
         self.agent_preset_combobox.setCurrentText(agent.get_agent_preset().get_name())
         self.agent_preset_combobox.blockSignals(False)
@@ -493,6 +532,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         if agent is None:
             return
         agent.set_team(team_index)
+        self.car_customisation.update_presets_widgets()
+        self.agent_customisation.update_presets_widgets()
         self.update_teams_listwidgets()
         if agent.get_team() == 0:
             self.blue_listwidget.setCurrentItem(self.blue_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
@@ -530,14 +571,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
         loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, overall_index)
         if loadout_file is None or loadout_file == "None":
-            directory = os.path.dirname(os.path.realpath(agent.get_agent_config_path()))
-            file_path = agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-            loadout_file = os.path.realpath(os.path.join(directory, file_path))
+            loadout_preset = self.add_loadout_preset(agent_preset.looks_path)
         else:
             directory = get_python_root()
             file_path = loadout_file
             loadout_file = os.path.realpath(os.path.join(directory, file_path))
-        loadout_preset = self.add_loadout_preset(loadout_file)
+            loadout_preset = self.add_loadout_preset(loadout_file)
         agent.set_loadout_preset(loadout_preset)
         agent.set_name(agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
         return agent
@@ -596,10 +635,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             name = pathlib.Path(file_path).stem
         else:
             name = "new preset"
-        if name in self.loadout_presets:
-            return self.loadout_presets[name]
+        if file_path in self.loadout_presets:
+            return self.loadout_presets[file_path]
         preset = LoadoutPreset(name, file_path)
-        self.loadout_presets[preset.get_name()] = preset
+        self.loadout_presets[preset.config_path] = preset
         return preset
 
     def add_agent_preset(self, file_path):
