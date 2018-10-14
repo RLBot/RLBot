@@ -2,8 +2,9 @@ import os
 from PyQt5.QtCore import QTimer
 import configparser
 
-from rlbot.agents.base_agent import BaseAgent
+from rlbot.agents.base_agent import BaseAgent, LOOKS_CONFIG_KEY
 from rlbot.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
+from rlbot.parsing.agent_config_parser import get_bot_config_bundle, get_looks_config
 from rlbot.utils.class_importer import import_agent
 from rlbot.utils.file_util import get_python_root
 
@@ -76,21 +77,19 @@ class AgentPreset(Preset):
     A class extending Preset to handle an AgentPreset, which is based on the agent configuration file and which also contains the Agent class
     """
     def __init__(self, name, file_path=None):
-        basic_config = BaseAgent.base_create_agent_configurations()
 
         if file_path is not None and os.path.isfile(file_path):
-            file_path = os.path.realpath(file_path)
-            basic_config.parse_file(file_path)
+            config_bundle = get_bot_config_bundle(file_path)
+            self.looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
+            python_file_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+
         else:
             base_agent_path = os.path.join(get_python_root(), "rlbot", "agents", "base_agent.py")
             try:
-                rel_path = os.path.relpath(base_agent_path, get_python_root())
+                python_file_path = os.path.relpath(base_agent_path, get_python_root())
             except ValueError:
-                rel_path = base_agent_path
-            basic_config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, rel_path)
+                python_file_path = base_agent_path
 
-        python_file_path = os.path.realpath(os.path.join(os.path.dirname(
-            os.path.realpath(file_path)), basic_config.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)))
         try:
             self.agent_class = import_agent(python_file_path).get_loaded_class()
         except (ValueError, ModuleNotFoundError):
@@ -98,7 +97,7 @@ class AgentPreset(Preset):
 
         super().__init__(self.agent_class.base_create_agent_configurations(), file_path, name)
         # Make sure the path to the python file actually gets set to that path, even if there was no config at file_path
-        self.config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, basic_config.get(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY))
+        self.config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, python_file_path)
 
     def load(self, file_path=None):
         self.config = self.agent_class.base_create_agent_configurations()
