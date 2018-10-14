@@ -45,6 +45,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.match_process = None
         self.overall_config = None
         self.overall_config_path = None
+        self.launch_in_progress = False
 
         self.car_customisation = CarCustomisationDialog(self)
         self.agent_customisation = AgentCustomisationDialog(self)
@@ -93,11 +94,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         return config
 
     def run_button_pressed(self):
+        if self.launch_in_progress:
+            # Do nothing if we're already in the process of launching a configuration.
+            # Attempting to run again when we're in this state can result in duplicate processes.
+            return
+        self.launch_in_progress = True
         if self.setup_manager is not None:
-            if self.setup_manager.quit_event.is_set():
-                # Do nothing if the quit event is set. This means that we're already trying to shut down.
-                # Attempting to run again when we're in this state can result in duplicate processes.
-                return
             self.setup_manager.shut_down(time_limit=5, kill_all_pids=False)
             # Leave any external processes alive, e.g. Java or C#, since it can
             # be useful to keep them around. The user can kill them with the
@@ -130,6 +132,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.setup_manager.startup()
         self.setup_manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
         self.setup_manager.launch_bot_processes()
+        self.launch_in_progress = False
         self.setup_manager.run()
 
     def connect_functions(self):
