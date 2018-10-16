@@ -3,9 +3,21 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 
 release_notes = {
+    '1.2.3': """
+    ***************************************************
+    *  Fix for dodge cancels / half flips! - ccman32  *
+    ***************************************************
+    
+    Plus:
+    - Changing the rendering strategy for 3D lines that go past the camera. Formerly it was
+      "draw it, even though it's crazy sometimes", now it will be "don't draw it".
+    - Showing the rate that inputs are received for each player index when you press the
+      [home] key. Toggle back off with the [end] key.
+    - Fixed a bug where party_member_bot could get influenced by real controller input.
+    """,
     '1.2.2': """
     - Rearranged the GUI a bit, and made it load and track appearance configs more effectively.
     - Fixed bug where RUN button behavior in the GUI would not work after killing bots.
