@@ -31,7 +31,6 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         """
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon(os.path.join("images", "RLBot_logo.png")))
         self.overall_config = None
         self.index_manager = IndexManager(10)
 
