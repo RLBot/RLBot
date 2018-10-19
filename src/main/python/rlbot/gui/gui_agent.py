@@ -28,7 +28,9 @@ class GUIAgent:
         """
         loadout_config = self.loadout_preset.config.copy()
 
-        config_path = os.path.dirname(self.agent_preset.config_path)
+        config_path = None
+        if self.agent_preset.config_path is not None:  # Might be none if preset was never saved to disk.
+            config_path = os.path.dirname(self.agent_preset.config_path)
         config = self.agent_preset.config.copy()
         config.set_value(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, self.ingame_name)
         config_bundle = BotConfigBundle(config_path, config)

@@ -53,6 +53,13 @@ def import_class_with_base(python_file, base_class) -> ExternalClassWrapper:
 
 
 def load_external_class(python_file, base_class):
+
+    # There's a special case where python_file may be pointing at the base agent definition here in the framework.
+    # This is sometimes done as a default and we want to allow it. Short-circuit the logic because
+    # loading it as if it's an external class is a real mess.
+    if os.path.abspath(python_file) == os.path.abspath(inspect.getfile(BaseAgent)):
+        return BaseAgent, BaseAgent.__module__
+
     dir_name = os.path.dirname(python_file)
     module_name = os.path.splitext(os.path.basename(python_file))[0]
     keys_before = set(sys.modules.keys())
