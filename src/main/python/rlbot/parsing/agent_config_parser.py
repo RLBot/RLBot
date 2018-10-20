@@ -26,7 +26,12 @@ class BotConfigBundle:
         self.base_agent_config.parse_file(self.config_obj)
 
     def get_absolute_path(self, header, key):
-        joined = os.path.join(self.config_directory, self.base_agent_config.get(header, key))
+        path = self.base_agent_config.get(header, key)
+        if os.path.isabs(path):
+            return path
+        if self.config_directory is None:
+            raise ValueError("Can't locate {} because it's a relative path and we don't know where to look!".format(path))
+        joined = os.path.join(self.config_directory, path)
         return os.path.realpath(joined)
 
 

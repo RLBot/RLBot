@@ -3,10 +3,10 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.2.3'
+__version__ = '1.2.4'
 
 release_notes = {
-    '1.2.3': """
+    '1.2.4': """
     ***************************************************
     *  Fix for dodge cancels / half flips! - ccman32  *
     ***************************************************
@@ -17,6 +17,8 @@ release_notes = {
     - Showing the rate that inputs are received for each player index when you press the
       [home] key. Toggle back off with the [end] key.
     - Fixed a bug where party_member_bot could get influenced by real controller input.
+    - Creating new presets in the GUI works better now.
+    - Got rid of the libpng warning seen when using the GUI.
     """,
     '1.2.2': """
     - Rearranged the GUI a bit, and made it load and track appearance configs more effectively.

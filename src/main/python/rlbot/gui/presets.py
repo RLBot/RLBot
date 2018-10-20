@@ -1,12 +1,13 @@
-import os
-from PyQt5.QtCore import QTimer
 import configparser
+import inspect
+import os
+
+from PyQt5.QtCore import QTimer
 
 from rlbot.agents.base_agent import BaseAgent, LOOKS_CONFIG_KEY
 from rlbot.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
-from rlbot.parsing.agent_config_parser import get_bot_config_bundle, get_looks_config
+from rlbot.parsing.agent_config_parser import get_bot_config_bundle
 from rlbot.utils.class_importer import import_agent
-from rlbot.utils.file_util import get_python_root
 
 
 class Preset:
@@ -78,17 +79,15 @@ class AgentPreset(Preset):
     """
     def __init__(self, name, file_path=None):
 
+        self.looks_path = None
+
         if file_path is not None and os.path.isfile(file_path):
             config_bundle = get_bot_config_bundle(file_path)
             self.looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
             python_file_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
 
         else:
-            base_agent_path = os.path.join(get_python_root(), "rlbot", "agents", "base_agent.py")
-            try:
-                python_file_path = os.path.relpath(base_agent_path, get_python_root())
-            except ValueError:
-                python_file_path = base_agent_path
+            python_file_path = inspect.getfile(BaseAgent)
 
         try:
             self.agent_class = import_agent(python_file_path).get_loaded_class()
