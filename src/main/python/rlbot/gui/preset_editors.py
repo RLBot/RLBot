@@ -471,7 +471,7 @@ class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
         preset = self.get_current_preset()
         try:
             preset.load_agent_class(file_path)
-        except FileNotFoundError as e:
+        except (FileNotFoundError, ModuleNotFoundError) as e:
             self.popup_message(str(e), "Invalid Python File", QtWidgets.QMessageBox.Information)
             return
 
