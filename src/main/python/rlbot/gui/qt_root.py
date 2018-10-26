@@ -551,8 +551,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.overall_config = config_file
         self.agents.clear()
         num_participants = get_num_players(self.overall_config)
-        for i in range(num_participants):
-            self.load_agent(i)
+        try:
+            for i in range(num_participants):
+                self.load_agent(i)
+        except BaseException as e:
+            raise ValueError(str(e) + " Please check your config files!".format(self.overall_config_path))
 
     def load_agent(self, overall_index: int=None):
         """
@@ -646,13 +649,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
     def add_agent_preset(self, file_path):
         """
         Loads a preset using file_path with all values from that path loaded
-        :param file_path: the path to load the preset from, if invalid a default preset is returned
+        :param file_path: the path to load the preset from. We'll throw an exception if it's invalid.
         :return preset: the agent preset created
         """
         if os.path.isfile(file_path):
             name = pathlib.Path(file_path).stem
         else:
-            name = "new preset"
+            raise FileNotFoundError("File path {} is not found!".format(file_path))
+
         if name in self.agent_presets:
             return self.agent_presets[name]
         preset = AgentPreset(name, file_path)

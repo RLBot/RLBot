@@ -243,9 +243,9 @@ class BaseAgent:
         """
         config = ConfigObject()
         location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
-        location_config.add_value(LOOKS_CONFIG_KEY, str, default='./atba_looks.cfg',
+        location_config.add_value(LOOKS_CONFIG_KEY, str,
                                   description='Path to loadout config from runner')
-        location_config.add_value(PYTHON_FILE_KEY, str, default='./atba.py',
+        location_config.add_value(PYTHON_FILE_KEY, str,
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
         location_config.add_value(BOT_NAME_KEY, str, default='nameless',
                                   description='The name that will be displayed in game')

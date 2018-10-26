@@ -469,9 +469,12 @@ class AgentCustomisationDialog(BasePresetEditor, Ui_AgentPresetCustomiser):
         if not file_path or not os.path.exists(file_path):
             return
         preset = self.get_current_preset()
-        if not preset.load_agent_class(file_path):
-            self.popup_message("This file does not extend BaseAgent, using BaseAgent", "Invalid Python File",
-                               QtWidgets.QMessageBox.Information)
+        try:
+            preset.load_agent_class(file_path)
+        except FileNotFoundError as e:
+            self.popup_message(str(e), "Invalid Python File", QtWidgets.QMessageBox.Information)
+            return
+
         if preset.config_path is None or not os.path.isfile(preset.config_path):
             start = get_python_root()
         else:
