@@ -91,8 +91,8 @@ class AgentPreset(Preset):
 
         try:
             self.agent_class = import_agent(python_file_path).get_loaded_class()
-        except (ValueError, ModuleNotFoundError):
-            self.agent_class = BaseAgent
+        except (ValueError, ModuleNotFoundError, FileNotFoundError) as e:
+            raise ValueError("Problem when processing {}: {}".format(file_path, str(e)))
 
         super().__init__(self.agent_class.base_create_agent_configurations(), file_path, name)
         # Make sure the path to the python file actually gets set to that path, even if there was no config at file_path
@@ -104,11 +104,7 @@ class AgentPreset(Preset):
 
     def load_agent_class(self, python_file_path):
         result = True
-        try:
-            self.agent_class = import_agent(python_file_path).get_loaded_class()
-        except (ValueError, ModuleNotFoundError):
-            self.agent_class = BaseAgent
-            result = False
+        self.agent_class = import_agent(python_file_path).get_loaded_class()
         old_config = self.config.copy()
         self.config = self.agent_class.base_create_agent_configurations()
         self.config.parse_file(old_config)

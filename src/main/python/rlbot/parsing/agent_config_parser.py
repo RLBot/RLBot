@@ -27,6 +27,8 @@ class BotConfigBundle:
 
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)
+        if path is None:
+            raise configparser.NoSectionError("Could not find {}: {} in the provided configuration!".format(header, key))
         if os.path.isabs(path):
             return path
         if self.config_directory is None:
@@ -107,6 +109,8 @@ def get_team(config, index):
 def get_bot_config_bundle(bot_config_path):
     raw_bot_config = configparser.RawConfigParser()
     raw_bot_config.read(bot_config_path, encoding='utf8')
+    if not os.path.isfile(bot_config_path):
+        raise FileNotFoundError("Could not find bot config file {}!".format(bot_config_path))
     config_directory = os.path.dirname(os.path.realpath(bot_config_path))
     return BotConfigBundle(config_directory, raw_bot_config)
 
