@@ -54,8 +54,6 @@ class SetupManager:
             return
         version.print_current_release_notes()
         self.game_interface.inject_dll()
-        prediction_util.copy_pitch_data_to_temp()
-        self.ball_prediction_process = prediction_util.launch()
         self.game_interface.load_interface()
         self.agent_metadata_queue = mp.Queue()
         self.has_started = True
@@ -90,6 +88,14 @@ class SetupManager:
         extension_path = framework_config.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
         if extension_path is not None and extension_path != "None":
             self.load_extension(extension_path)
+
+    def init_ball_prediction(self):
+        if self.start_match_configuration.game_mode == 1:  # hoops
+            prediction_util.copy_pitch_data_to_temp('hoops')
+        else:
+            prediction_util.copy_pitch_data_to_temp('soccar')
+        self.ball_prediction_process = prediction_util.launch()
+
 
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
