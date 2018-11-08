@@ -130,6 +130,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.setup_manager = SetupManager()
         self.setup_manager.startup()
         self.setup_manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
+        self.setup_manager.init_ball_prediction()
         self.setup_manager.launch_bot_processes()
         self.launch_in_progress = False
         self.setup_manager.run()

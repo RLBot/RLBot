@@ -7,6 +7,7 @@ def main():
     manager = SetupManager()
     manager.startup()
     manager.load_config()
+    manager.init_ball_prediction()
     manager.launch_bot_processes()
     manager.run()  # Runs forever until interrupted
 
