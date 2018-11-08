@@ -92,6 +92,8 @@ class SetupManager:
     def init_ball_prediction(self):
         if self.start_match_configuration.game_mode == 1:  # hoops
             prediction_util.copy_pitch_data_to_temp('hoops')
+        elif self.start_match_configuration.game_mode == 2:  # dropshot
+            prediction_util.copy_pitch_data_to_temp('dropshot')
         else:
             prediction_util.copy_pitch_data_to_temp('soccar')
         self.ball_prediction_process = prediction_util.launch()
