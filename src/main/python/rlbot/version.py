@@ -7,7 +7,8 @@ __version__ = '1.3.0'
 
 release_notes = {
     '1.3.0': """
-    Accurate ball prediction for Hoops mode. - Kipje13, Marvin, NeverCast, et. al.
+    Accurate ball prediction for Hoops and Dropshot modes!
+      - Kipje13, Marvin, NeverCast, et. al.
     """,
     '1.2.6': """
     Fixed a bug where field info was not extracted properly during dropshot mode.
