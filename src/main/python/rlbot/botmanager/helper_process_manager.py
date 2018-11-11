@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import subprocess
 from multiprocessing import Event
 
 from rlbot.botmanager.agent_metadata import AgentMetadata
@@ -29,12 +30,21 @@ class HelperProcessManager:
         if helper_req is not None:
             if helper_req.key not in self.helper_process_map:
                 metadata_queue = mp.Queue()
-                process = mp.Process(target=run_helper_process,
-                                     args=(helper_req.python_file_path, metadata_queue, self.quit_event))
-                process.start()
-                agent_metadata.pids.add(process.pid)
+                if helper_req.python_file_path is not None:
+                    process = mp.Process(target=run_helper_process,
+                                         args=(helper_req.python_file_path, metadata_queue, self.quit_event))
+                    process.start()
+                    agent_metadata.pids.add(process.pid)
 
-                self.helper_process_map[helper_req.key] = metadata_queue
+                    self.helper_process_map[helper_req.key] = metadata_queue
+
+                if helper_req.executable is not None:
+                    process = subprocess.Popen([helper_req.executable],
+                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                    agent_metadata.pids.add(process.pid)
+
+                    self.helper_process_map[helper_req.key] = metadata_queue
 
             metadata_queue = self.helper_process_map[helper_req.key]
             metadata_queue.put(agent_metadata)

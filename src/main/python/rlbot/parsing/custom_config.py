@@ -12,6 +12,7 @@ class ConfigObject:
     def __init__(self):
         self.headers = {}
         self.raw_config_parser = None  # set by calling parse_file
+        self.config_directory = None
 
     def __getitem__(self, x):
         return self.get_header(x)
@@ -47,6 +48,12 @@ class ConfigObject:
     def get(self, section, option, index=None):
         return self.get_header(section).get(option, index=index)
 
+    def getpath(self, section, option, index=None):
+        relative_path = self.get_header(section).get(option, index=index)
+        if relative_path is None:
+            return None
+        return os.path.realpath(os.path.join(self.config_directory, relative_path))
+
     def getint(self, section, option, index=None):
         return self.get_header(section).getint(option, index=index)
 
@@ -60,12 +67,15 @@ class ConfigObject:
         for header in self.headers.values():
             header.init_indices(max_index)
 
-    def parse_file(self, config, max_index=None):
+    def parse_file(self, config, max_index=None, config_directory=None):
         """
         Parses the file internally setting values
         :param config: an instance of RawConfigParser or a string to a .cfg file
+        :param config_directory: The location of this config file on disk
         :return: None
         """
+        self.config_directory = config_directory
+
         if isinstance(config, str):
             if not os.path.isfile(config):
                 raise FileNotFoundError(config)
@@ -78,7 +88,7 @@ class ConfigObject:
             raise TypeError("The config should be a String, RawConfigParser of a ConfigObject")
         for header_name, header in self.headers.items():
             try:
-                header.parse_file(config[header_name], max_index=max_index)
+                header.parse_file(config[header_name], max_index=max_index, config_directory=config_directory)
             except KeyError:
                 pass  # skip this header as it does not exist
         return self
@@ -96,6 +106,7 @@ class ConfigObject:
 
     def copy(self):
         new_object = ConfigObject()
+        new_object.config_directory = self.config_directory
         for header_name, header in self.headers.items():
             new_object.add_header(header_name, header.copy())
         return new_object
@@ -115,6 +126,7 @@ class ConfigHeader:
         self.values = {}
         self.is_indexed = False  # if True then indexes will be applied to all values otherwise they will not be
         self.max_index = -1
+        self.config_directory = None
 
     def __getitem__(self, x):
         return self.values[x]
@@ -158,6 +170,12 @@ class ConfigHeader:
     def get(self, option, index=None):
         return self.values[option].get_value(index=index)
 
+    def getpath(self, option, index=None):
+        relative_path = self.values[option].get_value(index=index)
+        if relative_path is None:
+            return None
+        return os.path.realpath(os.path.join(self.config_directory, relative_path))
+
     def getint(self, option, index=None):
         return int(self.values[option].get_value(index=index))
 
@@ -174,7 +192,10 @@ class ConfigHeader:
         for value_name in self.values:
             self.values[value_name].init_indices(max_index)
 
-    def parse_file(self, config_parser, max_index=None):
+    def parse_file(self, config_parser, max_index=None, config_directory=None):
+
+        self.config_directory = config_directory
+
         if self.is_indexed and max_index is None:
             return  # if we do not know the index lets skip instead of crashing
 
@@ -206,6 +227,7 @@ class ConfigHeader:
         new_header.max_index = self.max_index
         for value_name, value in self.values.items():
             new_header.values[value_name] = value.copy()
+        new_header.config_directory = self.config_directory
         return new_header
 
     def get_indexed_string(self, value_name):

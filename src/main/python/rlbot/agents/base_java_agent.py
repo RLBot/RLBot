@@ -1,10 +1,14 @@
+import os
 import time
 
 import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
+from rlbot.agents.base_agent import BOT_CONFIG_AGENT_HEADER, BOT_CONFIG_MODULE_HEADER
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
+from rlbot.botmanager.helper_process_request import HelperProcessRequest
+from rlbot.parsing.custom_config import ConfigHeader, ConfigObject
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures import game_interface
 
@@ -18,6 +22,7 @@ class BaseJavaAgent(BaseIndependentAgent):
         self.logger = get_logger('ProtoJava' + str(self.index))
         self.port = self.read_port_from_file()
         self.is_retired = False
+        self.java_executable_path = None
 
     def read_port_from_file(self):
         try:
@@ -47,6 +52,14 @@ class BaseJavaAgent(BaseIndependentAgent):
                 self.logger.warn(str(e))
             time.sleep(1)
 
+    def get_helper_process_request(self):
+        if self.is_executable_configured():
+            return HelperProcessRequest(python_file_path=None, key=__file__, executable=self.java_executable_path)
+        return None
+
+    def is_executable_configured(self):
+        return self.java_executable_path is not None and os.path.isfile(self.java_executable_path)
+
     def get_extra_pids(self):
         """
         Gets the list of process ids that should be marked as high priority.
@@ -58,7 +71,16 @@ class BaseJavaAgent(BaseIndependentAgent):
                     if conn.laddr.port == self.port:
                         self.logger.debug('py4j server for {} appears to have pid {}'.format(self.name, proc.pid))
                         return [proc.pid]
+            if self.is_executable_configured():
+                # The helper process will start java and report the PID. Nothing to do here.
+                return []
             time.sleep(1)
+            if self.java_executable_path is None:
+                self.logger.info(
+                    "Can't auto-start java because no executable is configured. Please start java manually!")
+            else:
+                self.logger.info("Can't auto-start java because {} is not found. Please start java manually!"
+                                 .format(self.java_executable_path))
 
     def retire(self):
         try:

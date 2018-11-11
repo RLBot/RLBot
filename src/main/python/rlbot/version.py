@@ -3,9 +3,13 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.3.0'
+__version__ = '1.4.0'
 
 release_notes = {
+    '1.4.0': """
+    Adding support for auto-running java bots during tournaments. To take advantage of this
+    in your bot, see https://github.com/RLBot/RLBotJavaExample/wiki/Auto-Launching-Java
+    """,
     '1.3.0': """
     Accurate ball prediction for Hoops and Dropshot modes!
       - Kipje13, Marvin, NeverCast, et. al.
