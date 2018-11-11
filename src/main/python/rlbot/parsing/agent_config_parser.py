@@ -4,6 +4,7 @@ import os
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
     BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_NAME_KEY
+from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.utils.class_importer import import_agent
 from rlbot.utils.logging_utils import get_logger
@@ -19,11 +20,11 @@ logger = get_logger('rlbot')
 
 
 class BotConfigBundle:
-    def __init__(self, config_directory, config_obj):
+    def __init__(self, config_directory, config_obj: ConfigObject):
         self.config_directory = config_directory
         self.config_obj = config_obj
         self.base_agent_config = BaseAgent.base_create_agent_configurations()
-        self.base_agent_config.parse_file(self.config_obj)
+        self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
 
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)
@@ -202,6 +203,6 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
         agent_class_wrapper = import_agent(python_file)
         bot_parameters = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
-        bot_parameters.parse_file(config_bundle.config_obj)
+        bot_parameters.parse_file(config_bundle.config_obj, config_directory=config_bundle.config_directory)
 
     return bot_name, team_num, python_file, bot_parameters
