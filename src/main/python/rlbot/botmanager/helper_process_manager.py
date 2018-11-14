@@ -39,8 +39,7 @@ class HelperProcessManager:
                     self.helper_process_map[helper_req.key] = metadata_queue
 
                 if helper_req.executable is not None:
-                    process = subprocess.Popen([helper_req.executable],
-                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    process = subprocess.Popen([helper_req.executable])
 
                     agent_metadata.pids.add(process.pid)
 
