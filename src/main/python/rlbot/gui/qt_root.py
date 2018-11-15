@@ -71,7 +71,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         dragged_listwidget = event.source()
         if dragged_listwidget is dropped_listwidget:  # drops in the same widget
             return
-        self.current_bot.set_team(dropped_listwidget != self.blue_listwidget)
+        self.current_bot.set_team(0 if dropped_listwidget == self.blue_listwidget else 1)
         self.update_teams_listwidgets()
 
     def fixed_indices(self):
