@@ -3,15 +3,16 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.4.1'
+__version__ = '1.4.2'
 
 release_notes = {
-    '1.4.1': """
+    '1.4.2': """
     Adding support for auto-running java bots during tournaments. To take advantage of this
     in your bot, see https://github.com/RLBot/RLBotJavaExample/wiki/Auto-Launching-Java
     
     Plus bug fixes:
     - Fixed a bug where auto-run executables would crash when trying to write to stderr.
+    - Dragging bots to another team in the GUI no longer breaks the config.
     """,
     '1.3.0': """
     Accurate ball prediction for Hoops and Dropshot modes!
