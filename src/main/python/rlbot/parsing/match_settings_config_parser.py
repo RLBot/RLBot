@@ -196,7 +196,7 @@ respawn_time_mutator_types = [
 
 def add_match_settings_header(config_object):
     match_header = config_object.add_header_name(MATCH_CONFIGURATION_HEADER)
-    match_header.add_value(PARTICIPANT_COUNT_KEY, int, default=2,
+    match_header.add_value(PARTICIPANT_COUNT_KEY, int, default=0,
                            description='Number of bots/players which will be spawned.  We support up to max 10.')
     match_header.add_value(GAME_MODE, str, default="Soccer",
                            description="""What game mode the game should load.
