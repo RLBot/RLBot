@@ -348,6 +348,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.cfg_file_path_lineedit.setText("Please load a configuration file")
             self.blue_plus_toolbutton.setEnabled(False)
             self.orange_plus_toolbutton.setEnabled(False)
+            self.run_button.setEnabled(False)
         else:
             self.cfg_file_path_lineedit.setText(self.overall_config_path)
         self.update_team_settings()
@@ -386,6 +387,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.update_teams_listwidgets()
         self.cfg_file_path_lineedit.setText(self.overall_config_path)
         self.cfg_file_path_lineedit.setStyleSheet("")
+        self.run_button.setEnabled(True)
         self.update_team_settings()
         self.car_customisation.update_presets_widgets()
         self.agent_customisation.update_presets_widgets()
