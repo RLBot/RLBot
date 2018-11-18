@@ -23,6 +23,7 @@ from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CON
 from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, LOOKS_CONFIG_KEY
 from rlbot.parsing.match_settings_config_parser import *
 
+
 class RLBotQTGui(QMainWindow, Ui_MainWindow):
     def __init__(self):
         """
