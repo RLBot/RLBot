@@ -71,3 +71,20 @@ def extract_all_pids(agent_metadata_map):
     for player_index, data in agent_metadata_map.items():
         pids.update(data.pids)
     return pids
+
+
+def is_process_running(program, scriptname):
+    for pid in psutil.pids():
+        try:
+            p = psutil.Process(pid)
+            if program in p.name():
+                for arg in p.cmdline():
+                    if scriptname in str(arg):  
+                        return True
+                    else:
+                        pass
+            else:
+                pass
+        except:
+            continue
+    return False
