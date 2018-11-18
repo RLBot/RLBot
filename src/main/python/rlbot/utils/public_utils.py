@@ -9,6 +9,7 @@ try:
 except:
     import http.client as httplib
 
+
 def is_safe_to_upgrade():
     """
     Reports whether it's currently safe to upgrade the rlbot package, e.g. via pip. An example of when it's
