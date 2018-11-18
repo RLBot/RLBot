@@ -5,6 +5,7 @@ import queue
 import time
 import psutil
 from datetime import datetime, timedelta
+from webbrowser import open as webopen
 
 from rlbot import version
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
@@ -24,6 +25,7 @@ from rlbot.utils.prediction import prediction_util
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
+ROCKET_LEAGUE_PROCESS_INFO = {'gameid': 252950, 'program_name': 'RocketLeague.exe', 'program': 'RocketLeague.exe'}
 
 
 class SetupManager:
@@ -53,6 +55,8 @@ class SetupManager:
         if self.has_started:
             return
         version.print_current_release_notes()
+        if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'], ROCKET_LEAGUE_PROCESS_INFO['program_name']):
+            webopen('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
         self.game_interface.inject_dll()
         self.game_interface.load_interface()
         self.agent_metadata_queue = mp.Queue()
