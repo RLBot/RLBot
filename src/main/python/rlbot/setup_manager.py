@@ -5,8 +5,7 @@ import queue
 import time
 import psutil
 from datetime import datetime, timedelta
-from webbrowser import open as webopen
-from webbrowser import Error as WebError
+import webbrowser
 
 from rlbot import version
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
@@ -58,8 +57,8 @@ class SetupManager:
         version.print_current_release_notes()
         if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'], ROCKET_LEAGUE_PROCESS_INFO['program_name']):
             try:
-                webopen('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
-            except WebError:
+                webbrowser.open('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
+            except webbrowser.Error:
                 self.logger.info("Unable to launch Rocket League automatically. Please launch Rocket League manually to continue.")
         self.game_interface.inject_dll()
         self.game_interface.load_interface()
