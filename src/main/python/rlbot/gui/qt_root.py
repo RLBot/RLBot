@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QMessageBox
 import threading
 import configparser
-import webbrowser
+from webbrowser import open as webopen
 
 from rlbot.gui.presets import AgentPreset, LoadoutPreset
 from rlbot.gui.index_manager import IndexManager
@@ -103,7 +103,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             return
         self.launch_in_progress = True
         if not is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'], ROCKET_LEAGUE_PROCESS_INFO['program_name']):
-            webbrowser.open('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
+            webopen('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
         if self.setup_manager is not None:
             self.setup_manager.shut_down(time_limit=5, kill_all_pids=False)
             # Leave any external processes alive, e.g. Java or C#, since it can
