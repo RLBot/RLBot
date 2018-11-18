@@ -4,7 +4,10 @@ External code is encouraged to use these functions directly. It is part of our p
 Avoid moving this file or changing any of the function signatures!
 """
 from rlbot.utils.file_util import contains_locked_file, get_rlbot_directory
-
+try:
+    import httplib
+except:
+    import http.client as httplib
 
 def is_safe_to_upgrade():
     """
