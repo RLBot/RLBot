@@ -7,6 +7,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QMessageBox
 import threading
 import configparser
+import webbrowser
 
 from rlbot.gui.presets import AgentPreset, LoadoutPreset
 from rlbot.gui.index_manager import IndexManager
@@ -22,7 +23,10 @@ from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CONFIGURATION_HEADER
 from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, LOOKS_CONFIG_KEY
 from rlbot.parsing.match_settings_config_parser import *
+from rlbot.utils.process_configuration import is_process_running
 
+
+ROCKET_LEAGUE_PROCESS_INFO = {'gameid': 252950, 'program_name': 'RocketLeague.exe', 'program': 'RocketLeague.exe'}
 
 class RLBotQTGui(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -98,6 +102,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             # Attempting to run again when we're in this state can result in duplicate processes.
             return
         self.launch_in_progress = True
+        if not is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'], ROCKET_LEAGUE_PROCESS_INFO['program_name']):
+            webbrowser.open('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
         if self.setup_manager is not None:
             self.setup_manager.shut_down(time_limit=5, kill_all_pids=False)
             # Leave any external processes alive, e.g. Java or C#, since it can
