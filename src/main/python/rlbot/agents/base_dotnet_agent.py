@@ -1,3 +1,4 @@
+import os
 import msvcrt
 import socket
 import time
@@ -5,6 +6,7 @@ import time
 import psutil
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
+from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.utils.structures import game_interface
 
 
@@ -16,6 +18,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
         self.index = index
         self.port = self.read_port_from_file()
         self.is_retired = False
+        self.dotnet_executable_path = None
 
     def run_independently(self, terminate_request_event):
 
@@ -34,6 +37,14 @@ class BaseDotNetAgent(BaseIndependentAgent):
         else:
             self.retire()
 
+    def get_helper_process_request(self):
+        if self.is_executable_configured():
+            return HelperProcessRequest(python_file_path=None, key=__file__, executable=self.dotnet_executable_path)
+        return None
+
+    def is_executable_configured(self):
+        return self.dotnet_executable_path is not None and os.path.isfile(self.dotnet_executable_path)
+
     def get_extra_pids(self):
         """
         Gets the list of process ids that should be marked as high priority.
@@ -45,7 +56,14 @@ class BaseDotNetAgent(BaseIndependentAgent):
                     if conn.laddr.port == self.port:
                         self.logger.debug('.NET socket server for {} appears to have pid {}'.format(self.name, proc.pid))
                         return [proc.pid]
+            if self.is_executable_configured():
+                return []
             time.sleep(1)
+            if self.dotnet_executable_path is None:
+                self.logger.info(
+                    "Can't auto-start .NET executable because no executable is configured. Please start the .NET bot manually!")
+            else:
+                self.logger.info("Can't auto-start .NET executable because {} is not found. Please start the .NET bot manually!".format(self.dotnet_executable_path))
 
     def retire(self):
         port = self.read_port_from_file()
