@@ -71,3 +71,16 @@ def extract_all_pids(agent_metadata_map):
     for player_index, data in agent_metadata_map.items():
         pids.update(data.pids)
     return pids
+
+
+def is_process_running(program, scriptname):
+    if not optional_packages_installed:
+        return True
+    for pid in psutil.process_iter(attrs=['name', 'exe']):
+        try:
+            p = pid.info.values()
+            if program in p or scriptname in p:
+                return True
+        except psutil.NoSuchProcess:
+            continue
+    return False
