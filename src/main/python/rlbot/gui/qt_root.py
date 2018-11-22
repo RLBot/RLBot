@@ -668,7 +668,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             raise FileNotFoundError("File path {} is not found!".format(file_path))
 
         if name in self.agent_presets:
-            return self.agent_presets[name]
+            if self.agent_presets[name].config_path == file_path:
+                return self.agent_presets[name].get
+            else:
+                i = 1
+                for preset_name in self.agent_presets.keys():
+                    if name in preset_name:
+                        i += 1
+                name = name + ' ({})'.format(i)
         preset = AgentPreset(name, file_path)
         self.agent_presets[preset.get_name()] = preset
         return preset
