@@ -103,7 +103,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             # Leave any external processes alive, e.g. Java or C#, since it can
             # be useful to keep them around. The user can kill them with the
             # Kill Bots button instead.
-            
+
         self.match_process = threading.Thread(target=self.start_match)
         self.match_process.start()
 
