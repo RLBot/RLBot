@@ -58,7 +58,7 @@ class GUIAgent:
         return self.agent_preset
 
     def get_agent_config_path(self):
-        return os.path.realpath(self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
+        return os.path.realpath(self.overall_config.getpath(PARTICIPANT_CONFIGURATION_HEADER,
                                                         PARTICIPANT_CONFIG_KEY, self.overall_index))
 
     def set_agent_config_path(self, config_path: str):
