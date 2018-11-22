@@ -103,7 +103,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             # Leave any external processes alive, e.g. Java or C#, since it can
             # be useful to keep them around. The user can kill them with the
             # Kill Bots button instead.
-
+            
         self.match_process = threading.Thread(target=self.start_match)
         self.match_process.start()
 
@@ -382,7 +382,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 self.popup_message("Config file is missing the section {}, not loading it!".format(section), "Invalid Config File", QMessageBox.Warning)
                 return
         self.overall_config_path = config_path
-        self.overall_config.parse_file(raw_parser, 10)
+        self.overall_config.parse_file(raw_parser, 10, config_directory=os.path.dirname(self.overall_config_path))
         self.load_agents()
         self.update_teams_listwidgets()
         self.cfg_file_path_lineedit.setText(self.overall_config_path)
