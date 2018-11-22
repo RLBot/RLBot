@@ -669,10 +669,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
 
         if name in self.agent_presets:
             if self.agent_presets[name].config_path == file_path:
-                return self.agent_presets[name].get
+                return self.agent_presets[name]
             else:
                 i = 1
-                for preset_name in self.agent_presets.keys():
+                for preset_name in self.agent_presets:
                     if name in preset_name:
                         i += 1
                 name = name + ' ({})'.format(i)
