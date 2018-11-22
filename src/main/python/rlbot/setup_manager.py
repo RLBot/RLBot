@@ -1,4 +1,3 @@
-import msvcrt
 import multiprocessing as mp
 import os
 import queue
@@ -6,6 +5,9 @@ import time
 import psutil
 from datetime import datetime, timedelta
 import webbrowser
+
+if os.name == 'nt':
+    import msvcrt
 
 from rlbot import version
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
@@ -137,16 +139,19 @@ class SetupManager:
         self.logger.info(instructions)
         while not self.quit_event.is_set():
             # Handle commands
-            if msvcrt.kbhit():
-                command = msvcrt.getwch()
-                if command.lower() == 'r':  # r: reload
-                    self.reload_all_agents()
-                elif command.lower() == 'q' or command == '\u001b':  # q or ESC: quit
-                    self.shut_down()
-                    break
-                # Print instructions again if a alphabet character was pressed but no command was found
-                elif command.isalpha():
-                    self.logger.info(instructions)
+            if os.name == 'nt':
+                if msvcrt.kbhit():
+                    command = msvcrt.getwch()
+                    if command.lower() == 'r':  # r: reload
+                        self.reload_all_agents()
+                    elif command.lower() == 'q' or command == '\u001b':  # q or ESC: quit
+                        self.shut_down()
+                        break
+                    # Print instructions again if a alphabet character was pressed but no command was found
+                    elif command.isalpha():
+                        self.logger.info(instructions)
+            else:
+                pass  # TODO: Not Implemented
 
             try:
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
