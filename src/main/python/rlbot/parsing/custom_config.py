@@ -234,13 +234,19 @@ class ConfigHeader:
         value = self.values[value_name]
         string = value.comment_description() + '\n'
         for i in range(self.max_index):
-            string += value_name + '_' + str(i) + ' = ' + str(value.get_value(index=i)) + '\n'
+            if isinstance(value.get_value(index=i), bool):
+                string += value_name + '_' + str(i) + ' = ' + str(int(value.get_value(index=i))) + '\n'
+            else:
+                string += value_name + '_' + str(i) + ' = ' + str(value.get_value(index=i)) + '\n'
         return string
 
     def get_string(self, value_name):
         value = self.values[value_name]
         string = value.comment_description() + '\n'
-        string += value_name + ' = ' + str(value.get_value()) + '\n'
+        if isinstance(value.get_value(), bool):
+            string += value_name + ' = ' + str(int(value.get_value())) + '\n'
+        else:
+            string += value_name + ' = ' + str(value.get_value()) + '\n'
         return string
 
 
