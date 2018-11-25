@@ -6,6 +6,10 @@
 __version__ = '1.6.0'
 
 release_notes = {
+    '1.6.1': """
+    Fixed GUI crash when loading certain RLBot config files with relative paths for agents.
+    Fixed agent preset loading to allow multiple agents to saved/loaded correctly if they have the same name. - ima9rd
+    """,
     '1.6.0':"""
     Add support for auto starting .NET executables.
     """,
