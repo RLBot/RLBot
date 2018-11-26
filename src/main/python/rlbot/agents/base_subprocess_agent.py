@@ -22,7 +22,7 @@ class BaseSubprocessAgent(BaseIndependentAgent):
 
     def run_independently(self, terminate_request_event: Event) -> None:
         # This argument sequence is consumed by Rust's `rlbot::run`.
-        process = Popen(['run', self.path, '--player-index', str(self.index)])
+        process = Popen([self.path, '--player-index', str(self.index)])
 
         # Block until we are asked to terminate, and then do so.
         terminate_request_event.wait()
