@@ -22,7 +22,7 @@ It provides values from the game like car and ball position, and carries back bu
 RLBot works for up to 10 bots.
 
 ### Requirements
-Windows, Rocket League, Python 3.6.
+Windows, Rocket League, Python 3.7, 3.6 (deprecated)
 
 ### Quick Start
 
