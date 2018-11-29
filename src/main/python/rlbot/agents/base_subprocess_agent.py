@@ -18,7 +18,7 @@ class BaseSubprocessAgent(BaseIndependentAgent):
         params.add_value('path', str, description='The path to the exe for the bot')
 
     def load_config(self, config_header: ConfigHeader) -> None:
-        self.path = config_header.get('path')
+        self.path = config_header.getpath('path')
 
     def run_independently(self, terminate_request_event: Event) -> None:
         # This argument sequence is consumed by Rust's `rlbot::run`.

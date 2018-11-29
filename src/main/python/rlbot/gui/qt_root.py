@@ -382,7 +382,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 self.popup_message("Config file is missing the section {}, not loading it!".format(section), "Invalid Config File", QMessageBox.Warning)
                 return
         self.overall_config_path = config_path
-        self.overall_config.parse_file(raw_parser, 10)
+        self.overall_config.parse_file(raw_parser, 10, config_directory=os.path.dirname(self.overall_config_path))
         self.load_agents()
         self.update_teams_listwidgets()
         self.cfg_file_path_lineedit.setText(self.overall_config_path)
@@ -668,7 +668,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             raise FileNotFoundError("File path {} is not found!".format(file_path))
 
         if name in self.agent_presets:
-            return self.agent_presets[name]
+            if self.agent_presets[name].config_path == file_path:
+                return self.agent_presets[name]
+            else:
+                i = 1
+                for preset_name in self.agent_presets:
+                    if name in preset_name:
+                        i += 1
+                name = name + ' ({})'.format(i)
         preset = AgentPreset(name, file_path)
         self.agent_presets[preset.get_name()] = preset
         return preset
