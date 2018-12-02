@@ -19,7 +19,7 @@ namespace RLBotDotNet
     public class BotManager<T> where T : Bot
     {
         private readonly ConcurrentDictionary<int, BotLoopRenderer> _renderers;
-        private ManualResetEvent botRunEvent = new ManualResetEvent(false);
+        private AutoResetEvent botRunEvent = new AutoResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private Thread serverThread;
         
@@ -107,7 +107,6 @@ namespace RLBotDotNet
 
                 // Set off events that end up running the bot code later down the line
                 botRunEvent.Set();
-                botRunEvent.Reset();
 
                 // Sleep efficiently (but inaccurately) for as long as we can
                 TimeSpan maxInaccurateSleepTime = targetSleepTime - stopwatch.Elapsed - timerResolution;
