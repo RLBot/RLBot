@@ -3,10 +3,10 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.6.2'
+__version__ = '1.6.3'
 
 release_notes = {
-    '1.6.2': """
+    '1.6.3': """
     Fixed compatibility with December update - ccman32 
     """,
     '1.6.1': """
