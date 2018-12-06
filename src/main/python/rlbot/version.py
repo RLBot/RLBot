@@ -3,11 +3,13 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.6.3'
+__version__ = '1.6.4'
 
 release_notes = {
-    '1.6.3': """
+    '1.6.4': """
     Fixed compatibility with December update - ccman32 
+    Added a friendly warning about unsupported python versions - DomNomNom
+    Stopped scaring people with statements about locked files - tarehart
     """,
     '1.6.1': """
     Fixed GUI crash when loading certain RLBot config files with relative paths for agents.
