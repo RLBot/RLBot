@@ -101,15 +101,15 @@ class RenderingManager:
         if len(vectors) < 2:
             get_logger("Renderer").error("draw_polyline_2d requires atleast 2 vectors!")
             return self
-        
+
         messageBuilder = self.builder
 
-        for i in range(0, len(vectors)-1):
+        for i in range(0, len(vectors) - 1):
             RenderMessage.RenderMessageStart(messageBuilder)
             RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
             RenderMessage.RenderMessageAddColor(messageBuilder, color)
             RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
-            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i+1]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i + 1]))
             message = RenderMessage.RenderMessageEnd(messageBuilder)
             self.render_list.append(message)
 
@@ -135,12 +135,12 @@ class RenderingManager:
 
         messageBuilder = self.builder
 
-        for i in range(0, len(vectors)-1):
+        for i in range(0, len(vectors) - 1):
             RenderMessage.RenderMessageStart(messageBuilder)
             RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
             RenderMessage.RenderMessageAddColor(messageBuilder, color)
             RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
-            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i+1]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i + 1]))
             message = RenderMessage.RenderMessageEnd(messageBuilder)
             self.render_list.append(message)
 
@@ -301,6 +301,7 @@ class RenderingManager:
         return Float.CreateFloat(self.builder, number)
 
     """Supports Flatbuffers Vector3, cTypes Vector3, list/tuple of numbers, or passing x,y,z (z optional)"""
+
     def __create_vector(self, *vec):
         import numbers
 
@@ -330,7 +331,11 @@ class RenderingManager:
                 x = vec[0].x
                 y = vec[0].y
                 z = vec[0].z
-            elif type(vec[0]).__name__ == 'vec3': #Support Chip's LinearAlgebra.vec3
+            elif type(vec[0]).__name__ == 'vec3':  # Support Chip's LinearAlgebra.vec3
+                x = vec[0][0]
+                y = vec[0][1]
+                z = vec[0][2]
+            elif type(vec[0]).__name__ == 'ndarray' and vec[0].shape == (3,):  # Support numpy arrays
                 x = vec[0][0]
                 y = vec[0][1]
                 z = vec[0][2]
