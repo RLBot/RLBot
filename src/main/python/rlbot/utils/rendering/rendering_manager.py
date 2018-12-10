@@ -313,7 +313,7 @@ class RenderingManager:
                         y = vec[0][1]
                     else:
                         raise ValueError(
-                            "Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0][1]), type(vec[0][1])))
+                            "Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0][0]), type(vec[0][1])))
                     if len(vec[0]) == 2:
                         z = 0
                     else:
@@ -331,11 +331,8 @@ class RenderingManager:
                 x = vec[0].x
                 y = vec[0].y
                 z = vec[0].z
-            elif type(vec[0]).__name__ == 'vec3':  # Support Chip's LinearAlgebra.vec3
-                x = vec[0][0]
-                y = vec[0][1]
-                z = vec[0][2]
-            elif type(vec[0]).__name__ == 'ndarray' and vec[0].shape == (3,):  # Support numpy arrays
+            # support for chip's LinearAlgebra.vec3 and numpy arrays
+            elif type(vec[0]).__name__ == 'vec3' or type(vec[0]).__name__ == 'ndarray' and vec[0].shape == (3,):
                 x = vec[0][0]
                 y = vec[0][1]
                 z = vec[0][2]
