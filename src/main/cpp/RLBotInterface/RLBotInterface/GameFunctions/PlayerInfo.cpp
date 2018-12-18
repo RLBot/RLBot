@@ -68,35 +68,9 @@ namespace GameFunctions
 		return sendStatus;
 	}
 
-	// Player info
-	RLBotCoreStatus checkInputConfiguration(PlayerInput playerInput)
-	{
-		if (playerInput.Throttle < -1.0f || playerInput.Throttle > 1.0f)
-			return RLBotCoreStatus::InvalidThrottle;
-
-		if (playerInput.Steer < -1.0f || playerInput.Steer > 1.0f)
-			return RLBotCoreStatus::InvalidSteer;
-
-		if (playerInput.Pitch < -1.0f || playerInput.Pitch > 1.0f)
-			return RLBotCoreStatus::InvalidPitch;
-
-		if (playerInput.Yaw < -1.0f || playerInput.Yaw > 1.0f)
-			return RLBotCoreStatus::InvalidYaw;
-
-		if (playerInput.Roll < -1.0f || playerInput.Roll > 1.0f)
-			return RLBotCoreStatus::InvalidRoll;
-
-		return RLBotCoreStatus::Success;
-	}
-
 	// Ctypes
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(PlayerInput playerInput, int playerIndex)
 	{
-		RLBotCoreStatus status = checkInputConfiguration(playerInput);
-
-		if (status != RLBotCoreStatus::Success)
-			return status;
-
 		flatbuffers::FlatBufferBuilder builder;
 		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
 		return UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());

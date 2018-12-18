@@ -3,9 +3,12 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.6.5'
+__version__ = '1.6.6'
 
 release_notes = {
+    '1.6.6': """
+    Automatically limiting controller inputs to valid ranges so bots don't get paralyzed. - tarehart
+    """,
     '1.6.5': """
     Support all subscriptable types for rendering. - Marvin 
     """,
