@@ -99,6 +99,9 @@ namespace GameFunctions
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
 		return checkInputConfiguration(playerInput);
 	}
 
@@ -112,6 +115,9 @@ namespace GameFunctions
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
 		PlayerInput playerInput;
 		FlatbufferTranslator::inputStructFromFlatbuffer(controllerState, playerInput);
 		return checkInputConfiguration(playerInput);
