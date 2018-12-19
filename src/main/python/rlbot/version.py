@@ -3,9 +3,18 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.6.5'
+__version__ = '1.7.0'
 
 release_notes = {
+    '1.7.0': """
+    The big news: We now support painted items thanks to ccman32!
+    See https://github.com/RLBot/RLBot/wiki/Bot-Customization for details.
+    
+    Other stuff:
+    - Fix for tradeable items not displaying correctly after December update. - ccman32
+    - Sending invalid controller inputs will no longer make your bot freeze,
+      plus you'll get friendly warnings. - tarehart
+    """,
     '1.6.5': """
     Support all subscriptable types for rendering. - Marvin 
     """,
@@ -14,7 +23,7 @@ release_notes = {
     Added a friendly warning about unsupported python versions - DomNomNom
     Stopped scaring people with statements about locked files - tarehart
     """,
-    '1.6.1': """
+    '1.6.1': """ 
     Fixed GUI crash when loading certain RLBot config files with relative paths for agents.
     Fixed agent preset loading to allow multiple agents to saved/loaded correctly if they have the same name. - ima9rd
     """,

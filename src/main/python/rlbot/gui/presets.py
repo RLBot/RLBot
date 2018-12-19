@@ -22,6 +22,9 @@ class Preset:
         if file_path is not None:
             self.load(file_path)
 
+    def get_required_sections(self):
+        return []
+
     def load(self, file_path=None):
         if file_path is None:
             file_path = self.config_path
@@ -31,7 +34,7 @@ class Preset:
         self.config_path = file_path
         raw_parser = configparser.RawConfigParser()
         raw_parser.read(file_path, encoding='utf8')
-        for section in self.config.headers.keys():
+        for section in self.get_required_sections():
             if not raw_parser.has_section(section):
                 raise configparser.NoSectionError(section)
         self.config.parse_file(raw_parser)
@@ -72,6 +75,9 @@ class LoadoutPreset(Preset):
     def __init__(self, name, file_path=None):
         super().__init__(BaseAgent._create_looks_configurations(), file_path, name)
 
+    def get_required_sections(self):
+        return ['Bot Loadout']
+
 
 class AgentPreset(Preset):
     """
@@ -97,6 +103,9 @@ class AgentPreset(Preset):
         super().__init__(self.agent_class.base_create_agent_configurations(), file_path, name)
         # Make sure the path to the python file actually gets set to that path, even if there was no config at file_path
         self.config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, python_file_path)
+
+    def get_required_sections(self):
+        return ['Locations']
 
     def load(self, file_path=None):
         self.config = self.agent_class.base_create_agent_configurations()
