@@ -12,6 +12,8 @@ from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
 BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
+BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER = 'Bot Paint Blue'
+BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER = 'Bot Paint Orange'
 BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 PYTHON_FILE_KEY = 'python_file'
@@ -192,6 +194,8 @@ class BaseAgent:
         config = ConfigObject()
         config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
         config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
+        config.add_header(BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER, BaseAgent._create_loadout_paint())
+        config.add_header(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER, BaseAgent._create_loadout_paint())
         return config
 
     def _register_quick_chat(self, quick_chat_func):
@@ -274,6 +278,21 @@ class BaseAgent:
         return header
 
     @staticmethod
+    def _create_loadout_paint() -> ConfigHeader:
+        header = ConfigHeader()
+
+        header.add_value('car_paint_id', int, default=0)
+        header.add_value('decal_paint_id', int, default=0)
+        header.add_value('wheels_paint_id', int, default=0)
+        header.add_value('boost_paint_id', int, default=0)
+        header.add_value('antenna_paint_id', int, default=0)
+        header.add_value('hat_paint_id', int, default=0)
+        header.add_value('trails_paint_id', int, default=0)
+        header.add_value('goal_explosion_paint_id', int, default=0)
+
+        return header
+
+    @staticmethod
     def _parse_bot_loadout(player_configuration, bot_config, loadout_header):
         player_configuration.team_color_id = bot_config.getint(loadout_header, 'team_color_id')
         player_configuration.custom_color_id = bot_config.getint(loadout_header, 'custom_color_id')
@@ -288,3 +307,14 @@ class BaseAgent:
         player_configuration.engine_audio_id = bot_config.getint(loadout_header, 'engine_audio_id')
         player_configuration.trails_id = bot_config.getint(loadout_header, 'trails_id')
         player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')
+
+    @staticmethod
+    def _parse_bot_loadout_paint(player_configuration, bot_config, loadout_header):
+        player_configuration.car_paint_id = bot_config.getint(loadout_header, 'car_paint_id')
+        player_configuration.decal_paint_id = bot_config.getint(loadout_header, 'decal_paint_id')
+        player_configuration.wheels_paint_id = bot_config.getint(loadout_header, 'wheels_paint_id')
+        player_configuration.boost_paint_id = bot_config.getint(loadout_header, 'boost_paint_id')
+        player_configuration.antenna_paint_id = bot_config.getint(loadout_header, 'antenna_paint_id')
+        player_configuration.hat_paint_id = bot_config.getint(loadout_header, 'hat_paint_id')
+        player_configuration.trails_paint_id = bot_config.getint(loadout_header, 'trails_paint_id')
+        player_configuration.goal_explosion_paint_id = bot_config.getint(loadout_header, 'goal_explosion_paint_id')

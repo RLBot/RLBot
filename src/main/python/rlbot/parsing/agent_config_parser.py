@@ -3,7 +3,8 @@ import configparser
 import os
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
-    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_NAME_KEY
+    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_NAME_KEY, BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER, \
+    BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.utils.class_importer import import_agent
@@ -194,6 +195,12 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
 
     BaseAgent._parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
+
+    if team_num == 0 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER):
+        BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER)
+
+    if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER):
+        BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER)
 
     python_file = 'NO_MODULE_FOR_PARTICIPANT'
     bot_parameters = None
