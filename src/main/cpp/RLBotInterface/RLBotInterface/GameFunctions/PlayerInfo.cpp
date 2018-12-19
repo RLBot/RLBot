@@ -92,14 +92,17 @@ namespace GameFunctions
 	// Ctypes
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(PlayerInput playerInput, int playerIndex)
 	{
-		RLBotCoreStatus status = checkInputConfiguration(playerInput);
+		flatbuffers::FlatBufferBuilder builder;
+		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
+		RLBotCoreStatus status = UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
 
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		flatbuffers::FlatBufferBuilder builder;
-		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
-		return UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
+		return checkInputConfiguration(playerInput);
 	}
 
 	// FLAT
@@ -107,6 +110,16 @@ namespace GameFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
-		return flatInputQueue.sendMessage(controllerState, protoSize);
+		RLBotCoreStatus status = flatInputQueue.sendMessage(controllerState, protoSize);
+
+		if (status != RLBotCoreStatus::Success)
+			return status;
+
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
+		PlayerInput playerInput;
+		FlatbufferTranslator::inputStructFromFlatbuffer(controllerState, playerInput);
+		return checkInputConfiguration(playerInput);
 	}
 }

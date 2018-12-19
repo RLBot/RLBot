@@ -245,6 +245,21 @@ namespace FlatbufferTranslator {
 		builder->Finish(input);
 	}
 
+	void inputStructFromFlatbuffer(void* flatbuffer, PlayerInput& playerInput)
+	{
+
+		auto controllerState = flatbuffers::GetRoot<rlbot::flat::PlayerInput>(flatbuffer)->controllerState();
+
+		playerInput.Throttle = controllerState->throttle();
+		playerInput.Steer = controllerState->steer();
+		playerInput.Pitch = controllerState->pitch();
+		playerInput.Yaw = controllerState->yaw();
+		playerInput.Roll = controllerState->roll();
+		playerInput.Jump = controllerState->jump();
+		playerInput.Boost = controllerState->boost();
+		playerInput.Handbrake = controllerState->handbrake();
+	}
+
 
 	void fillQuaternionStruct(const rlbot::flat::Quaternion* quaternion, Quaternion* structQuaternion)
 	{

@@ -15,6 +15,7 @@ from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.start_match_structures import MatchSettings
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
+from logging import DEBUG, WARNING
 
 
 def wrap_callback(callback_func):
@@ -148,7 +149,7 @@ class GameInterface:
 
     def update_player_input(self, player_input, index):
         rlbot_status = self.game.UpdatePlayerInput(player_input, index)
-        self.game_status(None, rlbot_status)
+        self.game_status(None, rlbot_status, WARNING)
 
     def send_chat(self, index, team_only, message_details):
         rlbot_status = self.game.SendChat(message_details, index, team_only, self.create_status_callback(), None)
@@ -163,9 +164,9 @@ class GameInterface:
     def create_callback(self):
         return
 
-    def game_status(self, id, rlbot_status):
+    def game_status(self, id, rlbot_status, level=DEBUG):
         if rlbot_status != RLBotCoreStatus.Success and rlbot_status != RLBotCoreStatus.BufferOverfilled:
-            self.logger.debug("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
+            self.logger.log(level, "bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
@@ -252,7 +253,7 @@ class GameInterface:
     def update_player_input_flat(self, player_input_builder):
         buf = player_input_builder.Output()
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
-        self.game_status(None, rlbot_status)
+        self.game_status(None, rlbot_status, WARNING)
 
     def set_game_state(self, set_state_builder):
         buf = set_state_builder.Output()
