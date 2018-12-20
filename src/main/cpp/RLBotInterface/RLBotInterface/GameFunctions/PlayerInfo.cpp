@@ -15,7 +15,7 @@ namespace GameFunctions
 {
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
 	{
-		if (quickChatPreset < 0 || quickChatPreset > QuickChatPreset::MaxQuickChatPresets)
+		if (quickChatPreset < 0 || quickChatPreset >= QuickChatPreset::MaxQuickChatPresets)
 			return RLBotCoreStatus::InvalidQuickChatPreset;
 
 		return RLBotCoreStatus::Success;
