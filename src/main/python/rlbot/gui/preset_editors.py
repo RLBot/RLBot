@@ -356,7 +356,9 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
             if isinstance(widget, QtWidgets.QComboBox):
                 config_headers = self.config_widgets_to_headers[widget]
                 config_category = self.config_headers_to_categories[config_headers[1]]
-                widget.addItems(list(self.longlabel_to_id[config_category].keys()) + ['Unknown'])
+                sorted_list = list(self.longlabel_to_id[config_category].keys())
+                sorted_list.sort()
+                widget.addItems(sorted_list + ['Unknown'])
 
     @staticmethod
     def get_item_dicts():
