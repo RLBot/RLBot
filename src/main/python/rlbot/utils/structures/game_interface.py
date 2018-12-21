@@ -202,7 +202,8 @@ class GameInterface:
             if not os.path.isfile(file_path):
                 raise FileNotFoundError('{} was not found in {}. '
                                         'Please check that the file exists and your antivirus '
-                                        'is not removing it.'.format(file, get_dll_directory()))
+                                        'is not removing it. See https://github.com/RLBot/RLBot/wiki/Antivirus-Notes'
+                                        .format(file, get_dll_directory()))
 
         incode = subprocess.call([injector_dir, 'hidden'])
         injector_codes = ['INJECTION_SUCCESSFUL',
