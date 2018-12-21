@@ -62,7 +62,7 @@ class BaseAgent:
         self.name = name
         self.team = team
         self.index = index
-        self.logger = get_logger('nameless_bot')
+        self.logger = get_logger(f'bot{index}')
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
@@ -183,7 +183,6 @@ class BaseAgent:
         none of the boost locations will be filled in.
         :return: A v3 version of the game tick packet"""
         return convert_to_legacy_v3(game_tick_packet, field_info_packet)
-
 
     ############
     #  Methods that should not be called or changed by subclasses

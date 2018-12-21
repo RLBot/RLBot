@@ -79,7 +79,6 @@ class BotManager:
         """
         agent_class = self.agent_class_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
-        agent.logger = self.logger
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
 
         self.update_metadata_queue(agent)
