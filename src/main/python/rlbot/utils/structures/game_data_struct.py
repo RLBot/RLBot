@@ -81,6 +81,7 @@ class BoostPadState(ctypes.Structure):
     _fields_ = [("is_active", ctypes.c_bool),
                 ("timer", ctypes.c_float)]
 
+
 class TileInfo(ctypes.Structure):
     _fields_ = [("tile_state", ctypes.c_int)]
 
@@ -98,9 +99,12 @@ class GameInfo(ctypes.Structure):
                 ("is_kickoff_pause", ctypes.c_bool),
                 # Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
                 # countdown. Turns false again the moment the 'choose team' screen appears.
-                ("is_match_ended", ctypes.c_bool)]
+                ("is_match_ended", ctypes.c_bool),
+                ("world_gravity_z", ctypes.c_float)]
 
 # On the c++ side this struct has a long at the beginning for locking.  This flag is removed from this struct so it isn't visible to users.
+
+
 class GameTickPacket(ctypes.Structure):
     _fields_ = [("game_cars", PlayerInfo * MAX_PLAYERS),
                 ("num_cars", ctypes.c_int),

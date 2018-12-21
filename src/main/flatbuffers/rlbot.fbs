@@ -156,6 +156,7 @@ table GameInfo {
   /// Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
   /// countdown. Turns false again the moment the 'choose team' screen appears.
   isMatchEnded:bool;
+  worldGravityZ:float;
 }
 
 table GameTickPacket {
