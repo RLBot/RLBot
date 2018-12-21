@@ -264,10 +264,17 @@ table DesiredBoostState {
   respawnTime:Float;
 }
 
+
+table DesiredGameInfoState {
+  worldGravityZ:Float;
+}
+
+
 table DesiredGameState {
   ballState:DesiredBallState;
   carStates:[DesiredCarState];
   boostStates:[DesiredBoostState];
+  gameInfoState:DesiredGameInfoState;
 }
 
 root_type DesiredGameState;
