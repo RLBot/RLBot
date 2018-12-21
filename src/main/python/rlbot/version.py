@@ -3,9 +3,16 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.7.0'
+__version__ = '1.8.0'
 
 release_notes = {
+    '1.8.0': """
+    - Ability to modify gravity via state setting. Ball prediction reacts properly, and bots are
+      informed of the gravity in the game tick packet! - Marvin
+    - Sorting the customization items in the GUI. - hallo-doei
+    - Making logging more configurable. - Marvin
+    - Fixing custom quick chats. - Marvin
+    """,
     '1.7.0': """
     The big news: We now support painted items thanks to ccman32!
     See https://github.com/RLBot/RLBot/wiki/Bot-Customization for details.
