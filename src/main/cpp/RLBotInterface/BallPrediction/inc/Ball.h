@@ -34,10 +34,9 @@ public:
 		return sphere{ x, ball_radius };
 	}
 
-	inline void step(float dt) {
+	inline void step(float dt, const float G = -650.0f /* Optional Gravity parameter */) {
 
 		const float R = ball_radius;
-		const float G = -650.0f; // Gravity
 		const float A = 0.0003f; // Moment of inertia, but without the mass. In other words, the second moment of area of the ball.
 		const float Y = 2.0f; // Yield point of the friction model
 		const float mu = 0.280f; // Coefficient of friction

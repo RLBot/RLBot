@@ -156,6 +156,7 @@ table GameInfo {
   /// Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
   /// countdown. Turns false again the moment the 'choose team' screen appears.
   isMatchEnded:bool;
+  worldGravityZ:float;
 }
 
 table GameTickPacket {
@@ -263,10 +264,17 @@ table DesiredBoostState {
   respawnTime:Float;
 }
 
+
+table DesiredGameInfoState {
+  worldGravityZ:Float;
+}
+
+
 table DesiredGameState {
   ballState:DesiredBallState;
   carStates:[DesiredCarState];
   boostStates:[DesiredBoostState];
+  gameInfoState:DesiredGameInfoState;
 }
 
 root_type DesiredGameState;

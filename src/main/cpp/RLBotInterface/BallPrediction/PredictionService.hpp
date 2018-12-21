@@ -32,7 +32,7 @@ namespace BallPrediction {
 			ball()
 		{ 
 		}
-		std::list<BallSlice>* updatePrediction(BallSlice slice);
+		std::list<BallSlice>* updatePrediction(BallSlice slice, float gravity);
 	};
 
 }

@@ -3,7 +3,7 @@
 
 namespace BallPrediction {
 
-	std::list<BallSlice>* PredictionService::updatePrediction(BallSlice inputSlice)
+	std::list<BallSlice>* PredictionService::updatePrediction(BallSlice inputSlice, float gravity)
 	{
 		BallSlice baseSlice;
 
@@ -34,7 +34,7 @@ namespace BallPrediction {
 
 		float predictionSeconds = baseSlice.gameSeconds;
 		while (prediction.size() < expectedNumSlices) {
-			ball.step(stepInterval);
+			ball.step(stepInterval, gravity);
 			predictionSeconds += stepInterval;
 
 			BallSlice predicted;

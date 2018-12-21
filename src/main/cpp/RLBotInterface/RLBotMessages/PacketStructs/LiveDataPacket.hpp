@@ -121,6 +121,7 @@ struct GameInfo
 	bool					RoundActive;
 	bool					KickoffPause;
 	bool					MatchEnded;
+	float					WorldGravityZ;
 };
 
 struct LiveDataPacket

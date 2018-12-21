@@ -4,7 +4,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleCo
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
-from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, Physics, Vector3, Rotator
+from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, GameInfoState, Physics, Vector3, Rotator
 
 
 class Atba(BaseAgent):
@@ -99,7 +99,7 @@ class Atba(BaseAgent):
 
             if game_tick_packet.game_info.is_kickoff_pause:
                 # Color showcase
-                self.renderer.draw_string_2d(10, 120, 1, 1, "black",self.renderer.black())
+                self.renderer.draw_string_2d(10, 120, 1, 1, "black", self.renderer.black())
                 self.renderer.draw_string_2d(10, 135, 1, 1, "white", self.renderer.white())
                 self.renderer.draw_string_2d(10, 150, 1, 1, "gray", self.renderer.gray())
                 self.renderer.draw_string_2d(10, 165, 1, 1, "red", self.renderer.red())
@@ -175,15 +175,17 @@ class Atba(BaseAgent):
 
         ball_phys = game_tick_packet.game_ball.physics
         ball_state = BallState()
-        if ball_phys.location.z > 500:
-            ball_state = BallState(Physics(velocity=Vector3(z=-2000)))
+        if ball_phys.location.z < 500:
+            ball_state = BallState(Physics(velocity=Vector3(z=500)))
 
         if math.fabs(car_location.x) > 1000:
             boost_states = {i: BoostState(1.0) for i in range(34)}
         else:
             boost_states = {i: BoostState(0.0) for i in range(34)}
 
-        game_state = GameState(ball=ball_state, cars={self.index: car_state}, boosts=boost_states)
+        game_info_state = GameInfoState(world_gravity_z=-(ball_phys.location.z - 1200))
+
+        game_state = GameState(ball=ball_state, cars={self.index: car_state}, boosts=boost_states, game_info=game_info_state)
         self.set_game_state(game_state)
 
     def render_ball_prediction(self):
@@ -259,6 +261,7 @@ class Atba(BaseAgent):
         params.add_value('test_state', bool, default=False, description='if true bot will alter its game state')
         params.add_value('test_ball_prediction', bool, default=False, description='if true bot will render ball prediction')
         params.add_value('test_physics_tick', bool, default=False, description='if true bot will render ball prediction')
+
 
 class Vector2:
     def __init__(self, x=0.0, y=0.0):

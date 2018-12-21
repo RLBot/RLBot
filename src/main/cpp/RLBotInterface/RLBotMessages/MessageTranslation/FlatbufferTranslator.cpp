@@ -119,6 +119,7 @@ namespace FlatbufferTranslator {
 		structGameInfo->RoundActive = gameInfo->isRoundActive();
 		structGameInfo->TimeSeconds = gameInfo->secondsElapsed();
 		structGameInfo->UnlimitedTime = gameInfo->isUnlimitedTime();
+		structGameInfo->WorldGravityZ = gameInfo->worldGravityZ();
 	}
 
 	void translateToStruct(ByteBuffer flatbufferData, LiveDataPacket* packet)
