@@ -89,9 +89,9 @@ int runBallPrediction()
 			slice.Velocity = convertVec(ballPhys->velocity());
 			slice.AngularVelocity = convertVec(ballPhys->angularVelocity());
 			slice.gameSeconds = packet->gameInfo()->secondsElapsed();
+			float gravity = packet->gameInfo()->worldGravityZ();
 
-
-			std::list<BallPrediction::BallSlice>* prediction = predictionService.updatePrediction(slice);
+			std::list<BallPrediction::BallSlice>* prediction = predictionService.updatePrediction(slice, gravity);
 
 			emplacePrediction(prediction);
 		}
