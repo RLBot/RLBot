@@ -13,9 +13,7 @@ from rlbot.utils.structures import game_interface
 class BaseDotNetAgent(BaseIndependentAgent):
 
     def __init__(self, name, team, index):
-        self.name = name
-        self.team = team
-        self.index = index
+        super().__init__(name, team, index)
         self.port = self.read_port_from_file()
         self.is_retired = False
         self.dotnet_executable_path = None
