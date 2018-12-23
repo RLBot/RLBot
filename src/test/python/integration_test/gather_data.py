@@ -19,14 +19,17 @@ def record_atba():
     framework_config.parse_file(raw_config_parser, max_index=10)
 
     manager = SetupManager()
-    manager.startup()
+    manager.connect_to_game()
     manager.load_config(framework_config=framework_config, config_location=RLBOT_CONFIG_FILE)
+    manager.launch_ball_prediction()
+    manager.launch_quick_chat_manager()
     manager.launch_bot_processes()
-    manager.run()
+    manager.start_match()
+    manager.infinite_loop()  # Runs terminated by timeout in other thread.
 
 def ensure_dll_is_injected():
     manager = SetupManager()
-    manager.startup()
+    manager.connect_to_game()
 
 
 def KILL(process):
