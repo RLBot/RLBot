@@ -31,7 +31,7 @@ class BotManager:
         :param index: The player index, i.e. "this is player number <index>". Will be passed to the bot's constructor.
             Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
         :param agent_class_wrapper: The ExternalClassWrapper object that can be used to load and reload the bot
-        :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
+        :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive AgentMetadata once available.
         :param quick_chat_queue_holder: A data structure which helps the bot send and receive quickchat
         """
         self.terminate_request_event = terminate_request_event
