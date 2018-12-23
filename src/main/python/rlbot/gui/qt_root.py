@@ -96,6 +96,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         if self.launch_in_progress:
             # Do nothing if we're already in the process of launching a configuration.
             # Attempting to run again when we're in this state can result in duplicate processes.
+            # TODO: Add a mutex around this variable here for safety.
             return
         self.launch_in_progress = True
         if self.setup_manager is not None:
@@ -128,12 +129,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 loadout_configs[index] = loadout_configs_dict[i]
                 index += 1
         self.setup_manager = SetupManager()
-        self.setup_manager.startup()
         self.setup_manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
-        self.setup_manager.init_ball_prediction()
+        self.setup_manager.connect_to_game()
+        self.setup_manager.launch_ball_prediction()
+        self.setup_manager.launch_quick_chat_manager()
         self.setup_manager.launch_bot_processes()
+        self.setup_manager.start_match()
         self.launch_in_progress = False
-        self.setup_manager.run()
+        self.setup_manager.infinite_loop()
 
     def connect_functions(self):
         """
