@@ -164,7 +164,7 @@ class GameState:
         self.boosts = boosts
         self.game_info = game_info
 
-    def convert_to_flat(self, builder=None):
+    def convert_to_flat(self, builder=None) -> DesiredGameState:
         if self.ball is None and self.cars is None and self.boosts is None and self.game_info is None:
             return None
 
