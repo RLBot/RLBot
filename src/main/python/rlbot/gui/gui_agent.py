@@ -33,7 +33,7 @@ class GUIAgent:
             config_path = os.path.dirname(self.agent_preset.config_path)
         config = self.agent_preset.config.copy()
         config.set_value(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, self.ingame_name)
-        config_bundle = BotConfigBundle(config_path, config)
+        config_bundle = BotConfigBundle(config_path, config, os.path.basename(self.agent_preset.config_path))
 
         return self.overall_index, config_bundle, loadout_config
 
