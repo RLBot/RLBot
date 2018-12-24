@@ -242,6 +242,9 @@ class RenderingManager:
     def gray(self):
         return self.create_color(255, 128, 128, 128)
 
+    def grey(self):
+        return self.gray()
+
     def blue(self):
         return self.create_color(255, 0, 0, 255)
 
