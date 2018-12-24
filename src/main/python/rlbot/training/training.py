@@ -1,15 +1,15 @@
-import random
-from typing import Any, NewType, Union, Optional, Mapping, Iterator, Tuple
-import traceback
 from datetime import datetime, timedelta
+from typing import Any, NewType, Union, Optional, Mapping, Iterator, Tuple
+import random
+import time
+import traceback
 
-from rlbot.utils.structures import game_data_struct as gd
-from rlbot.utils.structures.game_data_struct import GameTickPacket
-from rlbot.utils.game_state_util import GameState
 from rlbot.setup_manager import SetupManager
-from rlbot.utils.logging_utils import get_logger
-from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils import rate_limiter
+from rlbot.utils.game_state_util import GameState
+from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.game_data_struct import GameTickPacket
+from rlbot.utils.structures.game_interface import GameInterface
 
 # Extend Pass or Fail to more detailed metrics
 
@@ -78,6 +78,8 @@ class Result:
         self.exercise = input_exercise
         self.grade = grade
 
+TEXT_ROW_HEIGHT = 20
+
 """
 Runs all the given named exercises.
 We order the runs such the number of match changes is minimized as they're slow.
@@ -88,28 +90,69 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
     results = {}
     # TODO: contextmanager for SetupManager
     setup_manager = SetupManager()
-    for config_path, name, ex in run_tuples:
+    game_interface = GameInterface(get_logger('run_exercise'))
+    game_interface.load_interface()
+
+    renderer = game_interface.renderer
+    renderer.clear_screen()
+    all_render_groups = set()
+    def begin_rendering(render_group):
+        renderer.begin_rendering(render_group)
+        all_render_groups.add(render_group)
+    def get_text_y(i):
+        return 40 * (i + 1)
+    begin_rendering('All Exercise names')
+    for i, (_, name, _) in enumerate(run_tuples):
+        renderer.draw_string_2d(10, get_text_y(i), 3, 3, f"[        ] {name}", renderer.white())
+    renderer.end_rendering()
+
+    for i, (config_path, name, ex) in enumerate(run_tuples):
+        def status(text, color_fn):
+            begin_rendering(f'Exercise: {name}')
+            renderer.draw_string_2d(28, get_text_y(i), 3, 3, text, color_fn())
+            renderer.end_rendering()
+
+
         if config_path != prev_config_path:
+            status('config', renderer.white)
             _setup_match(config_path, setup_manager)
             prev_config_path = config_path
-        yield (name, _run_exercise(ex, seed))
+
+            status('wait', renderer.white)
+            time.sleep(5) # Allow time for the bot to be ready
+            # TODO: reduce this.
+
+        status('>>>>', renderer.white)
+
+        result = _run_exercise(game_interface, ex, seed)
+
+        if isinstance(result.grade, Pass):
+            status('PASS', renderer.green)
+        else:
+            status('FAIL', renderer.red)
+
+        yield (name, result)
+
+    for render_group in all_render_groups:
+        renderer.clear_screen(render_group)
+        
     setup_manager.shut_down()
 
-"""
-Runs one exercise repeatedly with different seeds.
-e.g. You can use this to improve a situation your bot finds difficult by leaving
-     train_repeatedly() running and changing your bots code.
-"""
-def train_repeatedly(ex: Exercise, keep_training=lambda result: True, initial_seed=4):
-    seed = initial_seed
-    keep_looping = True
-    setup_manager = SetupManager()
-    _setup_match(ex.get_config_path(), setup_manager)
+# """
+# Runs one exercise repeatedly with different seeds.
+# e.g. You can use this to improve a situation your bot finds difficult by leaving
+#      train_repeatedly() running and changing your bots code.
+# """
+# def train_repeatedly(ex: Exercise, keep_training=lambda result: True, initial_seed=4):
+#     seed = initial_seed
+#     keep_looping = True
+#     setup_manager = SetupManager()
+#     _setup_match(ex.get_config_path(), setup_manager)
 
-    while keep_looping:
-        result = _run_exercise(ex, seed)
-        seed += 1
-    setup_manager.shut_down()
+#     while keep_looping:
+#         result = _run_exercise(ex, seed)
+#         seed += 1
+#     setup_manager.shut_down()
 
 
 def _setup_match(config_path: str, manager: SetupManager):
@@ -120,15 +163,13 @@ def _setup_match(config_path: str, manager: SetupManager):
     manager.launch_bot_processes()
     manager.start_match()
 
-def _run_exercise(ex: Exercise, seed: int) -> Result:
+def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Result:
     # TODO: Timeout
     grade = None
     rate_limit = rate_limiter.RateLimiter(120)
     last_tick_game_time = None  # What the tick time of the last observed tick was
     last_call_real_time = datetime.now()  # When we last called the Agent
-    game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
-    game_interface = GameInterface(get_logger('run_exercise'))
-    game_interface.load_interface()
+    game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
     # Set the game state
     rng = random.Random()
@@ -138,6 +179,9 @@ def _run_exercise(ex: Exercise, seed: int) -> Result:
     except Exception as e:
         return Result(ex, seed, FailDueToExerciseException(e, traceback.format_exc()))
     game_interface.set_game_state(game_state)
+
+     # Wait for the set_game_state() to propagate before we start running ex.on_tick()
+    time.sleep(0.1) 
 
     # Run until the Exercise finishes.
     while grade is None:
