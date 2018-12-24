@@ -1,7 +1,7 @@
 import flatbuffers
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
-from rlbot.utils import game_state_util
+from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
@@ -103,16 +103,9 @@ class BaseAgent:
         """Get the most recent state of the physics engine."""
         return self.__get_rigid_body_tick_func()
 
-    def set_game_state(self, game_state: game_state_util.GameState):
-        builder = flatbuffers.Builder(0)
-        game_state_offset = game_state.convert_to_flat(builder)
-        if game_state_offset is None:
-            # There are no values to be set, so just skip it
-            return
-
-        builder.Finish(game_state_offset)
-
-        self.__game_state_func(builder)
+    def set_game_state(self, game_state: GameState):
+        """CHEAT: Change the rocket league game to the given game_state"""
+        self.__game_state_func(game_state)
 
     def get_ball_prediction(self):
         """DEPRECATED! Please use get_ball_prediction_struct instead, because this is going away soon!"""
