@@ -90,8 +90,8 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
     results = {}
     # TODO: contextmanager for SetupManager
     setup_manager = SetupManager()
-    game_interface = GameInterface(get_logger('run_exercise'))
-    game_interface.load_interface()
+    setup_manager.connect_to_game()
+    game_interface = setup_manager.game_interface
 
     renderer = game_interface.renderer
     renderer.clear_screen()
@@ -103,13 +103,13 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
         return 40 * (i + 1)
     begin_rendering('All Exercise names')
     for i, (_, name, _) in enumerate(run_tuples):
-        renderer.draw_string_2d(10, get_text_y(i), 3, 3, f"[        ] {name}", renderer.white())
+        renderer.draw_string_2d(10, get_text_y(i), 2,2, f"[        ] {name}", renderer.white())
     renderer.end_rendering()
 
     for i, (config_path, name, ex) in enumerate(run_tuples):
         def status(text, color_fn):
             begin_rendering(f'Exercise: {name}')
-            renderer.draw_string_2d(28, get_text_y(i), 3, 3, text, color_fn())
+            renderer.draw_string_2d(28, get_text_y(i), 2,2, text, color_fn())
             renderer.end_rendering()
 
 
