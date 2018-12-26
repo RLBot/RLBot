@@ -11,7 +11,7 @@ from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
 
-# Extend Pass or Fail to more detailed metrics
+# Extend Pass and/or Fail to add your own, more detailed metrics.
 
 class Pass:
     """ Indicates that the bot passed the exercise. """
@@ -109,7 +109,7 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
     for i, (config_path, name, ex) in enumerate(run_tuples):
         def status(text, color_fn):
             begin_rendering(f'Exercise: {name}')
-            renderer.draw_string_2d(28, get_text_y(i), 2,2, text, color_fn())
+            renderer.draw_string_2d(24, get_text_y(i), 2,2, text, color_fn())
             renderer.end_rendering()
 
 
