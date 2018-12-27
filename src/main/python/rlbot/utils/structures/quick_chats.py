@@ -68,6 +68,10 @@ def register_for_quick_chat(queue_holder, called_func, quit_event):
                 called_func(index, team, chat)
             except queue.Empty:
                 pass
+            except EOFError as e:
+                # Something else is shutting down - we can no longer communicate.
+                get_logger('chats').debug('quick_chat queue terminated. %s', e)
+                return
         return
 
     thread = Thread(target=threaded_func, args=(queue_holder["input"], called_func, quit_event))
