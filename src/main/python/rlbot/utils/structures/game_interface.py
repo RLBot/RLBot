@@ -7,6 +7,7 @@ import flatbuffers
 
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
+from rlbot.base_extension import BaseExtension
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.rendering.rendering_manager import RenderingManager
@@ -48,7 +49,7 @@ class GameInterface:
     start_match_configuration = None
     game_status_callback_type = None
     callback_func = None
-    extension = None
+    extension: BaseExtension = None
 
     def __init__(self, logger):
         self.logger = logger
@@ -249,7 +250,7 @@ class GameInterface:
 
         return self.game_status_callback_type(wrap_callback(safe_wrapper))
 
-    def set_extension(self, extension):
+    def set_extension(self, extension: BaseExtension):
         self.game_status_callback_type(wrap_callback(self.game_status))
         self.extension = extension
 

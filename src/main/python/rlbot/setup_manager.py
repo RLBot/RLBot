@@ -8,19 +8,19 @@ from datetime import datetime, timedelta
 import webbrowser
 
 from rlbot import version
-from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
 from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
+from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
+from rlbot.utils import process_configuration
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
-from rlbot.utils import process_configuration
+from rlbot.utils.prediction import prediction_util
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import QuickChatManager
 from rlbot.utils.structures.start_match_structures import MatchSettings
-from rlbot.utils.prediction import prediction_util
 
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
@@ -216,9 +216,13 @@ class SetupManager:
             self.kill_agent_process_ids()
         self.logger.info("Shut down complete!")
 
-    def load_extension(self, extension_filename):
-        extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
-        self.extension = extension_class(self)
+    def load_extension(self, extension_filename: str):
+        self.set_extension(
+            import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
+        )
+
+    def set_extension(self, extension_class: type):
+        self.extension: BaseExtension = extension_class(self)
         self.game_interface.set_extension(self.extension)
 
     @staticmethod

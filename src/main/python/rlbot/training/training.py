@@ -10,6 +10,15 @@ from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
+from .training_extension import TrainingExtension
+
+"""
+This module provides the functionality to run Exercises (think end-to-end tests)
+for your bots.
+
+Have a look at this repo for the intended way to use this API:
+https://github.com/RLBot/RLBotTraining
+"""
 
 # Extend Pass and/or Fail to add your own, more detailed metrics.
 
@@ -39,7 +48,7 @@ class Exercise:
     """
     Statisfy this interface to define your test cases.
     This class provides a seeded random generator to support variation testing.
-    The responsibility of detecting timeouts lies with the implementation of 
+    The responsibility of detecting timeouts lies with the implementation of
     on_tick().
     """
 
@@ -51,16 +60,16 @@ class Exercise:
         raise NotImplementedError()
 
     """
-    Returns the state in which the game should start in. 
+    Returns the state in which the game should start in.
     :param random: A seeded random number generator. For repeated runs of this
-        exercise, this parameter and the bots should be the only things which  
+        exercise, this parameter and the bots should be the only things which
         causes variations between runs.
     """
     def setup(self, rng: random.Random) -> GameState:
         raise NotImplementedError()
 
     """
-    This method is called each tick to allow you to make an assessment of the 
+    This method is called each tick to allow you to make an assessment of the
     performance of the bot(s).
     The order for whether on_tick comes before the bots recieving the packet is undefined.
 
@@ -117,7 +126,6 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
             status('config', renderer.white)
             _setup_match(config_path, setup_manager)
             prev_config_path = config_path
-
             status('wait', renderer.white)
             time.sleep(5) # Allow time for the bot to be ready
             # TODO: reduce this.
@@ -135,7 +143,7 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
 
     for render_group in all_render_groups:
         renderer.clear_screen(render_group)
-        
+
     setup_manager.shut_down()
 
 # """
@@ -161,6 +169,7 @@ def _setup_match(config_path: str, manager: SetupManager):
     manager.launch_ball_prediction()
     manager.launch_quick_chat_manager()
     manager.launch_bot_processes()
+    manager.set_extension(TrainingExtension)
     manager.start_match()
 
 def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Result:
@@ -181,7 +190,7 @@ def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Res
     game_interface.set_game_state(game_state)
 
      # Wait for the set_game_state() to propagate before we start running ex.on_tick()
-    time.sleep(0.1) 
+    time.sleep(0.1)
 
     # Run until the Exercise finishes.
     while grade is None:
