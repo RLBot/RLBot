@@ -106,24 +106,23 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
         renderer.draw_string_2d(10, get_text_y(i), 2,2, f"[        ] {name}", renderer.white())
     renderer.end_rendering()
 
+    # TODO: refactor text rendering
+
     for i, (config_path, name, ex) in enumerate(run_tuples):
         def status(text, color_fn):
             begin_rendering(f'Exercise: {name}')
             renderer.draw_string_2d(24, get_text_y(i), 2,2, text, color_fn())
             renderer.end_rendering()
 
-
+        # Only reload the match if the config has changed.
         if config_path != prev_config_path:
             status('config', renderer.white)
             _setup_match(config_path, setup_manager)
             prev_config_path = config_path
-
-            status('wait', renderer.white)
-            time.sleep(5) # Allow time for the bot to be ready
-            # TODO: reduce this.
+            status('match', renderer.white)
+            _wait_until_new_ticks(game_interface)
 
         status('>>>>', renderer.white)
-
         result = _run_exercise(game_interface, ex, seed)
 
         if isinstance(result.grade, Pass):
@@ -138,21 +137,24 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
 
     setup_manager.shut_down()
 
-# """
-# Runs one exercise repeatedly with different seeds.
-# e.g. You can use this to improve a situation your bot finds difficult by leaving
-#      train_repeatedly() running and changing your bots code.
-# """
-# def train_repeatedly(ex: Exercise, keep_training=lambda result: True, initial_seed=4):
-#     seed = initial_seed
-#     keep_looping = True
-#     setup_manager = SetupManager()
-#     _setup_match(ex.get_config_path(), setup_manager)
 
-#     while keep_looping:
-#         result = _run_exercise(ex, seed)
-#         seed += 1
-#     setup_manager.shut_down()
+def _wait_until_new_ticks(game_interface: GameInterface, required_new_ticks:int=3):
+    """Blocks until we're getting new packets, indicating that the match is ready."""
+    rate_limit = rate_limiter.RateLimiter(120)
+    last_tick_game_time = None  # What the tick time of the last observed tick was
+    game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
+    seen_times = 0
+    while seen_times < required_new_ticks:
+        loop_begin_time = datetime.now()
+
+        # Read from game data shared memory
+        game_interface.update_live_data_packet(game_tick_packet)
+        tick_game_time = game_tick_packet.game_info.seconds_elapsed
+        if tick_game_time != last_tick_game_time:
+            last_tick_game_time = tick_game_time
+            seen_times += 1
+
+        rate_limit.acquire(datetime.now() - loop_begin_time)
 
 
 def _setup_match(config_path: str, manager: SetupManager):
