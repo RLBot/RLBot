@@ -13,16 +13,12 @@ class Struct(ctypes.Structure):
         Note: if your Struct contains pointers, pointer equality is used
         as opposed to following the value at the pointer.
         """
+        if type(self) != type(other):
+            return False
         for field_name, field_type in self._fields_:
             if getattr(self, field_name) != getattr(other, field_name):
                 return False
         return True
-
-    def __ne__(self, other):
-        for field_name, field_type in self._fields_:
-            if getattr(self, field_name) != getattr(other, field_name):
-                return True
-        return False
 
     def __repr__(self):
         fields_string = ', '.join(
