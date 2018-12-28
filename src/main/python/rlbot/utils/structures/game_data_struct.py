@@ -2,8 +2,8 @@ import ctypes
 import math
 
 from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
-from rlbot.utils.structures.utils import create_enum_object
 from rlbot.utils.structures.struct import Struct
+from rlbot.utils.structures.utils import create_enum_object
 
 MAX_BOOSTS = 50
 MAX_TILES = 200

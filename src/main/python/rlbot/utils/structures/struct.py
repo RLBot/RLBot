@@ -5,12 +5,12 @@ class Struct(ctypes.Structure):
     This class exists to add common python functionality to ctypes.Structure.
     This includes:
         Value equality via the `==` operator.
-        Showing contents in `repr(struct).`
+        Showing contents in `repr(struct)`.
     """
 
     def __eq__(self, other):
         """
-        Note: if you Struct contains pointers, pointer equality is used
+        Note: if your Struct contains pointers, pointer equality is used
         as opposed to following the value at the pointer.
         """
         for field_name, field_type in self._fields_:
