@@ -3,9 +3,15 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.8.1'
+__version__ = '1.8.2'
 
 release_notes = {
+    '1.8.2': """
+    - Made Rocket League stop capturing the mouse cursor. - whatisaphone
+    - Passing more params to subprocess agents. - whatisaphone
+    - Made game data structs support comparison and repr in python. - DomNomNom
+    - Fixing double-logging bug. - Marvin
+    """,
     '1.8.1': """
     - Ability to modify gravity via state setting. Ball prediction reacts properly, and bots are
       informed of the gravity in the game tick packet! - Marvin
