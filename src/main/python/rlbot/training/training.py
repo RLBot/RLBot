@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, NewType, Union, Optional, Mapping, Iterator, Tuple
+from typing import Union, Optional, Mapping, Iterator, Tuple
 import random
 import time
 import traceback
@@ -39,7 +39,7 @@ class Exercise:
     """
     Statisfy this interface to define your test cases.
     This class provides a seeded random generator to support variation testing.
-    The responsibility of detecting timeouts lies with the implementation of 
+    The responsibility of detecting timeouts lies with the implementation of
     on_tick().
     """
 
@@ -51,16 +51,16 @@ class Exercise:
         raise NotImplementedError()
 
     """
-    Returns the state in which the game should start in. 
+    Returns the state in which the game should start in.
     :param random: A seeded random number generator. For repeated runs of this
-        exercise, this parameter and the bots should be the only things which  
+        exercise, this parameter and the bots should be the only things which
         causes variations between runs.
     """
     def setup(self, rng: random.Random) -> GameState:
         raise NotImplementedError()
 
     """
-    This method is called each tick to allow you to make an assessment of the 
+    This method is called each tick to allow you to make an assessment of the
     performance of the bot(s).
     The order for whether on_tick comes before the bots recieving the packet is undefined.
 
@@ -135,7 +135,7 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
 
     for render_group in all_render_groups:
         renderer.clear_screen(render_group)
-        
+
     setup_manager.shut_down()
 
 # """
@@ -181,7 +181,7 @@ def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Res
     game_interface.set_game_state(game_state)
 
      # Wait for the set_game_state() to propagate before we start running ex.on_tick()
-    time.sleep(0.1) 
+    time.sleep(0.1)
 
     # Run until the Exercise finishes.
     while grade is None:
