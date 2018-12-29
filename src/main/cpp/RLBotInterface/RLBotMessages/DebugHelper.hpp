@@ -1,6 +1,8 @@
 #ifndef DEBUGHELPER_HPP
 #define DEBUGHELPER_HPP
 
+#include <stdio.h>
+
 //Debug configuration
 #ifdef _DEBUG
 

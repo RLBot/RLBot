@@ -13,6 +13,15 @@
 
 namespace GameFunctions
 {
+	BoostUtilities::QueueSender* pQuickChatQueue;
+	BoostUtilities::QueueSender* pFlatInputQueue;
+
+	void Initialize_PlayerInfo()
+	{
+		pQuickChatQueue = new BoostUtilities::QueueSender(BoostConstants::QuickChatFlatQueueName);
+		pFlatInputQueue = new BoostUtilities::QueueSender(BoostConstants::PlayerInputFlatQueueName);
+	}
+
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
 	{
 		if (quickChatPreset < 0 || quickChatPreset >= QuickChatPreset::MaxQuickChatPresets)
@@ -22,7 +31,6 @@ namespace GameFunctions
 	}
 
 	// FLAT
-	static BoostUtilities::QueueSender quickChatQueue(BoostConstants::QuickChatFlatQueueName);
 	static QuickChat::QuickChatRateLimiter quickChatRateLimiter;
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
@@ -39,7 +47,7 @@ namespace GameFunctions
 		if (sendStatus == RLBotCoreStatus::Success)
 		{
 			quickChatRateLimiter.RecordQuickChatSubmission(playerIndex);
-			return quickChatQueue.sendMessage(quickChatMessage, protoSize);
+			return pQuickChatQueue->sendMessage(quickChatMessage, protoSize);
 		}
 		return sendStatus;
 	}
@@ -106,11 +114,9 @@ namespace GameFunctions
 	}
 
 	// FLAT
-	static BoostUtilities::QueueSender flatInputQueue(BoostConstants::PlayerInputFlatQueueName);
-
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
-		RLBotCoreStatus status = flatInputQueue.sendMessage(controllerState, protoSize);
+		RLBotCoreStatus status = pFlatInputQueue->sendMessage(controllerState, protoSize);
 
 		if (status != RLBotCoreStatus::Success)
 			return status;

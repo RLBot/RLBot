@@ -9,10 +9,16 @@
 
 namespace BallPrediction
 {
+	BoostUtilities::SharedMemReader* pBallPredictionMem;
+
+	void Initialize()
+	{
+		pBallPredictionMem = new BoostUtilities::SharedMemReader(BoostConstants::BallPredictionName);
+	}
+
 	extern "C" ByteBuffer RLBOT_CORE_API GetBallPrediction()
 	{
-		static BoostUtilities::SharedMemReader ballPredictionMem(BoostConstants::BallPredictionName);
-		return ballPredictionMem.fetchData();
+		return pBallPredictionMem->fetchData();
 	}
 
 	// Ctypes

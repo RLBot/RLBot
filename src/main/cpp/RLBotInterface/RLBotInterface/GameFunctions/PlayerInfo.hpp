@@ -8,7 +8,6 @@
 
 #include <BoostUtilities\BoostUtilities.hpp>
 
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -16,10 +15,10 @@ extern "C"
 
 	namespace GameFunctions
 	{
-		RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset);
+		void Initialize_PlayerInfo();
+
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback = nullptr, unsigned int* pID = nullptr);
-
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(PlayerInput playerInput, int playerIndex);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* playerInput, int size);
 	}

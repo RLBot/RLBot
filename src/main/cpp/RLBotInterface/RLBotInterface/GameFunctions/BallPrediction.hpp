@@ -7,20 +7,12 @@
 #include <ErrorCodes\ErrorCodes.hpp>
 #include "..\InterfaceBase\InterfaceBase.hpp"
 
-
-#ifdef __cplusplus
-extern "C"
+namespace BallPrediction
 {
-#endif
+	void Initialize();
 
-	namespace BallPrediction
-	{
-		DLL_EXPORT ByteBuffer RLBOT_CORE_API GetBallPrediction();
-		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API GetBallPredictionStruct(BallPredictionPacket* pBallPrediction);
-	}
-
-#ifdef __cplusplus
+	extern "C" DLL_EXPORT ByteBuffer RLBOT_CORE_API GetBallPrediction();
+	extern "C" DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API GetBallPredictionStruct(BallPredictionPacket* pBallPrediction);
 }
-#endif
 
 #endif
