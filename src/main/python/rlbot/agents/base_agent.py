@@ -27,15 +27,23 @@ class SimpleControllerState:
     interface to bot makers.
     """
 
-    def __init__(self):
-        self.steer = 0.0
-        self.throttle = 0.0
-        self.pitch = 0.0
-        self.yaw = 0.0
-        self.roll = 0.0
-        self.jump = False
-        self.boost = False
-        self.handbrake = False
+    def __init__(self,
+                 steer: float = 0.0,
+                 throttle: float = 0.0,
+                 pitch: float = 0.0,
+                 yaw: float = 0.0,
+                 roll: float = 0.0,
+                 jump: bool = False,
+                 boost: bool = False,
+                 handbrake: bool = False):
+        self.steer = steer
+        self.throttle = throttle
+        self.pitch = pitch
+        self.yaw = yaw
+        self.roll = roll
+        self.jump = jump
+        self.boost = boost
+        self.handbrake = handbrake
 
 
 class BaseAgent:
