@@ -168,6 +168,7 @@ def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Res
     game_interface.set_game_state(game_state)
 
      # Wait for the set_game_state() to propagate before we start running ex.on_tick()
+     # TODO: wait until the game looks similar.
     time.sleep(0.2)
 
     # Run until the Exercise finishes.

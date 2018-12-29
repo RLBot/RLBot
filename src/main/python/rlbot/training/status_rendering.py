@@ -14,15 +14,14 @@ class TrainingStatusRenderer:
     RENDER_GROUP = "TrainingStatusRenderer"
     TEXT_SCALE = 2
     LINE_HEIGHT = 40
-    Y_CENTER = 300
+    Y_BEGIN = 100
     X_BEGIN = 10
-    CONTEXT_LINES = 8  # including the "+4 exercises"
+    PAGE_SIZE = 6  # Numer of exercise names drawn at once
 
     def __init__(self, exercise_names: List[str], renderman: RenderingManager):
         self.names = exercise_names
         self.renderman = renderman
         self.rows = [ Row(name, '', renderman.black) for name in exercise_names ]
-        print("rows: \n", '\n'.join(exercise_names))
         self.name_to_index = { name: i for i, name in enumerate(exercise_names) }
         self.last_modified_index = 0
         self._render()
@@ -39,7 +38,7 @@ class TrainingStatusRenderer:
 
         self.renderman.begin_rendering(self.RENDER_GROUP)
         def get_text_y(row_y:int) -> float:
-            return self.LINE_HEIGHT * row_y + self.Y_CENTER
+            return self.LINE_HEIGHT * row_y + self.Y_BEGIN
         def draw_string(x_offset:float, row_y:int, text:str, color_func):
             self.renderman.draw_string_2d(
                 self.X_BEGIN + x_offset,
@@ -50,32 +49,14 @@ class TrainingStatusRenderer:
                 color_func()
             )
 
-        context_begin = self.last_modified_index - self.CONTEXT_LINES # inclusive
-        context_end = self.last_modified_index + self.CONTEXT_LINES # inclusive
-
-        # If we need to summarize rows replace the first/last context row with a summary.
-        if context_begin < 0:
-            context_begin = 0
-        elif context_begin > 0:
-            context_begin += 1
-            draw_string(0, -self.CONTEXT_LINES, f'...{context_begin} exercises...', self.renderman.pink)
-
-        if context_end >= len(self.names):
-            context_end = len(self.names) - 1
-        elif context_end < len(self.names) - 1:
-            context_end -= 1
-            draw_string(0, self.CONTEXT_LINES, f'...{(len(self.rows)) - context_end} exercises...', self.renderman.grey)
-
-        r = range(context_begin, context_end+1)
-        print (''.join(
-            'x' if i==self.last_modified_index else '-' if i in r else ' '
-            for i in range(len(self.names))
-        ))
-        for context_i in r:
-            row = self.rows[context_i]
-            y = context_i - self.last_modified_index
-            draw_string(0, y, f'[       ] {row.exercise_name}', self.renderman.white)
-            draw_string(10, y, row.status_str, row.status_color_func)
+        if len(self.rows) > self.PAGE_SIZE:
+            draw_string(0, -1, f'Progress: {self.last_modified_index+1} / {len(self.rows)}', self.renderman.grey)
+        page_begin = (self.last_modified_index // self.PAGE_SIZE) * self.PAGE_SIZE
+        for i in range(page_begin, min(page_begin + self.PAGE_SIZE, len(self.rows))):
+            row = self.rows[i]
+            y = i % self.PAGE_SIZE
+            draw_string(0, y, f'[         ] {row.exercise_name}', self.renderman.white)
+            draw_string(15, y, row.status_str, row.status_color_func)
 
         self.renderman.end_rendering()
 
