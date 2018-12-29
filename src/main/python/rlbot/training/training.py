@@ -10,14 +10,13 @@ from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
+from .status_rendering import TrainingStatusRenderer, Row
 
 # Extend Pass and/or Fail to add your own, more detailed metrics.
-
 class Pass:
     """ Indicates that the bot passed the exercise. """
     def __repr__(self):
         return 'PASS'
-
 class Fail:
     """ Indicates that the bot failed the exercise. """
     def __repr__(self):
@@ -71,6 +70,7 @@ class Exercise:
     def on_tick(self, game_tick_packet: GameTickPacket) -> Optional[Grade]:
         raise NotImplementedError()
 
+
 class Result:
     def __init__(self, input_exercise: Exercise, input_seed: int, grade: Grade):
         assert grade
@@ -93,48 +93,33 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
     setup_manager.connect_to_game()
     game_interface = setup_manager.game_interface
 
-    renderer = game_interface.renderer
-    renderer.clear_screen()
-    all_render_groups = set()
-    def begin_rendering(render_group):
-        renderer.begin_rendering(render_group)
-        all_render_groups.add(render_group)
-    def get_text_y(i):
-        return 40 * (i + 1)
-    begin_rendering('All Exercise names')
-    for i, (_, name, _) in enumerate(run_tuples):
-        renderer.draw_string_2d(10, get_text_y(i), 2,2, f"[        ] {name}", renderer.white())
-    renderer.end_rendering()
 
-    # TODO: refactor text rendering
+    ren = TrainingStatusRenderer(
+        [name for _,name, _ in run_tuples],
+        game_interface.renderer
+    )
 
     for i, (config_path, name, ex) in enumerate(run_tuples):
-        def status(text, color_fn):
-            begin_rendering(f'Exercise: {name}')
-            renderer.draw_string_2d(24, get_text_y(i), 2,2, text, color_fn())
-            renderer.end_rendering()
 
         # Only reload the match if the config has changed.
         if config_path != prev_config_path:
-            status('config', renderer.white)
+            ren.update(Row(name, 'config', ren.renderman.white))
             _setup_match(config_path, setup_manager)
             prev_config_path = config_path
-            status('match', renderer.white)
+            ren.update(Row(name, 'match', ren.renderman.white))
             _wait_until_new_ticks(game_interface)
 
-        status('>>>>', renderer.white)
+        ren.update(Row(name, '>>>>', ren.renderman.white))
         result = _run_exercise(game_interface, ex, seed)
 
         if isinstance(result.grade, Pass):
-            status('PASS', renderer.green)
+            ren.update(Row(name, 'PASS', ren.renderman.green))
         else:
-            status('FAIL', renderer.red)
+            ren.update(Row(name, 'FAIL', ren.renderman.red))
 
         yield (name, result)
 
-    for render_group in all_render_groups:
-        renderer.clear_screen(render_group)
-
+    ren.clear_screen()
     setup_manager.shut_down()
 
 
@@ -183,7 +168,7 @@ def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Res
     game_interface.set_game_state(game_state)
 
      # Wait for the set_game_state() to propagate before we start running ex.on_tick()
-    time.sleep(0.1)
+    time.sleep(0.2)
 
     # Run until the Exercise finishes.
     while grade is None:
