@@ -107,7 +107,9 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
             _setup_match(config_path, setup_manager)
             prev_config_path = config_path
             ren.update(Row(name, 'match', ren.renderman.white))
-            _wait_until_new_ticks(game_interface)
+
+        ren.update(Row(name, 'wait', ren.renderman.white))
+        _wait_until_good_ticks(game_interface)
 
         ren.update(Row(name, '>>>>', ren.renderman.white))
         result = _run_exercise(game_interface, ex, seed)
@@ -123,7 +125,7 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seed=4) -> Iterator[Tup
     setup_manager.shut_down()
 
 
-def _wait_until_new_ticks(game_interface: GameInterface, required_new_ticks:int=3):
+def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks:int=3):
     """Blocks until we're getting new packets, indicating that the match is ready."""
     rate_limit = rate_limiter.RateLimiter(120)
     last_tick_game_time = None  # What the tick time of the last observed tick was
@@ -135,7 +137,7 @@ def _wait_until_new_ticks(game_interface: GameInterface, required_new_ticks:int=
         # Read from game data shared memory
         game_interface.update_live_data_packet(game_tick_packet)
         tick_game_time = game_tick_packet.game_info.seconds_elapsed
-        if tick_game_time != last_tick_game_time:
+        if tick_game_time != last_tick_game_time and game_tick_packet.game_info.is_round_active:
             last_tick_game_time = tick_game_time
             seen_times += 1
 
@@ -158,6 +160,7 @@ def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Res
     last_call_real_time = datetime.now()  # When we last called the Agent
     game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
+
     # Set the game state
     rng = random.Random()
     rng.seed(seed)
@@ -169,7 +172,7 @@ def _run_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Res
 
      # Wait for the set_game_state() to propagate before we start running ex.on_tick()
      # TODO: wait until the game looks similar.
-    time.sleep(0.2)
+    time.sleep(0.1)
 
     # Run until the Exercise finishes.
     while grade is None:
