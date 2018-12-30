@@ -120,7 +120,10 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seeds:Iterator[int]=Non
 
                 ren.update(Row(name, 'setup', ren.renderman.white))
                 time.sleep(0.1)
-                _setup_exercise(game_interface, ex, seed)
+                result = _setup_exercise(game_interface, ex, seed)
+                if result is not None:
+                    yield (name, result)
+                    continue
                 # Wait for the set_game_state() to propagate before we start running ex.on_tick()
                 # TODO: wait until the game looks similar.
                 time.sleep(0.1)
@@ -168,7 +171,7 @@ def _setup_match(config_path: str, manager: SetupManager):
     manager.launch_bot_processes()
     manager.start_match()
 
-def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int):
+def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Optional[Result]:
     # Set the game state
     rng = random.Random()
     rng.seed(seed)
