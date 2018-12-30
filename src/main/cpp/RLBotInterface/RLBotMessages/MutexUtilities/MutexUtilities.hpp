@@ -3,7 +3,8 @@
 
 namespace MutexUtilities
 {
-	bool WaitForMutexes();
+	bool WaitForCore();
+	bool IsBallPredictionServiceRunning();
 	bool CreateCoreMutex();
 	bool CreateBallPredictionMutex();
 };

@@ -9,9 +9,9 @@
 
 namespace GameFunctions
 {
-	BoostUtilities::SharedMemReader* pFlatFieldMem;
-	BoostUtilities::SharedMemReader* pFlatTickMem;
-	BoostUtilities::SharedMemReader* pPhysicsTickMem;
+	BoostUtilities::SharedMemReader* pFlatFieldMem = nullptr;
+	BoostUtilities::SharedMemReader* pFlatTickMem = nullptr;
+	BoostUtilities::SharedMemReader* pPhysicsTickMem = nullptr;
 
 	void Initialize_GamePacket()
 	{

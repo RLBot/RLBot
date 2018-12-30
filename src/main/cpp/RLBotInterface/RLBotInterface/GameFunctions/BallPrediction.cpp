@@ -1,4 +1,5 @@
 #include <DebugHelper.hpp>
+#include <Messages.hpp>
 
 #include "BallPrediction.hpp"
 #include <MessageTranslation\FlatbufferTranslator.hpp>
@@ -9,15 +10,20 @@
 
 namespace BallPrediction
 {
-	BoostUtilities::SharedMemReader* pBallPredictionMem;
-
-	void Initialize()
-	{
-		pBallPredictionMem = new BoostUtilities::SharedMemReader(BoostConstants::BallPredictionName);
-	}
+	BoostUtilities::SharedMemReader* pBallPredictionMem = nullptr;
 
 	extern "C" ByteBuffer RLBOT_CORE_API GetBallPrediction()
 	{
+		if (!MutexUtilities::IsBallPredictionServiceRunning())
+		{
+			ByteBuffer empty;
+			empty.ptr = new char[1]; // Arbitrary valid pointer to an array. We'll be calling delete[] on this later.
+			empty.size = 0;
+			return empty;
+		}
+		else if (!pBallPredictionMem)
+			pBallPredictionMem = new BoostUtilities::SharedMemReader(BoostConstants::BallPredictionName);
+
 		return pBallPredictionMem->fetchData();
 	}
 

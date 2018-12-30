@@ -4,7 +4,7 @@
 
 namespace RenderFunctions
 {
-	BoostUtilities::QueueSender* pRenderGroupQueue;
+	BoostUtilities::QueueSender* pRenderGroupQueue = nullptr;
 
 	void Initialize()
 	{

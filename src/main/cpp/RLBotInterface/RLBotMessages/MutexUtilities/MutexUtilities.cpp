@@ -9,6 +9,25 @@ namespace MutexUtilities
 	const wchar_t* pCoreMutexName = L"Local\\RLBotCore";
 	const wchar_t* pBallPredictionMutexName = L"Local\\RLBotBallPrediction";
 
+	bool checkMutexExists(const wchar_t* pName)
+	{
+		HANDLE hMutex = OpenMutexW(SYNCHRONIZE, FALSE, pName);
+
+		if (!hMutex)
+		{
+			DWORD dwLastError = GetLastError();
+
+			if (dwLastError != ERROR_FILE_NOT_FOUND)
+				DEBUG_LOG("OpenMutex failed! Error code: 0x%08X\n", dwLastError);
+
+			return false;
+		}
+
+		CloseHandle(hMutex);
+
+		return true;
+	}
+
 	bool waitForMutex(const wchar_t* pName)
 	{
 		HANDLE hMutex = NULL;
@@ -51,17 +70,16 @@ namespace MutexUtilities
 		return true;
 	}
 
-	bool WaitForMutexes()
+	bool WaitForCore()
 	{
-		DEBUG_LOG("Waiting for the RLBot Core and Ball Prediction Service to initialize...\n");
+		DEBUG_LOG("Waiting for the RLBot Core to initialize...\n");
 
-		if (!waitForMutex(pCoreMutexName))
-			return false;
+		return waitForMutex(pCoreMutexName);
+	}
 
-		if (!waitForMutex(pBallPredictionMutexName))
-			return false;
-
-		return true;
+	bool IsBallPredictionServiceRunning()
+	{
+		return checkMutexExists(pBallPredictionMutexName);
 	}
 
 	bool CreateCoreMutex()

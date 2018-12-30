@@ -31,7 +31,7 @@ namespace Interface
 		DEBUG_LOG("====================================================================\n");
 		DEBUG_LOG("Initializing...\n");
 
-		if (!MutexUtilities::WaitForMutexes())
+		if (!MutexUtilities::WaitForCore())
 			return ERROR_FUNCTION_FAILED;
 
 		if (!FileMappings::Initialize())
@@ -40,7 +40,6 @@ namespace Interface
 		if (!CallbackProcessor::Initialize())
 			return ERROR_FUNCTION_FAILED;
 
-		BallPrediction::Initialize();
 		GameFunctions::Initialize_GamePacket();
 		GameFunctions::Initialize_GameFunctions();
 		GameFunctions::Initialize_PlayerInfo();

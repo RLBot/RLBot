@@ -9,8 +9,6 @@
 
 namespace BallPrediction
 {
-	void Initialize();
-
 	extern "C" DLL_EXPORT ByteBuffer RLBOT_CORE_API GetBallPrediction();
 	extern "C" DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API GetBallPredictionStruct(BallPredictionPacket* pBallPrediction);
 }

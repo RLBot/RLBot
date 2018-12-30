@@ -13,8 +13,8 @@
 
 namespace GameFunctions
 {
-	BoostUtilities::QueueSender* pQuickChatQueue;
-	BoostUtilities::QueueSender* pFlatInputQueue;
+	BoostUtilities::QueueSender* pQuickChatQueue = nullptr;
+	BoostUtilities::QueueSender* pFlatInputQueue = nullptr;
 
 	void Initialize_PlayerInfo()
 	{

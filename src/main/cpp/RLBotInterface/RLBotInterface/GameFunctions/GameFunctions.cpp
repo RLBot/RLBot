@@ -17,7 +17,7 @@
 
 namespace GameFunctions
 {
-	BoostUtilities::QueueSender* pGameStateQueue;
+	BoostUtilities::QueueSender* pGameStateQueue = nullptr;
 
 	void Initialize_GameFunctions()
 	{
