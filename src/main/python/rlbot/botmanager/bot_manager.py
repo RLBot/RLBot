@@ -190,7 +190,10 @@ class BotManager:
             # Ratelimit here
             after = datetime.now()
 
-            rate_limit.acquire(after - before)
+            try:
+                rate_limit.acquire(after - before)
+            except KeyboardInterrupt:
+                self.terminate_request_event.set()
 
         if hasattr(agent, 'retire'):
             agent.retire()
