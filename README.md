@@ -58,7 +58,7 @@ There's tons of good information at https://github.com/RLBot/RLBot/wiki
 ### Extras
 
 #### Community Info
- - We have a [Discord server](https://discord.gg/Eq3bzXg) (the heart of the community, please join!)
+ - We have a [Discord server](https://discord.gg/VZJKWwJ) (the heart of the community, please join!)
  - [We also have a subreddit.](https://www.reddit.com/r/RocketLeagueBots/) 
  - We are now on v4 of RLBot so be wary of outdated information.
 
