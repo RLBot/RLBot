@@ -65,6 +65,15 @@ namespace RLBotDotNet
         {
             var renderer = GetRendererForBot(bot);
             bot.SetRenderer(renderer);
+
+            Console.WriteLine("Waiting for the RLBot Interface to initialize...");
+
+            while (!RLBotInterface.IsInitialized())
+                Thread.Sleep(100);
+
+            Console.WriteLine("The RLBot Interface has been successfully initialized!");
+            Console.WriteLine("Running the bot loop...");
+
             while (true)
             {
                 try
