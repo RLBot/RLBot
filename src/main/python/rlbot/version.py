@@ -3,12 +3,13 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.8.4'
+__version__ = '1.9.0'
 
 release_notes = {
-    '1.8.4': """
+    '1.9.0': """
     - *Much* faster core dll initialization! - ccman32
     - Allow the user to change the appearance of human and party-member bot agents via the GUI - r0bbi3
+    - Added game speed info to game tick packet and the ability to modify it via state setting - Marvin
     """,
     '1.8.3': """
     - Allow SimpleControllerState initialization. - Marvin
