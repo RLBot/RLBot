@@ -32,6 +32,7 @@
     <ClInclude Include="MessageStructs\GameMessages.hpp" />
     <ClInclude Include="MessageStructs\Message.hpp" />
     <ClInclude Include="MessageTranslation\FlatbufferTranslator.hpp" />
+    <ClInclude Include="MutexUtilities\MutexUtilities.hpp" />
     <ClInclude Include="PacketStructs\LiveDataPacket.hpp" />
     <ClInclude Include="PacketStructs\RigidBodyStructs.hpp" />
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp" />
@@ -44,6 +45,7 @@
     <ClCompile Include="FileMappings\FileMappings.cpp" />
     <ClCompile Include="MessageStructs\Message.cpp" />
     <ClCompile Include="MessageTranslation\FlatbufferTranslator.cpp" />
+    <ClCompile Include="MutexUtilities\MutexUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
