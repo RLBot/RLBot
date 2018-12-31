@@ -219,9 +219,6 @@ class GameInterface:
         injection_status = injector_codes[incode]
         if injection_status in injector_valid_codes:
             self.logger.info('Finished Injecting DLL')
-            if injection_status == 'INJECTION_SUCCESSFUL':
-                # We need to wait for the injections to be finished
-                self.countdown(20)
             return injection_status
         else:
             self.logger.error('Failed to inject DLL: ' + injection_status)

@@ -5,12 +5,15 @@
 #include <chrono>
 #include <thread>
 #include <csignal>
+
+#include <Interface.hpp>
+#include <Messages.hpp>
+
 #include "PredictionService.hpp"
 #include <GameFunctions\GameFunctions.hpp>
 #include <rlbot_generated.h>
 #include <BoostUtilities\BoostUtilities.hpp>
 #include <BoostUtilities\BoostConstants.hpp>
-
 
 vec3 convertVec(const rlbot::flat::Vector3* vec)
 {
@@ -65,6 +68,10 @@ int runBallPrediction()
 
 	std::list<BallPrediction::BallSlice> empty;
 	emplacePrediction(&empty); // Clear out any previous predictions
+	MutexUtilities::CreateBallPredictionMutex();
+
+	while (!Interface::IsInitialized())
+		Sleep(100);
 
 	while (true) 
 	{

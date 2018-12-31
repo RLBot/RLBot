@@ -39,6 +39,12 @@
     <Filter Include="Source Files\BoostUtilities">
       <UniqueIdentifier>{82c78c7f-9fd0-4d2b-8fca-ee9dce9c863f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\MutexUtilities">
+      <UniqueIdentifier>{c1ea3a96-c36e-4744-a652-f66e42732ad5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MutexUtilities">
+      <UniqueIdentifier>{5b8c9b60-886e-4a8b-8db9-93f434e11288}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Messages.hpp">
@@ -95,6 +101,9 @@
     <ClInclude Include="PacketStructs\RigidBodyStructs.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
+    <ClInclude Include="MutexUtilities\MutexUtilities.hpp">
+      <Filter>Header Files\MutexUtilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MessageStructs\Message.cpp">
@@ -111,6 +120,9 @@
     </ClCompile>
     <ClCompile Include="MessageTranslation\FlatbufferTranslator.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MutexUtilities\MutexUtilities.cpp">
+      <Filter>Source Files\MutexUtilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
