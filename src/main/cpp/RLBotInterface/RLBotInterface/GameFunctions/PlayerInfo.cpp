@@ -35,6 +35,11 @@ namespace GameFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
 	{
+		if (!pQuickChatQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+
 		auto parsedChat = flatbuffers::GetRoot<rlbot::flat::QuickChat>(quickChatMessage);
 		int playerIndex = parsedChat->playerIndex();
 
@@ -116,6 +121,11 @@ namespace GameFunctions
 	// FLAT
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
+		if (!pFlatInputQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+
 		RLBotCoreStatus status = pFlatInputQueue->sendMessage(controllerState, protoSize);
 
 		if (status != RLBotCoreStatus::Success)

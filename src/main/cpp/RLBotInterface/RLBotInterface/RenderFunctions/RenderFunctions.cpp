@@ -13,6 +13,10 @@ namespace RenderFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int protoSize)
 	{
+		if (!pRenderGroupQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
 		return pRenderGroupQueue->sendMessage(renderGroup, protoSize);
 	}
 }

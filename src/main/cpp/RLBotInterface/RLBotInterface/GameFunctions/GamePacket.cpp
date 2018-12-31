@@ -13,6 +13,14 @@ namespace GameFunctions
 	BoostUtilities::SharedMemReader* pFlatTickMem = nullptr;
 	BoostUtilities::SharedMemReader* pPhysicsTickMem = nullptr;
 
+	ByteBuffer MakeEmptyBuffer()
+	{
+		ByteBuffer empty;
+		empty.ptr = new char[1]; // Arbitrary valid pointer to an array. We'll be calling delete[] on this later.
+		empty.size = 0;
+		return empty;
+	}
+
 	void Initialize_GamePacket()
 	{
 		pFlatFieldMem = new BoostUtilities::SharedMemReader(BoostConstants::FieldInfoFlatName);
@@ -26,6 +34,10 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
 	{
+		if (!pFlatFieldMem)
+		{
+			return MakeEmptyBuffer();
+		}
 		return pFlatFieldMem->fetchData();
 	}
 
@@ -45,6 +57,10 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{
+		if (!pFlatTickMem)
+		{
+			return MakeEmptyBuffer();
+		}
 		return pFlatTickMem->fetchData();
 	}
 
@@ -64,6 +80,10 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateRigidBodyTickFlatbuffer()
 	{
+		if (!pPhysicsTickMem)
+		{
+			return MakeEmptyBuffer();
+		}
 		return pPhysicsTickMem->fetchData();
 	}
 

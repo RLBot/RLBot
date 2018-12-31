@@ -31,6 +31,10 @@ namespace GameFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size)
 	{
+		if (!pGameStateQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
 		return pGameStateQueue->sendMessage(gameStateData, size);
 	}
 
