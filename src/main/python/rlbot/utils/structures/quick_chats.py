@@ -98,7 +98,6 @@ class QuickChatManager:
 
     def process_queue(self, quit_event):
         while not quit_event.is_set():
-
             try:
                 next_message = self.general_chat_queue.get(timeout=0.01)
                 index, team, team_only, message_details = next_message
@@ -116,6 +115,8 @@ class QuickChatManager:
                 self.game_interface.send_chat(index, team_only, message_details)
             except queue.Empty:
                 pass
+            except EOFError:
+                quit_event.set()
 
     def start_manager(self, quit_event):
         thread = Thread(target=self.process_queue, args=(quit_event,))
