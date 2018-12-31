@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Added a check to avoid calling RLBot Interface functions before the interface has been initialized
+      Fixed an issue in the RLBotInterface where IsInitialize would return a wrong value
     </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>rocket-league</tags>
