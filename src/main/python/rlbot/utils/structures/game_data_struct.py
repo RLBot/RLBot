@@ -100,7 +100,8 @@ class GameInfo(Struct):
                 # Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
                 # countdown. Turns false again the moment the 'choose team' screen appears.
                 ("is_match_ended", ctypes.c_bool),
-                ("world_gravity_z", ctypes.c_float)]
+                ("world_gravity_z", ctypes.c_float),
+                ("game_speed", ctypes.c_float)]
 
 # On the c++ side this struct has a long at the beginning for locking.  This flag is removed from this struct so it isn't visible to users.
 

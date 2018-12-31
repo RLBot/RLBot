@@ -157,7 +157,8 @@ class Atba(BaseAgent):
             self.renderer.draw_string_2d(10, 130, 2, 2, 'damage index: ' + str(damage_index), self.renderer.white())
 
             force_accum_recent = game_tick_packet.game_ball.drop_shot_info.force_accum_recent
-            self.renderer.draw_string_2d(10, 150, 2, 2, 'force accum recent: ' + str(force_accum_recent), self.renderer.white())
+            self.renderer.draw_string_2d(10, 150, 2, 2, 'force accum recent: ' +
+                                         str(force_accum_recent), self.renderer.white())
 
         self.renderer.end_rendering()
 
@@ -183,9 +184,10 @@ class Atba(BaseAgent):
         else:
             boost_states = {i: BoostState(0.0) for i in range(34)}
 
-        game_info_state = GameInfoState(world_gravity_z=-(ball_phys.location.z - 1200))
+        game_info_state = GameInfoState(world_gravity_z=-(ball_phys.location.z - 1200), game_speed=0.5)
 
-        game_state = GameState(ball=ball_state, cars={self.index: car_state}, boosts=boost_states, game_info=game_info_state)
+        game_state = GameState(ball=ball_state, cars={self.index: car_state},
+                               boosts=boost_states, game_info=game_info_state)
         self.set_game_state(game_state)
 
     def render_ball_prediction(self):
@@ -259,8 +261,10 @@ class Atba(BaseAgent):
         params.add_value('test_quickchat', bool, default=False, description='if true bot will spam quickchats')
         params.add_value('test_dropshot', bool, default=False, description='if true bot will render dropshot info')
         params.add_value('test_state', bool, default=False, description='if true bot will alter its game state')
-        params.add_value('test_ball_prediction', bool, default=False, description='if true bot will render ball prediction')
-        params.add_value('test_physics_tick', bool, default=False, description='if true bot will render ball prediction')
+        params.add_value('test_ball_prediction', bool, default=False,
+                         description='if true bot will render ball prediction')
+        params.add_value('test_physics_tick', bool, default=False,
+                         description='if true bot will render ball prediction')
 
 
 class Vector2:

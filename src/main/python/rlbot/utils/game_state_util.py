@@ -145,14 +145,19 @@ class BoostState:
 
 class GameInfoState:
 
-    def __init__(self, world_gravity_z: float = None):
+    def __init__(self, world_gravity_z: float = None, game_speed: float = None):
         self.world_gravity_z = world_gravity_z
+        self.game_speed = game_speed
 
     def convert_to_flat(self, builder):
 
         DesiredGameInfoState.DesiredGameInfoStateStart(builder)
         if self.world_gravity_z is not None:
-            DesiredGameInfoState.DesiredGameInfoStateAddWorldGravityZ(builder, Float.CreateFloat(builder, self.world_gravity_z))
+            DesiredGameInfoState.DesiredGameInfoStateAddWorldGravityZ(
+                builder, Float.CreateFloat(builder, self.world_gravity_z))
+        if self.game_speed is not None:
+            DesiredGameInfoState.DesiredGameInfoStateAddGameSpeed(
+                builder, Float.CreateFloat(builder, self.game_speed))
         return DesiredGameInfoState.DesiredGameInfoStateEnd(builder)
 
 

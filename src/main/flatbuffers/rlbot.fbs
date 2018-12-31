@@ -157,6 +157,7 @@ table GameInfo {
   /// countdown. Turns false again the moment the 'choose team' screen appears.
   isMatchEnded:bool;
   worldGravityZ:float;
+  gameSpeed:float;
 }
 
 table GameTickPacket {
@@ -267,6 +268,7 @@ table DesiredBoostState {
 
 table DesiredGameInfoState {
   worldGravityZ:Float;
+  gameSpeed:Float;
 }
 
 
