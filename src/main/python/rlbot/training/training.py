@@ -8,7 +8,7 @@ import threading
 from rlbot.setup_manager import SetupManager
 from rlbot.utils import rate_limiter
 from rlbot.utils.game_state_util import GameState
-from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
 from .status_rendering import TrainingStatusRenderer, Row
@@ -113,13 +113,13 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seeds:Iterator[int]=Non
                     ren.update(Row(name, 'config', ren.renderman.white))
                     _setup_match(config_path, setup_manager)
                     prev_config_path = config_path
-                    ren.update(Row(name, 'match', ren.renderman.white))
+                    ren.update(Row(name, 'bots', ren.renderman.white))
+                    _wait_until_bots_ready(setup_manager)
 
                 ren.update(Row(name, 'wait', ren.renderman.white))
                 _wait_until_good_ticks(game_interface)
 
                 ren.update(Row(name, 'setup', ren.renderman.white))
-                time.sleep(0.1)
                 result = _setup_exercise(game_interface, ex, seed)
                 if result is not None:
                     yield (name, result)
@@ -143,6 +143,14 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seeds:Iterator[int]=Non
     ren.clear_screen()
     setup_manager.shut_down()
 
+def _wait_until_bots_ready(setup_manager: SetupManager):
+    total_ready = 0
+    total_ready += setup_manager.try_recieve_agent_metadata()
+    logger = get_logger(DEFAULT_LOGGER)
+    while total_ready < setup_manager.num_participants:
+        logger.debug('Waiting on all bots to post their metadata.')
+        time.sleep(0.1)
+        total_ready += setup_manager.try_recieve_agent_metadata()
 
 def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks:int=3):
     """Blocks until we're getting new packets, indicating that the match is ready."""

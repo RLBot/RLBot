@@ -174,18 +174,23 @@ class SetupManager:
         Checks whether any of the started bots have posted their AgentMetadata
         yet. If so, we put them on the agent_metadata_map such that we can
         kill their process later when we shut_down(kill_agent_process_ids=True)
+
+        Returns how from how many bots we recieved metadata from.
         """
+        num_recieved = 0
         while True:  # will exit on queue.Empty
             try:
                 single_agent_metadata = self.agent_metadata_queue.get(timeout=0.1)
+                num_recieved += 1
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
                 process_configuration.configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
-                return
+                return num_recieved
             except Exception as ex:
                 self.logger.error(ex)
-                return
+                return num_recieved
+        return num_recieved
 
     def reload_all_agents(self):
         self.logger.info("Reloading all agents...")
