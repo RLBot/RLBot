@@ -20,7 +20,8 @@ public enum RLBotCoreStatus {
     INVALID_PLAYER_INDEX,
     INVALID_QUICK_CHAT_PRESET,
     INVALID_RENDER_TYPE,
-    QUICK_CHAT_RATE_EXCEEDED;
+    QUICK_CHAT_RATE_EXCEEDED,
+    NOT_INITIALIZED;
 
     public static RLBotCoreStatus fromDllResult(int dllResult) {
         return RLBotCoreStatus.values()[dllResult];

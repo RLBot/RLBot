@@ -20,6 +20,8 @@
         InvalidRoll,
         InvalidPlayerIndex,
         InvalidQuickChatPreset,
-        InvalidRenderType
+        InvalidRenderType,
+        QuickChatRateExceeded,
+        NotInitialized
     }
 }

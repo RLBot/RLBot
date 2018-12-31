@@ -10,6 +10,7 @@ release_notes = {
     - *Much* faster core dll initialization! - ccman32
     - Allow the user to change the appearance of human and party-member bot agents via the GUI - r0bbi3
     - Added game speed info to game tick packet and the ability to modify it via state setting - Marvin
+    - Make the game stop capturing the mouse cursor if only bots are playing - whatisaphone
     """,
     '1.8.3': """
     - Allow SimpleControllerState initialization. - Marvin
