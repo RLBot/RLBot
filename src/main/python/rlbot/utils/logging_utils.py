@@ -16,6 +16,7 @@ def get_logger(logger_name, log_creation=True):
         ch.setFormatter(logging.Formatter(FORMAT))
         ch.setLevel(logging_level)
         logger.addHandler(ch)
+    logging.getLogger().handlers = []
     if logger_name == DEFAULT_LOGGER:
         return logger
     if log_creation:
