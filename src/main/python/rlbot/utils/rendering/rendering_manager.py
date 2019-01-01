@@ -303,9 +303,11 @@ class RenderingManager:
     def __wrap_float(self, number):
         return Float.CreateFloat(self.builder, number)
 
-    """Supports Flatbuffers Vector3, cTypes Vector3, list/tuple of numbers, or passing x,y,z (z optional)"""
-
-    def __create_vector(self, *vec):
+    def __create_vector(self, *vec) -> Vector3:
+        """
+        Converts a variety of vector types to a flatbuffer Vector3.
+        Supports Flatbuffers Vector3, cTypes Vector3, list/tuple of numbers, or passing x,y,z (z optional)
+        """
         import numbers
 
         if len(vec) == 1:

@@ -36,6 +36,16 @@ class SimpleControllerState:
                  jump: bool = False,
                  boost: bool = False,
                  handbrake: bool = False):
+        """
+        :param steer:    Range: -1 .. 1, negative=left, positive=right
+        :param throttle: Range: -1 .. 1, negative=backward, positive=forward
+        :param pitch:    Range: -1 .. 1, negative=nose-down, positive=nose-up
+        :param yaw:      Range: -1 .. 1, negative=nose-left, positive=nose-right
+        :param roll:     Range: -1 .. 1, negative=anticlockwise, positive=clockwise  (when looking forwards along the car)
+        :param jump: Analogous to the jump button in game.
+        :param boost: Analogous to the boost button in game.
+        :param handbrake: Analogous to the handbrake button in game.
+        """
         self.steer = steer
         self.throttle = throttle
         self.pitch = pitch
