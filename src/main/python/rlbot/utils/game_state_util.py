@@ -1,7 +1,8 @@
 import flatbuffers
+from typing import Union
+
 from rlbot.messages.flat import Float, RotatorPartial, Vector3Partial, DesiredPhysics, DesiredGameState, \
     DesiredCarState, DesiredBallState, DesiredBoostState, DesiredGameInfoState, Bool
-
 from rlbot.utils.structures import game_data_struct
 from rlbot.messages.flat import GameTickPacket
 
@@ -142,17 +143,21 @@ class BoostState:
             DesiredBoostState.DesiredBoostStateAddRespawnTime(builder, Float.CreateFloat(builder, self.respawn_time))
         return DesiredBoostState.DesiredBoostStateEnd(builder)
 
-
 class GameInfoState:
 
-    def __init__(self, world_gravity_z: float = None):
+    def __init__(self, world_gravity_z: float = None, game_speed: float = None):
         self.world_gravity_z = world_gravity_z
+        self.game_speed = game_speed
 
     def convert_to_flat(self, builder):
 
         DesiredGameInfoState.DesiredGameInfoStateStart(builder)
         if self.world_gravity_z is not None:
-            DesiredGameInfoState.DesiredGameInfoStateAddWorldGravityZ(builder, Float.CreateFloat(builder, self.world_gravity_z))
+            DesiredGameInfoState.DesiredGameInfoStateAddWorldGravityZ(
+                builder, Float.CreateFloat(builder, self.world_gravity_z))
+        if self.game_speed is not None:
+            DesiredGameInfoState.DesiredGameInfoStateAddGameSpeed(
+                builder, Float.CreateFloat(builder, self.game_speed))
         return DesiredGameInfoState.DesiredGameInfoStateEnd(builder)
 
 
@@ -164,7 +169,7 @@ class GameState:
         self.boosts = boosts
         self.game_info = game_info
 
-    def convert_to_flat(self, builder=None):
+    def convert_to_flat(self, builder=None) -> DesiredGameState:
         if self.ball is None and self.cars is None and self.boosts is None and self.game_info is None:
             return None
 
@@ -222,7 +227,7 @@ class GameState:
         return DesiredGameState.DesiredGameStateEnd(builder)
 
     @staticmethod
-    def create_from_gametickpacket(game_tick_packet):
+    def create_from_gametickpacket(game_tick_packet: Union[game_data_struct.GameTickPacket, GameTickPacket.GameTickPacket]):
         game_state = GameState()
         if isinstance(game_tick_packet, game_data_struct.GameTickPacket):
             car_states = {}

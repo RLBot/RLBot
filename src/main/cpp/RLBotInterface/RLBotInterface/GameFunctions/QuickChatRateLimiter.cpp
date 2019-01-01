@@ -3,8 +3,8 @@
 #include <rlbot_generated.h>
 #include <BoostUtilities\BoostUtilities.hpp>
 
-namespace QuickChat {
-
+namespace QuickChat
+{
 	long long GetCurrentTime()
 	{
 		using namespace std::chrono;
@@ -55,6 +55,4 @@ namespace QuickChat {
 	{
 		chatStates[playerIndex].chatCounter++;
 	}
-
 }
-

@@ -16,6 +16,7 @@ namespace RLBotDotNet.Utils
     
         #region DllImports
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
         public extern static bool IsInitialized();
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]

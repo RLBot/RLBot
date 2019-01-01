@@ -96,6 +96,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         if self.launch_in_progress:
             # Do nothing if we're already in the process of launching a configuration.
             # Attempting to run again when we're in this state can result in duplicate processes.
+            # TODO: Add a mutex around this variable here for safety.
             return
         self.launch_in_progress = True
         if self.setup_manager is not None:
@@ -128,12 +129,14 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 loadout_configs[index] = loadout_configs_dict[i]
                 index += 1
         self.setup_manager = SetupManager()
-        self.setup_manager.startup()
         self.setup_manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
-        self.setup_manager.init_ball_prediction()
+        self.setup_manager.connect_to_game()
+        self.setup_manager.launch_ball_prediction()
+        self.setup_manager.launch_quick_chat_manager()
         self.setup_manager.launch_bot_processes()
+        self.setup_manager.start_match()
         self.launch_in_progress = False
-        self.setup_manager.run()
+        self.setup_manager.infinite_loop()
 
     def connect_functions(self):
         """
@@ -277,28 +280,38 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         Also saves the new type if there is a bot selected
         :return:
         """
-        if self.bot_type_combobox.currentText() == 'RLBot':
+        bot_type = self.bot_type_combobox.currentText()        
+        if bot_type == 'RLBot':
             self.rlbot_frame.setHidden(False)
             self.extra_line.setHidden(False)
             self.psyonix_bot_frame.setHidden(True)
             self.appearance_frame.setHidden(False)
-        elif self.bot_type_combobox.currentText() == 'Psyonix':
+            self.label_3.setHidden(False)
+            self.ign_lineedit.setHidden(False)
+        elif bot_type == 'Psyonix':
             self.psyonix_bot_frame.setHidden(False)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(False)
             self.appearance_frame.setHidden(False)
-        elif self.bot_type_combobox.currentText() == 'Human':
+            self.label_3.setHidden(False)
+            self.ign_lineedit.setHidden(False)
+        elif bot_type == 'Human':
             self.psyonix_bot_frame.setHidden(True)
             self.rlbot_frame.setHidden(True)
             self.extra_line.setHidden(True)
-            self.appearance_frame.setHidden(True)
-        elif self.bot_type_combobox.currentText() == 'Party Member Bot':
+            self.appearance_frame.setHidden(False)
+            self.label_3.setHidden(True)
+            self.ign_lineedit.setHidden(True)
+        elif bot_type == 'Party Member Bot':
             self.rlbot_frame.setHidden(False)
-            self.extra_line.setHidden(True)
+            self.extra_line.setHidden(False)
             self.psyonix_bot_frame.setHidden(True)
-            self.appearance_frame.setHidden(True)
+            self.appearance_frame.setHidden(False)
+            self.label_3.setHidden(True)
+            self.ign_lineedit.setHidden(True)
+            
         if self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
-            config_type = self.bot_type_combobox.currentText().lower().replace(" ", "_")
+            config_type = bot_type.lower().replace(" ", "_")
             self.current_bot.set_participant_type(config_type)
 
     def team_settings_edit_event(self, value=None):

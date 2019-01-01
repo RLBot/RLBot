@@ -3,9 +3,25 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.8.1'
+__version__ = '1.9.1'
 
 release_notes = {
+    '1.9.1': """
+    - *Much* faster core dll initialization! - ccman32
+    - Adding support for a training mode! Check out https://github.com/RLBot/RLBotTraining - DomNomNom
+    - Allow the user to change the appearance of human and party-member bot agents via the GUI - r0bbi3
+    - Added game speed info to game tick packet and the ability to modify it via state setting - Marvin
+    - Make the game stop capturing the mouse cursor if only bots are playing - whatisaphone
+    - Various quality-of-life improvements - DomNomNom
+    """,
+    '1.8.3': """
+    - Allow SimpleControllerState initialization. - Marvin
+    - Passing more params to subprocess agents. - whatisaphone
+    - Made game data structs support comparison and repr in python. - DomNomNom
+    - Fixing double-logging bug. - Marvin
+    
+    For whatisaphone's mouse cursor freedom, roll back to 1.8.2.
+    """,
     '1.8.1': """
     - Ability to modify gravity via state setting. Ball prediction reacts properly, and bots are
       informed of the gravity in the game tick packet! - Marvin

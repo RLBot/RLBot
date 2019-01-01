@@ -17,16 +17,25 @@
 
 namespace GameFunctions
 {
+	BoostUtilities::QueueSender* pGameStateQueue = nullptr;
+
+	void Initialize_GameFunctions()
+	{
+		pGameStateQueue = new BoostUtilities::QueueSender(BoostConstants::GameStateFlatQueueName);
+	}
+
 	extern "C" void RLBOT_CORE_API Free(void* ptr)
 	{
 		free(ptr);
 	}
 
-	static BoostUtilities::QueueSender gameStateQueue(BoostConstants::GameStateFlatQueueName);
-
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size)
 	{
-		return gameStateQueue.sendMessage(gameStateData, size);
+		if (!pGameStateQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+		return pGameStateQueue->sendMessage(gameStateData, size);
 	}
 
 	// Start match

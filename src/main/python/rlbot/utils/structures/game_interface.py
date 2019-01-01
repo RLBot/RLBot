@@ -3,18 +3,20 @@ import os
 import subprocess
 import sys
 import time
+import flatbuffers
 
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
-from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
+from rlbot.utils.game_state_util import GameState
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
+from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
-from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_status import RLBotCoreStatus
-from rlbot.utils.structures.start_match_structures import MatchSettings
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
+from rlbot.utils.structures.start_match_structures import MatchSettings
 from logging import DEBUG, WARNING
 
 
@@ -217,9 +219,6 @@ class GameInterface:
         injection_status = injector_codes[incode]
         if injection_status in injector_valid_codes:
             self.logger.info('Finished Injecting DLL')
-            if injection_status == 'INJECTION_SUCCESSFUL':
-                # We need to wait for the injections to be finished
-                self.countdown(20)
             return injection_status
         else:
             self.logger.error('Failed to inject DLL: ' + injection_status)
@@ -256,8 +255,13 @@ class GameInterface:
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status, WARNING)
 
-    def set_game_state(self, set_state_builder):
-        buf = set_state_builder.Output()
+    def set_game_state(self, game_state: GameState):
+        builder = flatbuffers.Builder(0)
+        game_state_offset = game_state.convert_to_flat(builder)
+        if game_state_offset is None:
+            return # There are no values to be set, so just skip it
+        builder.Finish(game_state_offset)
+        buf = builder.Output()
         rlbot_status = self.game.SetGameState(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
 
