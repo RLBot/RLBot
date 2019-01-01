@@ -12,11 +12,11 @@
 
 namespace Interface
 {
-	static std::atomic_bool bInitialized = false;
+	std::atomic_bool bInitialized(false);
 
 	extern "C" bool RLBOT_CORE_API IsInitialized()
 	{
-		return bInitialized;
+		return bInitialized.load();
 	}
 
 	DWORD WINAPI Initialize(void*)
