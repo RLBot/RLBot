@@ -8,9 +8,11 @@ __version__ = '1.9.0'
 release_notes = {
     '1.9.0': """
     - *Much* faster core dll initialization! - ccman32
+    - Adding support for a training mode! Check out https://github.com/RLBot/RLBotTraining - DomNomNom
     - Allow the user to change the appearance of human and party-member bot agents via the GUI - r0bbi3
     - Added game speed info to game tick packet and the ability to modify it via state setting - Marvin
     - Make the game stop capturing the mouse cursor if only bots are playing - whatisaphone
+    - Various quality-of-life improvements - DomNomNom
     """,
     '1.8.3': """
     - Allow SimpleControllerState initialization. - Marvin
