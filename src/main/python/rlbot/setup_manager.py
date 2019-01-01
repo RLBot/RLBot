@@ -29,6 +29,22 @@ ROCKET_LEAGUE_PROCESS_INFO = {'gameid': 252950, 'program_name': 'RocketLeague.ex
 
 
 class SetupManager:
+    """
+    This class is responsible for pulling together all bits of the framework to
+    set up a match between agents.
+
+    A normal order of methods would be:
+        connect_to_game()
+        load_config()
+        launch_ball_prediction()
+        launch_quick_chat_manager()
+        launch_bot_processes()
+        start_match()
+        infinite_loop()
+        # the below two might be from another thread
+        reload_all_agents()
+        shut_down()
+    """
     has_started = False
     num_participants = None
     names = None
@@ -51,7 +67,7 @@ class SetupManager:
         self.agent_metadata_map = {}
         self.ball_prediction_process = None
 
-    def startup(self):
+    def connect_to_game(self):
         if self.has_started:
             return
         version.print_current_release_notes()
@@ -96,7 +112,7 @@ class SetupManager:
         if extension_path is not None and extension_path != "None":
             self.load_extension(extension_path)
 
-    def init_ball_prediction(self):
+    def launch_ball_prediction(self):
         if self.start_match_configuration.game_mode == 1:  # hoops
             prediction_util.copy_pitch_data_to_temp('hoops')
         elif self.start_match_configuration.game_mode == 2:  # dropshot
@@ -127,12 +143,15 @@ class SetupManager:
 
         self.logger.debug("Successfully started bot processes")
 
-    def run(self):
+    def launch_quick_chat_manager(self):
         self.quick_chat_manager.start_manager(self.quit_event)
         self.logger.debug("Successfully started quick chat manager")
+
+    def start_match(self):
         self.game_interface.start_match()
         self.logger.info("Match has started")
 
+    def infinite_loop(self):
         instructions = "Press 'r' to reload all agents, or 'q' to exit"
         self.logger.info(instructions)
         while not self.quit_event.is_set():
@@ -148,16 +167,30 @@ class SetupManager:
                 elif command.isalpha():
                     self.logger.info(instructions)
 
+            self.try_recieve_agent_metadata()
+
+    def try_recieve_agent_metadata(self):
+        """
+        Checks whether any of the started bots have posted their AgentMetadata
+        yet. If so, we put them on the agent_metadata_map such that we can
+        kill their process later when we shut_down(kill_agent_process_ids=True)
+
+        Returns how from how many bots we recieved metadata from.
+        """
+        num_recieved = 0
+        while True:  # will exit on queue.Empty
             try:
-                single_agent_metadata = self.agent_metadata_queue.get(timeout=1)
+                single_agent_metadata = self.agent_metadata_queue.get(timeout=0.1)
+                num_recieved += 1
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
                 process_configuration.configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
-                pass
+                return num_recieved
             except Exception as ex:
                 self.logger.error(ex)
-                pass
+                return num_recieved
+        return num_recieved
 
     def reload_all_agents(self):
         self.logger.info("Reloading all agents...")
@@ -185,7 +218,7 @@ class SetupManager:
                 break
 
         if kill_all_pids:
-            self.kill_process_ids()
+            self.kill_agent_process_ids()
         self.logger.info("Shut down complete!")
 
     def load_extension(self, extension_filename):
@@ -215,7 +248,7 @@ class SetupManager:
             process.terminate()
         self.sub_processes = []
 
-    def kill_process_ids(self):
+    def kill_agent_process_ids(self):
         pids = process_configuration.extract_all_pids(self.agent_metadata_map)
         for pid in pids:
             try:

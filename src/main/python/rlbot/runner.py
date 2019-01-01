@@ -5,11 +5,13 @@ def main():
 
     print("starting")
     manager = SetupManager()
-    manager.startup()
+    manager.connect_to_game()
     manager.load_config()
-    manager.init_ball_prediction()
+    manager.launch_ball_prediction()
+    manager.launch_quick_chat_manager()
     manager.launch_bot_processes()
-    manager.run()  # Runs forever until interrupted
+    manager.start_match()
+    manager.infinite_loop()  # Runs forever until interrupted
 
 
 if __name__ == '__main__':

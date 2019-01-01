@@ -31,7 +31,7 @@ class BotManager:
         :param index: The player index, i.e. "this is player number <index>". Will be passed to the bot's constructor.
             Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
         :param agent_class_wrapper: The ExternalClassWrapper object that can be used to load and reload the bot
-        :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
+        :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive AgentMetadata once available.
         :param quick_chat_queue_holder: A data structure which helps the bot send and receive quickchat
         """
         self.terminate_request_event = terminate_request_event
@@ -153,44 +153,46 @@ class BotManager:
 
         last_module_modification_time = os.stat(agent_class_file).st_mtime
 
-        # Run until main process tells to stop
-        while not self.terminate_request_event.is_set():
-            before = datetime.now()
-            self.pull_data_from_game()
-            # game_tick_packet = self.game_interface.get
-            # Read from game data shared memory
+        # Run until main process tells to stop, or we detect Ctrl+C
+        try:
+            while not self.terminate_request_event.is_set():
+                before = datetime.now()
+                self.pull_data_from_game()
+                # game_tick_packet = self.game_interface.get
+                # Read from game data shared memory
 
-            # Run the Agent only if the game_info has updated.
-            tick_game_time = self.get_game_time()
-            should_call_while_paused = datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
-            if tick_game_time != last_tick_game_time or should_call_while_paused:
-                last_tick_game_time = tick_game_time
-                last_call_real_time = datetime.now()
+                # Run the Agent only if the game_info has updated.
+                tick_game_time = self.get_game_time()
+                should_call_while_paused = datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
+                if tick_game_time != last_tick_game_time or should_call_while_paused:
+                    last_tick_game_time = tick_game_time
+                    last_call_real_time = datetime.now()
 
-                # Reload the Agent if it has been modified or if reload is requested from outside.
-                try:
-                    new_module_modification_time = os.stat(agent_class_file).st_mtime
-                    if new_module_modification_time != last_module_modification_time or self.reload_request_event.is_set():
-                        self.reload_request_event.clear()
-                        last_module_modification_time = new_module_modification_time
-                        agent, agent_class_file = self.reload_agent(agent, agent_class_file)
-                except FileNotFoundError:
-                    self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))
-                    time.sleep(0.5)
-                except Exception:
-                    self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
-                    time.sleep(0.5)  # Avoid burning CPU / logs if this starts happening constantly
+                    # Reload the Agent if it has been modified or if reload is requested from outside.
+                    try:
+                        new_module_modification_time = os.stat(agent_class_file).st_mtime
+                        if new_module_modification_time != last_module_modification_time or self.reload_request_event.is_set():
+                            self.reload_request_event.clear()
+                            last_module_modification_time = new_module_modification_time
+                            agent, agent_class_file = self.reload_agent(agent, agent_class_file)
+                    except FileNotFoundError:
+                        self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))
+                        time.sleep(0.5)
+                    except Exception:
+                        self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
+                        time.sleep(0.5)  # Avoid burning CPU / logs if this starts happening constantly
 
-                # Call agent
-                try:
-                    self.call_agent(agent, self.agent_class_wrapper.get_loaded_class())
-                except Exception as e:
-                    self.logger.error("Call to agent failed:\n" + traceback.format_exc())
+                    # Call agent
+                    try:
+                        self.call_agent(agent, self.agent_class_wrapper.get_loaded_class())
+                    except Exception as e:
+                        self.logger.error("Call to agent failed:\n" + traceback.format_exc())
 
-            # Ratelimit here
-            after = datetime.now()
-
-            rate_limit.acquire(after - before)
+                # Ratelimit here
+                after = datetime.now()
+                rate_limit.acquire(after - before)
+        except KeyboardInterrupt:
+            self.terminate_request_event.set()
 
         if hasattr(agent, 'retire'):
             agent.retire()
