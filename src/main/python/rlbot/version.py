@@ -3,10 +3,10 @@
 # 2) we can import it in setup.py for the same reason
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
-__version__ = '1.9.2'
+__version__ = '1.9.3'
 
 release_notes = {
-    '1.9.2': """
+    '1.9.3': """
     - *Much* faster core dll initialization! - ccman32
     - Adding support for a training mode! Check out https://github.com/RLBot/RLBotTraining - DomNomNom
     - Allow the user to change the appearance of human and party-member bot agents via the GUI - r0bbi3
