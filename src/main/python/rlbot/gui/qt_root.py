@@ -14,13 +14,15 @@ from rlbot.gui.design.qt_gui import Ui_MainWindow
 from rlbot.gui.gui_agent import GUIAgent
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog, index_of_config_path_in_combobox
 from rlbot.gui.mutator_editor import MutatorEditor
+from rlbot.parsing.directory_scanner import scan_directory_for_bot_configs
 
 from rlbot.utils.file_util import get_python_root, get_rlbot_directory
 from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
 from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CONFIGURATION_HEADER
-from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, LOOKS_CONFIG_KEY
+from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, \
+    BotConfigBundle
 from rlbot.parsing.match_settings_config_parser import *
 
 
@@ -355,6 +357,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.overall_config.init_indices(10)
         self.overall_config_path = ""
         self.load_agents()
+        self.load_bot_directory(".")
         self.update_teams_listwidgets()
         if not self.overall_config_path:
             self.cfg_file_path_lineedit.setStyleSheet("border: 1px solid red;")
@@ -397,6 +400,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.overall_config_path = config_path
         self.overall_config.parse_file(raw_parser, 10, config_directory=os.path.dirname(self.overall_config_path))
         self.load_agents()
+        self.load_bot_directory(".")
         self.update_teams_listwidgets()
         self.cfg_file_path_lineedit.setText(self.overall_config_path)
         self.cfg_file_path_lineedit.setStyleSheet("")
@@ -608,6 +612,17 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         agent.set_loadout_preset(loadout_preset)
         agent.set_name(agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
         return agent
+
+    def load_bot_config_bundle(self, config_bundle: BotConfigBundle):
+        self.add_agent_preset(config_bundle.config_path)
+        self.add_loadout_preset(config_bundle.looks_path)
+
+    def load_bot_directory(self, directory):
+        for bundle in scan_directory_for_bot_configs(directory):
+            try:
+                self.load_bot_config_bundle(bundle)
+            except Exception as e:
+                print(e)
 
     def add_agent(self, overall_index=None, team_index=None):
         """

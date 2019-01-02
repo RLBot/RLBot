@@ -21,11 +21,15 @@ logger = get_logger('rlbot')
 
 
 class BotConfigBundle:
-    def __init__(self, config_directory, config_obj: ConfigObject):
+    def __init__(self, config_directory, config_obj: ConfigObject, config_file_name: str = None):
         self.config_directory = config_directory
+        self.config_file_name = config_file_name
+        self.config_path = os.path.join(self.config_directory, self.config_file_name)
         self.config_obj = config_obj
         self.base_agent_config = BaseAgent.base_create_agent_configurations()
         self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
+        self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
+        self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
 
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)
@@ -73,14 +77,13 @@ def add_participant_header(config_object):
                                              Use None to extract the path from the agent config""")
 
 
-def get_looks_config(config_bundle):
+def get_looks_config(config_bundle) -> ConfigObject:
     """
     Creates a looks config from the config bundle
     :param config_bundle:
     :return:
     """
-    looks_path = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-    return BaseAgent._create_looks_configurations().parse_file(looks_path)
+    return BaseAgent._create_looks_configurations().parse_file(config_bundle.looks_path)
 
 
 def get_sanitized_bot_name(dict, name):
@@ -108,13 +111,27 @@ def get_team(config, index):
     return config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, index)
 
 
-def get_bot_config_bundle(bot_config_path):
-    raw_bot_config = configparser.RawConfigParser()
-    raw_bot_config.read(bot_config_path, encoding='utf8')
+def get_bot_config_bundle(bot_config_path) -> BotConfigBundle:
     if not os.path.isfile(bot_config_path):
         raise FileNotFoundError("Could not find bot config file {}!".format(bot_config_path))
+    raw_bot_config = configparser.RawConfigParser()
+    raw_bot_config.read(bot_config_path, encoding='utf8')
     config_directory = os.path.dirname(os.path.realpath(bot_config_path))
-    return BotConfigBundle(config_directory, raw_bot_config)
+    bundle = BotConfigBundle(config_directory, raw_bot_config, os.path.basename(bot_config_path))
+    validate_bot_config(bundle)
+    return bundle
+
+
+def validate_bot_config(config_bundle) -> None:
+    """
+    Checks the config bundle to see whether it has all required attributes.
+    """
+    if not config_bundle.name:
+        raise AttributeError("Bot config {} has no name configured!".format(
+            os.path.join(config_bundle.config_directory, config_bundle.config_file_name or '')))
+
+    # This will raise an exception if we can't find the looks config, or if it's malformed
+    get_looks_config(config_bundle)
 
 
 def get_bot_config_bundles(num_participants, config, config_location, config_bundle_overrides):
@@ -191,7 +208,7 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
     # Setting up the bots name
-    bot_name = config_bundle.config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
+    bot_name = config_bundle.name
     bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
 
     BaseAgent._parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
