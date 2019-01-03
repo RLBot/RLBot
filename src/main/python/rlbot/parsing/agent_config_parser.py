@@ -34,8 +34,7 @@ class BotConfigBundle:
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)
         if path is None:
-            raise configparser.NoSectionError(
-                "Could not find {}: {} in the provided configuration!".format(header, key))
+            raise configparser.NoSectionError(f"Could not find {header}: {key} in the provided configuration!")
         if os.path.isabs(path):
             return path
         if self.config_directory is None:
@@ -114,7 +113,7 @@ def get_team(config, index):
 
 def get_bot_config_bundle(bot_config_path) -> BotConfigBundle:
     if not os.path.isfile(bot_config_path):
-        raise FileNotFoundError("Could not find bot config file {}!".format(bot_config_path))
+        raise FileNotFoundError(f"Could not find bot config file {bot_config_path}!")
     raw_bot_config = configparser.RawConfigParser()
     raw_bot_config.read(bot_config_path, encoding='utf8')
     config_directory = os.path.dirname(os.path.realpath(bot_config_path))
@@ -128,8 +127,8 @@ def validate_bot_config(config_bundle) -> None:
     Checks the config bundle to see whether it has all required attributes.
     """
     if not config_bundle.name:
-        raise AttributeError("Bot config {} has no name configured!".format(
-            os.path.join(config_bundle.config_directory, config_bundle.config_file_name or '')))
+        bot_config = os.path.join(config_bundle.config_directory, config_bundle.config_file_name or '')
+        raise AttributeError(f"Bot config {bot_config} has no name configured!")
 
     # This will raise an exception if we can't find the looks config, or if it's malformed
     get_looks_config(config_bundle)

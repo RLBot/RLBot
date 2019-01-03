@@ -397,8 +397,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         raw_parser.read(config_path, encoding='utf8')
         for section in self.overall_config.headers.keys():
             if not raw_parser.has_section(section):
-                self.popup_message("Config file is missing the section {}, not loading it!".format(
-                    section), "Invalid Config File", QMessageBox.Warning)
+                self.popup_message(f"Config file is missing the section {section}, not loading it!",
+                                   "Invalid Config File", QMessageBox.Warning)
                 return
         self.overall_config_path = config_path
         self.overall_config.parse_file(raw_parser, 10, config_directory=os.path.dirname(self.overall_config_path))
@@ -588,7 +588,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             for i in range(num_participants):
                 self.load_agent(i)
         except BaseException as e:
-            raise ValueError(str(e) + " Please check your config files!".format(self.overall_config_path))
+            raise ValueError(f"{str(e)}\nPlease check your config files! {self.overall_config_path}")
 
     def load_agent(self, overall_index: int=None):
         """
@@ -700,7 +700,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         if os.path.isfile(file_path):
             name = pathlib.Path(file_path).stem
         else:
-            raise FileNotFoundError("File path {} is not found!".format(file_path))
+            raise FileNotFoundError(f"File path {file_path} is not found!")
 
         if name in self.agent_presets:
             if self.agent_presets[name].config_path == file_path:
@@ -710,7 +710,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 for preset_name in self.agent_presets:
                     if name in preset_name:
                         i += 1
-                name = name + ' ({})'.format(i)
+                name = f"{name} ({i})"
         preset = AgentPreset(name, file_path)
         self.agent_presets[preset.get_name()] = preset
         return preset

@@ -74,7 +74,7 @@ class SetupManager:
         if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'],
                                                         ROCKET_LEAGUE_PROCESS_INFO['program_name']):
             try:
-                webbrowser.open('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
+                webbrowser.open(f"steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO['gameid']}")
             except webbrowser.Error:
                 self.logger.info(
                     "Unable to launch Rocket League automatically. Please launch Rocket League manually to continue.")
@@ -257,12 +257,12 @@ class SetupManager:
             try:
                 parent = psutil.Process(pid)
                 for child in parent.children(recursive=True):  # or parent.children() for recursive=False
-                    self.logger.info("Killing {} (child of {})".format(child.pid, pid))
+                    self.logger.info(f"Killing {child.pid} (child of {pid})")
                     try:
                         child.kill()
                     except psutil._exceptions.NoSuchProcess:
                         self.logger.info("Already dead.")
-                self.logger.info("Killing {}".format(pid))
+                self.logger.info(f"Killing {pid}")
                 try:
                     parent.kill()
                 except psutil._exceptions.NoSuchProcess:

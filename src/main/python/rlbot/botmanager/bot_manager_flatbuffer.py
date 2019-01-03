@@ -19,7 +19,7 @@ class BotManagerFlatbuffer(BotManager):
             agent.set_flatbuffer_binary(self.game_tick_flat_binary)
         player_input = agent.get_output_flatbuffer(self.game_tick_flat)
         if not player_input:
-            raise Exception('Agent "{}" did not return a player input.'.format(agent_class.__name__))
+            raise Exception(f'Agent "{agent_class.__name__}" did not return a player input.')
 
         self.game_interface.update_player_input_flat(player_input)
 

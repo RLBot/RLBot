@@ -64,7 +64,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
 
     def retire(self):
         port = self.read_port_from_file()
-        message = "remove\n{0}".format(self.index)
+        message = f"remove\n{self.index}"
 
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -248,7 +248,7 @@ def get_help_text():
 
 def print_current_release_notes():
     print(release_banner)
-    print("Version {}".format(__version__))
+    print(f"Version {__version__}")
     print(get_current_release_notes())
     print(get_help_text())
     print("")
