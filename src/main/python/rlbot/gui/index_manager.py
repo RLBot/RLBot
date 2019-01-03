@@ -5,6 +5,7 @@ class IndexManager:
     """
     Handles the indices for agents, some useful methods for handling the overall indices
     """
+
     def __init__(self, size):
         self.numbers = set()
         self.size = size

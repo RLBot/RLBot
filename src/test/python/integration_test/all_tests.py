@@ -3,6 +3,7 @@ from rlbot.utils.logging_utils import log
 
 from integration_test.tests.blah_test import test_tick_rate, test_sufficient_data
 
+
 def run_all_tests():
     log('Loading history...')
     io = HistoryIO()

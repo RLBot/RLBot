@@ -4,11 +4,9 @@ import time
 import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
-from rlbot.agents.base_agent import BOT_CONFIG_AGENT_HEADER, BOT_CONFIG_MODULE_HEADER
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
-from rlbot.parsing.custom_config import ConfigHeader, ConfigObject
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures import game_interface
 

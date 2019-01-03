@@ -1,7 +1,6 @@
 import multiprocessing
 import psutil
 import os
-import sys
 import configparser
 
 from rlbot.setup_manager import SetupManager
@@ -27,6 +26,7 @@ def record_atba():
     manager.start_match()
     manager.infinite_loop()  # Runs terminated by timeout in other thread.
 
+
 def ensure_dll_is_injected():
     manager = SetupManager()
     manager.connect_to_game()
@@ -37,11 +37,13 @@ def KILL(process):
         process.kill()
     except psutil._exceptions.NoSuchProcess as e:
         return
+
+
 def kill_proc_tree(pid):
     parent = psutil.Process(pid)
     children = parent.children(recursive=True)
-    KILL(parent) # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
-    for child in children: # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
+    KILL(parent)  # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
+    for child in children:  # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
         KILL(child)  # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
     gone, still_alive = psutil.wait_procs(children, timeout=5)
 
@@ -50,7 +52,7 @@ def gather_data(timeout=20.0):
     log("Gathering data...")
     HistoryIO().clear()
 
-     # Do this synchonously, the time the process needs to startup is more consistent.
+    # Do this synchonously, the time the process needs to startup is more consistent.
     ensure_dll_is_injected()
 
     proc = multiprocessing.Process(target=record_atba)

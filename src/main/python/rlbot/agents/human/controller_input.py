@@ -1,9 +1,12 @@
 from inputs import get_gamepad  # pip install inputs
 import threading
 
+
 def deadzone(normalized_axis):
-    if abs(normalized_axis) < 0.1: return 0.0
+    if abs(normalized_axis) < 0.1:
+        return 0.0
     return normalized_axis
+
 
 class ControllerInput:
     def __init__(self):
@@ -28,15 +31,24 @@ class ControllerInput:
             events = get_gamepad()  # Blocking
             for event in events:
                 # print(repr((event.ev_type, event.code, event.state)))
-                if False: pass
-                elif event.ev_type=='Absolute' and event.code=='ABS_RZ': self._gas_pedal = deadzone(event.state / 255.0)
-                elif event.ev_type=='Absolute' and event.code=='ABS_Z': self._brake_pedal = deadzone(event.state / 255.0)
-                elif event.ev_type=='Absolute' and event.code=='ABS_X': self.steer = self.yaw = deadzone(event.state / 32768.0)
-                elif event.ev_type=='Absolute' and event.code=='ABS_Y': self.pitch = deadzone(-event.state / 32768.0)
-                elif event.ev_type=='Key' and event.code=='BTN_THUMBL': self.roll = -event.state
-                elif event.ev_type=='Key' and event.code=='BTN_SOUTH': self.jump = event.state
-                elif event.ev_type=='Key' and event.code=='BTN_TR': self.boost = event.state
-                elif event.ev_type=='Key' and event.code=='BTN_WEST': self.handbrake = event.state
+                if False:
+                    pass
+                elif event.ev_type == 'Absolute' and event.code == 'ABS_RZ':
+                    self._gas_pedal = deadzone(event.state / 255.0)
+                elif event.ev_type == 'Absolute' and event.code == 'ABS_Z':
+                    self._brake_pedal = deadzone(event.state / 255.0)
+                elif event.ev_type == 'Absolute' and event.code == 'ABS_X':
+                    self.steer = self.yaw = deadzone(event.state / 32768.0)
+                elif event.ev_type == 'Absolute' and event.code == 'ABS_Y':
+                    self.pitch = deadzone(-event.state / 32768.0)
+                elif event.ev_type == 'Key' and event.code == 'BTN_THUMBL':
+                    self.roll = -event.state
+                elif event.ev_type == 'Key' and event.code == 'BTN_SOUTH':
+                    self.jump = event.state
+                elif event.ev_type == 'Key' and event.code == 'BTN_TR':
+                    self.boost = event.state
+                elif event.ev_type == 'Key' and event.code == 'BTN_WEST':
+                    self.handbrake = event.state
 
 
 controller = ControllerInput()

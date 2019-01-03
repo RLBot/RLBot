@@ -88,7 +88,7 @@ def extract_class(containing_module, base_class):
                      if issubclass(agent[1], base_class) and agent[1].__module__ == containing_module.__name__]
 
     if len(valid_classes) == 0:
-        raise ModuleNotFoundError('Could not locate a suitable bot class in module {}'.format(containing_module.__file__))
+        raise ModuleNotFoundError(
+            'Could not locate a suitable bot class in module {}'.format(containing_module.__file__))
 
     return valid_classes[0]
-

@@ -19,6 +19,8 @@ def is_safe_to_upgrade():
     return not contains_locked_file(get_rlbot_directory())
 
 # https://stackoverflow.com/questions/3764291/checking-network-connection
+
+
 def have_internet():
     conn = httplib.HTTPConnection("www.google.com", timeout=5)
     try:

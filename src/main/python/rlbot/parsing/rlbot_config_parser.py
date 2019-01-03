@@ -36,7 +36,8 @@ def create_bot_config_layout():
     return config_object
 
 
-def parse_configurations(start_match_configuration, config_parser, config_location, config_bundle_overrides, looks_configs):
+def parse_configurations(start_match_configuration, config_parser, config_location, config_bundle_overrides,
+                         looks_configs):
     bot_names = []
     bot_teams = []
     python_files = []

@@ -34,11 +34,12 @@ class BotConfigBundle:
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)
         if path is None:
-            raise configparser.NoSectionError("Could not find {}: {} in the provided configuration!".format(header, key))
+            raise configparser.NoSectionError(
+                "Could not find {}: {} in the provided configuration!".format(header, key))
         if os.path.isabs(path):
             return path
         if self.config_directory is None:
-            raise ValueError("Can't locate {} because it's a relative path and we don't know where to look!".format(path))
+            raise ValueError(f"Can't locate {path} because it's a relative path and we don't know where to look!")
         joined = os.path.join(self.config_directory, path)
         return os.path.realpath(joined)
 
@@ -58,7 +59,7 @@ def add_participant_header(config_object):
 
     participant_header.add_value(PARTICIPANT_TYPE_KEY, str, default='rlbot',
                                  description="""Accepted values are "human", "rlbot", "psyonix" and "party_member_bot"
-                                             You can have up to 4 local players and they must 
+                                             You can have up to 4 local players and they must
                                              be activated in game or it will crash.
                                              If no player is specified you will be spawned in as spectator!
                                              human - not controlled by the framework
@@ -217,7 +218,8 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER)
 
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER):
-        BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER)
+        BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object,
+                                           BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER)
 
     python_file = 'NO_MODULE_FOR_PARTICIPANT'
     bot_parameters = None

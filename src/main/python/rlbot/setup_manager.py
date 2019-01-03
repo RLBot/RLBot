@@ -71,17 +71,20 @@ class SetupManager:
         if self.has_started:
             return
         version.print_current_release_notes()
-        if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'], ROCKET_LEAGUE_PROCESS_INFO['program_name']):
+        if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'],
+                                                        ROCKET_LEAGUE_PROCESS_INFO['program_name']):
             try:
                 webbrowser.open('steam://rungameid/{}'.format(ROCKET_LEAGUE_PROCESS_INFO['gameid']))
             except webbrowser.Error:
-                self.logger.info("Unable to launch Rocket League automatically. Please launch Rocket League manually to continue.")
+                self.logger.info(
+                    "Unable to launch Rocket League automatically. Please launch Rocket League manually to continue.")
         self.game_interface.inject_dll()
         self.game_interface.load_interface()
         self.agent_metadata_queue = mp.Queue()
         self.has_started = True
 
-    def load_config(self, framework_config=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None, looks_configs=None):
+    def load_config(self, framework_config=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None,
+                    looks_configs=None):
         """
         :param framework_config: A config object that indicates what bots to run. May come from parsing a rlbot.cfg.
         :param config_location: The location of the rlbot.cfg file, which will be used to resolve relative paths.
@@ -121,7 +124,6 @@ class SetupManager:
             prediction_util.copy_pitch_data_to_temp('soccar')
         self.ball_prediction_process = prediction_util.launch()
 
-
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
         self.kill_sub_processes()
@@ -137,7 +139,8 @@ class SetupManager:
                 process = mp.Process(target=SetupManager.run_agent,
                                      args=(self.quit_event, quit_callback, reload_request, self.parameters[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
-                                           self.teams[i], i, self.python_files[i], self.agent_metadata_queue, queue_holder))
+                                           self.teams[i], i, self.python_files[i], self.agent_metadata_queue,
+                                           queue_holder))
                 process.start()
                 self.sub_processes.append(process)
 

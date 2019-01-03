@@ -1,5 +1,4 @@
 import os
-import msvcrt
 import socket
 import time
 
@@ -21,8 +20,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
     def run_independently(self, terminate_request_event):
 
         while not terminate_request_event.is_set():
-            message = "add\n{0}\n{1}\n{2}\n{3}".format(self.name, self.team, self.index, game_interface.get_dll_directory())
-
+            message = f"add\n{self.name}\n{self.team,}\n{self.index}\n{game_interface.get_dll_directory()}"
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(("127.0.0.1", self.port))
@@ -52,16 +50,17 @@ class BaseDotNetAgent(BaseIndependentAgent):
             for proc in psutil.process_iter():
                 for conn in proc.connections():
                     if conn.laddr.port == self.port:
-                        self.logger.debug('.NET socket server for {} appears to have pid {}'.format(self.name, proc.pid))
+                        self.logger.debug(f".NET socket server for {self.name} appears to have pid {proc.pid}")
                         return [proc.pid]
             if self.is_executable_configured():
                 return []
             time.sleep(1)
             if self.dotnet_executable_path is None:
-                self.logger.info(
-                    "Can't auto-start .NET executable because no executable is configured. Please start the .NET bot manually!")
+                self.logger.info("Can't auto-start .NET executable because no executable is configured. "
+                                 "Please start the .NET bot manually!")
             else:
-                self.logger.info("Can't auto-start .NET executable because {} is not found. Please start the .NET bot manually!".format(self.dotnet_executable_path))
+                self.logger.info(f"Can't auto-start .NET executable because {self.dotnet_executable_path} "
+                                 "is not found. Please start the .NET bot manually!")
 
     def retire(self):
         port = self.read_port_from_file()
@@ -75,7 +74,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
         except ConnectionRefusedError:
             self.logger.warn("Could not connect to server!")
         self.is_retired = True
-    
+
     def read_port_from_file(self):
         try:
             location = self.get_port_file_path()

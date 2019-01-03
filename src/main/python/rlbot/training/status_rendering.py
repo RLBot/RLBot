@@ -5,6 +5,7 @@ from rlbot.utils.rendering.rendering_manager import RenderingManager
 
 Row = namedtuple('Row', 'exercise_name status_str status_color_func')
 
+
 class TrainingStatusRenderer:
     """
     This class draws the current state of the training exercises
@@ -21,8 +22,8 @@ class TrainingStatusRenderer:
     def __init__(self, exercise_names: List[str], renderman: RenderingManager):
         self.names = exercise_names
         self.renderman = renderman
-        self.rows = [ Row(name, '', renderman.black) for name in exercise_names ]
-        self.name_to_index = { name: i for i, name in enumerate(exercise_names) }
+        self.rows = [Row(name, '', renderman.black) for name in exercise_names]
+        self.name_to_index = {name: i for i, name in enumerate(exercise_names)}
         self.last_modified_index = 0
         self._render()
 
@@ -37,9 +38,11 @@ class TrainingStatusRenderer:
             return
 
         self.renderman.begin_rendering(self.RENDER_GROUP)
-        def get_text_y(row_y:int) -> float:
+
+        def get_text_y(row_y: int) -> float:
             return self.LINE_HEIGHT * row_y + self.Y_BEGIN
-        def draw_string(x_offset:float, row_y:int, text:str, color_func):
+
+        def draw_string(x_offset: float, row_y: int, text: str, color_func):
             self.renderman.draw_string_2d(
                 self.X_BEGIN + x_offset,
                 get_text_y(row_y),

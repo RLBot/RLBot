@@ -103,7 +103,8 @@ class GameInfo(Struct):
                 ("world_gravity_z", ctypes.c_float),
                 ("game_speed", ctypes.c_float)]
 
-# On the c++ side this struct has a long at the beginning for locking.  This flag is removed from this struct so it isn't visible to users.
+# On the c++ side this struct has a long at the beginning for locking.
+# This flag is removed from this struct so it isn't visible to users.
 
 
 class GameTickPacket(Struct):

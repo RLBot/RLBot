@@ -30,6 +30,7 @@ def wrap_callback(callback_func):
 def get_dll_location():
     return os.path.join(get_dll_directory(), 'RLBot_Core_Interface.dll')
 
+
 def get_dll_32_location():
     return os.path.join(get_dll_directory(), 'RLBot_Core_Interface_32.dll')
 
@@ -259,7 +260,7 @@ class GameInterface:
         builder = flatbuffers.Builder(0)
         game_state_offset = game_state.convert_to_flat(builder)
         if game_state_offset is None:
-            return # There are no values to be set, so just skip it
+            return  # There are no values to be set, so just skip it
         builder.Finish(game_state_offset)
         buf = builder.Output()
         rlbot_status = self.game.SetGameState(bytes(buf), len(buf))
