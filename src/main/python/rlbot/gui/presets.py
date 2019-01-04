@@ -14,6 +14,7 @@ class Preset:
     """
     Stores a config, the config path, a preset name and has methods to save/load the preset
     """
+
     def __init__(self, config, file_path, name):
         self.config = config
         self.config_path = file_path
@@ -72,6 +73,7 @@ class LoadoutPreset(Preset):
     """
     A class extending Preset to handle a LoadoutPreset, which is based on the looks configurations file
     """
+
     def __init__(self, name, file_path=None):
         super().__init__(BaseAgent._create_looks_configurations(), file_path, name)
 
@@ -81,8 +83,10 @@ class LoadoutPreset(Preset):
 
 class AgentPreset(Preset):
     """
-    A class extending Preset to handle an AgentPreset, which is based on the agent configuration file and which also contains the Agent class
+    A class extending Preset to handle an AgentPreset
+    which is based on the agent configuration file and which also contains the Agent class
     """
+
     def __init__(self, name, file_path=None):
 
         self.looks_path = None
@@ -98,7 +102,7 @@ class AgentPreset(Preset):
         try:
             self.agent_class = import_agent(python_file_path).get_loaded_class()
         except (ValueError, ModuleNotFoundError, FileNotFoundError) as e:
-            raise ValueError("Problem when processing {}: {}".format(file_path, str(e)))
+            raise ValueError(f"Problem when processing {file_path}: {str(e)}")
 
         super().__init__(self.agent_class.base_create_agent_configurations(), file_path, name)
         # Make sure the path to the python file actually gets set to that path, even if there was no config at file_path

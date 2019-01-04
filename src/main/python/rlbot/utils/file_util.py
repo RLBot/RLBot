@@ -27,6 +27,6 @@ def contains_locked_file(directory: str):
                 with open(file_path, 'a'):
                     pass
             except IOError:
-                logger.debug("Locked file: {}".format(file_path))
+                logger.debug(f"Locked file: {file_path}")
                 return True
     return False

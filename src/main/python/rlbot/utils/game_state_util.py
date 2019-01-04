@@ -143,6 +143,7 @@ class BoostState:
             DesiredBoostState.DesiredBoostStateAddRespawnTime(builder, Float.CreateFloat(builder, self.respawn_time))
         return DesiredBoostState.DesiredBoostStateEnd(builder)
 
+
 class GameInfoState:
 
     def __init__(self, world_gravity_z: float = None, game_speed: float = None):

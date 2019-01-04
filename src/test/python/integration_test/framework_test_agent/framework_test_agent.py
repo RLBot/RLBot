@@ -7,8 +7,9 @@ from integration_test.history import HistoryIO
 An integration test bot
 '''
 
+
 def is_close(x, target, margin):
-    return abs(x-target) <= margin
+    return abs(x - target) <= margin
 
 
 class FrameworkTestAgent(FlatBot):

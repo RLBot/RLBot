@@ -311,32 +311,7 @@ class RenderingManager:
         import numbers
 
         if len(vec) == 1:
-            if isinstance(vec[0], list) or isinstance(vec[0], tuple):
-                if 1 < len(vec[0]) <= 3:
-                    if isinstance(vec[0][0], numbers.Number) and isinstance(vec[0][1], numbers.Number):
-                        x = vec[0][0]
-                        y = vec[0][1]
-                    else:
-                        raise ValueError(
-                            "Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0][0]), type(vec[0][1])))
-                    if len(vec[0]) == 2:
-                        z = 0
-                    else:
-                        if isinstance(vec[0][2], numbers.Number):
-                            z = vec[0][2]
-                        else:
-                            raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0][2])))
-                else:
-                    raise ValueError("Unexpected list/tuple length for creating vector: {0}".format(len(vec)))
-            elif isinstance(vec[0], Vector3.Vector3):
-                x = vec[0].X()
-                y = vec[0].Y()
-                z = vec[0].Z()
-            elif isinstance(vec[0], GameDataStructVector3):
-                x = vec[0].x
-                y = vec[0].y
-                z = vec[0].z
-            elif hasattr(vec[0], "__getitem__"):  # Support all subscriptable types.
+            if hasattr(vec[0], "__getitem__"):  # Support all subscriptable types.
                 try:
                     x = float(vec[0][0])
                     y = float(vec[0][1])
@@ -345,13 +320,19 @@ class RenderingManager:
                     except (ValueError, IndexError):
                         z = 0
                 except ValueError:
-                    raise ValueError(
-                        "Unexpected type(s) for creating vector: {0}, {1}, {2}".format(
-                            type(vec[0][0]), type(vec[0][1]), type(vec[0][2])))
+                    raise ValueError(f"Unexpected type(s) for creating vector: {type(vec[0][0])}, {type(vec[0][1])}")
                 except IndexError:
-                    raise IndexError("Unexpected IndexError when creating vector from type: {0}".format(type(vec[0])))
+                    raise IndexError(f"Unexpected IndexError when creating vector from type: {type(vec[0])}")
+            elif isinstance(vec[0], Vector3.Vector3):
+                x = vec[0].X()
+                y = vec[0].Y()
+                z = vec[0].Z()
+            elif isinstance(vec[0], GameDataStructVector3):
+                x = vec[0].x
+                y = vec[0].y
+                z = vec[0].z
             else:
-                raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0])))
+                raise ValueError(f"Unexpected type for creating vector: {type(vec[0])}")
         elif len(vec) == 2 or len(vec) == 3:
             if isinstance(vec[0], numbers.Number) and isinstance(vec[1], numbers.Number):
                 x = vec[0]
@@ -362,9 +343,9 @@ class RenderingManager:
                     if isinstance(vec[2], numbers.Number):
                         z = vec[2]
                     else:
-                        raise ValueError("Unexpected type for creating vector: {0}".format(type(vec[0])))
+                        raise ValueError(f"Unexpected type for creating vector: {type(vec[0])}")
             else:
-                raise ValueError("Unexpected type(s) for creating vector: {0}, {1}".format(type(vec[0]), type(vec[1])))
+                raise ValueError(f"Unexpected type(s) for creating vector: {type(vec[0])}, {type(vec[1])}")
         else:
             raise ValueError("Unexpected number of arguments for creating vector")
 

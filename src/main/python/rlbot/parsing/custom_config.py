@@ -281,7 +281,7 @@ class ConfigValue:
         return ConfigValue(self.type, self.default, self.description, self.value)
 
     def init_indices(self, max_index):
-        self.value = [None]*max_index
+        self.value = [None] * max_index
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if isinstance(config_parser, ConfigHeader):

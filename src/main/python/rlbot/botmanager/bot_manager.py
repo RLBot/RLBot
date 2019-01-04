@@ -176,7 +176,7 @@ class BotManager:
                             last_module_modification_time = new_module_modification_time
                             agent, agent_class_file = self.reload_agent(agent, agent_class_file)
                     except FileNotFoundError:
-                        self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))
+                        self.logger.error(f"Agent file {agent_class_file} was not found. Will try again.")
                         time.sleep(0.5)
                     except Exception:
                         self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())

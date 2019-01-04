@@ -4,11 +4,9 @@ import time
 import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
-from rlbot.agents.base_agent import BOT_CONFIG_AGENT_HEADER, BOT_CONFIG_MODULE_HEADER
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
-from rlbot.parsing.custom_config import ConfigHeader, ConfigObject
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures import game_interface
 
@@ -69,7 +67,7 @@ class BaseJavaAgent(BaseIndependentAgent):
             for proc in psutil.process_iter():
                 for conn in proc.connections():
                     if conn.laddr.port == self.port:
-                        self.logger.debug('py4j server for {} appears to have pid {}'.format(self.name, proc.pid))
+                        self.logger.debug(f'py4j server for {self.name} appears to have pid {proc.pid}')
                         return [proc.pid]
             if self.is_executable_configured():
                 # The helper process will start java and report the PID. Nothing to do here.
@@ -79,8 +77,8 @@ class BaseJavaAgent(BaseIndependentAgent):
                 self.logger.info(
                     "Can't auto-start java because no executable is configured. Please start java manually!")
             else:
-                self.logger.info("Can't auto-start java because {} is not found. Please start java manually!"
-                                 .format(self.java_executable_path))
+                self.logger.info(f"Can't auto-start java because {self.java_executable_path} is not found. "
+                                 "Please start java manually!")
 
     def retire(self):
         try:

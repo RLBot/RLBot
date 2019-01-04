@@ -1,4 +1,3 @@
-import flatbuffers
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.game_state_util import GameState

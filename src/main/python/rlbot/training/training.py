@@ -1,9 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Union, Optional, Mapping, Iterator, Tuple
 import random
 import time
 import traceback
-import threading
 
 from rlbot.setup_manager import SetupManager
 from rlbot.utils import rate_limiter
@@ -14,26 +13,37 @@ from rlbot.utils.structures.game_interface import GameInterface
 from .status_rendering import TrainingStatusRenderer, Row
 
 # Extend Pass and/or Fail to add your own, more detailed metrics.
+
+
 class Pass:
     """ Indicates that the bot passed the exercise. """
+
     def __repr__(self):
         return 'PASS'
+
+
 class Fail:
     """ Indicates that the bot failed the exercise. """
+
     def __repr__(self):
         return 'FAIL'
 
+
 class FailDueToExerciseException(Fail):
     """ Indicates that the test code threw an expetion. """
+
     def __init__(self, exception: Exception, traceback_string: str):
         self.exception = exception
         self.traceback_string = traceback_string
+
     def __repr__(self):
         return 'FAIL: Exception raised by Exercise:\n' + self.traceback_string
+
 
 # Note: not using Grade as a abstract base class for Pass/Fail
 #       as there should not be Grades which are neither Pass nor Fail.
 Grade = Union[Pass, Fail]
+
 
 class Exercise:
     """
@@ -47,6 +57,7 @@ class Exercise:
     Gets the config with which this exercise should be run.
     It is required to be immutable. (Fixed per instance)
     """
+
     def get_config_path(self) -> str:
         raise NotImplementedError()
 
@@ -58,6 +69,7 @@ class Exercise:
         exercise, this parameter and the bots should be the only things which
         causes variations between runs.
     """
+
     def setup(self, rng: random.Random) -> GameState:
         raise NotImplementedError()
 
@@ -70,6 +82,7 @@ class Exercise:
     If this method returns Pass() or Fail() or raises an exceptions, the run of
     the exercise is terminated and any metrics will be returned.
     """
+
     def on_tick(self, game_tick_packet: GameTickPacket) -> Optional[Grade]:
         raise NotImplementedError()
 
@@ -82,7 +95,7 @@ class Result:
         self.grade = grade
 
 
-def run_all_exercises(exercises: Mapping[str, Exercise], seeds:Iterator[int]=None) -> Iterator[Tuple[str, Result]]:
+def run_all_exercises(exercises: Mapping[str, Exercise], seeds: Iterator[int]=None) -> Iterator[Tuple[str, Result]]:
     """
     Runs all the given named exercises.
     We order the runs such the number of match changes is minimized as they're slow.
@@ -100,7 +113,7 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seeds:Iterator[int]=Non
     game_interface = setup_manager.game_interface
 
     ren = TrainingStatusRenderer(
-        [name for _,name, _ in run_tuples],
+        [name for _, name, _ in run_tuples],
         game_interface.renderer
     )
 
@@ -138,10 +151,11 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seeds:Iterator[int]=Non
 
                 yield (name, result)
     except KeyboardInterrupt:
-        pass # exit gracefully
+        pass  # exit gracefully
 
     ren.clear_screen()
     setup_manager.shut_down()
+
 
 def _wait_until_bots_ready(setup_manager: SetupManager):
     total_ready = 0
@@ -152,7 +166,8 @@ def _wait_until_bots_ready(setup_manager: SetupManager):
         time.sleep(0.1)
         total_ready += setup_manager.try_recieve_agent_metadata()
 
-def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks:int=3):
+
+def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: int=3):
     """Blocks until we're getting new packets, indicating that the match is ready."""
     rate_limit = rate_limiter.RateLimiter(120)
     last_tick_game_time = None  # What the tick time of the last observed tick was
@@ -179,6 +194,7 @@ def _setup_match(config_path: str, manager: SetupManager):
     manager.launch_bot_processes()
     manager.start_match()
 
+
 def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Optional[Result]:
     # Set the game state
     rng = random.Random()
@@ -189,11 +205,11 @@ def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> O
         return Result(ex, seed, FailDueToExerciseException(e, traceback.format_exc()))
     game_interface.set_game_state(game_state)
 
+
 def _grade_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Result:
     grade = None
     rate_limit = rate_limiter.RateLimiter(120)
     last_tick_game_time = None  # What the tick time of the last observed tick was
-    last_call_real_time = datetime.now()  # When we last called the Agent
     game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
     # Run until the Exercise finishes.

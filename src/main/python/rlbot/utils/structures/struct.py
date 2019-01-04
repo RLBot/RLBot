@@ -1,5 +1,6 @@
 import ctypes
 
+
 class Struct(ctypes.Structure):
     """
     This class exists to add common python functionality to ctypes.Structure.

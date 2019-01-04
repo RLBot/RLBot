@@ -61,7 +61,7 @@ def load_external_class(python_file, base_class):
         return BaseAgent, BaseAgent.__module__
 
     if not os.path.isfile(python_file):
-        raise FileNotFoundError("Could not find file {}!".format(python_file))
+        raise FileNotFoundError(f"Could not find file {python_file}!")
 
     dir_name = os.path.dirname(python_file)
     module_name = os.path.splitext(os.path.basename(python_file))[0]
@@ -88,7 +88,6 @@ def extract_class(containing_module, base_class):
                      if issubclass(agent[1], base_class) and agent[1].__module__ == containing_module.__name__]
 
     if len(valid_classes) == 0:
-        raise ModuleNotFoundError('Could not locate a suitable bot class in module {}'.format(containing_module.__file__))
+        raise ModuleNotFoundError(f"Could not locate a suitable bot class in module {containing_module.__file__}")
 
     return valid_classes[0]
-

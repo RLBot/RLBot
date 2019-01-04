@@ -3,8 +3,8 @@ import pathlib
 import sys
 from PyQt5.QtCore import QTimer
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider, QCheckBox, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider
+from PyQt5.QtWidgets import QCheckBox, QMessageBox
 import threading
 import configparser
 
@@ -220,13 +220,15 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             if agent.get_team() != 0:
                 agent.set_team(0)
                 self.update_teams_listwidgets()
-                self.blue_listwidget.setCurrentItem(self.blue_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
+                self.blue_listwidget.setCurrentItem(self.blue_listwidget.findItems(
+                    self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
 
         elif sender is self.orange_radiobutton and value:
             if agent.get_team() != 1:
                 agent.set_team(1)
                 self.update_teams_listwidgets()
-                self.orange_listwidget.setCurrentItem(self.orange_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
+                self.orange_listwidget.setCurrentItem(self.orange_listwidget.findItems(
+                    self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
 
         elif sender is self.ign_lineedit:
             if agent not in self.agents:
@@ -282,7 +284,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         Also saves the new type if there is a bot selected
         :return:
         """
-        bot_type = self.bot_type_combobox.currentText()        
+        bot_type = self.bot_type_combobox.currentText()
         if bot_type == 'RLBot':
             self.rlbot_frame.setHidden(False)
             self.extra_line.setHidden(False)
@@ -311,7 +313,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.appearance_frame.setHidden(False)
             self.label_3.setHidden(True)
             self.ign_lineedit.setHidden(True)
-            
+
         if self.bot_config_groupbox.isEnabled() and self.current_bot is not None:
             config_type = bot_type.lower().replace(" ", "_")
             self.current_bot.set_participant_type(config_type)
@@ -327,7 +329,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             value = sender.text()
 
         if sender is self.blue_name_lineedit:
-                self.overall_config.set_value(TEAM_CONFIGURATION_HEADER, "Team Blue Name", value)
+            self.overall_config.set_value(TEAM_CONFIGURATION_HEADER, "Team Blue Name", value)
         elif sender is self.orange_name_lineedit:
             self.overall_config.set_value(TEAM_CONFIGURATION_HEADER, "Team Orange Name", value)
         elif sender is self.blue_color_spinbox:
@@ -395,7 +397,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         raw_parser.read(config_path, encoding='utf8')
         for section in self.overall_config.headers.keys():
             if not raw_parser.has_section(section):
-                self.popup_message("Config file is missing the section {}, not loading it!".format(section), "Invalid Config File", QMessageBox.Warning)
+                self.popup_message(f"Config file is missing the section {section}, not loading it!",
+                                   "Invalid Config File", QMessageBox.Warning)
                 return
         self.overall_config_path = config_path
         self.overall_config.parse_file(raw_parser, 10, config_directory=os.path.dirname(self.overall_config_path))
@@ -485,7 +488,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.orange_radiobutton.setChecked(True)
         self.ign_lineedit.setText(agent.ingame_name)
 
-        loadout_index = index_of_config_path_in_combobox(self.loadout_preset_combobox, agent.get_loadout_preset().config_path)
+        loadout_index = index_of_config_path_in_combobox(
+            self.loadout_preset_combobox, agent.get_loadout_preset().config_path)
         self.loadout_preset_combobox.setCurrentIndex(loadout_index or 0)
 
         self.agent_preset_combobox.blockSignals(True)
@@ -565,9 +569,11 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.agent_customisation.update_presets_widgets()
         self.update_teams_listwidgets()
         if agent.get_team() == 0:
-            self.blue_listwidget.setCurrentItem(self.blue_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
+            self.blue_listwidget.setCurrentItem(self.blue_listwidget.findItems(
+                self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
         else:
-            self.orange_listwidget.setCurrentItem(self.orange_listwidget.findItems(self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
+            self.orange_listwidget.setCurrentItem(self.orange_listwidget.findItems(
+                self.validate_name(agent.get_name(), agent), QtCore.Qt.MatchExactly)[0])
 
     def load_agents(self, config_file=None):
         """
@@ -582,7 +588,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             for i in range(num_participants):
                 self.load_agent(i)
         except BaseException as e:
-            raise ValueError(str(e) + " Please check your config files!".format(self.overall_config_path))
+            raise ValueError(f"{str(e)}\nPlease check your config files! {self.overall_config_path}")
 
     def load_agent(self, overall_index: int=None):
         """
@@ -601,7 +607,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         agent_preset = self.add_agent_preset(agent.get_agent_config_path())
         agent.set_agent_preset(agent_preset)
 
-        loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, overall_index)
+        loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
+                                               PARTICIPANT_LOADOUT_CONFIG_KEY, overall_index)
         if loadout_file is None or loadout_file == "None":
             loadout_preset = self.add_loadout_preset(agent_preset.looks_path)
         else:
@@ -693,7 +700,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         if os.path.isfile(file_path):
             name = pathlib.Path(file_path).stem
         else:
-            raise FileNotFoundError("File path {} is not found!".format(file_path))
+            raise FileNotFoundError(f"File path {file_path} is not found!")
 
         if name in self.agent_presets:
             if self.agent_presets[name].config_path == file_path:
@@ -703,7 +710,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 for preset_name in self.agent_presets:
                     if name in preset_name:
                         i += 1
-                name = name + ' ({})'.format(i)
+                name = f"{name} ({i})"
         preset = AgentPreset(name, file_path)
         self.agent_presets[preset.get_name()] = preset
         return preset
@@ -724,7 +731,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.mode_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
         self.map_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
         self.skip_replays_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS))
-        self.instant_start_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START))
+        self.instant_start_checkbox.setChecked(
+            self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START))
 
     def match_settings_edit_event(self, value):
         """

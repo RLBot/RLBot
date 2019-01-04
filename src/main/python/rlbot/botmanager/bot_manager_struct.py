@@ -21,7 +21,8 @@ class BotManagerStruct(BotManager):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
         self.bot_input = PlayerInput()
         # Set up shared memory for game data
-        self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
+        # We want to do a deep copy for game inputs so people don't mess with em
+        self.game_tick_packet = gd.GameTickPacket()
         # Set up shared memory for Ball prediction
         self.ball_prediction = bp.BallPrediction()
         # Set up shared memory for rigid body tick

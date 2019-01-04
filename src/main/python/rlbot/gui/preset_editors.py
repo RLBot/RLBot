@@ -120,7 +120,6 @@ class BasePresetEditor(QtWidgets.QMainWindow):
             if list_item.data(Qt.UserRole) == preset:
                 self.presets_listwidget.setCurrentRow(i)
 
-
     def load_preset_cfg(self):
         file_path = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Config', '', 'Config Files (*.cfg)')[0]
         if not os.path.isfile(file_path):
@@ -170,7 +169,7 @@ class BasePresetEditor(QtWidgets.QMainWindow):
         else:
             preset.save_config(time_out=time_out, message_out=self.statusbar.showMessage)
 
-    def validate_name(self, name, preset, copy_index = None):
+    def validate_name(self, name, preset, copy_index=None):
 
         value = name
         if copy_index is not None:
@@ -198,6 +197,7 @@ class CarCustomisationDialog(BasePresetEditor, Ui_LoadoutPresetCustomiser):
     """
     The class extending BasePresetEditor to allow some loadout preset specific preset editing, like handling item names
     """
+
     def __init__(self, qt_gui):
         super().__init__(qt_gui, qt_gui.loadout_presets, qt_gui.loadout_preset_combobox, LoadoutPreset)
 

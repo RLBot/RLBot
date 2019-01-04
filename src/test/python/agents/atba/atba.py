@@ -4,7 +4,8 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleCo
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
-from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, GameInfoState, Physics, Vector3, Rotator
+from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, GameInfoState, Physics, Vector3
+from rlbot.utils.game_state_util import Rotator
 
 
 class Atba(BaseAgent):

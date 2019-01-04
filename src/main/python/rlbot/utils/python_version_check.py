@@ -7,6 +7,11 @@ import sys
 minimum_python_version = (3, 6)
 
 # Deliberately using old string formatting for compatibility.
-error_string = "You appear to be using an old version of Python: %s\n RLBot requires Python %d.%d or later.\n After installing, ensure your environment point to the new Python version, then run setup.bat" % ((sys.version,) + minimum_python_version)
+error_string = """You appear to be using an old version of Python: %s
+ RLBot requires Python %d.%d or later.
+ After installing, ensure your environment point to the new Python version, then run setup.bat""" % (
+    (sys.version,) + minimum_python_version)
 
-assert sys.version_info >= minimum_python_version, error_string
+
+def check_python_version():
+    assert sys.version_info >= minimum_python_version, error_string
