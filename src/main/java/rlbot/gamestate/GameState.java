@@ -14,6 +14,7 @@ public class GameState {
 
     private Map<Integer, CarState> carStates = new HashMap<>();
     private BallState ballState;
+    private GameInfoState gameInfoState;
 
 
     public GameState() {
@@ -37,10 +38,20 @@ public class GameState {
         return this;
     }
 
+    public GameInfoState getGameInfoState() {
+        return gameInfoState;
+    }
+
+    public GameState withGameInfoState(GameInfoState gameInfoState) {
+        this.gameInfoState = gameInfoState;
+        return this;
+    }
+
     public GameStatePacket buildPacket() {
 
         FlatBufferBuilder builder = new FlatBufferBuilder(100);
         Integer ballStateOffset = ballState == null ? null : ballState.toFlatbuffer(builder);
+        Integer gameInfoStateOffset = gameInfoState == null ? null : gameInfoState.toFlatbuffer(builder);
 
         int numElements = carStates.keySet().stream().mapToInt(i -> i + 1).max().orElse(0);
 
@@ -60,6 +71,9 @@ public class GameState {
         DesiredGameState.startDesiredGameState(builder);
         if (ballStateOffset != null) {
             DesiredGameState.addBallState(builder, ballStateOffset);
+        }
+        if (gameInfoStateOffset != null) {
+            DesiredGameState.addGameInfoState(builder, gameInfoStateOffset);
         }
         DesiredGameState.addCarStates(builder, carStatesOffset);
 
