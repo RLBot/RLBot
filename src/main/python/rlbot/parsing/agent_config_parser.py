@@ -9,6 +9,7 @@ from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.utils.class_importer import import_agent
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.start_match_structures import PlayerConfiguration
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_CONFIG_KEY = 'participant_config'
@@ -30,6 +31,7 @@ class BotConfigBundle:
         self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
         self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
         self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
+        self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
 
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)
@@ -77,7 +79,7 @@ def add_participant_header(config_object):
                                              Use None to extract the path from the agent config""")
 
 
-def get_looks_config(config_bundle) -> ConfigObject:
+def get_looks_config(config_bundle: BotConfigBundle) -> ConfigObject:
     """
     Creates a looks config from the config bundle
     :param config_bundle:
@@ -203,13 +205,46 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     if not bot_configuration.bot:
         bot_configuration.human_index = human_index_tracker.increment()
 
-    loadout_header = BOT_CONFIG_LOADOUT_HEADER
-    if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
-        loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
-
     # Setting up the bots name
     bot_name = config_bundle.name
     bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
+
+    write_bot_appearance(looks_config_object, team_num, bot_configuration)
+
+    python_file = 'NO_MODULE_FOR_PARTICIPANT'
+    bot_parameters = None
+
+    if bot_configuration.rlbot_controlled:
+        # Python file relative to the config location.
+        python_file = config_bundle.python_file
+        bot_parameters = load_bot_parameters(config_bundle)
+
+    return bot_name, team_num, python_file, bot_parameters
+
+
+def load_bot_parameters(config_bundle: BotConfigBundle) -> ConfigObject:
+    """
+    Initializes the agent in the bundle's python file and asks it to provide its
+    custom configuration object where its parameters can be set.
+    :return: the parameters as a ConfigObject
+    """
+    # Python file relative to the config location.
+    python_file = config_bundle.python_file
+    agent_class_wrapper = import_agent(python_file)
+    bot_parameters = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
+    bot_parameters.parse_file(config_bundle.config_obj, config_directory=config_bundle.config_directory)
+    return bot_parameters
+
+
+def write_bot_appearance(looks_config_object: ConfigObject, team_num: int, bot_configuration: PlayerConfiguration):
+    """
+    Writes the data inside the looks_config_object into the bot_configuration ctypes object.
+    Uses team_num to decide whether to use the blue or orange loadout.
+    """
+
+    loadout_header = BOT_CONFIG_LOADOUT_HEADER
+    if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
+        loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
     BaseAgent._parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
 
@@ -219,15 +254,3 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER):
         BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object,
                                            BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER)
-
-    python_file = 'NO_MODULE_FOR_PARTICIPANT'
-    bot_parameters = None
-
-    if bot_configuration.rlbot_controlled:
-        # Python file relative to the config location.
-        python_file = config_bundle.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
-        agent_class_wrapper = import_agent(python_file)
-        bot_parameters = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
-        bot_parameters.parse_file(config_bundle.config_obj, config_directory=config_bundle.config_directory)
-
-    return bot_name, team_num, python_file, bot_parameters

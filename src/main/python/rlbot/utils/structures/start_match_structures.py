@@ -67,10 +67,3 @@ class MatchSettings(ctypes.Structure):
                 ("instant_start", ctypes.c_bool),
                 ("mutator_settings", MutatorSettings),
                 ]
-
-
-def get_player_configuration_list(match_configuration_wrapper):
-    player_list = []
-    for i in range(MAX_PLAYERS):
-        player_list.append(PlayerConfiguration())
-    return match_configuration_wrapper.player_configuration

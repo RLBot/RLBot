@@ -45,7 +45,6 @@ def get_dll_directory():
 
 class GameInterface:
     game = None
-    participants = None
     start_match_configuration = None
     game_status_callback_type = None
     callback_func = None
