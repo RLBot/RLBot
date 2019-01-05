@@ -26,7 +26,10 @@ class ConfigObject:
         """
         Adds a new header with the name header_name
         :param header_name: The name of the header as it would appear in the config
-        :param is_indexed: If true that means that the same value is spread across an indexed list.
+        :param is_indexed: Indicates that the header may contain special 'indexed' attributes, where a series of
+        keys that differ only by a numeric suffix are used to represent an array. Example:
+        thing_1 = x
+        thing_2 = y
         :return: The newly created header.
         """
         header = ConfigHeader()
@@ -124,7 +127,10 @@ class ConfigHeader:
 
     def __init__(self):
         self.values = {}
-        self.is_indexed = False  # if True then indexes will be applied to all values otherwise they will not be
+
+        # Indicates that the header may contain special 'indexed' attributes, where a series of
+        # keys that differ only by a numeric suffix are used to represent an array.
+        self.is_indexed = False
         self.max_index = -1
         self.config_directory = None
 
