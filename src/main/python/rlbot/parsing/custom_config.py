@@ -1,5 +1,7 @@
-import re
 from configparser import RawConfigParser
+from pathlib import Path
+from typing import Union
+import re
 
 import os
 
@@ -70,7 +72,7 @@ class ConfigObject:
         for header in self.headers.values():
             header.init_indices(max_index)
 
-    def parse_file(self, config, max_index=None, config_directory=None):
+    def parse_file(self, config: Union[Path, str, RawConfigParser, 'ConfigObject'], max_index=None, config_directory=None):
         """
         Parses the file internally setting values
         :param config: an instance of RawConfigParser or a string to a .cfg file
@@ -78,6 +80,9 @@ class ConfigObject:
         :return: None
         """
         self.config_directory = config_directory
+
+        if isinstance(config, Path):
+            config = str(config)
 
         if isinstance(config, str):
             if not os.path.isfile(config):
