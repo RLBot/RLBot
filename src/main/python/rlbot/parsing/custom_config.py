@@ -155,15 +155,15 @@ class ConfigHeader:
         """
         Sets the value on the given option.
         :param option: The name of the option as it appears in the config file
-        :param value: The value that is being applied, if this section is indexed value must be a list
+        :param value: The value that is being applied. If this section is indexed then the
+        value must be a list (to be applied directly) or you must supply the index parameter,
+        which will cause the value to be inserted into an existing list.
+        :param index: If the attribute is indexed, we will use this index to insert
+        the value you have supplied.
         :return: an instance of itself so that you can chain setting values together.
         """
-        # Should raise error if indexed and there's no list or if indexed and no index given
-        if self.is_indexed and index is None:
-            if not isinstance(value, list):
-                raise TypeError("Value should be a list when not giving an index in an indexed header")
-            else:
-                raise IndexError("Index cannot be None when not giving a list in an indexed header")
+        if self.is_indexed and index is None and not isinstance(value, list):
+            raise TypeError("Value should be a list when not giving an index in an indexed header")
         self.values[option].set_value(value=value, index=index)
         return self
 
