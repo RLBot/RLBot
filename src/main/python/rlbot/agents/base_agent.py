@@ -290,13 +290,13 @@ class BaseAgent:
     def _create_loadout_paint() -> ConfigHeader:
         header = ConfigHeader()
 
-        header.add_value('car_paint_id', int, default=12)
+        header.add_value('car_paint_id', int, default=0)
         header.add_value('decal_paint_id', int, default=0)
-        header.add_value('wheels_paint_id', int, default=7)
-        header.add_value('boost_paint_id', int, default=7)
+        header.add_value('wheels_paint_id', int, default=0)
+        header.add_value('boost_paint_id', int, default=0)
         header.add_value('antenna_paint_id', int, default=0)
         header.add_value('hat_paint_id', int, default=0)
-        header.add_value('trails_paint_id', int, default=2)
+        header.add_value('trails_paint_id', int, default=0)
         header.add_value('goal_explosion_paint_id', int, default=0)
 
         return header
