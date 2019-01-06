@@ -5,7 +5,6 @@ from rlbot.parsing.match_settings_config_parser import add_mutator_header, get_n
     add_match_settings_header, parse_match_settings
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.logging_utils import get_logger
-from rlbot.utils.structures.start_match_structures import get_player_configuration_list
 
 
 TEAM_CONFIGURATION_HEADER = "Team Configuration"
@@ -57,7 +56,7 @@ def parse_configurations(start_match_configuration, config_parser, config_locati
 
     start_match_configuration.num_players = num_participants
 
-    player_configuration_list = get_player_configuration_list(start_match_configuration)
+    player_configuration_list = start_match_configuration.player_configuration
 
     human_index_tracker = IncrementingInteger(0)
 

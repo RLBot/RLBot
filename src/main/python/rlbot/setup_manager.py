@@ -3,24 +3,26 @@ import multiprocessing as mp
 import os
 import queue
 import time
-import psutil
-from datetime import datetime, timedelta
 import webbrowser
+from datetime import datetime, timedelta
 
+import psutil
 from rlbot import version
-from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
 from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
+from rlbot.botmanager.helper_process_manager import HelperProcessManager
+from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.parsing.agent_config_parser import load_bot_parameters
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
+from rlbot.utils import process_configuration
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
-from rlbot.utils import process_configuration
+from rlbot.utils.prediction import prediction_util
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import QuickChatManager
 from rlbot.utils.structures.start_match_structures import MatchSettings
-from rlbot.utils.prediction import prediction_util
 
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
@@ -83,9 +85,35 @@ class SetupManager:
         self.agent_metadata_queue = mp.Queue()
         self.has_started = True
 
+    def load_match_config(self, match_config: MatchConfig):
+        """
+        Loads the match config into internal data structures, which prepares us to later
+        launch bot processes and start the match.
+
+        This is an alternative to the load_config method; they accomplish the same thing.
+        """
+        self.num_participants = match_config.num_players
+        self.names = [bot.name for bot in match_config.player_configs]
+        self.teams = [bot.team for bot in match_config.player_configs]
+        self.python_files = [bot.config_bundle.python_file if bot.config_bundle else None
+                             for bot in match_config.player_configs]
+        self.parameters = []
+
+        for bot in match_config.player_configs:
+            python_config = None
+            if bot.rlbot_controlled:
+                python_config = load_bot_parameters(bot.config_bundle)
+            self.parameters.append(python_config)
+
+        self.start_match_configuration = match_config.create_match_settings()
+        self.game_interface.start_match_configuration = self.start_match_configuration
+
     def load_config(self, framework_config=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None,
                     looks_configs=None):
         """
+        Loads the configuration into internal data structures, which prepares us to later
+        launch bot processes and start the match.
+
         :param framework_config: A config object that indicates what bots to run. May come from parsing a rlbot.cfg.
         :param config_location: The location of the rlbot.cfg file, which will be used to resolve relative paths.
         :param bot_configs: Overrides for bot configurations.
@@ -108,7 +136,6 @@ class SetupManager:
         self.num_participants, self.names, self.teams, self.python_files, self.parameters = parse_configurations(
             self.start_match_configuration, framework_config, config_location, bot_configs, looks_configs)
 
-        self.game_interface.participants = self.num_participants
         self.game_interface.start_match_configuration = self.start_match_configuration
 
         extension_path = framework_config.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
