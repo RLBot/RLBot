@@ -3,7 +3,7 @@ import os
 from configparser import NoSectionError, MissingSectionHeaderError, NoOptionError
 from typing import Set
 
-from rlbot.parsing.agent_config_parser import get_bot_config_bundle, BotConfigBundle
+from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bundle
 
 
 def scan_directory_for_bot_configs(root_dir) -> Set[BotConfigBundle]:

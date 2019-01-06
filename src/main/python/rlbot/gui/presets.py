@@ -4,9 +4,9 @@ import os
 
 from PyQt5.QtCore import QTimer
 
-from rlbot.agents.base_agent import BaseAgent, LOOKS_CONFIG_KEY
-from rlbot.agents.base_agent import PYTHON_FILE_KEY, BOT_CONFIG_MODULE_HEADER
-from rlbot.parsing.agent_config_parser import get_bot_config_bundle
+from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY, PYTHON_FILE_KEY
+from rlbot.parsing.agent_config_parser import create_looks_configurations
+from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.utils.class_importer import import_agent
 
 
@@ -75,7 +75,7 @@ class LoadoutPreset(Preset):
     """
 
     def __init__(self, name, file_path=None):
-        super().__init__(BaseAgent._create_looks_configurations(), file_path, name)
+        super().__init__(create_looks_configurations(), file_path, name)
 
     def get_required_sections(self):
         return ['Bot Loadout']

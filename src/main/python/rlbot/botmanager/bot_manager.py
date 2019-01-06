@@ -19,7 +19,7 @@ MAX_CARS = 10
 
 class BotManager:
     def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -53,6 +53,7 @@ class BotManager:
         self.bot_input = None
         self.ball_prediction = None
         self.rigid_body_tick = None
+        self.match_config = match_config
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -79,6 +80,8 @@ class BotManager:
         """
         agent_class = self.agent_class_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
+        agent.init_match_config(self.match_config)
+
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
 
         self.update_metadata_queue(agent)

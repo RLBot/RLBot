@@ -2,7 +2,12 @@ import configparser
 import os
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, PYTHON_FILE_KEY
+from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
+    PARTICIPANT_CONFIG_KEY
 from rlbot.parsing.custom_config import ConfigObject
+from rlbot.utils.logging_utils import get_logger
+
+logger = get_logger('rlbot')
 
 
 class BotConfigBundle:
@@ -34,4 +39,50 @@ class BotConfigBundle:
         :param config_bundle:
         :return:
         """
-        return BaseAgent._create_looks_configurations().parse_file(self.looks_path)
+        return create_looks_configurations().parse_file(self.looks_path)
+
+
+def get_bot_config_bundle(bot_config_path) -> BotConfigBundle:
+    if not os.path.isfile(bot_config_path):
+        raise FileNotFoundError(f"Could not find bot config file {bot_config_path}!")
+    raw_bot_config = configparser.RawConfigParser()
+    raw_bot_config.read(bot_config_path, encoding='utf8')
+    config_directory = os.path.dirname(os.path.realpath(bot_config_path))
+    bundle = BotConfigBundle(config_directory, raw_bot_config, os.path.basename(bot_config_path))
+    validate_bot_config(bundle)
+    return bundle
+
+
+def validate_bot_config(config_bundle) -> None:
+    """
+    Checks the config bundle to see whether it has all required attributes.
+    """
+    if not config_bundle.name:
+        bot_config = os.path.join(config_bundle.config_directory, config_bundle.config_file_name or '')
+        raise AttributeError(f"Bot config {bot_config} has no name configured!")
+
+    # This will raise an exception if we can't find the looks config, or if it's malformed
+    config_bundle.get_looks_config()
+
+
+def get_bot_config_bundles(num_participants, config: ConfigObject, config_location, config_bundle_overrides):
+    """
+    Adds all the config files or config objects.
+    :param num_participants:
+    :param config:
+    :param config_location: The location of the rlbot.cfg file
+    :param config_bundle_overrides: These are configs that have been loaded from the gui, they get assigned a bot index.
+    :return:
+    """
+    config_bundles = []
+    for i in range(num_participants):
+        if i in config_bundle_overrides:
+            config_bundles.append(config_bundle_overrides[i])
+            logger.debug("Config available")
+        else:
+            bot_config_relative_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
+            bot_config_path = os.path.join(os.path.dirname(config_location), bot_config_relative_path)
+            config_bundles.append(get_bot_config_bundle(bot_config_path))
+            logger.debug("Reading raw config")
+
+    return config_bundles
