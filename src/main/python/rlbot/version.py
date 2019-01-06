@@ -4,18 +4,17 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.9.5'
+__version__ = '1.9.6'
 
 release_notes = {
 
-    '1.9.5': """
+    '1.9.6': """
     - *Much* faster core dll initialization! - ccman32
     - Adding support for a training mode! Check out https://github.com/RLBot/RLBotTraining - DomNomNom
     - Allow the user to change the appearance of human and party-member bot agents via the GUI - r0bbi3
     - Added game speed info to game tick packet and the ability to modify it via state setting - Marvin
     - Make the game stop capturing the mouse cursor if only bots are playing - whatisaphone
     - Various quality-of-life improvements - DomNomNom
-    - Making the GUI load all bots in the current directory - tarehart
     - Match configuration refactoring to make new GUIs easier - tarehart
     """,
 

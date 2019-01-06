@@ -359,7 +359,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.overall_config.init_indices(10)
         self.overall_config_path = ""
         self.load_agents()
-        self.load_bot_directory(".")
+        # self.load_bot_directory(".")
         self.update_teams_listwidgets()
         if not self.overall_config_path:
             self.cfg_file_path_lineedit.setStyleSheet("border: 1px solid red;")
@@ -403,7 +403,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.overall_config_path = config_path
         self.overall_config.parse_file(raw_parser, 10, config_directory=os.path.dirname(self.overall_config_path))
         self.load_agents()
-        self.load_bot_directory(".")
+        # self.load_bot_directory(".")
         self.update_teams_listwidgets()
         self.cfg_file_path_lineedit.setText(self.overall_config_path)
         self.cfg_file_path_lineedit.setStyleSheet("")
