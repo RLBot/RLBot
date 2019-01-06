@@ -1,10 +1,12 @@
 import configparser
-
 import os
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
-    BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, LOOKS_CONFIG_KEY, BOT_NAME_KEY, BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER, \
+    BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER, \
     BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER
+from rlbot.matchconfig.loadout_config import LoadoutConfig, LoadoutPaintConfig
+from rlbot.matchconfig.match_config import PlayerConfig
+from rlbot.parsing.bot_config_bundle import BotConfigBundle
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.utils.class_importer import import_agent
@@ -19,30 +21,6 @@ PARTICIPANT_TEAM = 'participant_team'
 PARTICIPANT_LOADOUT_CONFIG_KEY = 'participant_loadout_config'
 
 logger = get_logger('rlbot')
-
-
-class BotConfigBundle:
-    def __init__(self, config_directory, config_obj: ConfigObject, config_file_name: str = None):
-        self.config_directory = config_directory
-        self.config_file_name = config_file_name
-        self.config_path = os.path.join(self.config_directory, self.config_file_name)
-        self.config_obj = config_obj
-        self.base_agent_config = BaseAgent.base_create_agent_configurations()
-        self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
-        self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
-        self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-        self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
-
-    def get_absolute_path(self, header, key):
-        path = self.base_agent_config.get(header, key)
-        if path is None:
-            raise configparser.NoSectionError(f"Could not find {header}: {key} in the provided configuration!")
-        if os.path.isabs(path):
-            return path
-        if self.config_directory is None:
-            raise ValueError(f"Can't locate {path} because it's a relative path and we don't know where to look!")
-        joined = os.path.join(self.config_directory, path)
-        return os.path.realpath(joined)
 
 
 def add_participant_header(config_object):
@@ -79,32 +57,6 @@ def add_participant_header(config_object):
                                              Use None to extract the path from the agent config""")
 
 
-def get_looks_config(config_bundle: BotConfigBundle) -> ConfigObject:
-    """
-    Creates a looks config from the config bundle
-    :param config_bundle:
-    :return:
-    """
-    return BaseAgent._create_looks_configurations().parse_file(config_bundle.looks_path)
-
-
-def get_sanitized_bot_name(dict, name):
-    """
-    Cut off at 31 characters and handle duplicates.
-    :param dict: Holds the list of names for duplicates
-    :param name: The name that is being sanitized
-    :return: A sanitized version of the name
-    """
-    if name not in dict:
-        new_name = name[:31]  # Make sure name does not exceed 31 characters
-        dict[name] = 1
-    else:
-        count = dict[name]
-        new_name = name[:27] + "(" + str(count + 1) + ")"  # Truncate at 27 because we can have up to '(10)' appended
-        dict[name] = count + 1
-
-    return new_name
-
 
 def get_team(config, index):
     """
@@ -133,10 +85,10 @@ def validate_bot_config(config_bundle) -> None:
         raise AttributeError(f"Bot config {bot_config} has no name configured!")
 
     # This will raise an exception if we can't find the looks config, or if it's malformed
-    get_looks_config(config_bundle)
+    config_bundle.get_looks_config()
 
 
-def get_bot_config_bundles(num_participants, config, config_location, config_bundle_overrides):
+def get_bot_config_bundles(num_participants, config: ConfigObject, config_location, config_bundle_overrides):
     """
     Adds all the config files or config objects.
     :param num_participants:
@@ -180,18 +132,22 @@ def get_bot_options(bot_type):
     return is_bot, is_rlbot
 
 
-def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, looks_config_object, overall_config,
-                    name_dict, human_index_tracker: IncrementingInteger):
+def load_bot_config(index, config_bundle: BotConfigBundle,
+                    looks_config_object: ConfigObject, overall_config: ConfigObject,
+                    human_index_tracker: IncrementingInteger) -> PlayerConfig:
     """
     Loads the config data of a single bot
     :param index: This is the bot index (where it appears in game_cars)
-    :param bot_configuration: This is the game_tick_packet configuration that is sent back to the game
+    :param bot_configuration: A config object that will eventually be transformed and sent to the game.
     :param config_bundle: A config object for a single bot
     :param overall_config: This is the config for the entire session not one particular bot
-    :param name_dict: A mapping of used names so we can make sure to not reuse bot names.
     :param human_index_tracker: An object of type HumanIndexManager that helps set human_index correctly.
     :return:
     """
+
+    bot_configuration = PlayerConfig()
+    bot_configuration.config_bundle = config_bundle
+
     team_num = get_team(overall_config, index)
 
     bot_configuration.team = team_num
@@ -206,20 +162,12 @@ def load_bot_config(index, bot_configuration, config_bundle: BotConfigBundle, lo
         bot_configuration.human_index = human_index_tracker.increment()
 
     # Setting up the bots name
-    bot_name = config_bundle.name
-    bot_configuration.name = get_sanitized_bot_name(name_dict, bot_name)
+    bot_configuration.name = config_bundle.name
 
-    write_bot_appearance(looks_config_object, team_num, bot_configuration)
+    loadout_config = load_bot_appearance(looks_config_object, team_num)
+    bot_configuration.loadout_config = loadout_config
 
-    python_file = 'NO_MODULE_FOR_PARTICIPANT'
-    bot_parameters = None
-
-    if bot_configuration.rlbot_controlled:
-        # Python file relative to the config location.
-        python_file = config_bundle.python_file
-        bot_parameters = load_bot_parameters(config_bundle)
-
-    return bot_name, team_num, python_file, bot_parameters
+    return bot_configuration
 
 
 def load_bot_parameters(config_bundle: BotConfigBundle) -> ConfigObject:
@@ -236,21 +184,22 @@ def load_bot_parameters(config_bundle: BotConfigBundle) -> ConfigObject:
     return bot_parameters
 
 
-def write_bot_appearance(looks_config_object: ConfigObject, team_num: int, bot_configuration: PlayerConfiguration):
-    """
-    Writes the data inside the looks_config_object into the bot_configuration ctypes object.
-    Uses team_num to decide whether to use the blue or orange loadout.
-    """
+def load_bot_appearance(looks_config_object: ConfigObject, team_num: int) -> LoadoutConfig:
+
+    loadout_config = LoadoutConfig()
+    loadout_config.paint_config = LoadoutPaintConfig()
 
     loadout_header = BOT_CONFIG_LOADOUT_HEADER
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
         loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
-    BaseAgent._parse_bot_loadout(bot_configuration, looks_config_object, loadout_header)
+    BaseAgent._parse_bot_loadout(loadout_config, looks_config_object, loadout_header)
 
     if team_num == 0 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER):
-        BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER)
+        BaseAgent._parse_bot_loadout_paint(loadout_config.paint_config, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER)
 
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER):
-        BaseAgent._parse_bot_loadout_paint(bot_configuration, looks_config_object,
+        BaseAgent._parse_bot_loadout_paint(loadout_config.paint_config, looks_config_object,
                                            BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER)
+
+    return loadout_config
