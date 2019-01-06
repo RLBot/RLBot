@@ -15,14 +15,14 @@ from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.parsing.agent_config_parser import load_bot_parameters
-from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations, EXTENSION_PATH_KEY
+from rlbot.parsing.custom_config import ConfigObject
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations
 from rlbot.utils import process_configuration
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.prediction import prediction_util
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import QuickChatManager
-from rlbot.utils.structures.start_match_structures import MatchSettings
 
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
@@ -105,10 +105,13 @@ class SetupManager:
                 python_config = load_bot_parameters(bot.config_bundle)
             self.parameters.append(python_config)
 
+        if match_config.extension_config is not None and match_config.extension_config.python_file_path is not None:
+            self.load_extension(match_config.extension_config.python_file_path)
+
         self.start_match_configuration = match_config.create_match_settings()
         self.game_interface.start_match_configuration = self.start_match_configuration
 
-    def load_config(self, framework_config=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None,
+    def load_config(self, framework_config: ConfigObject=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None,
                     looks_configs=None):
         """
         Loads the configuration into internal data structures, which prepares us to later
@@ -130,17 +133,8 @@ class SetupManager:
         if looks_configs is None:
             looks_configs = {}
 
-        # Open anonymous shared memory for entire GameInputPacket and map buffer
-        self.start_match_configuration = MatchSettings()
-
-        self.num_participants, self.names, self.teams, self.python_files, self.parameters = parse_configurations(
-            self.start_match_configuration, framework_config, config_location, bot_configs, looks_configs)
-
-        self.game_interface.start_match_configuration = self.start_match_configuration
-
-        extension_path = framework_config.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
-        if extension_path is not None and extension_path != "None":
-            self.load_extension(extension_path)
+        match_config = parse_configurations(framework_config, config_location, bot_configs, looks_configs)
+        self.load_match_config(match_config)
 
     def launch_ball_prediction(self):
         if self.start_match_configuration.game_mode == 1:  # hoops
@@ -252,9 +246,12 @@ class SetupManager:
         self.logger.info("Shut down complete!")
 
     def load_extension(self, extension_filename):
-        extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
-        self.extension = extension_class(self)
-        self.game_interface.set_extension(self.extension)
+        try:
+            extension_class = import_class_with_base(extension_filename, BaseExtension).get_loaded_class()
+            self.extension = extension_class(self)
+            self.game_interface.set_extension(self.extension)
+        except FileNotFoundError as e:
+            print(f'Failed to load extension: {e}')
 
     @staticmethod
     def run_agent(terminate_event, callback_event, reload_request, config_file, name, team, index, python_file,

@@ -1,5 +1,5 @@
-from rlbot.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header, \
-    get_looks_config
+from rlbot.matchconfig.match_config import MatchConfig, ExtensionConfig, MutatorConfig
+from rlbot.parsing.agent_config_parser import load_bot_config, get_bot_config_bundles, add_participant_header
 from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.parsing.match_settings_config_parser import add_mutator_header, get_num_players, \
     add_match_settings_header, parse_match_settings
@@ -35,49 +35,41 @@ def create_bot_config_layout():
     return config_object
 
 
-def parse_configurations(start_match_configuration, config_parser, config_location, config_bundle_overrides,
-                         looks_configs):
-    bot_names = []
-    bot_teams = []
-    python_files = []
+def parse_configurations(config_parser: ConfigObject, config_location, config_bundle_overrides,
+                         looks_config_overrides) -> MatchConfig:
+
+    match_config = MatchConfig()
+    match_config.mutators = MutatorConfig()
 
     # Determine number of participants
-    num_participants = get_num_players(config_parser)
+    match_config.num_players = get_num_players(config_parser)
 
-    parse_match_settings(start_match_configuration, config_parser)
+    parse_match_settings(match_config, config_parser)
 
     # Retrieve bot config files
-    config_bundles = get_bot_config_bundles(num_participants, config_parser, config_location, config_bundle_overrides)
+    config_bundles = get_bot_config_bundles(match_config.num_players, config_parser, config_location, config_bundle_overrides)
 
-    # Create empty lists
-
-    bot_parameter_list = []
-    name_dict = {}
-
-    start_match_configuration.num_players = num_participants
-
-    player_configuration_list = start_match_configuration.player_configuration
+    match_config.player_configs = []
 
     human_index_tracker = IncrementingInteger(0)
 
     # Set configuration values for bots and store name and team
-    for i in range(num_participants):
+    for i in range(match_config.num_players):
 
         config_bundle = config_bundles[i]
 
-        if i not in looks_configs:
-            looks_config_object = get_looks_config(config_bundle)
+        if i not in looks_config_overrides:
+            looks_config_object = config_bundle.get_looks_config()
         else:
-            looks_config_object = looks_configs[i]
+            looks_config_object = looks_config_overrides[i]
 
-        bot_name, team_number, python_file, bot_parameters = load_bot_config(i, player_configuration_list[i],
-                                                                             config_bundle, looks_config_object,
-                                                                             config_parser, name_dict,
-                                                                             human_index_tracker)
+        player_config = load_bot_config(i, config_bundle, looks_config_object, config_parser, human_index_tracker)
 
-        bot_names.append(bot_name)
-        bot_teams.append(team_number)
-        python_files.append(python_file)
-        bot_parameter_list.append(bot_parameters)
+        match_config.player_configs.append(player_config)
 
-    return num_participants, bot_names, bot_teams, python_files, bot_parameter_list
+    extension_path = config_parser.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
+    if extension_path:
+        match_config.extension_config = ExtensionConfig()
+        match_config.extension_config.python_file_path = extension_path
+
+    return match_config

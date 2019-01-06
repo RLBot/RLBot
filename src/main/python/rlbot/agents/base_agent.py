@@ -318,7 +318,7 @@ class BaseAgent:
         player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')
 
     @staticmethod
-    def _parse_bot_loadout_paint(player_configuration, bot_config, loadout_header):
+    def _parse_bot_loadout_paint(player_configuration, bot_config: ConfigObject, loadout_header: str):
         player_configuration.car_paint_id = bot_config.getint(loadout_header, 'car_paint_id')
         player_configuration.decal_paint_id = bot_config.getint(loadout_header, 'decal_paint_id')
         player_configuration.wheels_paint_id = bot_config.getint(loadout_header, 'wheels_paint_id')
