@@ -3,12 +3,13 @@ from rlbot.botmanager.bot_manager import BotManager
 
 class BotManagerIndependent(BotManager):
     def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config):
         """
         See documentation on BotManager.
         """
         super().__init__(terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                         name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
+                         name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder,
+                         match_config)
 
     def run(self):
         # Get bot module

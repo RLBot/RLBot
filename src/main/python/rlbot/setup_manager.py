@@ -14,7 +14,7 @@ from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.matchconfig.match_config import MatchConfig
-from rlbot.parsing.agent_config_parser import load_bot_parameters
+from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations
 from rlbot.utils import process_configuration
@@ -68,6 +68,7 @@ class SetupManager:
         self.bot_reload_requests = []
         self.agent_metadata_map = {}
         self.ball_prediction_process = None
+        self.match_config: MatchConfig = None
 
     def connect_to_game(self):
         if self.has_started:
@@ -85,7 +86,7 @@ class SetupManager:
         self.agent_metadata_queue = mp.Queue()
         self.has_started = True
 
-    def load_match_config(self, match_config: MatchConfig):
+    def load_match_config(self, match_config: MatchConfig, bot_config_overrides={}):
         """
         Loads the match config into internal data structures, which prepares us to later
         launch bot processes and start the match.
@@ -95,23 +96,31 @@ class SetupManager:
         self.num_participants = match_config.num_players
         self.names = [bot.name for bot in match_config.player_configs]
         self.teams = [bot.team for bot in match_config.player_configs]
-        self.python_files = [bot.config_bundle.python_file if bot.config_bundle else None
-                             for bot in match_config.player_configs]
+
+        bundles = [bot_config_overrides[index] if index in bot_config_overrides else
+                   get_bot_config_bundle(bot.config_path) if bot.config_path else None
+                   for index, bot in enumerate(match_config.player_configs)]
+
+        self.python_files = [bundle.python_file if bundle else None
+                             for bundle in bundles]
+
         self.parameters = []
 
-        for bot in match_config.player_configs:
+        for index, bot in enumerate(match_config.player_configs):
             python_config = None
             if bot.rlbot_controlled:
-                python_config = load_bot_parameters(bot.config_bundle)
+                python_config = load_bot_parameters(bundles[index])
             self.parameters.append(python_config)
 
         if match_config.extension_config is not None and match_config.extension_config.python_file_path is not None:
             self.load_extension(match_config.extension_config.python_file_path)
 
+        self.match_config = match_config
         self.start_match_configuration = match_config.create_match_settings()
         self.game_interface.start_match_configuration = self.start_match_configuration
 
-    def load_config(self, framework_config: ConfigObject=None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION, bot_configs=None,
+    def load_config(self, framework_config: ConfigObject = None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION,
+                    bot_configs=None,
                     looks_configs=None):
         """
         Loads the configuration into internal data structures, which prepares us to later
@@ -134,7 +143,7 @@ class SetupManager:
             looks_configs = {}
 
         match_config = parse_configurations(framework_config, config_location, bot_configs, looks_configs)
-        self.load_match_config(match_config)
+        self.load_match_config(match_config, bot_configs)
 
     def launch_ball_prediction(self):
         if self.start_match_configuration.game_mode == 1:  # hoops
@@ -161,7 +170,7 @@ class SetupManager:
                                      args=(self.quit_event, quit_callback, reload_request, self.parameters[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue,
-                                           queue_holder))
+                                           queue_holder, self.match_config))
                 process.start()
                 self.sub_processes.append(process)
 
@@ -255,19 +264,19 @@ class SetupManager:
 
     @staticmethod
     def run_agent(terminate_event, callback_event, reload_request, config_file, name, team, index, python_file,
-                  agent_telemetry_queue, queue_holder):
+                  agent_telemetry_queue, queue_holder, match_config: MatchConfig):
 
         agent_class_wrapper = import_agent(python_file)
 
         if hasattr(agent_class_wrapper.get_loaded_class(), "run_independently"):
             bm = BotManagerIndependent(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                       agent_class_wrapper, agent_telemetry_queue, queue_holder)
+                                       agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
             bm = BotManagerFlatbuffer(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                      agent_class_wrapper, agent_telemetry_queue, queue_holder)
+                                      agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
         else:
             bm = BotManagerStruct(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                  agent_class_wrapper, agent_telemetry_queue, queue_holder)
+                                  agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
         bm.run()
 
     def kill_sub_processes(self):
@@ -293,3 +302,17 @@ class SetupManager:
                     self.logger.info("Already dead.")
             except psutil.NoSuchProcess:
                 self.logger.info("Can't fetch parent process, already dead.")
+
+
+def load_bot_parameters(config_bundle) -> ConfigObject:
+    """
+    Initializes the agent in the bundle's python file and asks it to provide its
+    custom configuration object where its parameters can be set.
+    :return: the parameters as a ConfigObject
+    """
+    # Python file relative to the config location.
+    python_file = config_bundle.python_file
+    agent_class_wrapper = import_agent(python_file)
+    bot_parameters = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
+    bot_parameters.parse_file(config_bundle.config_obj, config_directory=config_bundle.config_directory)
+    return bot_parameters

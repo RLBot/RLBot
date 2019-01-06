@@ -1,7 +1,6 @@
 from typing import List
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig
-from rlbot.parsing.bot_config_bundle import BotConfigBundle
 from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_types, map_types, game_mode_types, \
     match_length_types, max_score_types, overtime_mutator_types, series_length_mutator_types, game_speed_mutator_types, \
     ball_max_speed_mutator_types, ball_type_mutator_types, ball_weight_mutator_types, ball_size_mutator_types, \
@@ -25,7 +24,7 @@ class PlayerConfig:
         self.human_index: int = None
         self.name: str = None
         self.team: int = None
-        self.config_bundle: BotConfigBundle = None  # Required only if rlbot_controlled is true
+        self.config_path: str = None  # Required only if rlbot_controlled is true
         self.loadout_config: LoadoutConfig = None
 
     def write(self, player_configuration: PlayerConfiguration, name_dict: dict):

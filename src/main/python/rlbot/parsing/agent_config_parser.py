@@ -1,17 +1,6 @@
-import configparser
-import os
-
-from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_LOADOUT_HEADER, BOT_CONFIG_LOADOUT_ORANGE_HEADER, \
-    BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER, \
-    BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER
 from rlbot.matchconfig.loadout_config import LoadoutConfig, LoadoutPaintConfig
-from rlbot.matchconfig.match_config import PlayerConfig
-from rlbot.parsing.bot_config_bundle import BotConfigBundle
-from rlbot.parsing.custom_config import ConfigObject
-from rlbot.parsing.incrementing_integer import IncrementingInteger
-from rlbot.utils.class_importer import import_agent
+from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.logging_utils import get_logger
-from rlbot.utils.structures.start_match_structures import PlayerConfiguration
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_CONFIG_KEY = 'participant_config'
@@ -19,6 +8,10 @@ PARTICIPANT_BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICIPANT_TYPE_KEY = 'participant_type'
 PARTICIPANT_TEAM = 'participant_team'
 PARTICIPANT_LOADOUT_CONFIG_KEY = 'participant_loadout_config'
+BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
+BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
+BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER = 'Bot Paint Blue'
+BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER = 'Bot Paint Orange'
 
 logger = get_logger('rlbot')
 
@@ -57,133 +50,6 @@ def add_participant_header(config_object):
                                              Use None to extract the path from the agent config""")
 
 
-
-def get_team(config, index):
-    """
-    Returns which team the bot is on (represented by an integer)
-    """
-    return config.getint(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, index)
-
-
-def get_bot_config_bundle(bot_config_path) -> BotConfigBundle:
-    if not os.path.isfile(bot_config_path):
-        raise FileNotFoundError(f"Could not find bot config file {bot_config_path}!")
-    raw_bot_config = configparser.RawConfigParser()
-    raw_bot_config.read(bot_config_path, encoding='utf8')
-    config_directory = os.path.dirname(os.path.realpath(bot_config_path))
-    bundle = BotConfigBundle(config_directory, raw_bot_config, os.path.basename(bot_config_path))
-    validate_bot_config(bundle)
-    return bundle
-
-
-def validate_bot_config(config_bundle) -> None:
-    """
-    Checks the config bundle to see whether it has all required attributes.
-    """
-    if not config_bundle.name:
-        bot_config = os.path.join(config_bundle.config_directory, config_bundle.config_file_name or '')
-        raise AttributeError(f"Bot config {bot_config} has no name configured!")
-
-    # This will raise an exception if we can't find the looks config, or if it's malformed
-    config_bundle.get_looks_config()
-
-
-def get_bot_config_bundles(num_participants, config: ConfigObject, config_location, config_bundle_overrides):
-    """
-    Adds all the config files or config objects.
-    :param num_participants:
-    :param config:
-    :param config_location: The location of the rlbot.cfg file
-    :param config_bundle_overrides: These are configs that have been loaded from the gui, they get assigned a bot index.
-    :return:
-    """
-    config_bundles = []
-    for i in range(num_participants):
-        if i in config_bundle_overrides:
-            config_bundles.append(config_bundle_overrides[i])
-            logger.debug("Config available")
-        else:
-            bot_config_relative_path = config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY, i)
-            bot_config_path = os.path.join(os.path.dirname(config_location), bot_config_relative_path)
-            config_bundles.append(get_bot_config_bundle(bot_config_path))
-            logger.debug("Reading raw config")
-
-    return config_bundles
-
-
-def get_bot_options(bot_type):
-    if bot_type == 'human':
-        is_bot = False
-        is_rlbot = False
-    elif bot_type == 'rlbot':
-        is_bot = True
-        is_rlbot = True
-    elif bot_type == 'psyonix':
-        is_bot = True
-        is_rlbot = False
-    elif bot_type == 'party_member_bot':
-        # this is a bot running under a human
-
-        is_rlbot = True
-        is_bot = False
-    else:
-        raise ValueError('participant_type value is not "human", "rlbot", "psyonix" or "party_member_bot"')
-
-    return is_bot, is_rlbot
-
-
-def load_bot_config(index, config_bundle: BotConfigBundle,
-                    looks_config_object: ConfigObject, overall_config: ConfigObject,
-                    human_index_tracker: IncrementingInteger) -> PlayerConfig:
-    """
-    Loads the config data of a single bot
-    :param index: This is the bot index (where it appears in game_cars)
-    :param bot_configuration: A config object that will eventually be transformed and sent to the game.
-    :param config_bundle: A config object for a single bot
-    :param overall_config: This is the config for the entire session not one particular bot
-    :param human_index_tracker: An object of type HumanIndexManager that helps set human_index correctly.
-    :return:
-    """
-
-    bot_configuration = PlayerConfig()
-    bot_configuration.config_bundle = config_bundle
-
-    team_num = get_team(overall_config, index)
-
-    bot_configuration.team = team_num
-
-    # Setting up data about what type of bot it is
-    bot_type = overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, index)
-    bot_configuration.bot, bot_configuration.rlbot_controlled = get_bot_options(bot_type)
-    bot_configuration.bot_skill = overall_config.getfloat(
-        PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
-
-    if not bot_configuration.bot:
-        bot_configuration.human_index = human_index_tracker.increment()
-
-    # Setting up the bots name
-    bot_configuration.name = config_bundle.name
-
-    loadout_config = load_bot_appearance(looks_config_object, team_num)
-    bot_configuration.loadout_config = loadout_config
-
-    return bot_configuration
-
-
-def load_bot_parameters(config_bundle: BotConfigBundle) -> ConfigObject:
-    """
-    Initializes the agent in the bundle's python file and asks it to provide its
-    custom configuration object where its parameters can be set.
-    :return: the parameters as a ConfigObject
-    """
-    # Python file relative to the config location.
-    python_file = config_bundle.python_file
-    agent_class_wrapper = import_agent(python_file)
-    bot_parameters = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
-    bot_parameters.parse_file(config_bundle.config_obj, config_directory=config_bundle.config_directory)
-    return bot_parameters
-
-
 def load_bot_appearance(looks_config_object: ConfigObject, team_num: int) -> LoadoutConfig:
 
     loadout_config = LoadoutConfig()
@@ -193,13 +59,83 @@ def load_bot_appearance(looks_config_object: ConfigObject, team_num: int) -> Loa
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_ORANGE_HEADER):
         loadout_header = BOT_CONFIG_LOADOUT_ORANGE_HEADER
 
-    BaseAgent._parse_bot_loadout(loadout_config, looks_config_object, loadout_header)
+    parse_bot_loadout(loadout_config, looks_config_object, loadout_header)
 
     if team_num == 0 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER):
-        BaseAgent._parse_bot_loadout_paint(loadout_config.paint_config, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER)
+        parse_bot_loadout_paint(loadout_config.paint_config, looks_config_object, BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER)
 
     if team_num == 1 and looks_config_object.has_section(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER):
-        BaseAgent._parse_bot_loadout_paint(loadout_config.paint_config, looks_config_object,
-                                           BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER)
+        parse_bot_loadout_paint(loadout_config.paint_config, looks_config_object,
+                                BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER)
 
     return loadout_config
+
+
+def create_looks_configurations() -> ConfigObject:
+    config = ConfigObject()
+    config.add_header(BOT_CONFIG_LOADOUT_HEADER, create_loadout())
+    config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, create_loadout())
+    config.add_header(BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER, create_loadout_paint())
+    config.add_header(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER, create_loadout_paint())
+    return config
+
+
+def create_loadout() -> ConfigHeader:
+    header = ConfigHeader()
+    header.add_value('team_color_id', int, default=27, description='Primary Color selection')
+    header.add_value('custom_color_id', int, default=75, description='Secondary Color selection')
+    header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc')
+    header.add_value('decal_id', int, default=307, description='Type of decal')
+    header.add_value('wheels_id', int, default=1656, description='Wheel selection')
+    header.add_value('boost_id', int, default=0, description='Boost selection')
+    header.add_value('antenna_id', int, default=287, description='Antenna Selection')
+    header.add_value('hat_id', int, default=0, description='Hat Selection')
+    header.add_value('paint_finish_id', int, default=1978, description='Paint Type (for first color)')
+    header.add_value('custom_finish_id', int, default=1978, description='Paint Type (for secondary color)')
+    header.add_value('engine_audio_id', int, default=0, description='Engine Audio Selection')
+    header.add_value('trails_id', int, default=0, description='Car trail Selection')
+    header.add_value('goal_explosion_id', int, default=1971, description='Goal Explosion Selection')
+
+    return header
+
+
+def create_loadout_paint() -> ConfigHeader:
+    header = ConfigHeader()
+
+    header.add_value('car_paint_id', int, default=0)
+    header.add_value('decal_paint_id', int, default=0)
+    header.add_value('wheels_paint_id', int, default=0)
+    header.add_value('boost_paint_id', int, default=0)
+    header.add_value('antenna_paint_id', int, default=0)
+    header.add_value('hat_paint_id', int, default=0)
+    header.add_value('trails_paint_id', int, default=0)
+    header.add_value('goal_explosion_paint_id', int, default=0)
+
+    return header
+
+
+def parse_bot_loadout(player_configuration, bot_config, loadout_header):
+    player_configuration.team_color_id = bot_config.getint(loadout_header, 'team_color_id')
+    player_configuration.custom_color_id = bot_config.getint(loadout_header, 'custom_color_id')
+    player_configuration.car_id = bot_config.getint(loadout_header, 'car_id')
+    player_configuration.decal_id = bot_config.getint(loadout_header, 'decal_id')
+    player_configuration.wheels_id = bot_config.getint(loadout_header, 'wheels_id')
+    player_configuration.boost_id = bot_config.getint(loadout_header, 'boost_id')
+    player_configuration.antenna_id = bot_config.getint(loadout_header, 'antenna_id')
+    player_configuration.hat_id = bot_config.getint(loadout_header, 'hat_id')
+    player_configuration.paint_finish_id = bot_config.getint(loadout_header, 'paint_finish_id')
+    player_configuration.custom_finish_id = bot_config.getint(loadout_header, 'custom_finish_id')
+    player_configuration.engine_audio_id = bot_config.getint(loadout_header, 'engine_audio_id')
+    player_configuration.trails_id = bot_config.getint(loadout_header, 'trails_id')
+    player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')
+
+
+def parse_bot_loadout_paint(player_configuration, bot_config: ConfigObject, loadout_header: str):
+    player_configuration.car_paint_id = bot_config.getint(loadout_header, 'car_paint_id')
+    player_configuration.decal_paint_id = bot_config.getint(loadout_header, 'decal_paint_id')
+    player_configuration.wheels_paint_id = bot_config.getint(loadout_header, 'wheels_paint_id')
+    player_configuration.boost_paint_id = bot_config.getint(loadout_header, 'boost_paint_id')
+    player_configuration.antenna_paint_id = bot_config.getint(loadout_header, 'antenna_paint_id')
+    player_configuration.hat_paint_id = bot_config.getint(loadout_header, 'hat_paint_id')
+    player_configuration.trails_paint_id = bot_config.getint(loadout_header, 'trails_paint_id')
+    player_configuration.goal_explosion_paint_id = bot_config.getint(loadout_header, 'goal_explosion_paint_id')
