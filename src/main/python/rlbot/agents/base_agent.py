@@ -270,19 +270,19 @@ class BaseAgent:
     @staticmethod
     def _create_loadout() -> ConfigHeader:
         header = ConfigHeader()
-        header.add_value('team_color_id', int, default=27, description='Primary Color selection')
-        header.add_value('custom_color_id', int, default=75, description='Secondary Color selection')
+        header.add_value('team_color_id', int, default=60, description='Primary Color selection')
+        header.add_value('custom_color_id', int, default=0, description='Secondary Color selection')
         header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc')
-        header.add_value('decal_id', int, default=307, description='Type of decal')
-        header.add_value('wheels_id', int, default=1656, description='Wheel selection')
-        header.add_value('boost_id', int, default=0, description='Boost selection')
-        header.add_value('antenna_id', int, default=287, description='Antenna Selection')
+        header.add_value('decal_id', int, default=0, description='Type of decal')
+        header.add_value('wheels_id', int, default=1565, description='Wheel selection')
+        header.add_value('boost_id', int, default=35, description='Boost selection')
+        header.add_value('antenna_id', int, default=0, description='Antenna Selection')
         header.add_value('hat_id', int, default=0, description='Hat Selection')
-        header.add_value('paint_finish_id', int, default=1978, description='Paint Type (for first color)')
-        header.add_value('custom_finish_id', int, default=1978, description='Paint Type (for secondary color)')
+        header.add_value('paint_finish_id', int, default=1681, description='Paint Type (for first color)')
+        header.add_value('custom_finish_id', int, default=1681, description='Paint Type (for secondary color)')
         header.add_value('engine_audio_id', int, default=0, description='Engine Audio Selection')
-        header.add_value('trails_id', int, default=0, description='Car trail Selection')
-        header.add_value('goal_explosion_id', int, default=1971, description='Goal Explosion Selection')
+        header.add_value('trails_id', int, default=3220, description='Car trail Selection')
+        header.add_value('goal_explosion_id', int, default=3018, description='Goal Explosion Selection')
 
         return header
 
@@ -290,13 +290,13 @@ class BaseAgent:
     def _create_loadout_paint() -> ConfigHeader:
         header = ConfigHeader()
 
-        header.add_value('car_paint_id', int, default=0)
+        header.add_value('car_paint_id', int, default=12)
         header.add_value('decal_paint_id', int, default=0)
-        header.add_value('wheels_paint_id', int, default=0)
-        header.add_value('boost_paint_id', int, default=0)
+        header.add_value('wheels_paint_id', int, default=7)
+        header.add_value('boost_paint_id', int, default=7)
         header.add_value('antenna_paint_id', int, default=0)
         header.add_value('hat_paint_id', int, default=0)
-        header.add_value('trails_paint_id', int, default=0)
+        header.add_value('trails_paint_id', int, default=2)
         header.add_value('goal_explosion_paint_id', int, default=0)
 
         return header
