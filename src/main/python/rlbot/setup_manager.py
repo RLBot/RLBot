@@ -14,6 +14,7 @@ from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.parsing.agent_config_parser import load_bot_appearance
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations
@@ -111,6 +112,9 @@ class SetupManager:
             if bot.rlbot_controlled:
                 python_config = load_bot_parameters(bundles[index])
             self.parameters.append(python_config)
+            if bot.loadout_config is None and bundles[index]:
+                looks_config = bundles[index].get_looks_config()
+                bot.loadout_config = load_bot_appearance(looks_config, bot.team)
 
         if match_config.extension_config is not None and match_config.extension_config.python_file_path is not None:
             self.load_extension(match_config.extension_config.python_file_path)

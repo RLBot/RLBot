@@ -278,15 +278,15 @@ def safe_get_mutator(mutator_options, config, mutator_name, replacement_table={}
         time.sleep(2.0)
         value = replacement_table[value]
 
-        if value in mutator_options:
-            return value
-        else:
-            logger.warn('**************************************')
-            logger.warn(f'The value you\'ve set for {mutator_name} ({value}) is invalid, and will be ignored. '
-                        'Please check your rlbot.cfg!')
-            logger.warn('**************************************')
-            time.sleep(2.0)
-            return mutator_options[0]
+    if value in mutator_options:
+        return value
+    else:
+        logger.warn('**************************************')
+        logger.warn(f'The value you\'ve set for {mutator_name} ({value}) is invalid, and will be ignored. '
+                    'Please check your rlbot.cfg!')
+        logger.warn('**************************************')
+        time.sleep(2.0)
+        return mutator_options[0]
 
 
 def parse_match_settings(match_settings, config: ConfigObject):

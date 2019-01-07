@@ -31,7 +31,7 @@ class PlayerConfig:
         player_configuration.bot = self.bot
         player_configuration.rlbot_controlled = self.rlbot_controlled
         player_configuration.bot_skill = self.bot_skill or 0
-        player_configuration.human_index = self.human_index or -1
+        player_configuration.human_index = self.human_index or 0
         player_configuration.name = get_sanitized_bot_name(name_dict, self.name)
         player_configuration.team = self.team
 
