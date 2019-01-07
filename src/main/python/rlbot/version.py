@@ -4,12 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.10.0'
+__version__ = '1.10.1'
 
 release_notes = {
 
-    '1.10.0': """
+    '1.10.1': """
     - Bots can now see the match configuration using the new init_match_config method. - tarehart
+    - Improved default loadout for bots. - Marvin
     """,
 
     '1.9.6': """

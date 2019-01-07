@@ -201,8 +201,6 @@ class BaseAgent:
     #  Methods that should not be called or changed by subclasses
     ############
 
-
-
     def _register_quick_chat(self, quick_chat_func):
         """
         Registers the send quick chat function.
