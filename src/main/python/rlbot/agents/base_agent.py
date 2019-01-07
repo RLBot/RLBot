@@ -1,5 +1,6 @@
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
-from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
+from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.rendering.rendering_manager import RenderingManager
@@ -9,10 +10,6 @@ from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
-BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
-BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
-BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER = 'Bot Paint Blue'
-BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER = 'Bot Paint Orange'
 BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 PYTHON_FILE_KEY = 'python_file'
@@ -80,6 +77,12 @@ class BaseAgent:
         self.team = team
         self.index = index
         self.logger = get_logger(f'bot{index}')
+
+    def init_match_config(self, match_config: MatchConfig):
+        """
+        Override this method if you would like to be informed of what config was used to start the match.
+        Useful for knowing what map you're on, mutators, etc.
+        """
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
@@ -198,15 +201,6 @@ class BaseAgent:
     #  Methods that should not be called or changed by subclasses
     ############
 
-    @staticmethod
-    def _create_looks_configurations() -> ConfigObject:
-        config = ConfigObject()
-        config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
-        config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
-        config.add_header(BOT_CONFIG_LOADOUT_PAINT_BLUE_HEADER, BaseAgent._create_loadout_paint())
-        config.add_header(BOT_CONFIG_LOADOUT_PAINT_ORANGE_HEADER, BaseAgent._create_loadout_paint())
-        return config
-
     def _register_quick_chat(self, quick_chat_func):
         """
         Registers the send quick chat function.
@@ -266,64 +260,3 @@ class BaseAgent:
         cls.create_agent_configurations(config)
 
         return config
-
-    @staticmethod
-    def _create_loadout() -> ConfigHeader:
-        header = ConfigHeader()
-        header.add_value('team_color_id', int, default=60, description='Primary Color selection')
-        header.add_value('custom_color_id', int, default=0, description='Secondary Color selection')
-        header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc')
-        header.add_value('decal_id', int, default=0, description='Type of decal')
-        header.add_value('wheels_id', int, default=1565, description='Wheel selection')
-        header.add_value('boost_id', int, default=35, description='Boost selection')
-        header.add_value('antenna_id', int, default=0, description='Antenna Selection')
-        header.add_value('hat_id', int, default=0, description='Hat Selection')
-        header.add_value('paint_finish_id', int, default=1681, description='Paint Type (for first color)')
-        header.add_value('custom_finish_id', int, default=1681, description='Paint Type (for secondary color)')
-        header.add_value('engine_audio_id', int, default=0, description='Engine Audio Selection')
-        header.add_value('trails_id', int, default=3220, description='Car trail Selection')
-        header.add_value('goal_explosion_id', int, default=3018, description='Goal Explosion Selection')
-
-        return header
-
-    @staticmethod
-    def _create_loadout_paint() -> ConfigHeader:
-        header = ConfigHeader()
-
-        header.add_value('car_paint_id', int, default=0)
-        header.add_value('decal_paint_id', int, default=0)
-        header.add_value('wheels_paint_id', int, default=0)
-        header.add_value('boost_paint_id', int, default=0)
-        header.add_value('antenna_paint_id', int, default=0)
-        header.add_value('hat_paint_id', int, default=0)
-        header.add_value('trails_paint_id', int, default=0)
-        header.add_value('goal_explosion_paint_id', int, default=0)
-
-        return header
-
-    @staticmethod
-    def _parse_bot_loadout(player_configuration, bot_config, loadout_header):
-        player_configuration.team_color_id = bot_config.getint(loadout_header, 'team_color_id')
-        player_configuration.custom_color_id = bot_config.getint(loadout_header, 'custom_color_id')
-        player_configuration.car_id = bot_config.getint(loadout_header, 'car_id')
-        player_configuration.decal_id = bot_config.getint(loadout_header, 'decal_id')
-        player_configuration.wheels_id = bot_config.getint(loadout_header, 'wheels_id')
-        player_configuration.boost_id = bot_config.getint(loadout_header, 'boost_id')
-        player_configuration.antenna_id = bot_config.getint(loadout_header, 'antenna_id')
-        player_configuration.hat_id = bot_config.getint(loadout_header, 'hat_id')
-        player_configuration.paint_finish_id = bot_config.getint(loadout_header, 'paint_finish_id')
-        player_configuration.custom_finish_id = bot_config.getint(loadout_header, 'custom_finish_id')
-        player_configuration.engine_audio_id = bot_config.getint(loadout_header, 'engine_audio_id')
-        player_configuration.trails_id = bot_config.getint(loadout_header, 'trails_id')
-        player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')
-
-    @staticmethod
-    def _parse_bot_loadout_paint(player_configuration, bot_config, loadout_header):
-        player_configuration.car_paint_id = bot_config.getint(loadout_header, 'car_paint_id')
-        player_configuration.decal_paint_id = bot_config.getint(loadout_header, 'decal_paint_id')
-        player_configuration.wheels_paint_id = bot_config.getint(loadout_header, 'wheels_paint_id')
-        player_configuration.boost_paint_id = bot_config.getint(loadout_header, 'boost_paint_id')
-        player_configuration.antenna_paint_id = bot_config.getint(loadout_header, 'antenna_paint_id')
-        player_configuration.hat_paint_id = bot_config.getint(loadout_header, 'hat_paint_id')
-        player_configuration.trails_paint_id = bot_config.getint(loadout_header, 'trails_paint_id')
-        player_configuration.goal_explosion_paint_id = bot_config.getint(loadout_header, 'goal_explosion_paint_id')

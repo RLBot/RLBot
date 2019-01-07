@@ -1,29 +1,27 @@
+import configparser
 import os
 import pathlib
 import sys
-from PyQt5.QtCore import QTimer
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider
-from PyQt5.QtWidgets import QCheckBox, QMessageBox
 import threading
-import configparser
 
-from rlbot.gui.presets import AgentPreset, LoadoutPreset
-from rlbot.gui.index_manager import IndexManager
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QCheckBox, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider
+from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
 from rlbot.gui.design.qt_gui import Ui_MainWindow
 from rlbot.gui.gui_agent import GUIAgent
-from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog, index_of_config_path_in_combobox
+from rlbot.gui.index_manager import IndexManager
 from rlbot.gui.mutator_editor import MutatorEditor
+from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog, index_of_config_path_in_combobox
+from rlbot.gui.presets import AgentPreset, LoadoutPreset
+from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY
+from rlbot.parsing.bot_config_bundle import BotConfigBundle
 from rlbot.parsing.directory_scanner import scan_directory_for_bot_configs
-
-from rlbot.utils.file_util import get_python_root, get_rlbot_directory
-from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
-from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
-
-from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CONFIGURATION_HEADER
-from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, \
-    BotConfigBundle
 from rlbot.parsing.match_settings_config_parser import *
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CONFIGURATION_HEADER
+from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
+from rlbot.utils.file_util import get_python_root, get_rlbot_directory
 
 
 class RLBotQTGui(QMainWindow, Ui_MainWindow):
