@@ -64,6 +64,9 @@ class GUIAgent:
                                                             PARTICIPANT_CONFIG_KEY, self.overall_index))
 
     def set_agent_config_path(self, config_path: str):
+        # Use relative path in config
+        if os.path.isabs(config_path):
+            config_path = os.path.relpath(config_path, self.overall_config.config_directory)
         self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_CONFIG_KEY,
                                       config_path, self.overall_index)
 
@@ -72,6 +75,9 @@ class GUIAgent:
                                                         PARTICIPANT_LOADOUT_CONFIG_KEY, self.overall_index))
 
     def set_loadout_config_path(self, config_path: str):
+        # If using own loudout, we set loadout value in the overall_config to None
+        if config_path == self.agent_preset.looks_path:
+            config_path = "None"
         self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY,
                                       config_path, self.overall_index)
 
