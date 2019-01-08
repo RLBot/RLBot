@@ -425,6 +425,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 self.statusbar.showMessage("Saving Overall Config in " + str(self.remaining_save_timer) + " seconds")
                 self.remaining_save_timer -= 1
             else:
+                self.clean_overall_config_loadouts()
                 with open(self.overall_config_path, "w", encoding='utf8') as f:
                     f.write(str(self.fixed_indices()))
                 self.statusbar.showMessage("Saved Overall Config to " + self.overall_config_path, 5000)
@@ -441,6 +442,15 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.overall_config_path = save_path
         self.remaining_save_timer = time_out
         self.overall_config_timer.start(0)
+
+    def clean_overall_config_loadouts(self):
+        """
+        Set all unusued loadout paths to None. This makes sure agents don't have a custom loadout when new agents
+        are added in the gui.
+        """
+        for i in range(10):
+            if i not in self.index_manager.numbers:
+                self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, "None", i)
 
     def load_selected_bot(self):
         """
@@ -602,20 +612,26 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.index_manager.use_index(overall_index)
         agent = self.add_agent(overall_index=overall_index)
 
-        agent_preset = self.add_agent_preset(agent.get_agent_config_path())
+        path_in_overall_config = agent.get_agent_config_path()
+        agent_preset = self.add_agent_preset(path_in_overall_config)
         agent.set_agent_preset(agent_preset)
+        agent.set_name(agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
 
-        loadout_file = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
+        # Add the preset's loadout as a loadout
+        own_loadout = self.add_loadout_preset(agent_preset.looks_path)
+
+        # Agent has a loadout defined in overall config, load that if it is not None
+        loadout_file_in_overall_config = self.overall_config.get(PARTICIPANT_CONFIGURATION_HEADER,
                                                PARTICIPANT_LOADOUT_CONFIG_KEY, overall_index)
-        if loadout_file is None or loadout_file == "None":
-            loadout_preset = self.add_loadout_preset(agent_preset.looks_path)
+        if loadout_file_in_overall_config is None or loadout_file_in_overall_config == "None":
+            agent.set_loadout_preset(own_loadout)
         else:
             directory = get_python_root()
-            file_path = loadout_file
-            loadout_file = os.path.realpath(os.path.join(directory, file_path))
-            loadout_preset = self.add_loadout_preset(loadout_file)
-        agent.set_loadout_preset(loadout_preset)
-        agent.set_name(agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
+            file_path = loadout_file_in_overall_config
+            loadout_file_in_overall_config = os.path.realpath(os.path.join(directory, file_path))
+            loadout_preset = self.add_loadout_preset(loadout_file_in_overall_config)
+            agent.set_loadout_preset(loadout_preset)
+
         return agent
 
     def load_bot_config_bundle(self, config_bundle: BotConfigBundle):
@@ -660,6 +676,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.agents.remove(agent)
         self.update_teams_listwidgets()
         self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY, len(self.agents))
+        self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, "None", agent.overall_index)
         if len(self.agents) == 0:
             return
         if agent.get_team() == 0:
