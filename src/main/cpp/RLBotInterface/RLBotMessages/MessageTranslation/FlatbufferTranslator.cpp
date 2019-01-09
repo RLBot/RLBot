@@ -158,17 +158,17 @@ namespace FlatbufferTranslator {
 
 		auto tiles = flatPacket->tileInformation();
 		if (tiles) {
-			packet->NumTiles = tiles->size();
-			for (int i = 0; i < tiles->size() && i < CONST_MaxTiles; i++) {
-			fillTileStruct(tiles->Get(i), &packet->GameTiles[i]);
+			packet->NumTiles = min(tiles->size(), CONST_MaxTiles);
+			for (int i = 0; i < packet->NumTiles; i++) {
+				fillTileStruct(tiles->Get(i), &packet->GameTiles[i]);
 			}
 		}
 
 		auto teams = flatPacket->teams();
 		if (teams) {
-			packet->NumTeams = teams->size();
-			for (int i = 0; i < teams->size() && i < CONST_MaxTeams; i++) {
-			fillTeamStruct(teams->Get(i), &packet->Teams[i]);
+			packet->NumTeams = min(teams->size(), CONST_MaxTeams);
+			for (int i = 0; i < packet->NumTeams; i++) {
+				fillTeamStruct(teams->Get(i), &packet->Teams[i]);
 			}
 		}
 
