@@ -20,7 +20,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
     def run_independently(self, terminate_request_event):
 
         while not terminate_request_event.is_set():
-            message = f"add\n{self.name}\n{self.team,}\n{self.index}\n{game_interface.get_dll_directory()}"
+            message = f"add\n{self.name}\n{self.team}\n{self.index}\n{game_interface.get_dll_directory()}"
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(("127.0.0.1", self.port))
