@@ -4,6 +4,7 @@
 
 #define CONST_MaxBoosts		50
 #define CONST_MaxTiles		200
+#define CONST_MaxTeams		2
 #define CONST_MaxGoals		200
 #define CONST_MaxPlayers	10
 #define CONST_MAXSLICES		3600
@@ -78,6 +79,12 @@ struct TileInfo
 	int						tileState;
 };
 
+struct TeamInfo
+{
+	int						TeamIndex;
+	int						Score;
+};
+
 struct Touch
 {
 	wchar_t					PlayerName[32];
@@ -123,8 +130,6 @@ struct GameInfo
 	bool					MatchEnded;
 	float					WorldGravityZ;
 	float					GameSpeed;
-	int						Team0Score;
-	int						Team1Score;
 };
 
 struct LiveDataPacket
@@ -137,6 +142,8 @@ struct LiveDataPacket
 	GameInfo				GameInfo;
 	TileInfo				GameTiles[CONST_MaxTiles];
 	int						NumTiles;
+	TeamInfo				Teams[CONST_MaxTeams];
+	int						NumTeams;
 };
 
 #endif

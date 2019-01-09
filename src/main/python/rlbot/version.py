@@ -9,7 +9,7 @@ __version__ = '1.11.0'
 release_notes = {
 
     '1.11.0': """
-    - Added team scores to packet. - Marvin
+    - Added a new field called 'teams' to packet, which contain goals scored. - Marvin
     """,
 
     '1.10.2': """

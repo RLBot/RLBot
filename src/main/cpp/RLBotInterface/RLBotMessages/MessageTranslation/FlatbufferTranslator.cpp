@@ -121,9 +121,15 @@ namespace FlatbufferTranslator {
 		structGameInfo->UnlimitedTime = gameInfo->isUnlimitedTime();
 		structGameInfo->WorldGravityZ = gameInfo->worldGravityZ();
 		structGameInfo->GameSpeed = gameInfo->gameSpeed();
-		structGameInfo->Team0Score = gameInfo->team0Score();
-		structGameInfo->Team1Score = gameInfo->team1Score();
 	}
+
+
+	void fillTeamStruct(const rlbot::flat::TeamInfo* team, TeamInfo* structTeam)
+	{
+		structTeam->TeamIndex = team->teamIndex();
+		structTeam->Score = team->score();
+	}
+
 
 	void translateToStruct(ByteBuffer flatbufferData, LiveDataPacket* packet)
 	{
@@ -155,6 +161,14 @@ namespace FlatbufferTranslator {
 			packet->NumTiles = tiles->size();
 			for (int i = 0; i < tiles->size() && i < CONST_MaxTiles; i++) {
 			fillTileStruct(tiles->Get(i), &packet->GameTiles[i]);
+			}
+		}
+
+		auto teams = flatPacket->teams();
+		if (teams) {
+			packet->NumTeams = teams->size();
+			for (int i = 0; i < teams->size() && i < CONST_MaxTeams; i++) {
+			fillTeamStruct(teams->Get(i), &packet->Teams[i]);
 			}
 		}
 

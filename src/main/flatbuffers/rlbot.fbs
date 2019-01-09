@@ -159,10 +159,12 @@ table GameInfo {
   worldGravityZ:float;
   /// Game speed multiplier, 1.0 is regular game speed.
   gameSpeed:float;
-  /// Number of goals scored by blue team.
-  team0Score:int;
-  /// Number of goals scored by orange team.
-  team1Score:int;
+}
+
+table TeamInfo {
+  teamIndex:int;
+  /// number of goals scored.
+  score:int;
 }
 
 table GameTickPacket {
@@ -171,6 +173,7 @@ table GameTickPacket {
   ball:BallInfo;
   gameInfo:GameInfo;
   tileInformation:[DropshotTile];
+  teams:[TeamInfo];
 }
 
 root_type GameTickPacket;

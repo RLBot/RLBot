@@ -7,6 +7,7 @@ from rlbot.utils.structures.utils import create_enum_object
 
 MAX_BOOSTS = 50
 MAX_TILES = 200
+MAX_TEAMS = 2
 MAX_GOALS = 200
 
 
@@ -86,6 +87,11 @@ class TileInfo(Struct):
     _fields_ = [("tile_state", ctypes.c_int)]  # see DropShotTileState
 
 
+class TeamInfo(Struct):
+    _fields_ = [("team_index", ctypes.c_int),
+                ("score", ctypes.c_int)]
+
+
 class GameInfo(Struct):
     _fields_ = [("seconds_elapsed", ctypes.c_float),
                 ("game_time_remaining", ctypes.c_float),
@@ -102,11 +108,7 @@ class GameInfo(Struct):
                 ("is_match_ended", ctypes.c_bool),
                 ("world_gravity_z", ctypes.c_float),
                 # Game speed multiplier, 1.0 is regular game speed.
-                ("game_speed", ctypes.c_float),
-                # Number of goals scored by blue team.
-                ("team0_score", ctypes.c_int),
-                # Number of goals scored by orange team.
-                ("team1_score", ctypes.c_int)]
+                ("game_speed", ctypes.c_float)]
 
 # On the c++ side this struct has a long at the beginning for locking.
 # This flag is removed from this struct so it isn't visible to users.
@@ -120,7 +122,9 @@ class GameTickPacket(Struct):
                 ("game_ball", BallInfo),
                 ("game_info", GameInfo),
                 ("dropshot_tiles", TileInfo * MAX_TILES),
-                ("num_tiles", ctypes.c_int)]
+                ("num_tiles", ctypes.c_int),
+                ("teams", TeamInfo * MAX_TEAMS),
+                ("num_teams", ctypes.c_int)]
 
 
 class BoostPad(Struct):
