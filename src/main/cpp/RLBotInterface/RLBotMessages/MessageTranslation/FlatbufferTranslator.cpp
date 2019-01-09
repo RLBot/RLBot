@@ -121,6 +121,8 @@ namespace FlatbufferTranslator {
 		structGameInfo->UnlimitedTime = gameInfo->isUnlimitedTime();
 		structGameInfo->WorldGravityZ = gameInfo->worldGravityZ();
 		structGameInfo->GameSpeed = gameInfo->gameSpeed();
+		structGameInfo->Team0Score = gameInfo->team0Score();
+		structGameInfo->Team1Score = gameInfo->team1Score();
 	}
 
 	void translateToStruct(ByteBuffer flatbufferData, LiveDataPacket* packet)

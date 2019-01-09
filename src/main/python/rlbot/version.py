@@ -4,9 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.10.2'
+__version__ = '1.11.0'
 
 release_notes = {
+
+    '1.11.0': """
+    - Added team scores to packet. - Marvin
+    """,
 
     '1.10.2': """
     - Bots can now see the match configuration using the new init_match_config method. - tarehart

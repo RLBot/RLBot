@@ -123,6 +123,8 @@ struct GameInfo
 	bool					MatchEnded;
 	float					WorldGravityZ;
 	float					GameSpeed;
+	int						Team0Score;
+	int						Team1Score;
 };
 
 struct LiveDataPacket

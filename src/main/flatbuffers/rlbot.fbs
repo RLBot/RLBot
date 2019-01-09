@@ -157,8 +157,12 @@ table GameInfo {
   /// countdown. Turns false again the moment the 'choose team' screen appears.
   isMatchEnded:bool;
   worldGravityZ:float;
-  /// game speed multiplier. 1.0 is regular game speed.
+  /// Game speed multiplier, 1.0 is regular game speed.
   gameSpeed:float;
+  /// Number of goals scored by blue team.
+  team0Score:int;
+  /// Number of goals scored by orange team.
+  team1Score:int;
 }
 
 table GameTickPacket {
