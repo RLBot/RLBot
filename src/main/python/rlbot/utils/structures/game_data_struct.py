@@ -35,7 +35,8 @@ class Touch(Struct):
     _fields_ = [("player_name", ctypes.c_wchar * MAX_NAME_LENGTH),
                 ("time_seconds", ctypes.c_float),
                 ("hit_location", Vector3),
-                ("hit_normal", Vector3)]
+                ("hit_normal", Vector3),
+                ("team", ctypes.c_int)]
 
 
 class ScoreInfo(Struct):

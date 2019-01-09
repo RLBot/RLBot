@@ -10,6 +10,7 @@ release_notes = {
 
     '1.11.0': """
     - Added a new field called 'teams' to packet, which contain goals scored. - Marvin
+    - Added team info to latest touch. - Marvin
     """,
 
     '1.10.2': """
