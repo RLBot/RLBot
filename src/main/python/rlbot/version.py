@@ -4,13 +4,15 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.11.0'
+__version__ = '1.11.1'
 
 release_notes = {
 
-    '1.11.0': """
+    '1.11.1': """
     - Added a new field called 'teams' to packet, which contain goals scored. - Marvin
     - Added team info to latest touch. - Marvin
+    - Fix mistake that stopped C# bots from starting. Kipje
+    - GUI now saves relative paths. - Eastvillage
     """,
 
     '1.10.2': """
