@@ -7,6 +7,7 @@ from rlbot.utils.structures.utils import create_enum_object
 
 MAX_BOOSTS = 50
 MAX_TILES = 200
+MAX_TEAMS = 2
 MAX_GOALS = 200
 
 
@@ -86,6 +87,11 @@ class TileInfo(Struct):
     _fields_ = [("tile_state", ctypes.c_int)]  # see DropShotTileState
 
 
+class TeamInfo(Struct):
+    _fields_ = [("team_index", ctypes.c_int),
+                ("score", ctypes.c_int)]
+
+
 class GameInfo(Struct):
     _fields_ = [("seconds_elapsed", ctypes.c_float),
                 ("game_time_remaining", ctypes.c_float),
@@ -101,6 +107,7 @@ class GameInfo(Struct):
                 # countdown. Turns false again the moment the 'choose team' screen appears.
                 ("is_match_ended", ctypes.c_bool),
                 ("world_gravity_z", ctypes.c_float),
+                # Game speed multiplier, 1.0 is regular game speed.
                 ("game_speed", ctypes.c_float)]
 
 # On the c++ side this struct has a long at the beginning for locking.
@@ -115,7 +122,9 @@ class GameTickPacket(Struct):
                 ("game_ball", BallInfo),
                 ("game_info", GameInfo),
                 ("dropshot_tiles", TileInfo * MAX_TILES),
-                ("num_tiles", ctypes.c_int)]
+                ("num_tiles", ctypes.c_int),
+                ("teams", TeamInfo * MAX_TEAMS),
+                ("num_teams", ctypes.c_int)]
 
 
 class BoostPad(Struct):
@@ -145,34 +154,52 @@ class ByteBuffer(Struct):
 # This negates all x and y values for balls and cars and rotates yaw 180 degrees.
 def rotate_game_tick_packet_boost_omitted(game_tick_packet):
     # Negate all x,y values for ball
-    game_tick_packet.game_ball.physics.location.x = -1 * game_tick_packet.game_ball.physics.location.x
-    game_tick_packet.game_ball.physics.location.y = -1 * game_tick_packet.game_ball.physics.location.y
-    game_tick_packet.game_ball.physics.velocity.x = -1 * game_tick_packet.game_ball.physics.velocity.x
-    game_tick_packet.game_ball.physics.velocity.y = -1 * game_tick_packet.game_ball.physics.velocity.y
+    game_tick_packet.game_ball.physics.location.x = \
+        -1 * game_tick_packet.game_ball.physics.location.x
+    game_tick_packet.game_ball.physics.location.y = \
+        -1 * game_tick_packet.game_ball.physics.location.y
+    game_tick_packet.game_ball.physics.velocity.x = \
+        -1 * game_tick_packet.game_ball.physics.velocity.x
+    game_tick_packet.game_ball.physics.velocity.y = \
+        -1 * game_tick_packet.game_ball.physics.velocity.y
     # Angular velocity is stored on global axis so negating on x and y does make sense!
-    game_tick_packet.game_ball.physics.angular_velocity.x = -1 * game_tick_packet.game_ball.physics.angular_velocity.x
-    game_tick_packet.game_ball.physics.angular_velocity.y = -1 * game_tick_packet.game_ball.physics.angular_velocity.y
+    game_tick_packet.game_ball.physics.angular_velocity.x = \
+        -1 * game_tick_packet.game_ball.physics.angular_velocity.x
+    game_tick_packet.game_ball.physics.angular_velocity.y = \
+        -1 * game_tick_packet.game_ball.physics.angular_velocity.y
 
     # ball touch data
-    game_tick_packet.game_ball.latest_touch.hit_location.x = -1 * game_tick_packet.game_ball.latest_touch.hit_location.x
-    game_tick_packet.game_ball.latest_touch.hit_location.y = -1 * game_tick_packet.game_ball.latest_touch.hit_location.y
-    game_tick_packet.game_ball.latest_touch.hit_normal.x = -1 * game_tick_packet.game_ball.latest_touch.hit_normal.x
-    game_tick_packet.game_ball.latest_touch.hit_normal.y = -1 * game_tick_packet.game_ball.latest_touch.hit_normal.y
+    game_tick_packet.game_ball.latest_touch.hit_location.x = \
+        -1 * game_tick_packet.game_ball.latest_touch.hit_location.x
+    game_tick_packet.game_ball.latest_touch.hit_location.y = \
+        -1 * game_tick_packet.game_ball.latest_touch.hit_location.y
+    game_tick_packet.game_ball.latest_touch.hit_normal.x = \
+        -1 * game_tick_packet.game_ball.latest_touch.hit_normal.x
+    game_tick_packet.game_ball.latest_touch.hit_normal.y = \
+        -1 * game_tick_packet.game_ball.latest_touch.hit_normal.y
 
     # Rotate yaw 180 degrees is all that is necessary.
     ball_yaw = game_tick_packet.game_ball.physics.rotation.yaw
-    game_tick_packet.game_ball.physics.rotation.yaw = ball_yaw + math.pi if ball_yaw < 0 else ball_yaw - math.pi
+    game_tick_packet.game_ball.physics.rotation.yaw = ball_yaw \
+        + math.pi if ball_yaw < 0 else ball_yaw - math.pi
 
     for i in range(game_tick_packet.num_cars):
-        game_tick_packet.game_cars[i].physics.location.x = -1 * game_tick_packet.game_cars[i].physics.location.x
-        game_tick_packet.game_cars[i].physics.location.y = -1 * game_tick_packet.game_cars[i].physics.location.y
-        game_tick_packet.game_cars[i].physics.velocity.x = -1 * game_tick_packet.game_cars[i].physics.velocity.x
-        game_tick_packet.game_cars[i].physics.velocity.y = -1 * game_tick_packet.game_cars[i].physics.velocity.y
-        game_tick_packet.game_cars[i].physics.angular_velocity.x = -1 * game_tick_packet.game_cars[i].physics.angular_velocity.x
-        game_tick_packet.game_cars[i].physics.angular_velocity.y = -1 * game_tick_packet.game_cars[i].physics.angular_velocity.y
+        game_tick_packet.game_cars[i].physics.location.x = \
+            -1 * game_tick_packet.game_cars[i].physics.location.x
+        game_tick_packet.game_cars[i].physics.location.y = \
+            -1 * game_tick_packet.game_cars[i].physics.location.y
+        game_tick_packet.game_cars[i].physics.velocity.x = \
+            -1 * game_tick_packet.game_cars[i].physics.velocity.x
+        game_tick_packet.game_cars[i].physics.velocity.y = \
+            -1 * game_tick_packet.game_cars[i].physics.velocity.y
+        game_tick_packet.game_cars[i].physics.angular_velocity.x = \
+            -1 * game_tick_packet.game_cars[i].physics.angular_velocity.x
+        game_tick_packet.game_cars[i].physics.angular_velocity.y = \
+            -1 * game_tick_packet.game_cars[i].physics.angular_velocity.y
 
         car_yaw = game_tick_packet.game_cars[i].physics.rotation.yaw
-        game_tick_packet.game_cars[i].physics.rotation.yaw = car_yaw + math.pi if car_yaw < 0 else car_yaw - math.pi
+        game_tick_packet.game_cars[i].physics.rotation.yaw = car_yaw \
+            + math.pi if car_yaw < 0 else car_yaw - math.pi
 
 
 DropshotTileState = create_enum_object(["UNKNOWN",
