@@ -8,9 +8,10 @@ namespace RLBotDotNet.GameState
 {
     public class GameState
     {
+        
         private Dictionary<int, CarState> carStates = new Dictionary<int, CarState>();
-
         private BallState ballState;
+        private GameInfoState gameInfoState;
 
         public BallState BallState
         {
@@ -25,6 +26,22 @@ namespace RLBotDotNet.GameState
             set
             {
                 ballState = value;
+            }
+        }
+
+        public GameInfoState GameInfoState
+        {
+            get
+            {
+                if (gameInfoState == null)
+                    gameInfoState = new GameInfoState();
+
+                return gameInfoState;
+            }
+
+            set
+            {
+                gameInfoState = value;
             }
         }
 
@@ -54,9 +71,13 @@ namespace RLBotDotNet.GameState
             FlatBufferBuilder builder = new FlatBufferBuilder(100);
 
             int ballStateOffset = -1;
-            
+            int gameInfoStateOffset = -1;
+
             if (BallState != null)
                 ballStateOffset = BallState.ToFlatBuffer(builder).Value;
+
+            if (GameInfoState != null)
+                gameInfoStateOffset = GameInfoState.ToFlatBuffer(builder).Value;
 
             VectorOffset carStateVector = CreateCarStateVector(builder, carStates);
 
@@ -64,6 +85,9 @@ namespace RLBotDotNet.GameState
 
             if (BallState != null)
                 DesiredGameState.AddBallState(builder, new Offset<DesiredBallState>(ballStateOffset));
+
+            if (GameInfoState != null)
+                DesiredGameState.AddGameInfoState(builder, new Offset<DesiredGameInfoState>(gameInfoStateOffset));
 
             DesiredGameState.AddCarStates(builder, carStateVector);
 
