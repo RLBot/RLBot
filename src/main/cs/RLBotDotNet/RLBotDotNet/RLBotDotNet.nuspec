@@ -12,9 +12,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Fixed an issue in the RLBotInterface where IsInitialize would return a wrong value
+      Added the ability to set the gravity and game speed via state setting.
     </releaseNotes>
-    <copyright>Copyright 2018</copyright>
+    <copyright>Copyright 2019</copyright>
     <tags>rocket-league</tags>
   </metadata>
   <files>
