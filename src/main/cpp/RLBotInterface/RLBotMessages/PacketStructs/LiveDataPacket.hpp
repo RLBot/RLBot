@@ -91,6 +91,7 @@ struct Touch
 	float					TimeSeconds;
 	PyStruct::Vector3		HitLocation;
 	PyStruct::Vector3		HitNormal;
+	int						Team;
 };
 
 struct DropShotBallInfo

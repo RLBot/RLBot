@@ -86,6 +86,7 @@ namespace FlatbufferTranslator {
 			fillVector3Struct(touch->location(), &structTouch->HitLocation);
 			fillVector3Struct(touch->normal(), &structTouch->HitNormal);
 			structTouch->TimeSeconds = touch->gameSeconds();
+			structTouch->Team = touch->team();
 	}
 
 	void fillBallStruct(const rlbot::flat::BallInfo* ball, BallInfo* structBall)

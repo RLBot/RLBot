@@ -70,6 +70,9 @@ table Touch {
 
   /// The direction of the touch.
   normal:Vector3;
+
+  /// The Team which the touch belongs to, 0 for blue 1 for orange.
+  team:int;
 }
 
 table ScoreInfo {
