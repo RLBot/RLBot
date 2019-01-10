@@ -66,3 +66,12 @@ class BotManagerStruct(BotManager):
 
     def get_ball_prediction_struct(self):
         return self.game_interface.update_ball_prediction(self.ball_prediction)
+
+    def is_valid_field_info(self) -> bool:
+
+        field_info = self.get_field_info()
+
+        if not field_info.num_goals:
+            return False
+
+        return True
