@@ -56,6 +56,7 @@
     <Compile Include="GameState\CarState.cs" />
     <Compile Include="GameState\DesiredRotator.cs" />
     <Compile Include="GameState\DesiredVector3.cs" />
+    <Compile Include="GameState\GameInfoState.cs" />
     <Compile Include="GameState\GameState.cs" />
     <Compile Include="GameState\GameStatePacket.cs" />
     <Compile Include="GameState\PhysicsState.cs" />
