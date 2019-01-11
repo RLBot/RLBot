@@ -232,17 +232,23 @@ namespace FlatbufferTranslator {
 		auto fieldInfo = flatbuffers::GetRoot<rlbot::flat::FieldInfo>(flatbufferData.ptr);
 
 		auto boostPads = fieldInfo->boostPads();
-		packet->NumBoosts = boostPads->size();
-		for (int i = 0; i < boostPads->size(); i++)
+		if (boostPads)
 		{
-			fillBoostPadStruct(boostPads->Get(i), &packet->BoostPads[i]);
+			packet->NumBoosts = boostPads->size();
+			for (int i = 0; i < boostPads->size(); i++)
+			{
+				fillBoostPadStruct(boostPads->Get(i), &packet->BoostPads[i]);
+			}
 		}
-
+		
 		auto goals = fieldInfo->goals();
-		packet->NumGoals = goals->size();
-		for (int i = 0; i < goals->size(); i++)
+		if (goals)
 		{
-			fillGoalInfoStruct(goals->Get(i), &packet->Goals[i]);
+			packet->NumGoals = goals->size();
+			for (int i = 0; i < goals->size(); i++)
+			{
+				fillGoalInfoStruct(goals->Get(i), &packet->Goals[i]);
+			}
 		}
 	}
 
