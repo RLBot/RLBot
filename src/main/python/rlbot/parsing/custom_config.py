@@ -8,7 +8,7 @@ import os
 
 class ConfigObject:
     """
-
+    Represents a parsed match config file.
     """
 
     def __init__(self):

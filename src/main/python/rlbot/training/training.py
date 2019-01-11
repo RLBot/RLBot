@@ -10,6 +10,7 @@ from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 from .status_rendering import TrainingStatusRenderer, Row
 
 # Extend Pass and/or Fail to add your own, more detailed metrics.
@@ -53,38 +54,43 @@ class Exercise:
     on_tick().
     """
 
-    """
-    Gets the config with which this exercise should be run.
-    It is required to be immutable. (Fixed per instance)
-    """
-
     def get_config_path(self) -> str:
+        """
+        Gets the config with which this exercise should be run.
+        It is required to be immutable. (Fixed per instance)
+        """
         raise NotImplementedError()
-
-    """
-    Returns the state in which the game should start in.
-    The implementing class is responsible for resetting the state after setup is called,
-    such that the exercise can be run multiple times to get the same result.
-    :param random: A seeded random number generator. For repeated runs of this
-        exercise, this parameter and the bots should be the only things which
-        causes variations between runs.
-    """
 
     def setup(self, rng: random.Random) -> GameState:
+        """
+        Returns the state in which the game should start in.
+        The implementing class is responsible for resetting the state after setup is called,
+        such that the exercise can be run multiple times to get the same result.
+        :param random: A seeded random number generator. For repeated runs of this
+            exercise, this parameter and the bots should be the only things which
+            causes variations between runs.
+        """
         raise NotImplementedError()
-
-    """
-    This method is called each tick to allow you to make an assessment of the
-    performance of the bot(s).
-    The order for whether on_tick comes before the bots recieving the packet is undefined.
-
-    If this method returns None, the run of the exercise will continue.
-    If this method returns Pass() or Fail() or raises an exceptions, the run of
-    the exercise is terminated and any metrics will be returned.
-    """
 
     def on_tick(self, game_tick_packet: GameTickPacket) -> Optional[Grade]:
+        """
+        This method is called each tick to allow you to make an assessment of the
+        performance of the bot(s).
+        The order for whether on_tick comes before the bots recieving the packet is undefined.
+
+        If this method returns None, the run of the exercise will continue.
+        If this method returns Pass() or Fail() or raises an exceptions, the run of
+        the exercise is terminated and any metrics will be returned.
+        """
         raise NotImplementedError()
+
+    def render(self, renderer: RenderingManager):
+        """
+        This method is called each tick to render exercise debug information.
+        This method is called after on_tick().
+        It is optional to override this method.
+        """
+        pass
 
 
 class Result:
@@ -225,6 +231,7 @@ def _grade_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> R
             last_tick_game_time = tick_game_time
             try:
                 grade = ex.on_tick(game_tick_packet)
+                ex.render(game_interface.renderer)
             except Exception as e:
                 return Result(ex, seed, FailDueToExerciseException(e, traceback.format_exc()))
 
