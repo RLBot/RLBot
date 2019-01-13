@@ -8,7 +8,7 @@ class BotHelperProcess:
     with that other language.
     """
 
-    def __init__(self, metadata_queue: Queue, quit_event: Event):
+    def __init__(self, metadata_queue: Queue, quit_event: Event, options: dict):
         """
         :param metadata_queue: A multiprocessing queue that receives AgentMetadata objects when
         relevant agents are initialized.
@@ -16,6 +16,7 @@ class BotHelperProcess:
         """
         self.metadata_queue = metadata_queue
         self.quit_event = quit_event
+        self.options = options
 
     def start(self):
         raise NotImplementedError
