@@ -9,9 +9,9 @@ __version__ = '1.11.1'
 release_notes = {
 
     '1.11.1': """
-    - Added a new field called 'teams' to packet, which contain goals scored. - Marvin
+    - Added a new field called 'teams' to packet, which contains goals scored. - Marvin
     - Added team info to latest touch. - Marvin
-    - Fix mistake that stopped C# bots from starting. Kipje
+    - Fix mistake that stopped C# bots from starting. Kipje13
     - GUI now saves relative paths. - Eastvillage
     """,
 
