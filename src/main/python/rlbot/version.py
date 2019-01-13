@@ -4,14 +4,18 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.11.1'
+__version__ = '1.12.0'
 
 release_notes = {
 
+    '1.12.0': """
+    - Support for passing an options dict to BotHelperProcesses. - tarehart
+    """,
+
     '1.11.1': """
-    - Added a new field called 'teams' to packet, which contain goals scored. - Marvin
+    - Added a new field called 'teams' to packet, which contains goals scored. - Marvin
     - Added team info to latest touch. - Marvin
-    - Fix mistake that stopped C# bots from starting. Kipje
+    - Fix mistake that stopped C# bots from starting. Kipje13
     - GUI now saves relative paths. - Eastvillage
     """,
 
