@@ -4,12 +4,14 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.12.0'
+__version__ = '1.12.1'
 
 release_notes = {
 
-    '1.12.0': """
+    '1.12.1': """
     - Support for passing an options dict to BotHelperProcesses. - tarehart
+    - Python bots now wait until valid field info to call initialize_agent() - Marvin
+    - Field info is no longer being updated each tick and is emptied out if we're not in a game. - Marvin and ccman32
     """,
 
     '1.11.1': """
