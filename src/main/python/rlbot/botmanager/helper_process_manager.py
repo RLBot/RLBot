@@ -32,7 +32,8 @@ class HelperProcessManager:
                 metadata_queue = mp.Queue()
                 if helper_req.python_file_path is not None:
                     process = mp.Process(target=run_helper_process,
-                                         args=(helper_req.python_file_path, metadata_queue, self.quit_event, helper_req.options))
+                                         args=(helper_req.python_file_path, metadata_queue, self.quit_event,
+                                               helper_req.options))
                     process.start()
                     agent_metadata.pids.add(process.pid)
 
