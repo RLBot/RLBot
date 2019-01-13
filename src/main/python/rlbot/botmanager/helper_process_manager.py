@@ -32,13 +32,14 @@ class HelperProcessManager:
                 metadata_queue = mp.Queue()
                 if helper_req.python_file_path is not None:
                     process = mp.Process(target=run_helper_process,
-                                         args=(helper_req.python_file_path, metadata_queue, self.quit_event))
+                                         args=(helper_req.python_file_path, metadata_queue, self.quit_event, helper_req.options))
                     process.start()
                     agent_metadata.pids.add(process.pid)
 
                     self.helper_process_map[helper_req.key] = metadata_queue
 
                 if helper_req.executable is not None:
+                    # TODO: find a nice way to pass the options dict as arguments
                     process = subprocess.Popen([helper_req.executable])
 
                     agent_metadata.pids.add(process.pid)
@@ -49,14 +50,15 @@ class HelperProcessManager:
             metadata_queue.put(agent_metadata)
 
 
-def run_helper_process(python_file, metadata_queue, quit_event):
+def run_helper_process(python_file, metadata_queue, quit_event, options):
     """
     :param python_file: The absolute path of a python file containing the helper process that should be run.
     It must define a class which is a subclass of BotHelperProcess.
     :param metadata_queue: A queue from which the helper process will read AgentMetadata updates.
     :param quit_event: An event which should be set when rlbot is shutting down.
+    :param options: A dict with arbitrary options that will be passed through to the helper process.
     """
     class_wrapper = import_class_with_base(python_file, BotHelperProcess)
     helper_class = class_wrapper.get_loaded_class()
-    helper = helper_class(metadata_queue, quit_event)
+    helper = helper_class(metadata_queue, quit_event, options)
     helper.start()
