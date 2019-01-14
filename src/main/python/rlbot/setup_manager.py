@@ -78,6 +78,8 @@ class SetupManager:
         if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'],
                                                         ROCKET_LEAGUE_PROCESS_INFO['program_name']):
             try:
+                self.logger.info("Launching Rocket League...")
+
                 webbrowser.open(f"steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO['gameid']}")
             except webbrowser.Error:
                 self.logger.info(
@@ -239,7 +241,8 @@ class SetupManager:
 
         self.quit_event.set()
         end_time = datetime.now() + timedelta(seconds=time_limit)
-        self.ball_prediction_process.terminate()
+        if self.ball_prediction_process:
+            self.ball_prediction_process.terminate()
 
         # Wait for all processes to terminate before terminating main process
         terminated = False
