@@ -21,6 +21,8 @@ namespace RLBotDotNet
         private readonly ConcurrentDictionary<int, BotLoopRenderer> _renderers;
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private Thread serverThread;
+
+        private readonly int frequency;
         
         /// <summary>
         /// Constructs a new instance of BotManager.
@@ -28,6 +30,16 @@ namespace RLBotDotNet
         public BotManager()
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
+            frequency = 60;
+        }
+
+        /// <summary>
+        /// Constructs a new instance of BotManager.
+        /// </summary>
+        public BotManager(int frequency)
+        {
+            _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
+            this.frequency = frequency;
         }
 
         /// <summary>
@@ -108,7 +120,7 @@ namespace RLBotDotNet
         private void MainBotLoop()
         {
             TimeSpan timerResolution = TimerResolutionInterop.CurrentResolution;
-            TimeSpan targetSleepTime = new TimeSpan(166667); // 16.6667 ms, or 60 FPS
+            TimeSpan targetSleepTime = new TimeSpan(10000000/frequency);
 
             Stopwatch stopwatch = new Stopwatch();
             while (true)
@@ -128,7 +140,7 @@ namespace RLBotDotNet
                     Thread.Sleep(maxInaccurateSleepTime);
 
                 // We could sleep the rest of the time accurately with the use of a spin-wait, but since the main bot loop doesn't have to fire at precise intervals it's reasonable to omit this step
-                // while (stopwatch.Elapsed < targetSleepTime);
+                while (stopwatch.Elapsed < targetSleepTime);
             }
         }
 
