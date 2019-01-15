@@ -19,7 +19,6 @@ namespace RLBotDotNet
     public class BotManager<T> where T : Bot
     {
         private readonly ConcurrentDictionary<int, BotLoopRenderer> _renderers;
-        private AutoResetEvent botRunEvent = new AutoResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private Thread serverThread;
         
@@ -40,15 +39,18 @@ namespace RLBotDotNet
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
             if (!botProcesses.Any(b => b.bot.index == index))
             {
+                AutoResetEvent botRunEvent = new AutoResetEvent(false);
+
                 // Create a bot instance, run it in a separate thread, and add it to botProcesses.
                 T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
-                Thread thread = new Thread(() => RunBot(bot));
+                Thread thread = new Thread(() => RunBot(bot, botRunEvent));
                 thread.Start();
 
                 BotProcess botProcess = new BotProcess()
                 {
                     bot = bot,
-                    thread = thread
+                    thread = thread,
+                    botRunEvent = botRunEvent
                 };
 
                 botProcesses.Add(botProcess);
@@ -61,7 +63,7 @@ namespace RLBotDotNet
         /// updates its input through the interface DLL.
         /// </summary>
         /// <param name="bot"></param>
-        private void RunBot(Bot bot)
+        private void RunBot(Bot bot, AutoResetEvent botRunEvent)
         {
             var renderer = GetRendererForBot(bot);
             bot.SetRenderer(renderer);
@@ -115,7 +117,10 @@ namespace RLBotDotNet
                 stopwatch.Restart();
 
                 // Set off events that end up running the bot code later down the line
-                botRunEvent.Set();
+                foreach (BotProcess proc in botProcesses)
+                {
+                    proc.botRunEvent.Set();
+                }
 
                 // Sleep efficiently (but inaccurately) for as long as we can
                 TimeSpan maxInaccurateSleepTime = targetSleepTime - stopwatch.Elapsed - timerResolution;
@@ -137,6 +142,7 @@ namespace RLBotDotNet
             try
             {
                 botProcess.bot.Dispose();
+                botProcess.botRunEvent.Dispose();
             }
             catch (Exception e)
             {
