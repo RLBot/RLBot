@@ -23,22 +23,23 @@ namespace RLBotDotNet
         private Thread serverThread;
 
         private readonly int frequency;
-        
-        /// <summary>
-        /// Constructs a new instance of BotManager.
-        /// </summary>
-        public BotManager()
-        {
-            _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
-            frequency = 60;
-        }
 
         /// <summary>
         /// Constructs a new instance of BotManager.
         /// </summary>
+        public BotManager() : this(60) { }
+
+        /// <summary>
+        /// Construct a new instance of BotManager.
+        /// </summary>
+        /// <param name="frequency">The frequency that the bot updates at: [1, 120]</param>
         public BotManager(int frequency)
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
+
+            if (frequency > 120 || frequency < 1)
+                throw new ArgumentOutOfRangeException("frequency");
+
             this.frequency = frequency;
         }
 
@@ -139,7 +140,7 @@ namespace RLBotDotNet
                 if (maxInaccurateSleepTime > TimeSpan.Zero)
                     Thread.Sleep(maxInaccurateSleepTime);
 
-                // We could sleep the rest of the time accurately with the use of a spin-wait, but since the main bot loop doesn't have to fire at precise intervals it's reasonable to omit this step
+                // We can sleep the rest of the time accurately with the use of a spin-wait, this will drastically reduce the amount of duplicate packets when running at higher frequencies.
                 while (stopwatch.Elapsed < targetSleepTime);
             }
         }
