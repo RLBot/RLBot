@@ -12,6 +12,7 @@ from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
+BOT_CONFIG_DETAILS_HEADER = 'Details'
 PYTHON_FILE_KEY = 'python_file'
 LOOKS_CONFIG_KEY = 'looks_config'
 BOT_NAME_KEY = "name"
@@ -256,6 +257,13 @@ class BaseAgent:
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
         location_config.add_value(BOT_NAME_KEY, str, default='nameless',
                                   description='The name that will be displayed in game')
+
+        details_config = config.add_header_name(BOT_CONFIG_DETAILS_HEADER)
+        details_config.add_value('developer', str, description="Name of the bot's creator/developer")
+        details_config.add_value('description', str, description="Short description of the bot")
+        details_config.add_value('fun_fact', str, description="Fun fact about the bot")
+        details_config.add_value('github', str, description="Link to github repository")
+        details_config.add_value('language', str, description="Programming language")
 
         cls.create_agent_configurations(config)
 
