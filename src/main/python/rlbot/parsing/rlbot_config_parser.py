@@ -70,11 +70,12 @@ def parse_configurations(config_parser: ConfigObject, config_location, config_bu
         match_config.player_configs.append(player_config)
 
     extension_path = config_parser.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
-    if extension_path:
+    if extension_path and extension_path != 'None':  # The string 'None' ends up in people's config a lot.
         match_config.extension_config = ExtensionConfig()
         match_config.extension_config.python_file_path = extension_path
 
     return match_config
+
 
 def get_team(config, index):
     """

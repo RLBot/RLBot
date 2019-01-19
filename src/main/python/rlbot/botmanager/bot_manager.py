@@ -18,6 +18,7 @@ MAX_CARS = 10
 
 
 class BotManager:
+
     def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
                  name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config):
         """
@@ -95,6 +96,9 @@ class BotManager:
         agent._register_ball_prediction_struct(self.get_ball_prediction_struct)
         agent._register_get_rigid_body_tick(self.get_rigid_body_tick)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
+
+        while not self.is_valid_field_info():
+            time.sleep(0.1)
 
         # Once all engine setup is done, do the agent-specific initialization, if any:
         agent.initialize_agent()
@@ -228,4 +232,8 @@ class BotManager:
         raise NotImplementedError
 
     def pull_data_from_game(self):
+        raise NotImplementedError
+
+    def is_valid_field_info(self) -> bool:
+        """Checks if the contents of field info are valid."""
         raise NotImplementedError

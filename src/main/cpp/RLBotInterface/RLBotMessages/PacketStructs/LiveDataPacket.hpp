@@ -7,7 +7,7 @@
 #define CONST_MaxTeams		2
 #define CONST_MaxGoals		200
 #define CONST_MaxPlayers	10
-#define CONST_MAXSLICES		3600
+#define CONST_MAXSLICES		360
 
 struct ScoreInfo
 {

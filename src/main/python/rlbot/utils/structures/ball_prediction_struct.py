@@ -2,7 +2,7 @@ import ctypes
 
 from rlbot.utils.structures.game_data_struct import Physics
 
-MAX_SLICES = 3600
+MAX_SLICES = 360
 
 
 class Slice(ctypes.Structure):
