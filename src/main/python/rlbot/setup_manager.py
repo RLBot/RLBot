@@ -1,10 +1,11 @@
+from contextlib import contextmanager
+from datetime import datetime, timedelta
 import msvcrt
 import multiprocessing as mp
 import os
 import queue
 import time
 import webbrowser
-from datetime import datetime, timedelta
 
 import psutil
 from rlbot import version
@@ -30,6 +31,23 @@ DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 ROCKET_LEAGUE_PROCESS_INFO = {'gameid': 252950, 'program_name': 'RocketLeague.exe', 'program': 'RocketLeague.exe'}
 
+@contextmanager
+def setup_manager_context():
+    """
+    Creates a initialized context manager which shuts down at the end of the
+    `with` block.
+
+    usage:
+    >>> with setup_manager_context() as setup_manager:
+    ...     setup_manager.load_config(...)
+    ...     # ... Run match
+    """
+    setup_manager = SetupManager()
+    setup_manager.connect_to_game()
+    try:
+        yield setup_manager
+    finally:
+        setup_manager.shut_down()
 
 class SetupManager:
     """
