@@ -10,7 +10,7 @@ Row = namedtuple('Row', 'exercise_name status_str status_color_func')
 def training_status_renderer_context(exercise_names: List[str], renderman: RenderingManager):
     """
     Ensures that the screen is always cleared, even on fatal errors in code
-    that uses this renerer.
+    that uses this renderer.
     """
     renderer = TrainingStatusRenderer(exercise_names, renderman)
     try:
