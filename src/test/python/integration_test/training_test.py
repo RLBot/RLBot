@@ -146,5 +146,31 @@ class TrainingTest(unittest.TestCase):
         except StopIteration:
             pass
 
+    def test_render_call(self):
+        test_self = self
+        class RenderTestExercise(Exercise):
+            def get_config_path(self) -> str:
+                return Path(__file__).parent / 'training_test.cfg'
+            def setup(self, rng: random.Random) -> GameState:
+                self.num_render_calls = 0
+                self.num_on_tick_calls = 0
+                return GameState()
+            def on_tick(self, game_tick_packet: GameTickPacket) -> Optional[Result]:
+                self.num_on_tick_calls += 1
+                if self.num_on_tick_calls >= 100:
+                    nonlocal test_self
+                    test_self.assertEqual(self.num_on_tick_calls-1, self.num_render_calls)
+                    return Pass()
+            def render(self, renderer: RenderingManager):
+                self.num_render_calls += 1
+
+        results = list(run_all_exercises({
+            'RenderTestExercise': RenderTestExercise(),
+        }))
+        self.assertEqual(len(results), 1)
+        name, result = results[0]
+        self.assertIsInstance(result.grade, Pass)
+
+
 if __name__ == '__main__':
     unittest.main()
