@@ -8,7 +8,9 @@ import os
 
 class ConfigObject:
     """
-    Represents a parsed match config file.
+    Represents a parsed config file.
+    Could be either of rlbot match or appearance config.
+    The config schema is defined by calls to add_header().
     """
 
     def __init__(self):
