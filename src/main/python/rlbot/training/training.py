@@ -13,7 +13,7 @@ from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.rendering.rendering_manager import RenderingManager
-from .status_rendering import training_status_renerer_context, Row
+from .status_rendering import training_status_renderer_context, Row
 
 # Extend Pass and/or Fail to add your own, more detailed metrics.
 
@@ -133,7 +133,7 @@ def run_exercises_once(setup_manager: SetupManager, exercises: List[SortedExerci
     names = [name for _, name, _ in exercises]
     assert len(set(names)) == len(names), 'exercise names must be unique'
     prev_config_path = None
-    with training_status_renerer_context(names, game_interface.renderer) as ren:
+    with training_status_renderer_context(names, game_interface.renderer) as ren:
         for config_path, name, ex in exercises:
 
             # Only reload the match if the config has changed.

@@ -7,7 +7,7 @@ from rlbot.utils.rendering.rendering_manager import RenderingManager
 Row = namedtuple('Row', 'exercise_name status_str status_color_func')
 
 @contextmanager
-def training_status_renerer_context(exercise_names: List[str], renderman: RenderingManager):
+def training_status_renderer_context(exercise_names: List[str], renderman: RenderingManager):
     """
     Ensures that the screen is always cleared, even on fatal errors in code
     that uses this renerer.
