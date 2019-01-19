@@ -1,12 +1,13 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import math
 import random
 import unittest
 
-from rlbot.training.training import Pass, Fail, Exercise, run_all_exercises, FailDueToExerciseException
+from rlbot.training.training import Pass, Fail, Exercise, run_all_exercises, FailDueToExerciseException, Result
 from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, Physics, Vector3, Rotator
 from rlbot.utils.structures.game_data_struct import GameTickPacket
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 
 """
 Tests that the training API works correctly.
@@ -42,7 +43,7 @@ class BallInFrontOfCar(Exercise):
         self._reset_state()
 
     def get_config_path(self) -> str:
-        return Path(__file__).parent / 'rlbot.cfg'
+        return Path(__file__).parent / 'training_test.cfg'
 
     def _reset_state(self):
         """
@@ -80,7 +81,7 @@ class BallInFrontOfCar(Exercise):
             boosts={i: BoostState(0) for i in range(34)},
         )
 
-    def on_tick(self, game_tick_packet: GameTickPacket):
+    def on_tick(self, game_tick_packet: GameTickPacket) -> Optional[Result]:
         car_pos = game_tick_packet.game_cars[0].physics.location
         ball_pos = game_tick_packet.game_ball.physics.location
         to_ball_x = ball_pos.x - car_pos.x
