@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_types, map_types, game_mode_types, \
@@ -125,7 +125,7 @@ class MatchConfig:
         return match_settings
 
 
-def get_sanitized_bot_name(dict, name):
+def get_sanitized_bot_name(dict: Dict[str, int], name: str) -> str:
     """
     Cut off at 31 characters and handle duplicates.
     :param dict: Holds the list of names for duplicates
@@ -138,6 +138,7 @@ def get_sanitized_bot_name(dict, name):
     else:
         count = dict[name]
         new_name = name[:27] + "(" + str(count + 1) + ")"  # Truncate at 27 because we can have up to '(10)' appended
+        assert new_name not in dict  # TODO: Fix collision between ["foo", "foo", "foo(1)"]
         dict[name] = count + 1
 
     return new_name
