@@ -170,6 +170,10 @@ class SetupManager:
         self.load_match_config(match_config, bot_configs)
 
     def launch_ball_prediction(self):
+        # restart, in case we have changed game mode
+        if self.ball_prediction_process:
+            self.ball_prediction_process.terminate()
+
         if self.start_match_configuration.game_mode == 1:  # hoops
             prediction_util.copy_pitch_data_to_temp('hoops')
         elif self.start_match_configuration.game_mode == 2:  # dropshot
@@ -277,6 +281,11 @@ class SetupManager:
 
         if kill_all_pids:
             self.kill_agent_process_ids()
+
+        # The quit event can only be set once. Let's reset to our initial state
+        self.quit_event = mp.Event()
+        self.helper_process_manager = HelperProcessManager(self.quit_event)
+
         self.logger.info("Shut down complete!")
 
     def load_extension(self, extension_filename):
