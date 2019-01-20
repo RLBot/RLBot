@@ -38,6 +38,9 @@ class PlayerConfig:
         if self.loadout_config:
             self.loadout_config.write(player_configuration)
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
 
 class MutatorConfig:
     """
@@ -88,10 +91,15 @@ class MutatorConfig:
             return 0
         return types.index(value)
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
 
 class ExtensionConfig:
     def __init__(self):
         self.python_file_path: str = None
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
 
 class MatchConfig:
@@ -123,6 +131,9 @@ class MatchConfig:
         self.mutators.write(match_settings.mutator_settings)
 
         return match_settings
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
 
 def get_sanitized_bot_name(dict: Dict[str, int], name: str) -> str:
