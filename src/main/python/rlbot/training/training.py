@@ -1,19 +1,22 @@
 from collections import namedtuple
 from contextlib import contextmanager
 from datetime import datetime
+from pathlib import Path
 from typing import Union, Optional, Mapping, Iterator, Tuple, List
 import random
 import time
 import traceback
 
+from .status_rendering import training_status_renderer_context, Row
+from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations
 from rlbot.setup_manager import SetupManager, setup_manager_context
 from rlbot.utils import rate_limiter
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
-from rlbot.utils.rendering.rendering_manager import RenderingManager
-from .status_rendering import training_status_renderer_context, Row
 
 # Extend Pass and/or Fail to add your own, more detailed metrics.
 
@@ -122,6 +125,15 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seeds: Iterator[int]=No
         for seed in seeds:
             yield from run_exercises_once(setup_manager, sorted_exercises, seed)
 
+def _read_match_config(match_config_path: Path) -> MatchConfig:
+    """
+    Jumps through the hoops to parse the file on disk into the python datastructure.
+    """
+    config_obj = create_bot_config_layout()
+    config_obj.parse_file(match_config_path, max_index=10)
+    return parse_configurations(config_obj, match_config_path, {}, {})
+
+
 def run_exercises_once(setup_manager: SetupManager, exercises: List[SortedExercise], seed: int) -> Iterator[Tuple[str, Result]]:
     """
     A lower level API compared to run_all_exercises().
@@ -132,15 +144,16 @@ def run_exercises_once(setup_manager: SetupManager, exercises: List[SortedExerci
     game_interface = setup_manager.game_interface
     names = [name for _, name, _ in exercises]
     assert len(set(names)) == len(names), 'exercise names must be unique'
-    prev_config_path = None
     with training_status_renderer_context(names, game_interface.renderer) as ren:
         for config_path, name, ex in exercises:
 
+            ren.update(Row(name, 'config', ren.renderman.white))
+            match_config = _read_match_config(Path(config_path))
+
             # Only reload the match if the config has changed.
-            if config_path != prev_config_path:
-                ren.update(Row(name, 'config', ren.renderman.white))
+            if match_config != setup_manager.match_config:
+                ren.update(Row(name, 'match', ren.renderman.white))
                 _setup_match(config_path, setup_manager)
-                prev_config_path = config_path
                 ren.update(Row(name, 'bots', ren.renderman.white))
                 _wait_until_bots_ready(setup_manager)
 
@@ -197,9 +210,10 @@ def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: in
 
 
 def _setup_match(config_path: str, manager: SetupManager):
+    manager.shut_down()  # To be safe.
     manager.load_config(config_location=config_path)
-    manager.launch_ball_prediction()
     manager.launch_quick_chat_manager()
+    manager.launch_ball_prediction()
     manager.launch_bot_processes()
     manager.start_match()
 
