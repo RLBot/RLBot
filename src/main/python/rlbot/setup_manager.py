@@ -1,10 +1,11 @@
+from contextlib import contextmanager
+from datetime import datetime, timedelta
 import msvcrt
 import multiprocessing as mp
 import os
 import queue
 import time
 import webbrowser
-from datetime import datetime, timedelta
 
 import psutil
 from rlbot import version
@@ -30,6 +31,23 @@ DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 ROCKET_LEAGUE_PROCESS_INFO = {'gameid': 252950, 'program_name': 'RocketLeague.exe', 'program': 'RocketLeague.exe'}
 
+@contextmanager
+def setup_manager_context():
+    """
+    Creates a initialized context manager which shuts down at the end of the
+    `with` block.
+
+    usage:
+    >>> with setup_manager_context() as setup_manager:
+    ...     setup_manager.load_config(...)
+    ...     # ... Run match
+    """
+    setup_manager = SetupManager()
+    setup_manager.connect_to_game()
+    try:
+        yield setup_manager
+    finally:
+        setup_manager.shut_down()
 
 class SetupManager:
     """
@@ -78,6 +96,8 @@ class SetupManager:
         if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'],
                                                         ROCKET_LEAGUE_PROCESS_INFO['program_name']):
             try:
+                self.logger.info("Launching Rocket League...")
+
                 webbrowser.open(f"steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO['gameid']}")
             except webbrowser.Error:
                 self.logger.info(
@@ -150,6 +170,10 @@ class SetupManager:
         self.load_match_config(match_config, bot_configs)
 
     def launch_ball_prediction(self):
+        # restart, in case we have changed game mode
+        if self.ball_prediction_process:
+            self.ball_prediction_process.terminate()
+
         if self.start_match_configuration.game_mode == 1:  # hoops
             prediction_util.copy_pitch_data_to_temp('hoops')
         elif self.start_match_configuration.game_mode == 2:  # dropshot
@@ -239,7 +263,8 @@ class SetupManager:
 
         self.quit_event.set()
         end_time = datetime.now() + timedelta(seconds=time_limit)
-        self.ball_prediction_process.terminate()
+        if self.ball_prediction_process:
+            self.ball_prediction_process.terminate()
 
         # Wait for all processes to terminate before terminating main process
         terminated = False
@@ -256,6 +281,11 @@ class SetupManager:
 
         if kill_all_pids:
             self.kill_agent_process_ids()
+
+        # The quit event can only be set once. Let's reset to our initial state
+        self.quit_event = mp.Event()
+        self.helper_process_manager = HelperProcessManager(self.quit_event)
+
         self.logger.info("Shut down complete!")
 
     def load_extension(self, extension_filename):

@@ -36,6 +36,9 @@ class LoadoutConfig:
         if self.paint_config:
             self.paint_config.write(player_configuration)
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
 
 class LoadoutPaintConfig:
     def __init__(self):
@@ -57,3 +60,6 @@ class LoadoutPaintConfig:
         player_configuration.hat_paint_id = self.hat_paint_id
         player_configuration.trails_paint_id = self.trails_paint_id
         player_configuration.goal_explosion_paint_id = self.goal_explosion_paint_id
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__

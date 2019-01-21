@@ -39,9 +39,9 @@ running rlbot from *anywhere* on your computer will reference these local files,
 - Installs python package dependencies.
 
 If you're doing work that affects our `.dll` or `.exe` files, you should also be aware of:
-- `copy-dlls.bat` - This copies *the debug versions* any built dlls from visual studio into the correct subdirectory in 
+- `copy-dlls.bat` - This copies *the debug versions* any built dlls from visual studio into the correct subdirectory in
 the python source folder.
-- `copy-dlls-release.bat` - This copies *the release versions* any built dlls from visual studio into the correct subdirectory in 
+- `copy-dlls-release.bat` - This copies *the release versions* any built dlls from visual studio into the correct subdirectory in
 the python source folder.
 
 For deploying changes, please see https://github.com/RLBot/RLBot/wiki/Deploying-Changes
@@ -59,7 +59,7 @@ There's tons of good information at https://github.com/RLBot/RLBot/wiki
 
 #### Community Info
  - We have a [Discord server](https://discord.gg/VZJKWwJ) (the heart of the community, please join!)
- - [We also have a subreddit.](https://www.reddit.com/r/RocketLeagueBots/) 
+ - [We also have a subreddit.](https://www.reddit.com/r/RocketLeagueBots/)
  - We are now on v4 of RLBot so be wary of outdated information.
 
 #### Video Example

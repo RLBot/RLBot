@@ -53,6 +53,9 @@ def import_class_with_base(python_file, base_class) -> ExternalClassWrapper:
 
 
 def load_external_class(python_file, base_class):
+    """
+    Returns a tuple: (subclass of base_class, module)
+    """
 
     # There's a special case where python_file may be pointing at the base agent definition here in the framework.
     # This is sometimes done as a default and we want to allow it. Short-circuit the logic because

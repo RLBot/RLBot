@@ -1,14 +1,17 @@
 import multiprocessing
 import psutil
-import os
 import configparser
+
+import os
+import sys
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '../../main/python/')))
 
 from rlbot.setup_manager import SetupManager
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.utils.logging_utils import log
 from integration_test.history import HistoryIO
 
-RLBOT_CONFIG_FILE = os.path.realpath(os.path.join(os.path.dirname(__file__), 'rlbot.cfg'))
+RLBOT_CONFIG_FILE = os.path.realpath(os.path.join(os.path.dirname(__file__), 'history_analysis_test.cfg'))
 
 
 def record_atba():

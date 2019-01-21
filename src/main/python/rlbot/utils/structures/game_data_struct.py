@@ -40,6 +40,7 @@ class Touch(Struct):
 
 
 class ScoreInfo(Struct):
+    # Describes the points for a single player (see TeamInfo for team scores)
     _fields_ = [("score", ctypes.c_int),
                 ("goals", ctypes.c_int),
                 ("own_goals", ctypes.c_int),

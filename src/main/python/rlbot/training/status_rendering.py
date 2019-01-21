@@ -1,10 +1,22 @@
 from collections import namedtuple
+from contextlib import contextmanager
 from typing import List
 
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 
 Row = namedtuple('Row', 'exercise_name status_str status_color_func')
 
+@contextmanager
+def training_status_renderer_context(exercise_names: List[str], renderman: RenderingManager):
+    """
+    Ensures that the screen is always cleared, even on fatal errors in code
+    that uses this renderer.
+    """
+    renderer = TrainingStatusRenderer(exercise_names, renderman)
+    try:
+        yield renderer
+    finally:
+        renderer.clear_screen()
 
 class TrainingStatusRenderer:
     """

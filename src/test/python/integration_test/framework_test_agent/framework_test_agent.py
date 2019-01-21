@@ -1,15 +1,9 @@
 from agents.flatBot.flatBot import FlatBot
 from integration_test.history import HistoryIO
 
-# from quicktracer import trace
-
 '''
-An integration test bot
+An integration test bot which writes the packets it gets to disk.
 '''
-
-
-def is_close(x, target, margin):
-    return abs(x - target) <= margin
 
 
 class FrameworkTestAgent(FlatBot):
