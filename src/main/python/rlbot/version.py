@@ -13,7 +13,9 @@ release_notes = {
     - Python bots now wait until valid field info to call initialize_agent() - Marvin
     - Field info is no longer being updated each tick and is emptied out if we're not in a game. - Marvin and ccman32
     - Making the details section of bot config files more visible to python GUIs. - tarehart
+    - Improved stability of the SetupManager. - DomNomNom
     - Added rendering capability to training exercises. - DomNomNom
+    - Improvements to the controller pass-through agent. - Kipje13 and chip
     """,
 
     '1.11.1': """
