@@ -6,5 +6,6 @@ namespace RLBotDotNet
     {
         public Bot bot;
         public Thread thread;
+        public AutoResetEvent botRunEvent;
     }
 }

@@ -19,16 +19,28 @@ namespace RLBotDotNet
     public class BotManager<T> where T : Bot
     {
         private readonly ConcurrentDictionary<int, BotLoopRenderer> _renderers;
-        private AutoResetEvent botRunEvent = new AutoResetEvent(false);
         private List<BotProcess> botProcesses = new List<BotProcess>();
         private Thread serverThread;
-        
+
+        private readonly int frequency;
+
         /// <summary>
         /// Constructs a new instance of BotManager.
         /// </summary>
-        public BotManager()
+        public BotManager() : this(60) { }
+
+        /// <summary>
+        /// Construct a new instance of BotManager.
+        /// </summary>
+        /// <param name="frequency">The frequency that the bot updates at: [1, 120]</param>
+        public BotManager(int frequency)
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
+
+            if (frequency > 120 || frequency < 1)
+                throw new ArgumentOutOfRangeException("frequency");
+
+            this.frequency = frequency;
         }
 
         /// <summary>
@@ -40,15 +52,18 @@ namespace RLBotDotNet
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
             if (!botProcesses.Any(b => b.bot.index == index))
             {
+                AutoResetEvent botRunEvent = new AutoResetEvent(false);
+
                 // Create a bot instance, run it in a separate thread, and add it to botProcesses.
                 T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
-                Thread thread = new Thread(() => RunBot(bot));
+                Thread thread = new Thread(() => RunBot(bot, botRunEvent));
                 thread.Start();
 
                 BotProcess botProcess = new BotProcess()
                 {
                     bot = bot,
-                    thread = thread
+                    thread = thread,
+                    botRunEvent = botRunEvent
                 };
 
                 botProcesses.Add(botProcess);
@@ -61,7 +76,7 @@ namespace RLBotDotNet
         /// updates its input through the interface DLL.
         /// </summary>
         /// <param name="bot"></param>
-        private void RunBot(Bot bot)
+        private void RunBot(Bot bot, AutoResetEvent botRunEvent)
         {
             var renderer = GetRendererForBot(bot);
             bot.SetRenderer(renderer);
@@ -106,7 +121,7 @@ namespace RLBotDotNet
         private void MainBotLoop()
         {
             TimeSpan timerResolution = TimerResolutionInterop.CurrentResolution;
-            TimeSpan targetSleepTime = new TimeSpan(166667); // 16.6667 ms, or 60 FPS
+            TimeSpan targetSleepTime = new TimeSpan(10000000/frequency);
 
             Stopwatch stopwatch = new Stopwatch();
             while (true)
@@ -115,15 +130,18 @@ namespace RLBotDotNet
                 stopwatch.Restart();
 
                 // Set off events that end up running the bot code later down the line
-                botRunEvent.Set();
+                foreach (BotProcess proc in botProcesses)
+                {
+                    proc.botRunEvent.Set();
+                }
 
                 // Sleep efficiently (but inaccurately) for as long as we can
                 TimeSpan maxInaccurateSleepTime = targetSleepTime - stopwatch.Elapsed - timerResolution;
                 if (maxInaccurateSleepTime > TimeSpan.Zero)
                     Thread.Sleep(maxInaccurateSleepTime);
 
-                // We could sleep the rest of the time accurately with the use of a spin-wait, but since the main bot loop doesn't have to fire at precise intervals it's reasonable to omit this step
-                // while (stopwatch.Elapsed < targetSleepTime);
+                // We can sleep the rest of the time accurately with the use of a spin-wait, this will drastically reduce the amount of duplicate packets when running at higher frequencies.
+                while (stopwatch.Elapsed < targetSleepTime);
             }
         }
 
@@ -137,6 +155,7 @@ namespace RLBotDotNet
             try
             {
                 botProcess.bot.Dispose();
+                botProcess.botRunEvent.Dispose();
             }
             catch (Exception e)
             {
