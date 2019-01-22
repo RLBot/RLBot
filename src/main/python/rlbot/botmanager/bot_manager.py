@@ -8,6 +8,7 @@ from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.utils import rate_limiter
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat, send_quick_chat
@@ -203,11 +204,15 @@ class BotManager:
         except KeyboardInterrupt:
             self.terminate_request_event.set()
 
+        # Shut down the bot by calling cleanup functions.
         if hasattr(agent, 'retire'):
             try:
                 agent.retire()
             except Exception as e:
                 self.logger.error("Retiring the agent failed:\n" + traceback.format_exc())
+        if hasattr(agent, 'renderer') and isinstance(agent.renderer, RenderingManager):
+            agent.renderer.clear_all_touched_render_groups()
+
         # If terminated, send callback
         self.termination_complete_event.set()
 
