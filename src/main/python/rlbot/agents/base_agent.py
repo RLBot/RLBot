@@ -71,7 +71,7 @@ class BaseAgent:
     __field_info_func = None
     __game_state_func = None
     __get_rigid_body_tick_func = None
-    renderer = None
+    renderer: RenderingManager = None
 
     def __init__(self, name, team, index):
         self.name = name
@@ -84,6 +84,7 @@ class BaseAgent:
         Override this method if you would like to be informed of what config was used to start the match.
         Useful for knowing what map you're on, mutators, etc.
         """
+        pass
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
