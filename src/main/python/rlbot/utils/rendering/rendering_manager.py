@@ -1,5 +1,6 @@
 import ctypes
 import hashlib
+from typing import Optional, Set
 
 import flatbuffers
 from rlbot.utils.structures.game_status import RLBotCoreStatus
@@ -16,22 +17,25 @@ from rlbot.messages.flat.RenderType import RenderType
 
 MAX_INT = 2147483647 // 2
 
+DEFAULT_GROUP_ID = 'default'
 
 class RenderingManager:
     """
     Manages rendering and statefully bundles rendering into a group, can only render one group at a time.
     """
-    renderGroup = None
-    render_state = False
-    builder = None
-    render_list = []
-    group_id = None
-    bot_index = 0
-    bot_team = 0
+
+    def __init__(self):
+        self.renderGroup = None
+        self.render_state = False
+        self.builder = None
+        self.render_list = []
+        self.bot_index = 0
+        self.bot_team = 0
+        self.group_id: Optional[str] = None
+        self.touched_group_ids: Set[str] = set()
 
     def setup_function_types(self, dll_instance):
         self.renderGroup = dll_instance.RenderGroup
-
         self.renderGroup.argtypes = [ctypes.c_void_p, ctypes.c_int]
         self.renderGroup.restype = ctypes.c_int
 
@@ -44,7 +48,8 @@ class RenderingManager:
         if rlbot_status != RLBotCoreStatus.Success:
             get_logger("Renderer").error("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
-    def begin_rendering(self, group_id='default'):
+    def begin_rendering(self, group_id: str=DEFAULT_GROUP_ID):
+        self.touched_group_ids.add(group_id)
         self.group_id = group_id
         self.builder = flatbuffers.Builder(0)
         self.render_list = []
@@ -53,7 +58,7 @@ class RenderingManager:
     def end_rendering(self):
         self.render_state = False
         if self.group_id is None:
-            self.group_id = 'default'
+            self.group_id = DEFAULT_GROUP_ID
 
         group_id = str(self.bot_index) + str(self.group_id)
         group_id_hashed = int(hashlib.sha256(str(group_id).encode('utf-8')).hexdigest(), 16) % MAX_INT
@@ -77,9 +82,17 @@ class RenderingManager:
         buf = self.builder.Output()
         self.send_group(buf)
 
-    def clear_screen(self, group_id='default'):
+    def clear_screen(self, group_id: str=DEFAULT_GROUP_ID):
         self.begin_rendering(group_id)
         self.end_rendering()
+
+    def clear_all_touched_render_groups(self):
+        """
+        Clears all render groups which have been drawn to using `begin_rendering(group_id)`.
+        Note: This does not clear render groups created by e.g. other bots.
+        """
+        for group_id in self.touched_group_ids:
+            self.clear_screen(group_id)
 
     def is_rendering(self):
         return self.render_state

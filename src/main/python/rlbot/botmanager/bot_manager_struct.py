@@ -29,7 +29,7 @@ class BotManagerStruct(BotManager):
         # Set up shared memory for rigid body tick
         self.rigid_body_tick = RigidBodyTick()
 
-    def get_field_info(self):
+    def get_field_info(self) -> gd.FieldInfoPacket:
         field_info = gd.FieldInfoPacket()
         self.game_interface.update_field_info_packet(field_info)
         return field_info
