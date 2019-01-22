@@ -204,7 +204,10 @@ class BotManager:
             self.terminate_request_event.set()
 
         if hasattr(agent, 'retire'):
-            agent.retire()
+            try:
+                agent.retire()
+            except Exception as e:
+                self.logger.error("Retiring the agent failed:\n" + traceback.format_exc())
         # If terminated, send callback
         self.termination_complete_event.set()
 
