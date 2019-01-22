@@ -3,14 +3,16 @@ import time
 import traceback
 from datetime import datetime, timedelta
 
+from rlbot.agents.base_agent import BaseAgent
 from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.utils import rate_limiter
+from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat, send_quick_chat
 
-GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
+GAME_TICK_PACKET_POLLS_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
 MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
@@ -104,7 +106,7 @@ class BotManager:
         agent.initialize_agent()
         return agent, agent_class_file
 
-    def set_render_manager(self, agent):
+    def set_render_manager(self, agent: BaseAgent):
         """
         Sets the render manager for the agent.
         :param agent: An instance of an agent.
@@ -112,7 +114,7 @@ class BotManager:
         rendering_manager = self.game_interface.renderer.get_rendering_manager(self.index, self.team)
         agent._set_renderer(rendering_manager)
 
-    def update_metadata_queue(self, agent):
+    def update_metadata_queue(self, agent: BaseAgent):
         """
         Adds a new instance of AgentMetadata into the `agent_metadata_queue` using `agent` data.
         :param agent: An instance of an agent.
@@ -123,11 +125,11 @@ class BotManager:
 
         self.agent_metadata_queue.put(AgentMetadata(self.index, self.name, self.team, pids, helper_process_request))
 
-    def reload_agent(self, agent, agent_class_file):
+    def reload_agent(self, agent: BaseAgent, agent_class_file):
         """
         Reloads the agent. Can throw exceptions. External classes should use reload_event.set() instead.
         :param agent: An instance of an agent.
-        :param agent_class_file: The agent's class file.
+        :param agent_class_file: The agent's class file. TODO: Remove this argument, it only affects logging and may be misleading.
         :return: The reloaded instance of the agent, and the agent class file.
         """
         self.logger.info('Reloading Agent: ' + agent_class_file)
@@ -151,7 +153,7 @@ class BotManager:
         self.prepare_for_run()
 
         # Create Ratelimiter
-        rate_limit = rate_limiter.RateLimiter(GAME_TICK_PACKET_REFRESHES_PER_SECOND)
+        rate_limit = rate_limiter.RateLimiter(GAME_TICK_PACKET_POLLS_PER_SECOND)
         last_tick_game_time = None  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
 
@@ -213,8 +215,8 @@ class BotManager:
         """Get the most recent state of the physics engine."""
         return self.game_interface.update_rigid_body_tick(self.rigid_body_tick)
 
-    def set_game_state(self, game_state):
-        return self.game_interface.set_game_state(game_state)
+    def set_game_state(self, game_state: GameState) -> None:
+        self.game_interface.set_game_state(game_state)
 
     def get_ball_prediction(self):
         return self.game_interface.get_ball_prediction()
@@ -225,7 +227,7 @@ class BotManager:
     def prepare_for_run(self):
         raise NotImplementedError
 
-    def call_agent(self, agent, agent_class):
+    def call_agent(self, agent: BaseAgent, agent_class):
         raise NotImplementedError
 
     def get_game_time(self):

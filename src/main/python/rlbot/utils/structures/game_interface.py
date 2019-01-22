@@ -254,7 +254,7 @@ class GameInterface:
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
         self.game_status(None, rlbot_status, WARNING)
 
-    def set_game_state(self, game_state: GameState):
+    def set_game_state(self, game_state: GameState) -> None:
         builder = flatbuffers.Builder(0)
         game_state_offset = game_state.convert_to_flat(builder)
         if game_state_offset is None:
