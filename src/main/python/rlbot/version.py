@@ -15,6 +15,7 @@ release_notes = {
     - Making the details section of bot config files more visible to python GUIs. - tarehart
     - Improved stability of the SetupManager. - DomNomNom
     - Added rendering capability to training exercises. - DomNomNom
+    - Clear the screen when bots retire. - DomNomNom
     - Improvements to the controller pass-through agent. - Kipje13 and chip
     """,
 
