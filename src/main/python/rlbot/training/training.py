@@ -8,8 +8,7 @@ import time
 import traceback
 
 from .status_rendering import training_status_renderer_context, Row
-from rlbot.matchconfig.match_config import MatchConfig
-from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations
+from rlbot.matchconfig.conversions import read_match_config_from_file
 from rlbot.setup_manager import SetupManager, setup_manager_context
 from rlbot.utils import rate_limiter
 from rlbot.utils.game_state_util import GameState
@@ -125,14 +124,6 @@ def run_all_exercises(exercises: Mapping[str, Exercise], seeds: Iterator[int]=No
         for seed in seeds:
             yield from run_exercises_once(setup_manager, sorted_exercises, seed)
 
-def _read_match_config(match_config_path: Path) -> MatchConfig:
-    """
-    Jumps through the hoops to parse the file on disk into the python datastructure.
-    """
-    config_obj = create_bot_config_layout()
-    config_obj.parse_file(match_config_path, max_index=10)
-    return parse_configurations(config_obj, match_config_path, {}, {})
-
 
 def run_exercises_once(setup_manager: SetupManager, exercises: List[SortedExercise], seed: int) -> Iterator[Tuple[str, Result]]:
     """
@@ -148,7 +139,7 @@ def run_exercises_once(setup_manager: SetupManager, exercises: List[SortedExerci
         for config_path, name, ex in exercises:
 
             ren.update(Row(name, 'config', ren.renderman.white))
-            match_config = _read_match_config(Path(config_path))
+            match_config = read_match_config_from_file(Path(config_path))
 
             # Only reload the match if the config has changed.
             if match_config != setup_manager.match_config:

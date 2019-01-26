@@ -14,11 +14,12 @@ from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
 from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
+from rlbot.matchconfig.conversions import parse_match_config
 from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.parsing.agent_config_parser import load_bot_appearance
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.parsing.custom_config import ConfigObject
-from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, parse_configurations
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.utils import process_configuration
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
@@ -166,7 +167,7 @@ class SetupManager:
         if looks_configs is None:
             looks_configs = {}
 
-        match_config = parse_configurations(framework_config, config_location, bot_configs, looks_configs)
+        match_config = parse_match_config(framework_config, config_location, bot_configs, looks_configs)
         self.load_match_config(match_config, bot_configs)
 
     def launch_ball_prediction(self):
