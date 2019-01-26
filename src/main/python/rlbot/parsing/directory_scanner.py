@@ -1,6 +1,6 @@
 import glob
 import os
-from configparser import NoSectionError, MissingSectionHeaderError, NoOptionError
+from configparser import NoSectionError, MissingSectionHeaderError, NoOptionError, ParsingError
 from typing import Set
 
 from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bundle
@@ -19,7 +19,7 @@ def scan_directory_for_bot_configs(root_dir) -> Set[BotConfigBundle]:
         try:
             bundle = get_bot_config_bundle(filename)
             configs.add(bundle)
-        except (NoSectionError, MissingSectionHeaderError, NoOptionError, AttributeError):
+        except (NoSectionError, MissingSectionHeaderError, NoOptionError, AttributeError, ParsingError):
             pass
 
     return configs

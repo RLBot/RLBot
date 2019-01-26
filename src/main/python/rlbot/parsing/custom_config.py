@@ -253,7 +253,8 @@ class ConfigHeader:
     def get_string(self, value_name):
         value = self.values[value_name]
         string = value.comment_description() + '\n'
-        string += value_name + ' = ' + str(value.get_value()) + '\n'
+        multiline_safe_value = str(value.get_value()).replace('\n', '\n\t')
+        string += value_name + ' = ' + multiline_safe_value + '\n'
         return string
 
 

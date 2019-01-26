@@ -4,11 +4,11 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.12.6'
+__version__ = '1.12.7'
 
 release_notes = {
 
-    '1.12.6': """
+    '1.12.7': """
     - Support for passing an options dict to BotHelperProcesses. - tarehart
     - Python bots now wait until valid field info to call initialize_agent() - Marvin
     - Field info is no longer being updated each tick and is emptied out if we're not in a game. - Marvin and ccman32
@@ -19,6 +19,7 @@ release_notes = {
     - Clear the screen when bots retire. - DomNomNom
     - Clear bot inputs when they retire. - DomNomNom
     - Improvements to the controller pass-through agent. - Kipje13 and chip
+    - Fix for serialization of multiline values in config files. - tarehart
     """,
 
     '1.11.1': """
