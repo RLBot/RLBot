@@ -4,17 +4,18 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.12.5'
+__version__ = '1.12.6'
 
 release_notes = {
 
-    '1.12.5': """
+    '1.12.6': """
     - Support for passing an options dict to BotHelperProcesses. - tarehart
     - Python bots now wait until valid field info to call initialize_agent() - Marvin
     - Field info is no longer being updated each tick and is emptied out if we're not in a game. - Marvin and ccman32
     - Making the details section of bot config files more visible to python GUIs. - tarehart
     - Improved stability of the SetupManager. - DomNomNom
     - Added rendering capability to training exercises. - DomNomNom
+    - Allow reading/writing of MatchConfig's including all its depenencies. - DomNomNom
     - Clear the screen when bots retire. - DomNomNom
     - Clear bot inputs when they retire. - DomNomNom
     - Improvements to the controller pass-through agent. - Kipje13 and chip
