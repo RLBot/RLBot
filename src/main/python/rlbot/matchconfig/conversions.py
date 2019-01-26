@@ -2,17 +2,14 @@ import json
 from pathlib import Path
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig, LoadoutPaintConfig
-from rlbot.matchconfig.match_config import MatchConfig
-from rlbot.parsing.custom_config import ConfigObject
-from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
-from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bundles
-from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.matchconfig.match_config import MatchConfig, ExtensionConfig, MutatorConfig, PlayerConfig
-
-from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, \
-    PARTICIPANT_TEAM, PARTICIPANT_TYPE_KEY, load_bot_appearance, PARTICIPANT_BOT_SKILL_KEY
-from rlbot.parsing.rlbot_config_parser import RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY
+from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, PARTICIPANT_TYPE_KEY, load_bot_appearance, PARTICIPANT_BOT_SKILL_KEY
+from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bundles
+from rlbot.parsing.custom_config import ConfigObject
+from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.parsing.match_settings_config_parser import get_num_players, parse_match_settings
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
+from rlbot.parsing.rlbot_config_parser import RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY
 
 # ====== rlbot.cfg -> MatchConfig ======
 
