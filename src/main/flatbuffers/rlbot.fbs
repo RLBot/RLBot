@@ -461,3 +461,224 @@ table BallPrediction {
     /// It is NOT guaranteed to have a consistent amount of time between slices.
     slices: [PredictionSlice];
 }
+
+table PlayerConfiguration {
+    isBot: bool;
+	isRLBotControlled: bool;
+	botSkill: float;
+	name: string;
+	team: ubyte;
+	teamColorId: int;
+	customColorId: int;
+	carId: int;
+	decalId: int;
+	wheelsId: int;
+	boostId: int;
+	antennaId: int;
+	hatId: int;
+	paintFinishId: int;
+	customFinishId: int;
+	engineAudioId: int;
+	trailsId: int;
+	goalExplosionId: int;
+	carPaintId: int;
+	decalPaintId: int;
+	wheelsPaintId: int;
+	boostPaintId: int;
+	antennaPaintId: int;
+	hatPaintId: int;
+	trailsPaintId: int;
+	goalExplosionPaintId: int;
+}
+
+enum GameMode : byte {
+	Soccer,
+	Hoops,
+	Dropshot,
+	Hockey,
+	Rumble
+}
+
+enum GameMap : byte {
+	DFHStadium,
+	Mannfield,
+	ChampionsField,
+	UrbanCentral,
+	BeckwithPark,
+	UtopiaColiseum,
+	Wasteland,
+	NeoTokyo,
+	AquaDome,
+	StarbaseArc,
+	Farmstead,
+	SaltyShores,
+	DFHStadium_Stormy,
+	DFHStadium_Day,
+	Mannfield_Stormy,
+	Mannfield_Night,
+	ChampionsField_Day,
+	BeckwithPark_Stormy,
+	BeckwithPark_Midnight,
+	UrbanCentral_Night,
+	UrbanCentral_Dawn,
+	UtopiaColiseum_Dusk,
+	DFHStadium_Snowy,
+	Mannfield_Snowy,
+	UtopiaColiseum_Snowy,
+	Badlands,
+	Badlands_Night,
+	TokyoUnderpass,
+	Arctagon,
+	Pillars,
+	Cosmic,
+	DoubleGoal,
+	Octagon,
+	Underpass,
+	UtopiaRetro,
+	Hoops_DunkHouse,
+	DropShot_Core707,
+	ThrowbackStadium
+}
+
+enum MatchLength : byte {
+	Five_Minutes,
+	Ten_Minutes,
+	Twenty_Minutes,
+	Unlimited
+}
+
+enum MaxScore : byte {
+	Unlimited,
+	One_Goal,
+	Three_Goals,
+	Five_Goals
+}
+
+enum OvertimeOption : byte {
+	Unlimited,
+	Five_Max_First_Score,
+	Five_Max_Random_Team
+}
+
+enum SeriesLengthOption : byte {
+	Unlimited,
+	Three_Games,
+	Five_Games,
+	Seven_Games
+}
+
+enum GameSpeedOption : byte {
+	Default,
+	Slo_Mo,
+	Time_Warp
+}
+
+enum BallMaxSpeedOption : byte {
+	Default,
+	Slow,
+	Fast,
+	Super_Fast
+}
+
+enum BallTypeOption : byte {
+	Default,
+	Cube,
+	Puck,
+	Basketball
+}
+
+enum BallWeightOption : byte {
+	Default,
+	Light,
+	Heavy,
+	Super_Light
+}
+
+enum BallSizeOption : byte {
+	Default,
+	Small,
+	Large,
+	Gigantic
+}
+
+enum BallBouncinessOption : byte {
+	Default,
+	Low,
+	High,
+	Super_High
+}
+
+enum BoostOption : byte {
+	Normal_Boost,
+	Unlimited_Boost,
+	Slow_Recharge,
+	Rapid_Recharge,
+	No_Boost
+}
+
+enum RumbleOption : byte {
+	None,
+	Default,
+	Slow,
+	Civilized,
+	Destruction_Derby,
+	Spring_Loaded,
+	Spikes_Only
+}
+
+enum BoostStrengthOption : byte {
+	One,
+	OneAndAHalf,
+	Two,
+	Ten
+}
+
+enum GravityOption : byte {
+	Default,
+	Low,
+	High,
+	Super_High
+}
+
+enum DemolishOption : byte {
+	Default,
+	Disabled,
+	Friendly_Fire,
+	On_Contact,
+	On_Contact_FF
+}
+
+enum RespawnTimeOption : byte {
+	Three_Seconds,
+	Two_Seconds,
+	One_Seconds,
+	Disable_Goal_Reset
+}
+
+table MutatorSettings {
+	matchLength: MatchLength;
+	maxScore: MaxScore;
+	overtimeOption: OvertimeOption;
+	seriesLengthOption: SeriesLengthOption;
+	gameSpeedOption: GameSpeedOption;
+	ballMaxSpeedOption: BallMaxSpeedOption;
+	ballTypeOption: BallTypeOption;
+	ballWeightOption: BallWeightOption;
+	ballSizeOption: BallSizeOption;
+	ballBouncinessOption: BallBouncinessOption;
+	boostOption: BoostOption;
+	rumbleOption: RumbleOption;
+	boostStrengthOption: BoostStrengthOption;
+	gravityOption: GravityOption;
+	demolishOption: DemolishOption;
+	respawnTimeOption: RespawnTimeOption;
+}
+
+table MatchSettings {
+	playerConfigurations: [PlayerConfiguration];
+	gameMode: GameMode;
+	gameMap: GameMap;
+	skipReplays: bool;
+	instantStart: bool;
+	mutatorSettings: MutatorSettings;
+}
