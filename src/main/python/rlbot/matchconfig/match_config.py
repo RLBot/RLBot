@@ -127,13 +127,16 @@ class MatchConfig:
 
     def __init__(self):
         self.player_configs: List[PlayerConfig] = []
-        self.num_players: int = None
         self.game_mode: str = None
         self.game_map: str = None
         self.skip_replays: bool = None
         self.instant_start: bool = None
         self.mutators: MutatorConfig = None
         self.extension_config: ExtensionConfig = None
+
+    @property
+    def num_players(self):
+        return len(self.player_configs)
 
     def create_match_settings(self) -> MatchSettings:
         match_settings = MatchSettings()

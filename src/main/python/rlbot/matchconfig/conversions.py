@@ -34,14 +34,14 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
     parse_match_settings(match_config, config_parser)
 
     # Retrieve bot config files
-    config_bundles = get_bot_config_bundles(match_config.num_players, config_parser, config_location, config_bundle_overrides)
+    config_bundles = get_bot_config_bundles(num_players, config_parser, config_location, config_bundle_overrides)
 
     match_config.player_configs = []
 
     human_index_tracker = IncrementingInteger(0)
 
     # Set configuration values for bots and store name and team
-    for i in range(match_config.num_players):
+    for i in range(num_players):
 
         config_bundle = config_bundles[i]
 
