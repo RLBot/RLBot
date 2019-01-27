@@ -1,3 +1,5 @@
+from pathlib import Path
+from enum import Enum
 from typing import List, Dict
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig
@@ -8,6 +10,9 @@ from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_type
     demolish_mutator_types, respawn_time_mutator_types
 from rlbot.utils.structures.start_match_structures import MatchSettings, PlayerConfiguration, MutatorSettings
 
+class Team(Enum):
+    BLUE = 0
+    ORANGE = 1
 
 class PlayerConfig:
     """
@@ -26,6 +31,19 @@ class PlayerConfig:
         self.team: int = None
         self.config_path: str = None  # Required only if rlbot_controlled is true
         self.loadout_config: LoadoutConfig = None
+
+    @staticmethod  # TODO: in Python 3.7 we can remove the quotes from the return type.
+    def bot_config(player_config_path: Path, team: Team) -> 'PlayerConfig':
+        """
+        A function to cover the common case of creating a config for a bot.
+        """
+        bot_config = PlayerConfig()
+        bot_config.bot = True
+        bot_config.rlbot_controlled = True
+        bot_config.team = team.value
+        bot_config.config_path = str(player_config_path.absolute()) # TODO: Refactor to use Path's
+        # bot_config.loadout_config gets populated when the the bot gets loaded.
+        return bot_config
 
     def write(self, player_configuration: PlayerConfiguration, name_dict: dict):
         player_configuration.bot = self.bot
