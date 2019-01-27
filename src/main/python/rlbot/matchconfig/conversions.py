@@ -29,7 +29,7 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
     match_config.mutators = MutatorConfig()
 
     # Determine number of participants
-    match_config.num_players = get_num_players(config_parser)
+    num_players = get_num_players(config_parser)
 
     parse_match_settings(match_config, config_parser)
 
@@ -50,7 +50,7 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
         else:
             looks_config_object = looks_config_overrides[i]
 
-        player_config = load_bot_config(i, config_bundle, looks_config_object, config_parser, human_index_tracker)
+        player_config = _load_bot_config(i, config_bundle, looks_config_object, config_parser, human_index_tracker)
 
         match_config.player_configs.append(player_config)
 
@@ -89,7 +89,7 @@ def get_bot_options(bot_type):
 
     return is_bot, is_rlbot
 
-def load_bot_config(index, config_bundle: BotConfigBundle,
+def _load_bot_config(index, config_bundle: BotConfigBundle,
                     looks_config_object: ConfigObject, overall_config: ConfigObject,
                     human_index_tracker: IncrementingInteger) -> PlayerConfig:
     """
@@ -137,7 +137,7 @@ known_types = {
     ExtensionConfig: '__ExtensionConfig__',
     PlayerConfig: '__PlayerConfig__',
     LoadoutConfig: '__LoadoutConfig__',
-    LoadoutPaintConfig: '__LoadoutPaintConfig__'
+    LoadoutPaintConfig: '__LoadoutPaintConfig__',
 }
 class ConfigJsonEncoder(json.JSONEncoder):
     def default(self, obj):
