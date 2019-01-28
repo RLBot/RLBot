@@ -3,6 +3,7 @@ from enum import Enum
 from typing import List, Dict
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig
+from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_types, map_types, game_mode_types, \
     match_length_types, max_score_types, overtime_mutator_types, series_length_mutator_types, game_speed_mutator_types, \
     ball_max_speed_mutator_types, ball_type_mutator_types, ball_weight_mutator_types, ball_size_mutator_types, \
@@ -42,6 +43,8 @@ class PlayerConfig:
         bot_config.rlbot_controlled = True
         bot_config.team = team.value
         bot_config.config_path = str(player_config_path.absolute()) # TODO: Refactor to use Path's
+        config_bundle = get_bot_config_bundle(bot_config.config_path)
+        bot_config.name = config_bundle.name
         # bot_config.loadout_config gets populated when the the bot gets loaded.
         return bot_config
 
