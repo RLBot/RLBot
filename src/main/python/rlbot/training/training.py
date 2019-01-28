@@ -144,11 +144,17 @@ def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], se
             update_row('setup', ren.renderman.white)
             error_result = _setup_exercise(game_interface, exercise, seed)
             if error_result is not None:
+                update_row('setup', ren.renderman.red)
                 yield error_result
                 continue
+
+            update_row('reload', ren.renderman.white)
+            setup_manager.reload_all_agents(quiet=True)
+
             # Wait for the set_game_state() to propagate before we start running ex.on_tick()
             # TODO: wait until the game looks similar.
-            time.sleep(0.1)
+            update_row('sleep', ren.renderman.white)
+            time.sleep(0.03)
 
             update_row('>>>>', ren.renderman.white)
             result = _grade_exercise(game_interface, exercise, seed)

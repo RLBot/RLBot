@@ -254,8 +254,9 @@ class SetupManager:
                 return num_recieved
         return num_recieved
 
-    def reload_all_agents(self):
-        self.logger.info("Reloading all agents...")
+    def reload_all_agents(self, quiet=False):
+        if not quiet:
+            self.logger.info("Reloading all agents...")
         for rr in self.bot_reload_requests:
             rr.set()
 
