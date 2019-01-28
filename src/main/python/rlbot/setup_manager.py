@@ -260,8 +260,9 @@ class SetupManager:
         for rr in self.bot_reload_requests:
             rr.set()
 
-    def shut_down(self, time_limit=5, kill_all_pids=False):
-        self.logger.info("Shutting Down")
+    def shut_down(self, time_limit=5, kill_all_pids=False, quiet=False):
+        if not quiet:
+            self.logger.info("Shutting Down")
 
         self.quit_event.set()
         end_time = datetime.now() + timedelta(seconds=time_limit)
@@ -288,7 +289,8 @@ class SetupManager:
         self.quit_event = mp.Event()
         self.helper_process_manager = HelperProcessManager(self.quit_event)
 
-        self.logger.info("Shut down complete!")
+        if not quiet:
+            self.logger.info("Shut down complete!")
 
     def load_extension(self, extension_filename):
         try:
