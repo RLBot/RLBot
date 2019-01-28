@@ -152,9 +152,8 @@ table GameInfo {
   isUnlimitedTime:bool;
   /// True when cars are allowed to move, and during the pause menu. False during replays.
   isRoundActive:bool;
-  /// Only true during a kickoff, when the car is allowed to move, and the ball has not been hit,
-  /// and the game clock has not started yet. If both players sit still, game clock will eventually
-  /// start and this will become false.
+  /// True when the clock is paused due to kickoff, but false during kickoff countdown. In other words, it is true
+  /// while cars can move during kickoff. Note that if both players sit still, game clock start and this will become false.
   isKickoffPause:bool;
   /// Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
   /// countdown. Turns false again the moment the 'choose team' screen appears.
