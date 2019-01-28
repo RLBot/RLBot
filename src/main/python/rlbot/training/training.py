@@ -18,8 +18,13 @@ from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
 
-# Extend Pass and/or Fail to add your own, more detailed metrics.
+"""
+This file contains a minimal API to implement training.
+For a more useful API see: https://github.com/RLBot/RLBotTraining/
+"""
 
+
+# Extend Pass and/or Fail to add your own, more detailed metrics.
 
 class Pass:
     """ Indicates that the bot passed the exercise. """
