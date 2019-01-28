@@ -4,10 +4,13 @@ import math
 import random
 import unittest
 
-from rlbot.training.training import Pass, Fail, Exercise, run_all_exercises, FailDueToExerciseException, Result
+from rlbot.matchconfig.conversions import read_match_config_from_file
+from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.setup_manager import setup_manager_context
+from rlbot.training.training import Pass, Fail, Exercise, run_exercises, FailDueToExerciseException, Result
 from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, Physics, Vector3, Rotator
-from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.rendering.rendering_manager import RenderingManager
+from rlbot.utils.structures.game_data_struct import GameTickPacket
 
 """
 Tests that the training API works correctly.
@@ -33,17 +36,22 @@ class BallInFrontOfCar(Exercise):
 
     def __init__(
             self,
-            car_location,
-            ball_location=Vector3(0,4500,100),
-            timeout_seconds=5.0
+            name: str,
+            car_location: Vector3,
+            ball_location: Vector3 = Vector3(0,4500,100),
+            timeout_seconds: float = 5.0
         ):
+        self.name = name
         self.car_location = car_location
         self.ball_location = ball_location
         self.timeout_seconds = timeout_seconds
         self._reset_state()
 
-    def get_config_path(self) -> str:
-        return Path(__file__).parent / 'training_test.cfg'
+    def get_name(self):
+        return self.name
+
+    def get_match_config(self) -> MatchConfig:
+        return read_match_config_from_file(Path(__file__).parent / 'training_test.cfg')
 
     def _reset_state(self):
         """
@@ -108,49 +116,57 @@ class BallInFrontOfCar(Exercise):
 
 class TrainingTest(unittest.TestCase):
 
-    def test_run_all_exercises(self):
-        ownGoalExercise = BallInFrontOfCar(Vector3(0, -4000, 0), ball_location=Vector3(0,-4500,100))
-        result_iter = run_all_exercises({
-            'BallInFrontOfCar(goal 1)': BallInFrontOfCar(Vector3(0, 3500, 0)),
-            'BallInFrontOfCar(goal 2)': BallInFrontOfCar(Vector3(1000, 3500, 0)),
-            'BallInFrontOfCar(facing own goal)': ownGoalExercise,
-            'BallInFrontOfCar(sideways)': BallInFrontOfCar(Vector3(-1500, 0, 0), ball_location=Vector3(1500, 0, 100)),
-        })
+    def test_run_exercises(self):
+        ownGoalExercise = BallInFrontOfCar('BallInFrontOfCar(facing own goal)', Vector3(0, -4000, 0), ball_location=Vector3(0,-4500,100))
+        seed = 4
+        with setup_manager_context() as setup_manager:
+            result_iter = run_exercises(
+                setup_manager,
+                [
+                    BallInFrontOfCar('BallInFrontOfCar(goal 1)', Vector3(0, 3500, 0)),
+                    BallInFrontOfCar('BallInFrontOfCar(goal 2)', Vector3(1000, 3500, 0)),
+                    ownGoalExercise,
+                    BallInFrontOfCar('BallInFrontOfCar(sideways)', Vector3(-1500, 0, 0), ball_location=Vector3(1500, 0, 100)),
+                ],
+                seed
+            )
 
-        name, result = next(result_iter)  # alphabetical ordering
-        self.assertEqual(name, 'BallInFrontOfCar(facing own goal)')
-        self.assertIsInstance(result.grade, Fail)
-        self.assertIsInstance(result.grade, FailWithReason)
-        self.assertEqual(result.grade.reason, 'own goal')
-        self.assertIs(result.exercise, ownGoalExercise)
-        self.assertIsInstance(result.seed, int)
+            result = next(result_iter)
+            self.assertEqual(result.exercise.get_name(), 'BallInFrontOfCar(goal 1)')
+            self.assertIsInstance(result.grade, Pass)
 
-        name, result = next(result_iter)
-        self.assertEqual(name, 'BallInFrontOfCar(goal 1)')
-        self.assertIsInstance(result.grade, Pass)
+            result = next(result_iter)
+            self.assertEqual(result.exercise.get_name(), 'BallInFrontOfCar(goal 2)')
+            self.assertIsInstance(result.grade, Pass)
 
-        name, result = next(result_iter)
-        self.assertEqual(name, 'BallInFrontOfCar(goal 2)')
-        self.assertIsInstance(result.grade, Pass)
+            result = next(result_iter)
+            self.assertEqual(result.exercise.get_name(), 'BallInFrontOfCar(facing own goal)')
+            self.assertIsInstance(result.grade, Fail)
+            self.assertIsInstance(result.grade, FailWithReason)
+            self.assertEqual(result.grade.reason, 'own goal')
+            self.assertIs(result.exercise, ownGoalExercise)
+            self.assertIsInstance(result.seed, int)
 
-        name, result = next(result_iter)
-        self.assertEqual(name, 'BallInFrontOfCar(sideways)')
-        self.assertIsInstance(result.grade, Fail)
-        self.assertIsInstance(result.grade, FailDueToExerciseException)
-        self.assertIsInstance(result.grade.exception, Exception)
-        self.assertIsInstance(result.grade.exception, ArithmeticError) # 1/0
+            result = next(result_iter)
+            self.assertEqual(result.exercise.get_name(), 'BallInFrontOfCar(sideways)')
+            self.assertIsInstance(result.grade, Fail)
+            self.assertIsInstance(result.grade, FailDueToExerciseException)
+            self.assertIsInstance(result.grade.exception, Exception)
+            self.assertIsInstance(result.grade.exception, ArithmeticError) # 1/0
 
-        try:
-            next(result_iter)
-            self.Fail('expected the result_iter to be finished.')
-        except StopIteration:
-            pass
+            try:
+                next(result_iter)
+                self.Fail('expected the result_iter to be finished.')
+            except StopIteration:
+                pass
 
     def test_render_call(self):
         test_self = self
         class RenderTestExercise(Exercise):
-            def get_config_path(self) -> str:
-                return Path(__file__).parent / 'training_test.cfg'
+            def get_name(self):
+                return 'RenderTestExercise'
+            def get_match_config(self) -> MatchConfig:
+                return read_match_config_from_file(Path(__file__).parent / 'training_test.cfg')
             def setup(self, rng: random.Random) -> GameState:
                 self.num_render_calls = 0
                 self.num_on_tick_calls = 0
@@ -164,11 +180,10 @@ class TrainingTest(unittest.TestCase):
             def render(self, renderer: RenderingManager):
                 self.num_render_calls += 1
 
-        results = list(run_all_exercises({
-            'RenderTestExercise': RenderTestExercise(),
-        }))
+        with setup_manager_context() as setup_manager:
+            results = list(run_exercises(setup_manager, [RenderTestExercise()], 4))
         self.assertEqual(len(results), 1)
-        name, result = results[0]
+        result = results[0]
         self.assertIsInstance(result.grade, Pass)
 
 
