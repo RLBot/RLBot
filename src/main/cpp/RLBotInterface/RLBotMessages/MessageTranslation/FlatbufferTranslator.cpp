@@ -345,4 +345,69 @@ namespace FlatbufferTranslator {
 
 		fillBallPhysicsStruct(physicsTick->ball(), &structTick->Ball);
 	}
+
+	void fillPlayerLoadoutStruct(const rlbot::flat::PlayerLoadout* playerLoadout, PlayerConfiguration* structPlayerConfig)
+	{
+		structPlayerConfig->TeamColorID = playerLoadout->teamColorId();
+		structPlayerConfig->CustomColorID = playerLoadout->customColorId();
+		structPlayerConfig->CarID = playerLoadout->carId();
+		structPlayerConfig->DecalID = playerLoadout->decalId();
+		structPlayerConfig->WheelsID = playerLoadout->wheelsId();
+		structPlayerConfig->BoostID = playerLoadout->boostId();
+		structPlayerConfig->AntennaID = playerLoadout->antennaId();
+		structPlayerConfig->HatID = playerLoadout->hatId();
+		structPlayerConfig->PaintFinishID = playerLoadout->paintFinishId();
+		structPlayerConfig->CustomFinishID = playerLoadout->customFinishId();
+		structPlayerConfig->EngineAudioID = playerLoadout->engineAudioId();
+		structPlayerConfig->TrailsID = playerLoadout->trailsId();
+		structPlayerConfig->GoalExplosionID = playerLoadout->goalExplosionId();
+
+		auto playerPaint = playerLoadout->loadoutPaint();
+		structPlayerConfig->CarPaintID = playerPaint->carPaintId();
+		structPlayerConfig->DecalPaintID = playerPaint->decalPaintId();
+		structPlayerConfig->WheelsPaintID = playerPaint->wheelsPaintId();
+		structPlayerConfig->BoostPaintID = playerPaint->boostPaintId();
+		structPlayerConfig->AntennaPaintID = playerPaint->antennaPaintId();
+		structPlayerConfig->HatPaintID = playerPaint->hatPaintId();
+		structPlayerConfig->TrailsPaintID = playerPaint->trailsPaintId();
+		structPlayerConfig->GoalExplosionPaintID = playerPaint->goalExplosionPaintId();
+	}
+
+	void fillPlayerConfigurationStruct(const rlbot::flat::PlayerConfiguration* playerConfig, PlayerConfiguration* structPlayerConfig)
+	{
+		auto playerClass = playerConfig->playerClass_type();
+
+		structPlayerConfig->Bot = 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_RLBotPlayer || 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_PsyonixBotPlayer;
+
+		structPlayerConfig->RLBotControlled = 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_RLBotPlayer || 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_PartyMemberBotPlayer;
+
+		if (playerClass == rlbot::flat::PlayerClass::PlayerClass_PsyonixBotPlayer) 
+		{
+			structPlayerConfig->BotSkill = playerConfig->playerClass_as_PsyonixBotPlayer()->botSkill();
+		}
+
+		fillStructName(playerConfig->name()->str(), structPlayerConfig->Name);
+		structPlayerConfig->Team = playerConfig->team();
+
+		fillPlayerLoadoutStruct(playerConfig->loadout(), structPlayerConfig);
+	}
+
+	void translateToMatchSettingsStruct(ByteBuffer flatbufferData, MatchSettings* matchSettings)
+	{
+		if (flatbufferData.size == 0)
+		{
+			return; // Nothing to do.
+		}
+
+		auto flatMatch = flatbuffers::GetRoot<rlbot::flat::MatchSettings>(flatbufferData.ptr);
+
+		matchSettings->NumPlayers = flatMatch->playerConfigurations()->size();
+		for (int i = 0; i < matchSettings->NumPlayers; i++) {
+			fillPlayerConfigurationStruct(flatMatch->playerConfigurations()->Get(i), &matchSettings->PlayerConfiguration[i]);
+		}
+	}
 }
