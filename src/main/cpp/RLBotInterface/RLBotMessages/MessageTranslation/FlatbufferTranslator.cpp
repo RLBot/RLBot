@@ -396,6 +396,27 @@ namespace FlatbufferTranslator {
 		fillPlayerLoadoutStruct(playerConfig->loadout(), structPlayerConfig);
 	}
 
+	void fillMutatorsStruct(const rlbot::flat::MutatorSettings* flatMutators, MutatorSettings* structMutators)
+	{
+		// We rely on the enums in the flatbuffer being in the exact same order as the ones in the struct, and therefore being numbered the same.
+		structMutators->MatchLength = static_cast<MatchLength>(flatMutators->matchLength());
+		structMutators->MaxScore = static_cast<MaxScore>(flatMutators->maxScore());
+		structMutators->OvertimeOptions = static_cast<OvertimeOption>(flatMutators->overtimeOption());
+		structMutators->SeriesLengthOptions = static_cast<SeriesLengthOption>(flatMutators->seriesLengthOption());
+		structMutators->GameSpeedOptions = static_cast<GameSpeedOption>(flatMutators->gameSpeedOption());
+		structMutators->BallMaxSpeedOptions = static_cast<BallMaxSpeedOption>(flatMutators->ballMaxSpeedOption());
+		structMutators->BallTypeOptions = static_cast<BallTypeOption>(flatMutators->ballTypeOption());
+		structMutators->BallWeightOptions = static_cast<BallWeightOption>(flatMutators->ballWeightOption());
+		structMutators->BallSizeOptions = static_cast<BallSizeOption>(flatMutators->ballSizeOption());
+		structMutators->BallBouncinessOptions = static_cast<BallBouncinessOption>(flatMutators->ballBouncinessOption());
+		structMutators->BoostOptions = static_cast<BoostOption>(flatMutators->boostOption());
+		structMutators->RumbleOptions = static_cast<RumbleOption>(flatMutators->rumbleOption());
+		structMutators->BoostStrengthOptions = static_cast<BoostStrengthOption>(flatMutators->boostStrengthOption());
+		structMutators->GravityOptions = static_cast<GravityOption>(flatMutators->gravityOption());
+		structMutators->DemolishOptions = static_cast<DemolishOption>(flatMutators->demolishOption());
+		structMutators->RespawnTimeOptions = static_cast<RespawnTimeOption>(flatMutators->respawnTimeOption());
+	}
+
 	void translateToMatchSettingsStruct(ByteBuffer flatbufferData, MatchSettings* matchSettings)
 	{
 		if (flatbufferData.size == 0)
@@ -409,5 +430,13 @@ namespace FlatbufferTranslator {
 		for (int i = 0; i < matchSettings->NumPlayers; i++) {
 			fillPlayerConfigurationStruct(flatMatch->playerConfigurations()->Get(i), &matchSettings->PlayerConfiguration[i]);
 		}
+
+		// We rely on the enums in the flatbuffer being in the exact same order as the ones in the struct, and therefore being numbered the same.
+		matchSettings->GameMap = static_cast<GameMap>(flatMatch->gameMap());
+		matchSettings->GameMode = static_cast<GameMode>(flatMatch->gameMode());
+		matchSettings->InstantStart = flatMatch->instantStart();
+		matchSettings->SkipReplays = flatMatch->skipReplays();
+		
+		fillMutatorsStruct(flatMatch->mutatorSettings(), &matchSettings->MutatorSettings);
 	}
 }
