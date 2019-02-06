@@ -19,7 +19,7 @@ class RateLimiter:
                 self.accumulator -= self.time_per_tick
                 break
             else:
-                time.sleep(0.001)
+                time.sleep(0.002)
 
 
 if __name__ == '__main__':
