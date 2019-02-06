@@ -14,7 +14,6 @@ release_notes = {
     '1.13.2': """
     - Fix accidental publishing of pypi package 1.13.1 - DomNomNom
     - Show MIT license in `pip show rlbot`. - DomNomNom
-    - Adding a way of starting matches using a flatbuffer message. - tarehart
     """,
 
     '1.12.8': """
