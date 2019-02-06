@@ -134,7 +134,7 @@ class BotManager:
         :param agent_class_file: The agent's class file. TODO: Remove this argument, it only affects logging and may be misleading.
         :return: The reloaded instance of the agent, and the agent class file.
         """
-        self.logger.info('Reloading Agent: ' + agent_class_file)
+        self.logger.debug('Reloading Agent: ' + agent_class_file)
         self.agent_class_wrapper.reload()
         old_agent = agent
         agent, agent_class_file = self.load_agent()

@@ -1,5 +1,4 @@
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
-from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
@@ -79,7 +78,7 @@ class BaseAgent:
         self.index = index
         self.logger = get_logger(f'bot{index}')
 
-    def init_match_config(self, match_config: MatchConfig):
+    def init_match_config(self, match_config: 'MatchConfig'):
         """
         Override this method if you would like to be informed of what config was used to start the match.
         Useful for knowing what map you're on, mutators, etc.

@@ -56,6 +56,17 @@ def load_external_class(python_file, base_class):
     """
     Returns a tuple: (subclass of base_class, module)
     """
+    loaded_module = load_external_module(python_file)
+
+    # Find a class that extends base_class
+    loaded_class = extract_class(loaded_module, base_class)
+    return loaded_class, loaded_module
+
+def load_external_module(python_file):
+    """
+    Returns the loaded module.
+    All of its newly added dependencies are removed from sys.path after load.
+    """
 
     # There's a special case where python_file may be pointing at the base agent definition here in the framework.
     # This is sometimes done as a default and we want to allow it. Short-circuit the logic because
@@ -81,10 +92,7 @@ def load_external_class(python_file, base_class):
     for key in added:
         del sys.modules[key]
 
-    # Find a class that extends base_class
-    loaded_class = extract_class(loaded_module, base_class)
-    return loaded_class, loaded_module
-
+    return loaded_module
 
 def extract_class(containing_module, base_class):
     valid_classes = [agent[1] for agent in inspect.getmembers(containing_module, inspect.isclass)

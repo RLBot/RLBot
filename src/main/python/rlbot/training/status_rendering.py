@@ -32,16 +32,14 @@ class TrainingStatusRenderer:
     PAGE_SIZE = 6  # Numer of exercise names drawn at once
 
     def __init__(self, exercise_names: List[str], renderman: RenderingManager):
-        self.names = exercise_names
         self.renderman = renderman
         self.rows = [Row(name, '', renderman.black) for name in exercise_names]
-        self.name_to_index = {name: i for i, name in enumerate(exercise_names)}
         self.last_modified_index = 0
         self._render()
 
-    def update(self, row: Row):
-        self.last_modified_index = self.name_to_index[row.exercise_name]
-        self.rows[self.last_modified_index] = row
+    def update(self, index: int, row: Row):
+        self.rows[index] = row
+        self.last_modified_index = index
         self._render()
 
     def _render(self):

@@ -4,15 +4,20 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.13.0'
+__version__ = '1.14.0'
 
 release_notes = {
-
-    '1.13.0': """
+    '1.14.0': """
     - Adding a way of starting matches using a flatbuffer message. - tarehart
     """,
 
-    '1.12.7': """
+    '1.13.2': """
+    - Fix accidental publishing of pypi package 1.13.1 - DomNomNom
+    - Show MIT license in `pip show rlbot`. - DomNomNom
+    - Adding a way of starting matches using a flatbuffer message. - tarehart
+    """,
+
+    '1.12.8': """
     - Support for passing an options dict to BotHelperProcesses. - tarehart
     - Python bots now wait until valid field info to call initialize_agent() - Marvin
     - Field info is no longer being updated each tick and is emptied out if we're not in a game. - Marvin and ccman32
