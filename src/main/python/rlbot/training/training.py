@@ -1,16 +1,11 @@
-from collections import namedtuple
-from contextlib import contextmanager
-from datetime import datetime
-from pathlib import Path
-from typing import Union, Optional, Mapping, Iterator, Iterable, Tuple, List
+from typing import Union, Optional, Iterator, Iterable
 import random
 import time
 import traceback
 
 from rlbot.training.status_rendering import training_status_renderer_context, Row
-from rlbot.matchconfig.conversions import read_match_config_from_file
 from rlbot.matchconfig.match_config import MatchConfig
-from rlbot.setup_manager import SetupManager, setup_manager_context
+from rlbot.setup_manager import SetupManager
 from rlbot.utils import rate_limiter
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
@@ -184,7 +179,6 @@ def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: in
     game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
     seen_times = 0
     while seen_times < required_new_ticks:
-        loop_begin_time = datetime.now()
 
         # Read from game data shared memory
         game_interface.update_live_data_packet(game_tick_packet)
@@ -193,7 +187,7 @@ def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: in
             last_tick_game_time = tick_game_time
             seen_times += 1
 
-        rate_limit.acquire(datetime.now() - loop_begin_time)
+        rate_limit.acquire()
 
 
 def _setup_match(match_config: MatchConfig, manager: SetupManager):
@@ -227,7 +221,6 @@ def _grade_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> R
 
     # Run until the Exercise finishes.
     while grade is None:
-        before = datetime.now()
 
         # Read from game data shared memory
         game_interface.update_live_data_packet(game_tick_packet)
@@ -242,7 +235,6 @@ def _grade_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> R
             except Exception as e:
                 return Result(ex, seed, FailDueToExerciseException(e, traceback.format_exc()))
 
-        after = datetime.now()
-        rate_limit.acquire(after - before)
+        rate_limit.acquire()
 
     return Result(ex, seed, grade)
