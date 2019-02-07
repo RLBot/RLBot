@@ -18,7 +18,6 @@ class RLBotDllTest {
     @BeforeAll
     static void initialize() throws IOException {
         RLBotDll.initialize("src/main/python/rlbot/dll/RLBot_Core_Interface.dll");
-
     }
 
     /**

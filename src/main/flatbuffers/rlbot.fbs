@@ -512,7 +512,7 @@ table LoadoutPaint {
 table PlayerConfiguration {
   playerClass: PlayerClass;
   name: string;
-  team: ubyte;
+  team: int;
   loadout: PlayerLoadout;
 }
 
