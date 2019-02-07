@@ -39,6 +39,7 @@ public class RLBotDll {
     private static native ByteBufferStruct GetBallPrediction();
     private static native int SendQuickChat(Pointer ptr, int size);
     private static native int StartMatchFlatbuffer(Pointer ptr, int size);
+    private static native boolean IsInitialized();
 
     private static boolean isInitialized = false;
     private static final Object fileLock = new Object();
@@ -76,6 +77,14 @@ public class RLBotDll {
 
             System.out.println("Loading DLL from " + dllSource);
             Native.register(dllNameSansExtension);
+
+            while (!IsInitialized()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
             isInitialized = true;
         }
