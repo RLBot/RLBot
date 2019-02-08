@@ -19,4 +19,6 @@ namespace FlatbufferTranslator {
 	void inputStructToFlatbuffer(flatbuffers::FlatBufferBuilder* builder, const PlayerInput& playerInput, int playerIndex);
 
 	void inputStructFromFlatbuffer(void* flatbuffer, PlayerInput& playerInput);
+
+	void translateToMatchSettingsStruct(ByteBuffer flatbufferData, MatchSettings* matchSettings);
 }

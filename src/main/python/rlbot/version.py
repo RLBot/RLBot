@@ -4,9 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.13.2'
+__version__ = '1.14.0'
 
 release_notes = {
+    '1.14.0': """
+    - Adding a way of starting matches using a flatbuffer message. - tarehart
+    """,
+
     '1.13.2': """
     - Fix accidental publishing of pypi package 1.13.1 - DomNomNom
     - Show MIT license in `pip show rlbot`. - DomNomNom

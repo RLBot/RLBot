@@ -345,4 +345,98 @@ namespace FlatbufferTranslator {
 
 		fillBallPhysicsStruct(physicsTick->ball(), &structTick->Ball);
 	}
+
+	void fillPlayerLoadoutStruct(const rlbot::flat::PlayerLoadout* playerLoadout, PlayerConfiguration* structPlayerConfig)
+	{
+		structPlayerConfig->TeamColorID = playerLoadout->teamColorId();
+		structPlayerConfig->CustomColorID = playerLoadout->customColorId();
+		structPlayerConfig->CarID = playerLoadout->carId();
+		structPlayerConfig->DecalID = playerLoadout->decalId();
+		structPlayerConfig->WheelsID = playerLoadout->wheelsId();
+		structPlayerConfig->BoostID = playerLoadout->boostId();
+		structPlayerConfig->AntennaID = playerLoadout->antennaId();
+		structPlayerConfig->HatID = playerLoadout->hatId();
+		structPlayerConfig->PaintFinishID = playerLoadout->paintFinishId();
+		structPlayerConfig->CustomFinishID = playerLoadout->customFinishId();
+		structPlayerConfig->EngineAudioID = playerLoadout->engineAudioId();
+		structPlayerConfig->TrailsID = playerLoadout->trailsId();
+		structPlayerConfig->GoalExplosionID = playerLoadout->goalExplosionId();
+
+		auto playerPaint = playerLoadout->loadoutPaint();
+		structPlayerConfig->CarPaintID = playerPaint->carPaintId();
+		structPlayerConfig->DecalPaintID = playerPaint->decalPaintId();
+		structPlayerConfig->WheelsPaintID = playerPaint->wheelsPaintId();
+		structPlayerConfig->BoostPaintID = playerPaint->boostPaintId();
+		structPlayerConfig->AntennaPaintID = playerPaint->antennaPaintId();
+		structPlayerConfig->HatPaintID = playerPaint->hatPaintId();
+		structPlayerConfig->TrailsPaintID = playerPaint->trailsPaintId();
+		structPlayerConfig->GoalExplosionPaintID = playerPaint->goalExplosionPaintId();
+	}
+
+	void fillPlayerConfigurationStruct(const rlbot::flat::PlayerConfiguration* playerConfig, PlayerConfiguration* structPlayerConfig)
+	{
+		auto playerClass = playerConfig->playerClass_type();
+
+		structPlayerConfig->Bot = 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_RLBotPlayer || 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_PsyonixBotPlayer;
+
+		structPlayerConfig->RLBotControlled = 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_RLBotPlayer || 
+			playerClass == rlbot::flat::PlayerClass::PlayerClass_PartyMemberBotPlayer;
+
+		if (playerClass == rlbot::flat::PlayerClass::PlayerClass_PsyonixBotPlayer) 
+		{
+			structPlayerConfig->BotSkill = playerConfig->playerClass_as_PsyonixBotPlayer()->botSkill();
+		}
+
+		fillStructName(playerConfig->name()->str(), structPlayerConfig->Name);
+		structPlayerConfig->Team = playerConfig->team();
+
+		fillPlayerLoadoutStruct(playerConfig->loadout(), structPlayerConfig);
+	}
+
+	void fillMutatorsStruct(const rlbot::flat::MutatorSettings* flatMutators, MutatorSettings* structMutators)
+	{
+		// We rely on the enums in the flatbuffer being in the exact same order as the ones in the struct, and therefore being numbered the same.
+		structMutators->MatchLength = static_cast<MatchLength>(flatMutators->matchLength());
+		structMutators->MaxScore = static_cast<MaxScore>(flatMutators->maxScore());
+		structMutators->OvertimeOptions = static_cast<OvertimeOption>(flatMutators->overtimeOption());
+		structMutators->SeriesLengthOptions = static_cast<SeriesLengthOption>(flatMutators->seriesLengthOption());
+		structMutators->GameSpeedOptions = static_cast<GameSpeedOption>(flatMutators->gameSpeedOption());
+		structMutators->BallMaxSpeedOptions = static_cast<BallMaxSpeedOption>(flatMutators->ballMaxSpeedOption());
+		structMutators->BallTypeOptions = static_cast<BallTypeOption>(flatMutators->ballTypeOption());
+		structMutators->BallWeightOptions = static_cast<BallWeightOption>(flatMutators->ballWeightOption());
+		structMutators->BallSizeOptions = static_cast<BallSizeOption>(flatMutators->ballSizeOption());
+		structMutators->BallBouncinessOptions = static_cast<BallBouncinessOption>(flatMutators->ballBouncinessOption());
+		structMutators->BoostOptions = static_cast<BoostOption>(flatMutators->boostOption());
+		structMutators->RumbleOptions = static_cast<RumbleOption>(flatMutators->rumbleOption());
+		structMutators->BoostStrengthOptions = static_cast<BoostStrengthOption>(flatMutators->boostStrengthOption());
+		structMutators->GravityOptions = static_cast<GravityOption>(flatMutators->gravityOption());
+		structMutators->DemolishOptions = static_cast<DemolishOption>(flatMutators->demolishOption());
+		structMutators->RespawnTimeOptions = static_cast<RespawnTimeOption>(flatMutators->respawnTimeOption());
+	}
+
+	void translateToMatchSettingsStruct(ByteBuffer flatbufferData, MatchSettings* matchSettings)
+	{
+		if (flatbufferData.size == 0)
+		{
+			return; // Nothing to do.
+		}
+
+		auto flatMatch = flatbuffers::GetRoot<rlbot::flat::MatchSettings>(flatbufferData.ptr);
+
+		matchSettings->NumPlayers = flatMatch->playerConfigurations()->size();
+		for (int i = 0; i < matchSettings->NumPlayers; i++) {
+			fillPlayerConfigurationStruct(flatMatch->playerConfigurations()->Get(i), &matchSettings->PlayerConfiguration[i]);
+		}
+
+		// We rely on the enums in the flatbuffer being in the exact same order as the ones in the struct, and therefore being numbered the same.
+		matchSettings->GameMap = static_cast<GameMap>(flatMatch->gameMap());
+		matchSettings->GameMode = static_cast<GameMode>(flatMatch->gameMode());
+		matchSettings->InstantStart = flatMatch->instantStart();
+		matchSettings->SkipReplays = flatMatch->skipReplays();
+		
+		fillMutatorsStruct(flatMatch->mutatorSettings(), &matchSettings->MutatorSettings);
+	}
 }

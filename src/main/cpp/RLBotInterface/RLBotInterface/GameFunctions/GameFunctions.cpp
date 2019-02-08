@@ -8,6 +8,7 @@
 #include "GameFunctions.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
 #include <BoostUtilities\BoostUtilities.hpp>
+#include <MessageTranslation\FlatbufferTranslator.hpp>
 
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 
@@ -107,5 +108,18 @@ namespace GameFunctions
 		END_GAME_FUNCTION;
 
 		return RLBotCoreStatus::Success;
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatchFlatbuffer(void* startMatchSettings, int size)
+	{
+		ByteBuffer buf;
+		buf.ptr = startMatchSettings;
+		buf.size = size;
+
+		MatchSettings matchSettings = { 0 };
+
+		FlatbufferTranslator::translateToMatchSettingsStruct(buf, &matchSettings);
+
+		return StartMatch(matchSettings, 0, 0); // Pass empty callback function and pid.
 	}
 }
