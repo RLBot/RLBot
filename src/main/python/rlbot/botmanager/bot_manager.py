@@ -167,7 +167,6 @@ class BotManager:
         # Run until main process tells to stop, or we detect Ctrl+C
         try:
             while not self.terminate_request_event.is_set():
-                before = datetime.now()
                 self.pull_data_from_game()
                 # game_tick_packet = self.game_interface.get
                 # Read from game data shared memory
@@ -200,8 +199,7 @@ class BotManager:
                         self.logger.error("Call to agent failed:\n" + traceback.format_exc())
 
                 # Ratelimit here
-                after = datetime.now()
-                rate_limit.acquire(after - before)
+                rate_limit.acquire()
         except KeyboardInterrupt:
             self.terminate_request_event.set()
 
