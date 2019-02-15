@@ -375,7 +375,7 @@ namespace FlatbufferTranslator {
 
 	void fillPlayerConfigurationStruct(const rlbot::flat::PlayerConfiguration* playerConfig, PlayerConfiguration* structPlayerConfig)
 	{
-		auto playerClass = playerConfig->playerClass_type();
+		auto playerClass = playerConfig->variety_type();
 
 		structPlayerConfig->Bot = 
 			playerClass == rlbot::flat::PlayerClass::PlayerClass_RLBotPlayer || 
@@ -387,7 +387,7 @@ namespace FlatbufferTranslator {
 
 		if (playerClass == rlbot::flat::PlayerClass::PlayerClass_PsyonixBotPlayer) 
 		{
-			structPlayerConfig->BotSkill = playerConfig->playerClass_as_PsyonixBotPlayer()->botSkill();
+			structPlayerConfig->BotSkill = playerConfig->variety_as_PsyonixBotPlayer()->botSkill();
 		}
 
 		fillStructName(playerConfig->name()->str(), structPlayerConfig->Name);

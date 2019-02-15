@@ -510,7 +510,9 @@ table LoadoutPaint {
 }
 
 table PlayerConfiguration {
-  playerClass: PlayerClass;
+  // Cannot be named 'class' because that breaks Java.
+  // Cannot be named 'playerClass' because that breaks C#.
+  variety: PlayerClass;
   name: string;
   team: int;
   loadout: PlayerLoadout;
