@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Added the ability to set the gravity and game speed via state setting.
+      Enable users to specify the update frequency.
     </releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>rocket-league</tags>
