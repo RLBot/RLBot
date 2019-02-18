@@ -141,7 +141,7 @@ enum TileState: byte {
 }
 
 table DropshotTile {
-  /// True if the tile is damaged
+  /// The amount of damage the tile has sustained.
   tileState: TileState;
 }
 
