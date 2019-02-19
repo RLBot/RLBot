@@ -39,8 +39,9 @@ public class RLBotDll {
     private static native ByteBufferStruct GetBallPrediction();
     private static native int SendQuickChat(Pointer ptr, int size);
     private static native int StartMatchFlatbuffer(Pointer ptr, int size);
-    private static native boolean IsInitialized();
+    private static native boolean IsInitialized();  // This asks the dll instance whether it is done initializing.
 
+    // This helps us keep track internally of whether we have initialized, so that we only do it once.
     private static boolean isInitializationComplete = false;
     private static final Object fileLock = new Object();
 
