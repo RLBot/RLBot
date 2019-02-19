@@ -41,12 +41,12 @@ public class RLBotDll {
     private static native int StartMatchFlatbuffer(Pointer ptr, int size);
     private static native boolean IsInitialized();
 
-    private static boolean isInitialized = false;
+    private static boolean isInitializationComplete = false;
     private static final Object fileLock = new Object();
 
     public static void initialize(final String interfaceDllPath) throws IOException {
         synchronized(fileLock) {
-            if (isInitialized) {
+            if (isInitializationComplete) {
                 return;
             }
 
@@ -78,15 +78,21 @@ public class RLBotDll {
             System.out.println("Loading DLL from " + dllSource);
             Native.register(dllNameSansExtension);
 
+            int attemptCount = 0;
             while (!IsInitialized()) {
                 try {
+                    attemptCount++;
+                    if (attemptCount > 100) {
+                        // Should throw after about 10 seconds of waiting.
+                        throw new IOException("The RLBot interface appears to be taking forever to initialize!");
+                    }
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
 
-            isInitialized = true;
+            isInitializationComplete = true;
         }
     }
 
