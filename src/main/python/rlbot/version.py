@@ -4,15 +4,16 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.14.6'
+__version__ = '1.14.7'
 
 release_notes = {
-    '1.14.6': """
+    '1.14.7': """
     - Adding a way of starting matches using a flatbuffer message. - tarehart
     - More accurate get_output call frequency for python bots. - Marvin and chip
     - Fixing compilation of RLBotDotNet project with a breaking change. - tarehart
     - Pinning the psutil package to 5.5.0 to fix 'access denied', 'OSError'. - tarehart
-    - Fixed for the friends update - ccman32
+    - Fixed for the friends update. - ccman32
+    - Fix for psyonix bots never using boost. - tarehart
     """,
 
     '1.13.2': """
