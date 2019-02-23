@@ -4,7 +4,7 @@
   <img width="512" height="158" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot.png">
 </p>
 
-<img src="https://img.shields.io/pypi/v/rlbot.svg">
+[<img src="https://img.shields.io/pypi/v/rlbot.svg">](https://pypi.org/project/rlbot/)
 
 ## Bot Makers Read This!
 
