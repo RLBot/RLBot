@@ -39,13 +39,15 @@ public class RLBotDll {
     private static native ByteBufferStruct GetBallPrediction();
     private static native int SendQuickChat(Pointer ptr, int size);
     private static native int StartMatchFlatbuffer(Pointer ptr, int size);
+    private static native boolean IsInitialized();  // This asks the dll instance whether it is done initializing.
 
-    private static boolean isInitialized = false;
+    // This helps us keep track internally of whether we have initialized, so that we only do it once.
+    private static boolean isInitializationComplete = false;
     private static final Object fileLock = new Object();
 
     public static void initialize(final String interfaceDllPath) throws IOException {
         synchronized(fileLock) {
-            if (isInitialized) {
+            if (isInitializationComplete) {
                 return;
             }
 
@@ -77,7 +79,21 @@ public class RLBotDll {
             System.out.println("Loading DLL from " + dllSource);
             Native.register(dllNameSansExtension);
 
-            isInitialized = true;
+            int attemptCount = 0;
+            while (!IsInitialized()) {
+                try {
+                    attemptCount++;
+                    if (attemptCount > 100) {
+                        // Should throw after about 10 seconds of waiting.
+                        throw new IOException("The RLBot interface appears to be taking forever to initialize!");
+                    }
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            isInitializationComplete = true;
         }
     }
 
