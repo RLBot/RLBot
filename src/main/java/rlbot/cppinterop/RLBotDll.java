@@ -97,12 +97,12 @@ public class RLBotDll {
         }
     }
 
-    private static File getDllDirectory() {
+    private static File getDllDirectory() throws IOException {
         final String jnaPath = System.getProperty("jna.library.path");
         if (jnaPath == null) {
-            return new File(LOCAL_DLL_DIR);
+            return new File(LOCAL_DLL_DIR).getCanonicalFile();
         }
-        return new File(jnaPath);
+        return new File(jnaPath).getCanonicalFile();
     }
 
     /**
