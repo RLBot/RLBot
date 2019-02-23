@@ -4,6 +4,8 @@
   <img width="512" height="158" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot.png">
 </p>
 
+<img src="https://img.shields.io/pypi/v/rlbot.svg">
+
 ## Bot Makers Read This!
 
 ***If you just want to make a bot, you don't need to be here. Instead, start with one of these:***
