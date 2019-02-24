@@ -5,10 +5,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import rlbot.ControllerState;
-import rlbot.flat.BallPrediction;
-import rlbot.flat.FieldInfo;
-import rlbot.flat.GameTickPacket;
-import rlbot.flat.QuickChatSelection;
+import rlbot.flat.*;
 import rlbot.gamestate.GameStatePacket;
 import rlbot.render.RenderPacket;
 
@@ -41,13 +38,16 @@ public class RLBotDll {
     private static native int SetGameState(Pointer ptr, int size);
     private static native ByteBufferStruct GetBallPrediction();
     private static native int SendQuickChat(Pointer ptr, int size);
+    private static native int StartMatchFlatbuffer(Pointer ptr, int size);
+    private static native boolean IsInitialized();  // This asks the dll instance whether it is done initializing.
 
-    private static boolean isInitialized = false;
+    // This helps us keep track internally of whether we have initialized, so that we only do it once.
+    private static boolean isInitializationComplete = false;
     private static final Object fileLock = new Object();
 
     public static void initialize(final String interfaceDllPath) throws IOException {
         synchronized(fileLock) {
-            if (isInitialized) {
+            if (isInitializationComplete) {
                 return;
             }
 
@@ -79,16 +79,30 @@ public class RLBotDll {
             System.out.println("Loading DLL from " + dllSource);
             Native.register(dllNameSansExtension);
 
-            isInitialized = true;
+            int attemptCount = 0;
+            while (!IsInitialized()) {
+                try {
+                    attemptCount++;
+                    if (attemptCount > 100) {
+                        // Should throw after about 10 seconds of waiting.
+                        throw new IOException("The RLBot interface appears to be taking forever to initialize!");
+                    }
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            isInitializationComplete = true;
         }
     }
 
-    private static File getDllDirectory() {
+    private static File getDllDirectory() throws IOException {
         final String jnaPath = System.getProperty("jna.library.path");
         if (jnaPath == null) {
-            return new File(LOCAL_DLL_DIR);
+            return new File(LOCAL_DLL_DIR).getCanonicalFile();
         }
-        return new File(jnaPath);
+        return new File(jnaPath).getCanonicalFile();
     }
 
     /**
@@ -224,6 +238,25 @@ public class RLBotDll {
         final byte[] protoBytes = builder.sizedByteArray();
         final Memory memory = getMemory(protoBytes);
         return RLBotCoreStatus.fromDllResult(SendQuickChat(memory, protoBytes.length));
+    }
+
+    /**
+     * Starts a match inside RocketLeague with the specified settings.
+     *
+     * Usage:
+     * FlatBufferBuilder builder = new FlatBufferBuilder();
+     * int offset = MatchSettings.createMatchSettings(builder, ...);
+     * builder.finish(offset);
+     * startMatch(builder);
+     *
+     * @param matchSettingsBuilder a FlatBufferBuilder holding a MatchSettings object which has been fully populated and finished.
+     * @return A status indicating the validation result of the match settings.
+     */
+    public static RLBotCoreStatus startMatch(final FlatBufferBuilder matchSettingsBuilder) {
+
+        final byte[] bytes = matchSettingsBuilder.sizedByteArray();
+        final Memory memory = getMemory(bytes);
+        return RLBotCoreStatus.fromDllResult(StartMatchFlatbuffer(memory, bytes.length));
     }
 
     private static Memory getMemory(byte[] protoBytes) {

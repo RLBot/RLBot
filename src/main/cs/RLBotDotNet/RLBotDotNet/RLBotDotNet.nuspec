@@ -4,7 +4,7 @@
     <id>RLBot.Framework</id>
     <version>$version$</version>
     <title>RLBot Framework</title>
-    <authors>Tangil Jahangir, Tyler Arehart, alion02, Whok, kipje13</authors>
+    <authors>Tangil Jahangir, Tyler Arehart, alion02, Whok, kipje13, ccman32</authors>
     <owners>rlbotofficial</owners>
     <licenseUrl>https://opensource.org/licenses/mit-license.php</licenseUrl>
     <projectUrl>https://github.com/RLBot/RLBot</projectUrl>
@@ -12,9 +12,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Adds support for reading raw physics data which contains non interpolated positions, rotations... etc.
+      Enable users to specify the update frequency.
     </releaseNotes>
-    <copyright>Copyright 2018</copyright>
+    <copyright>Copyright 2019</copyright>
     <tags>rocket-league</tags>
   </metadata>
   <files>

@@ -27,7 +27,15 @@ class PlayerConfiguration(ctypes.Structure):
                 ("custom_finish_id", ctypes.c_int),
                 ("engine_audio_id", ctypes.c_int),
                 ("trails_id", ctypes.c_int),
-                ("goal_explosion_id", ctypes.c_int)]
+                ("goal_explosion_id", ctypes.c_int),
+                ("car_paint_id", ctypes.c_int),
+                ("decal_paint_id", ctypes.c_int),
+                ("wheels_paint_id", ctypes.c_int),
+                ("boost_paint_id", ctypes.c_int),
+                ("antenna_paint_id", ctypes.c_int),
+                ("hat_paint_id", ctypes.c_int),
+                ("trails_paint_id", ctypes.c_int),
+                ("goal_explosion_paint_id", ctypes.c_int)]
 
 
 class MutatorSettings(ctypes.Structure):
@@ -59,10 +67,3 @@ class MatchSettings(ctypes.Structure):
                 ("instant_start", ctypes.c_bool),
                 ("mutator_settings", MutatorSettings),
                 ]
-
-
-def get_player_configuration_list(match_configuration_wrapper):
-    player_list = []
-    for i in range(MAX_PLAYERS):
-        player_list.append(PlayerConfiguration())
-    return match_configuration_wrapper.player_configuration

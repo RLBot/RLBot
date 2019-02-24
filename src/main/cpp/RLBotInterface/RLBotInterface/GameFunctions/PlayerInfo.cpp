@@ -13,20 +13,33 @@
 
 namespace GameFunctions
 {
+	BoostUtilities::QueueSender* pQuickChatQueue = nullptr;
+	BoostUtilities::QueueSender* pFlatInputQueue = nullptr;
+
+	void Initialize_PlayerInfo()
+	{
+		pQuickChatQueue = new BoostUtilities::QueueSender(BoostConstants::QuickChatFlatQueueName);
+		pFlatInputQueue = new BoostUtilities::QueueSender(BoostConstants::PlayerInputFlatQueueName);
+	}
+
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
 	{
-		if (quickChatPreset < 0 || quickChatPreset > QuickChatPreset::MaxQuickChatPresets)
+		if (quickChatPreset < 0 || quickChatPreset >= QuickChatPreset::MaxQuickChatPresets)
 			return RLBotCoreStatus::InvalidQuickChatPreset;
 
 		return RLBotCoreStatus::Success;
 	}
 
 	// FLAT
-	static BoostUtilities::QueueSender quickChatQueue(BoostConstants::QuickChatFlatQueueName);
 	static QuickChat::QuickChatRateLimiter quickChatRateLimiter;
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
 	{
+		if (!pQuickChatQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+
 		auto parsedChat = flatbuffers::GetRoot<rlbot::flat::QuickChat>(quickChatMessage);
 		int playerIndex = parsedChat->playerIndex();
 
@@ -39,7 +52,7 @@ namespace GameFunctions
 		if (sendStatus == RLBotCoreStatus::Success)
 		{
 			quickChatRateLimiter.RecordQuickChatSubmission(playerIndex);
-			return quickChatQueue.sendMessage(quickChatMessage, protoSize);
+			return pQuickChatQueue->sendMessage(quickChatMessage, protoSize);
 		}
 		return sendStatus;
 	}
@@ -92,21 +105,37 @@ namespace GameFunctions
 	// Ctypes
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(PlayerInput playerInput, int playerIndex)
 	{
-		RLBotCoreStatus status = checkInputConfiguration(playerInput);
+		flatbuffers::FlatBufferBuilder builder;
+		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
+		RLBotCoreStatus status = UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
 
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		flatbuffers::FlatBufferBuilder builder;
-		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
-		return UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
+		return checkInputConfiguration(playerInput);
 	}
 
 	// FLAT
-	static BoostUtilities::QueueSender flatInputQueue(BoostConstants::PlayerInputFlatQueueName);
-
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
-		return flatInputQueue.sendMessage(controllerState, protoSize);
+		if (!pFlatInputQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+
+		RLBotCoreStatus status = pFlatInputQueue->sendMessage(controllerState, protoSize);
+
+		if (status != RLBotCoreStatus::Success)
+			return status;
+
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
+		PlayerInput playerInput;
+		FlatbufferTranslator::inputStructFromFlatbuffer(controllerState, playerInput);
+		return checkInputConfiguration(playerInput);
 	}
 }

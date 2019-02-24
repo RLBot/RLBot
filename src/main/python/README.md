@@ -8,7 +8,7 @@ To get started quickly with a simple working bot, you can clone this repository:
 https://github.com/RLBot/RLBotPythonExample
 
 ### Requirements
-Windows, Rocket League, Python 3.6.
+Windows, Rocket League, Python 3.6+ (Python 3.7 recommended)
 
 ### Wikis
 

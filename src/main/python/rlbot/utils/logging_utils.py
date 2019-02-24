@@ -3,21 +3,22 @@ import logging
 
 
 DEFAULT_LOGGER = 'rlbot'
-logger_initialized = False
 logging_level = logging.INFO
 FORMAT = "%(levelname)s:%(name)5s[%(filename)20s:%(lineno)s - %(funcName)20s() ] %(message)s"
 
+logging.getLogger().setLevel(logging.NOTSET)
+
 
 def get_logger(logger_name, log_creation=True):
-    global logger_initialized
-    if not logger_initialized:
-        logging.basicConfig(format=FORMAT, level=logging_level)
-        logging.getLogger().setLevel(logging_level)
-        logger_initialized = True
     logger = logging.getLogger(logger_name)
+    if not logger.handlers:
+        ch = logging.StreamHandler()
+        ch.setFormatter(logging.Formatter(FORMAT))
+        ch.setLevel(logging_level)
+        logger.addHandler(ch)
+    logging.getLogger().handlers = []
     if logger_name == DEFAULT_LOGGER:
         return logger
-    logger.setLevel(logging_level)
     if log_creation:
         curframe = inspect.currentframe()
         calframe = inspect.getouterframes(curframe, 2)

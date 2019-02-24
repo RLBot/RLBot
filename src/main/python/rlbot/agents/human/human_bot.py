@@ -4,15 +4,6 @@ from controller_input import controller
 
 class Agent(BaseAgent):
 
-    def get_output_vector(self, game_tick_packet):
+    def get_output(self, game_tick_packet):
+        return controller.get_output()
 
-        return [
-            controller.throttle,
-            controller.steer,
-            controller.pitch,
-            controller.yaw,
-            controller.roll,
-            controller.jump,
-            controller.boost,
-            controller.handbrake,
-        ]

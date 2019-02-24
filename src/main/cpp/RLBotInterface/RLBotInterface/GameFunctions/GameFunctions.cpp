@@ -8,6 +8,7 @@
 #include "GameFunctions.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
 #include <BoostUtilities\BoostUtilities.hpp>
+#include <MessageTranslation\FlatbufferTranslator.hpp>
 
 #include "..\CallbackProcessor\CallbackProcessor.hpp"
 
@@ -17,16 +18,25 @@
 
 namespace GameFunctions
 {
+	BoostUtilities::QueueSender* pGameStateQueue = nullptr;
+
+	void Initialize_GameFunctions()
+	{
+		pGameStateQueue = new BoostUtilities::QueueSender(BoostConstants::GameStateFlatQueueName);
+	}
+
 	extern "C" void RLBOT_CORE_API Free(void* ptr)
 	{
 		free(ptr);
 	}
 
-	static BoostUtilities::QueueSender gameStateQueue(BoostConstants::GameStateFlatQueueName);
-
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size)
 	{
-		return gameStateQueue.sendMessage(gameStateData, size);
+		if (!pGameStateQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+		return pGameStateQueue->sendMessage(gameStateData, size);
 	}
 
 	// Start match
@@ -98,5 +108,18 @@ namespace GameFunctions
 		END_GAME_FUNCTION;
 
 		return RLBotCoreStatus::Success;
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatchFlatbuffer(void* startMatchSettings, int size)
+	{
+		ByteBuffer buf;
+		buf.ptr = startMatchSettings;
+		buf.size = size;
+
+		MatchSettings matchSettings = { 0 };
+
+		FlatbufferTranslator::translateToMatchSettingsStruct(buf, &matchSettings);
+
+		return StartMatch(matchSettings, 0, 0); // Pass empty callback function and pid.
 	}
 }

@@ -1,7 +1,8 @@
 import flatbuffers
-from rlbot.messages.flat import Float, RotatorPartial, Vector3Partial, DesiredPhysics, DesiredGameState, \
-    DesiredCarState, DesiredBallState, DesiredBoostState, Bool
+from typing import Union
 
+from rlbot.messages.flat import Float, RotatorPartial, Vector3Partial, DesiredPhysics, DesiredGameState, \
+    DesiredCarState, DesiredBallState, DesiredBoostState, DesiredGameInfoState, Bool
 from rlbot.utils.structures import game_data_struct
 from rlbot.messages.flat import GameTickPacket
 
@@ -143,15 +144,34 @@ class BoostState:
         return DesiredBoostState.DesiredBoostStateEnd(builder)
 
 
+class GameInfoState:
+
+    def __init__(self, world_gravity_z: float = None, game_speed: float = None):
+        self.world_gravity_z = world_gravity_z
+        self.game_speed = game_speed
+
+    def convert_to_flat(self, builder):
+
+        DesiredGameInfoState.DesiredGameInfoStateStart(builder)
+        if self.world_gravity_z is not None:
+            DesiredGameInfoState.DesiredGameInfoStateAddWorldGravityZ(
+                builder, Float.CreateFloat(builder, self.world_gravity_z))
+        if self.game_speed is not None:
+            DesiredGameInfoState.DesiredGameInfoStateAddGameSpeed(
+                builder, Float.CreateFloat(builder, self.game_speed))
+        return DesiredGameInfoState.DesiredGameInfoStateEnd(builder)
+
+
 class GameState:
 
-    def __init__(self, ball: BallState = None, cars=None, boosts=None):
+    def __init__(self, ball: BallState = None, cars=None, boosts=None, game_info: GameInfoState = None):
         self.ball = ball
         self.cars = cars
         self.boosts = boosts
+        self.game_info = game_info
 
-    def convert_to_flat(self, builder=None):
-        if self.ball is None and self.cars is None and self.boosts is None:
+    def convert_to_flat(self, builder=None) -> DesiredGameState:
+        if self.ball is None and self.cars is None and self.boosts is None and self.game_info is None:
             return None
 
         if builder is None:
@@ -179,6 +199,8 @@ class GameState:
                 else:
                     boost_offsets.append(empty_offset)
 
+        game_info_offset = None if self.game_info is None else self.game_info.convert_to_flat(builder)
+
         car_list_offset = None
         if len(car_offsets) > 0:
             DesiredGameState.DesiredGameStateStartCarStatesVector(builder, len(car_offsets))
@@ -200,11 +222,13 @@ class GameState:
             DesiredGameState.DesiredGameStateAddCarStates(builder, car_list_offset)
         if boost_list_offset is not None:
             DesiredGameState.DesiredGameStateAddBoostStates(builder, boost_list_offset)
+        if game_info_offset is not None:
+            DesiredGameState.DesiredGameStateAddGameInfoState(builder, game_info_offset)
 
         return DesiredGameState.DesiredGameStateEnd(builder)
 
     @staticmethod
-    def create_from_gametickpacket(game_tick_packet):
+    def create_from_gametickpacket(game_tick_packet: Union[game_data_struct.GameTickPacket, GameTickPacket.GameTickPacket]):
         game_state = GameState()
         if isinstance(game_tick_packet, game_data_struct.GameTickPacket):
             car_states = {}
@@ -287,8 +311,3 @@ class GameState:
                 z=ball.Physics().AngularVelocity().Z()
             )))
         return game_state
-
-
-
-
-

@@ -66,7 +66,7 @@ class MutatorEditor(QtWidgets.QMainWindow, Ui_MutatorCustomiser):
 
         self.mutator_widget_to_config_name = {}
         for config_name, widget in self.config_name_to_mutator_widget.items():
-                self.mutator_widget_to_config_name[widget] = config_name
+            self.mutator_widget_to_config_name[widget] = config_name
 
         self.config_name_to_options_list = {
             MUTATOR_MATCH_LENGTH: match_length_types,

@@ -1,5 +1,6 @@
 import time
 
+from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.logging_utils import get_logger
 
 MUTATOR_CONFIGURATION_HEADER = "Mutator Configuration"
@@ -236,7 +237,7 @@ def get_num_players(config):
     return config.getint(MATCH_CONFIGURATION_HEADER, PARTICIPANT_COUNT_KEY)
 
 
-def parse_mutator_settings(mutator_settings, config):
+def parse_mutator_settings(mutator_settings, config: ConfigObject):
     """
     Assigns the mutator settings to the settings object for the dll
     :param mutator_settings:
@@ -244,44 +245,51 @@ def parse_mutator_settings(mutator_settings, config):
     """
     mutator_settings.match_length = safe_get_mutator(match_length_types, config, MUTATOR_MATCH_LENGTH)
     mutator_settings.max_score = safe_get_mutator(max_score_types, config, MUTATOR_MAX_SCORE, {'0': 'Unlimited'})
-    mutator_settings.overtime_option = safe_get_mutator(overtime_mutator_types, config, MUTATOR_OVERTIME)
-    mutator_settings.series_length_option = safe_get_mutator(series_length_mutator_types, config, MUTATOR_SERIES_LENGTH)
-    mutator_settings.game_speed_option = safe_get_mutator(game_speed_mutator_types, config, MUTATOR_GAME_SPEED)
-    mutator_settings.ball_max_speed_option = safe_get_mutator(ball_max_speed_mutator_types, config, MUTATOR_BALL_MAX_SPEED, {'0': 'Default'})
-    mutator_settings.ball_type_option = safe_get_mutator(ball_type_mutator_types, config, MUTATOR_BALL_TYPE)
-    mutator_settings.ball_weight_option = safe_get_mutator(ball_weight_mutator_types, config, MUTATOR_BALL_WEIGHT)
-    mutator_settings.ball_size_option = safe_get_mutator(ball_size_mutator_types, config, MUTATOR_BALL_SIZE, {'1.0': 'Default'})
-    mutator_settings.ball_bounciness_option = safe_get_mutator(ball_bounciness_mutator_types, config, MUTATOR_BALL_BOUNCINESS, {'1.0': 'Default'})
-    mutator_settings.boost_amount_option = safe_get_mutator(boost_amount_mutator_types, config, MUTATOR_BOOST_AMOUNT)
-    mutator_settings.rumble_option = safe_get_mutator(rumble_mutator_types, config, MUTATOR_RUMBLE)
-    mutator_settings.boost_strength_option = safe_get_mutator(boost_strength_mutator_types, config, MUTATOR_BOOST_STRENGTH, {'Default': '1x', '1.0': '1x'})
-    mutator_settings.gravity_option = safe_get_mutator(gravity_mutator_types, config, MUTATOR_GRAVITY)
-    mutator_settings.demolish_option = safe_get_mutator(demolish_mutator_types, config, MUTATOR_DEMOLISH)
-    mutator_settings.respawn_time_option = safe_get_mutator(respawn_time_mutator_types, config, MUTATOR_RESPAWN_TIME, {'3.0': '3 Seconds', '3': '3 Seconds'})
+    mutator_settings.overtime = safe_get_mutator(overtime_mutator_types, config, MUTATOR_OVERTIME)
+    mutator_settings.series_length = safe_get_mutator(series_length_mutator_types, config, MUTATOR_SERIES_LENGTH)
+    mutator_settings.game_speed = safe_get_mutator(game_speed_mutator_types, config, MUTATOR_GAME_SPEED)
+    mutator_settings.ball_max_speed = safe_get_mutator(
+        ball_max_speed_mutator_types, config, MUTATOR_BALL_MAX_SPEED, {'0': 'Default'})
+    mutator_settings.ball_type = safe_get_mutator(ball_type_mutator_types, config, MUTATOR_BALL_TYPE)
+    mutator_settings.ball_weight = safe_get_mutator(ball_weight_mutator_types, config, MUTATOR_BALL_WEIGHT)
+    mutator_settings.ball_size = safe_get_mutator(
+        ball_size_mutator_types, config, MUTATOR_BALL_SIZE, {'1.0': 'Default'})
+    mutator_settings.ball_bounciness = safe_get_mutator(
+        ball_bounciness_mutator_types, config, MUTATOR_BALL_BOUNCINESS, {'1.0': 'Default'})
+    mutator_settings.boost_amount = safe_get_mutator(boost_amount_mutator_types, config, MUTATOR_BOOST_AMOUNT)
+    mutator_settings.rumble = safe_get_mutator(rumble_mutator_types, config, MUTATOR_RUMBLE)
+    mutator_settings.boost_strength = safe_get_mutator(
+        boost_strength_mutator_types, config, MUTATOR_BOOST_STRENGTH, {'Default': '1x', '1.0': '1x'})
+    mutator_settings.gravity = safe_get_mutator(gravity_mutator_types, config, MUTATOR_GRAVITY)
+    mutator_settings.demolish = safe_get_mutator(demolish_mutator_types, config, MUTATOR_DEMOLISH)
+    mutator_settings.respawn_time = safe_get_mutator(respawn_time_mutator_types, config, MUTATOR_RESPAWN_TIME, {
+                                                            '3.0': '3 Seconds', '3': '3 Seconds'})
 
 
-def safe_get_mutator(mutator_options, config, mutator_name, replacement_table = {}):
+def safe_get_mutator(mutator_options, config, mutator_name, replacement_table={}):
 
     value = config.get(MUTATOR_CONFIGURATION_HEADER, mutator_name)
 
     if value in replacement_table:
         logger.warn('**************************************')
-        logger.warn('The value you\'ve set for {} ({}) is deprecated and will need to be changed to '
-                    '"{}" for the next version. Please check your rlbot.cfg!'.format(mutator_name, value, replacement_table[value]))
+        logger.warn(f'The value you\'ve set for {mutator_name} ({value}) is deprecated and will need to be changed to '
+                    f'"{replacement_table[value]}" for the next version. Please check your rlbot.cfg!')
         logger.warn('**************************************')
         time.sleep(2.0)
         value = replacement_table[value]
 
-    try:
-        return mutator_options.index(value)
-    except ValueError:
+    if value in mutator_options:
+        return value
+    else:
         logger.warn('**************************************')
-        logger.warn('The value you\'ve set for {} ({}) is invalid, and will be ignored. Please check your rlbot.cfg!'.format(mutator_name, value))
+        logger.warn(f'The value you\'ve set for {mutator_name} ({value}) is invalid, and will be ignored. '
+                    'Please check your rlbot.cfg!')
         logger.warn('**************************************')
         time.sleep(2.0)
-        return 0
+        return mutator_options[0]
 
-def parse_match_settings(match_settings, config):
+
+def parse_match_settings(match_settings, config: ConfigObject):
     """
     Parses the matching settings modifying the match settings object.
     :param match_settings:
@@ -289,9 +297,9 @@ def parse_match_settings(match_settings, config):
     :return:
     """
 
-    match_settings.game_mode = game_mode_types.index(config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
-    match_settings.game_map = map_types.index(config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
+    match_settings.game_mode = config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE)
+    match_settings.game_map = config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP)
     match_settings.skip_replays = config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS)
     match_settings.instant_start = config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START)
 
-    parse_mutator_settings(match_settings.mutator_settings, config)
+    parse_mutator_settings(match_settings.mutators, config)

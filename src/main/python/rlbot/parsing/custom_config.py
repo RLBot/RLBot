@@ -1,12 +1,16 @@
-import re
 from configparser import RawConfigParser
+from pathlib import Path
+from typing import Union
+import re
 
 import os
 
 
 class ConfigObject:
     """
-
+    Represents a parsed config file.
+    Could be either of rlbot match or appearance config.
+    The config schema is defined by calls to add_header().
     """
 
     def __init__(self):
@@ -26,7 +30,10 @@ class ConfigObject:
         """
         Adds a new header with the name header_name
         :param header_name: The name of the header as it would appear in the config
-        :param is_indexed: If true that means that the same value is spread across an indexed list.
+        :param is_indexed: Indicates that the header may contain special 'indexed' attributes, where a series of
+        keys that differ only by a numeric suffix are used to represent an array. Example:
+        thing_1 = x
+        thing_2 = y
         :return: The newly created header.
         """
         header = ConfigHeader()
@@ -67,7 +74,7 @@ class ConfigObject:
         for header in self.headers.values():
             header.init_indices(max_index)
 
-    def parse_file(self, config, max_index=None, config_directory=None):
+    def parse_file(self, config: Union[Path, str, RawConfigParser, 'ConfigObject'], max_index=None, config_directory=None):
         """
         Parses the file internally setting values
         :param config: an instance of RawConfigParser or a string to a .cfg file
@@ -75,6 +82,9 @@ class ConfigObject:
         :return: None
         """
         self.config_directory = config_directory
+
+        if isinstance(config, Path):
+            config = str(config)
 
         if isinstance(config, str):
             if not os.path.isfile(config):
@@ -124,7 +134,10 @@ class ConfigHeader:
 
     def __init__(self):
         self.values = {}
-        self.is_indexed = False  # if True then indexes will be applied to all values otherwise they will not be
+
+        # Indicates that the header may contain special 'indexed' attributes, where a series of
+        # keys that differ only by a numeric suffix are used to represent an array.
+        self.is_indexed = False
         self.max_index = -1
         self.config_directory = None
 
@@ -155,15 +168,15 @@ class ConfigHeader:
         """
         Sets the value on the given option.
         :param option: The name of the option as it appears in the config file
-        :param value: The value that is being applied, if this section is indexed value must be a list
+        :param value: The value that is being applied. If this section is indexed then the
+        value must be a list (to be applied directly) or you must supply the index parameter,
+        which will cause the value to be inserted into an existing list.
+        :param index: If the attribute is indexed, we will use this index to insert
+        the value you have supplied.
         :return: an instance of itself so that you can chain setting values together.
         """
-        # Should raise error if indexed and there's no list or if indexed and no index given
-        if self.is_indexed and index is None:
-            if not isinstance(value, list):
-                raise TypeError("Value should be a list when not giving an index in an indexed header")
-            else:
-                raise IndexError("Index cannot be None when not giving a list in an indexed header")
+        if self.is_indexed and index is None and not isinstance(value, list):
+            raise TypeError("Value should be a list when not giving an index in an indexed header")
         self.values[option].set_value(value=value, index=index)
         return self
 
@@ -240,7 +253,8 @@ class ConfigHeader:
     def get_string(self, value_name):
         value = self.values[value_name]
         string = value.comment_description() + '\n'
-        string += value_name + ' = ' + str(value.get_value()) + '\n'
+        multiline_safe_value = str(value.get_value()).replace('\n', '\n\t')
+        string += value_name + ' = ' + multiline_safe_value + '\n'
         return string
 
 
@@ -281,7 +295,7 @@ class ConfigValue:
         return ConfigValue(self.type, self.default, self.description, self.value)
 
     def init_indices(self, max_index):
-        self.value = [None]*max_index
+        self.value = [None] * max_index
 
     def parse_file(self, config_parser, value_name, max_index=None):
         if isinstance(config_parser, ConfigHeader):

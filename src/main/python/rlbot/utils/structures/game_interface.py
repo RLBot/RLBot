@@ -3,18 +3,21 @@ import os
 import subprocess
 import sys
 import time
+import flatbuffers
 
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
-from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.file_util import get_python_root
+from rlbot.utils.game_state_util import GameState
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.rlbot_exception import get_exception_from_error_code
+from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
-from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.game_status import RLBotCoreStatus
-from rlbot.utils.structures.start_match_structures import MatchSettings
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
+from rlbot.utils.structures.start_match_structures import MatchSettings
+from logging import DEBUG, WARNING
 
 
 def wrap_callback(callback_func):
@@ -26,6 +29,7 @@ def wrap_callback(callback_func):
 
 def get_dll_location():
     return os.path.join(get_dll_directory(), 'RLBot_Core_Interface.dll')
+
 
 def get_dll_32_location():
     return os.path.join(get_dll_directory(), 'RLBot_Core_Interface_32.dll')
@@ -41,7 +45,6 @@ def get_dll_directory():
 
 class GameInterface:
     game = None
-    participants = None
     start_match_configuration = None
     game_status_callback_type = None
     callback_func = None
@@ -148,7 +151,7 @@ class GameInterface:
 
     def update_player_input(self, player_input, index):
         rlbot_status = self.game.UpdatePlayerInput(player_input, index)
-        self.game_status(None, rlbot_status)
+        self.game_status(None, rlbot_status, WARNING)
 
     def send_chat(self, index, team_only, message_details):
         rlbot_status = self.game.SendChat(message_details, index, team_only, self.create_status_callback(), None)
@@ -163,9 +166,9 @@ class GameInterface:
     def create_callback(self):
         return
 
-    def game_status(self, id, rlbot_status):
+    def game_status(self, id, rlbot_status, level=DEBUG):
         if rlbot_status != RLBotCoreStatus.Success and rlbot_status != RLBotCoreStatus.BufferOverfilled:
-            self.logger.debug("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
+            self.logger.log(level, "bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
         self.game.IsInitialized.restype = ctypes.c_bool
@@ -199,9 +202,9 @@ class GameInterface:
         for file in ['RLBot_Injector.exe', 'RLBot_Core.dll', 'RLBot_Core_Interface.dll', 'RLBot_Core_Interface_32.dll']:
             file_path = os.path.join(get_dll_directory(), file)
             if not os.path.isfile(file_path):
-                raise FileNotFoundError('{} was not found in {}. '
+                raise FileNotFoundError(f'{file} was not found in {get_dll_directory()}. '
                                         'Please check that the file exists and your antivirus '
-                                        'is not removing it.'.format(file, get_dll_directory()))
+                                        'is not removing it. See https://github.com/RLBot/RLBot/wiki/Antivirus-Notes')
 
         incode = subprocess.call([injector_dir, 'hidden'])
         injector_codes = ['INJECTION_SUCCESSFUL',
@@ -215,16 +218,13 @@ class GameInterface:
         injection_status = injector_codes[incode]
         if injection_status in injector_valid_codes:
             self.logger.info('Finished Injecting DLL')
-            if injection_status == 'INJECTION_SUCCESSFUL':
-                # We need to wait for the injections to be finished
-                self.countdown(20)
             return injection_status
         else:
             self.logger.error('Failed to inject DLL: ' + injection_status)
             sys.exit()
 
     def countdown(self, countdown_timer):
-        self.logger.info("Waiting {} seconds for DLL to load".format(countdown_timer))
+        self.logger.info(f"Waiting {countdown_timer} seconds for DLL to load")
         for i in range(countdown_timer):
             sys.stdout.write(".")
             sys.stdout.flush()
@@ -252,10 +252,15 @@ class GameInterface:
     def update_player_input_flat(self, player_input_builder):
         buf = player_input_builder.Output()
         rlbot_status = self.game.UpdatePlayerInputFlatbuffer(bytes(buf), len(buf))
-        self.game_status(None, rlbot_status)
+        self.game_status(None, rlbot_status, WARNING)
 
-    def set_game_state(self, set_state_builder):
-        buf = set_state_builder.Output()
+    def set_game_state(self, game_state: GameState) -> None:
+        builder = flatbuffers.Builder(0)
+        game_state_offset = game_state.convert_to_flat(builder)
+        if game_state_offset is None:
+            return  # There are no values to be set, so just skip it
+        builder.Finish(game_state_offset)
+        buf = builder.Output()
         rlbot_status = self.game.SetGameState(bytes(buf), len(buf))
         self.game_status(None, rlbot_status)
 

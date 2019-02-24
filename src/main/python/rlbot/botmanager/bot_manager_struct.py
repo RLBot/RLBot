@@ -9,25 +9,27 @@ from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 class BotManagerStruct(BotManager):
     def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config):
         """
         See documentation on BotManager.
         """
         super().__init__(terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                         name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
+                         name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder,
+                         match_config)
         self.rigid_body_tick = None
 
     def prepare_for_run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
         self.bot_input = PlayerInput()
         # Set up shared memory for game data
-        self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
+        # We want to do a deep copy for game inputs so people don't mess with em
+        self.game_tick_packet = gd.GameTickPacket()
         # Set up shared memory for Ball prediction
         self.ball_prediction = bp.BallPrediction()
         # Set up shared memory for rigid body tick
         self.rigid_body_tick = RigidBodyTick()
 
-    def get_field_info(self):
+    def get_field_info(self) -> gd.FieldInfoPacket:
         field_info = gd.FieldInfoPacket()
         self.game_interface.update_field_info_packet(field_info)
         return field_info
@@ -64,3 +66,12 @@ class BotManagerStruct(BotManager):
 
     def get_ball_prediction_struct(self):
         return self.game_interface.update_ball_prediction(self.ball_prediction)
+
+    def is_valid_field_info(self) -> bool:
+
+        field_info = self.get_field_info()
+
+        if not field_info.num_goals:
+            return False
+
+        return True

@@ -10,7 +10,7 @@ with open("README.md", "r") as readme_file:
 setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
-    install_requires=['psutil', 'inputs', 'PyQt5', 'py4j'],
+    install_requires=['psutil==5.5.0', 'inputs', 'PyQt5', 'py4j'],
     version=__version__,
     description='A framework for writing custom Rocket League bots that run offline.',
     long_description=long_description,
@@ -19,6 +19,7 @@ setuptools.setup(
     author_email='rlbotofficial@gmail.com',
     url='https://github.com/RLBot/RLBot',
     keywords=['rocket-league'],
+    license='MIT License',
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

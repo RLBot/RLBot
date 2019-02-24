@@ -15,15 +15,15 @@ Look for quick chats from here:
 https://github.com/RLBot/RLBot/blob/master/src/main/flatbuffers/rlbot.fbs
 """
 QuickChats = create_enum_object([chat for chat in dir(QuickChatSelection.QuickChatSelection)
-                                 if not chat.startswith('__')
-                                 and not callable(getattr(QuickChatSelection.QuickChatSelection, chat))],
+                                 if not chat.startswith('__') and not
+                                 callable(getattr(QuickChatSelection.QuickChatSelection, chat))],
                                 list_name='quick_chat_list',
                                 other_attributes=[
                                     ('CHAT_NONE', -1),
                                     ('CHAT_EVERYONE', False),
                                     ('CHAT_TEAM_ONLY', True)
-                                ],
-                                attribute_object=QuickChatSelection.QuickChatSelection)
+],
+    attribute_object=QuickChatSelection.QuickChatSelection)
 
 
 def send_quick_chat_flat(game_interface, index, team, team_only, quick_chat):
@@ -37,6 +37,7 @@ def send_quick_chat_flat(game_interface, index, team, team_only, quick_chat):
     builder.Finish(result)
 
     return game_interface.send_chat_flat(builder)
+
 
 def send_quick_chat(queue_holder, index, team, team_only, quick_chat):
     """
@@ -68,6 +69,10 @@ def register_for_quick_chat(queue_holder, called_func, quit_event):
                 called_func(index, team, chat)
             except queue.Empty:
                 pass
+            except EOFError as e:
+                # Something else is shutting down - we can no longer communicate.
+                get_logger('chats').debug('quick_chat queue terminated. %s', e)
+                return
         return
 
     thread = Thread(target=threaded_func, args=(queue_holder["input"], called_func, quit_event))
@@ -94,7 +99,6 @@ class QuickChatManager:
 
     def process_queue(self, quit_event):
         while not quit_event.is_set():
-
             try:
                 next_message = self.general_chat_queue.get(timeout=0.01)
                 index, team, team_only, message_details = next_message
@@ -112,6 +116,8 @@ class QuickChatManager:
                 self.game_interface.send_chat(index, team_only, message_details)
             except queue.Empty:
                 pass
+            except EOFError:
+                quit_event.set()
 
     def start_manager(self, quit_event):
         thread = Thread(target=self.process_queue, args=(quit_event,))

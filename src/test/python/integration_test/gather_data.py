@@ -1,15 +1,17 @@
 import multiprocessing
 import psutil
+import configparser
+
 import os
 import sys
-import configparser
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '../../main/python/')))
 
 from rlbot.setup_manager import SetupManager
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.utils.logging_utils import log
 from integration_test.history import HistoryIO
 
-RLBOT_CONFIG_FILE = os.path.realpath(os.path.join(os.path.dirname(__file__), 'rlbot.cfg'))
+RLBOT_CONFIG_FILE = os.path.realpath(os.path.join(os.path.dirname(__file__), 'history_analysis_test.cfg'))
 
 
 def record_atba():
@@ -19,14 +21,18 @@ def record_atba():
     framework_config.parse_file(raw_config_parser, max_index=10)
 
     manager = SetupManager()
-    manager.startup()
+    manager.connect_to_game()
     manager.load_config(framework_config=framework_config, config_location=RLBOT_CONFIG_FILE)
+    manager.launch_ball_prediction()
+    manager.launch_quick_chat_manager()
     manager.launch_bot_processes()
-    manager.run()
+    manager.start_match()
+    manager.infinite_loop()  # Runs terminated by timeout in other thread.
+
 
 def ensure_dll_is_injected():
     manager = SetupManager()
-    manager.startup()
+    manager.connect_to_game()
 
 
 def KILL(process):
@@ -34,11 +40,13 @@ def KILL(process):
         process.kill()
     except psutil._exceptions.NoSuchProcess as e:
         return
+
+
 def kill_proc_tree(pid):
     parent = psutil.Process(pid)
     children = parent.children(recursive=True)
-    KILL(parent) # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
-    for child in children: # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
+    KILL(parent)  # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
+    for child in children:  # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
         KILL(child)  # THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE THIS CAN NOT CONTINUE
     gone, still_alive = psutil.wait_procs(children, timeout=5)
 
@@ -47,7 +55,7 @@ def gather_data(timeout=20.0):
     log("Gathering data...")
     HistoryIO().clear()
 
-     # Do this synchonously, the time the process needs to startup is more consistent.
+    # Do this synchonously, the time the process needs to startup is more consistent.
     ensure_dll_is_injected()
 
     proc = multiprocessing.Process(target=record_atba)

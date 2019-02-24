@@ -3,14 +3,18 @@ import time
 import traceback
 from datetime import datetime, timedelta
 
+from rlbot.agents.base_agent import BaseAgent
 from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.utils import rate_limiter
+from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.rendering.rendering_manager import RenderingManager
+from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.quick_chats import register_for_quick_chat, send_quick_chat_flat, send_quick_chat
 
-GAME_TICK_PACKET_REFRESHES_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
+GAME_TICK_PACKET_POLLS_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
 MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
@@ -18,8 +22,9 @@ MAX_CARS = 10
 
 
 class BotManager:
+
     def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -31,7 +36,7 @@ class BotManager:
         :param index: The player index, i.e. "this is player number <index>". Will be passed to the bot's constructor.
             Can be used to pull the correct data corresponding to the bot's car out of the game tick packet.
         :param agent_class_wrapper: The ExternalClassWrapper object that can be used to load and reload the bot
-        :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive certain metadata about the agent once available.
+        :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive AgentMetadata once available.
         :param quick_chat_queue_holder: A data structure which helps the bot send and receive quickchat
         """
         self.terminate_request_event = terminate_request_event
@@ -53,6 +58,7 @@ class BotManager:
         self.bot_input = None
         self.ball_prediction = None
         self.rigid_body_tick = None
+        self.match_config = match_config
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -79,7 +85,8 @@ class BotManager:
         """
         agent_class = self.agent_class_wrapper.get_loaded_class()
         agent = agent_class(self.name, self.team, self.index)
-        agent.logger = self.logger
+        agent.init_match_config(self.match_config)
+
         agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
 
         self.update_metadata_queue(agent)
@@ -94,11 +101,14 @@ class BotManager:
         agent._register_get_rigid_body_tick(self.get_rigid_body_tick)
         register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
 
+        while not self.is_valid_field_info():
+            time.sleep(0.1)
+
         # Once all engine setup is done, do the agent-specific initialization, if any:
         agent.initialize_agent()
         return agent, agent_class_file
 
-    def set_render_manager(self, agent):
+    def set_render_manager(self, agent: BaseAgent):
         """
         Sets the render manager for the agent.
         :param agent: An instance of an agent.
@@ -106,7 +116,7 @@ class BotManager:
         rendering_manager = self.game_interface.renderer.get_rendering_manager(self.index, self.team)
         agent._set_renderer(rendering_manager)
 
-    def update_metadata_queue(self, agent):
+    def update_metadata_queue(self, agent: BaseAgent):
         """
         Adds a new instance of AgentMetadata into the `agent_metadata_queue` using `agent` data.
         :param agent: An instance of an agent.
@@ -117,14 +127,14 @@ class BotManager:
 
         self.agent_metadata_queue.put(AgentMetadata(self.index, self.name, self.team, pids, helper_process_request))
 
-    def reload_agent(self, agent, agent_class_file):
+    def reload_agent(self, agent: BaseAgent, agent_class_file):
         """
         Reloads the agent. Can throw exceptions. External classes should use reload_event.set() instead.
         :param agent: An instance of an agent.
-        :param agent_class_file: The agent's class file.
+        :param agent_class_file: The agent's class file. TODO: Remove this argument, it only affects logging and may be misleading.
         :return: The reloaded instance of the agent, and the agent class file.
         """
-        self.logger.info('Reloading Agent: ' + agent_class_file)
+        self.logger.debug('Reloading Agent: ' + agent_class_file)
         self.agent_class_wrapper.reload()
         old_agent = agent
         agent, agent_class_file = self.load_agent()
@@ -145,7 +155,7 @@ class BotManager:
         self.prepare_for_run()
 
         # Create Ratelimiter
-        rate_limit = rate_limiter.RateLimiter(GAME_TICK_PACKET_REFRESHES_PER_SECOND)
+        rate_limit = rate_limiter.RateLimiter(GAME_TICK_PACKET_POLLS_PER_SECOND)
         last_tick_game_time = None  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
 
@@ -154,47 +164,56 @@ class BotManager:
 
         last_module_modification_time = os.stat(agent_class_file).st_mtime
 
-        # Run until main process tells to stop
-        while not self.terminate_request_event.is_set():
-            before = datetime.now()
-            self.pull_data_from_game()
-            # game_tick_packet = self.game_interface.get
-            # Read from game data shared memory
+        # Run until main process tells to stop, or we detect Ctrl+C
+        try:
+            while not self.terminate_request_event.is_set():
+                self.pull_data_from_game()
+                # game_tick_packet = self.game_interface.get
+                # Read from game data shared memory
 
-            # Run the Agent only if the game_info has updated.
-            tick_game_time = self.get_game_time()
-            should_call_while_paused = datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
-            if tick_game_time != last_tick_game_time or should_call_while_paused:
-                last_tick_game_time = tick_game_time
-                last_call_real_time = datetime.now()
+                # Run the Agent only if the game_info has updated.
+                tick_game_time = self.get_game_time()
+                should_call_while_paused = datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
+                if tick_game_time != last_tick_game_time or should_call_while_paused:
+                    last_tick_game_time = tick_game_time
+                    last_call_real_time = datetime.now()
 
-                # Reload the Agent if it has been modified or if reload is requested from outside.
-                try:
-                    new_module_modification_time = os.stat(agent_class_file).st_mtime
-                    if new_module_modification_time != last_module_modification_time or self.reload_request_event.is_set():
-                        self.reload_request_event.clear()
-                        last_module_modification_time = new_module_modification_time
-                        agent, agent_class_file = self.reload_agent(agent, agent_class_file)
-                except FileNotFoundError:
-                    self.logger.error("Agent file {} was not found. Will try again.".format(agent_class_file))
-                    time.sleep(0.5)
-                except Exception:
-                    self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
-                    time.sleep(0.5)  # Avoid burning CPU / logs if this starts happening constantly
+                    # Reload the Agent if it has been modified or if reload is requested from outside.
+                    try:
+                        new_module_modification_time = os.stat(agent_class_file).st_mtime
+                        if new_module_modification_time != last_module_modification_time or self.reload_request_event.is_set():
+                            self.reload_request_event.clear()
+                            last_module_modification_time = new_module_modification_time
+                            agent, agent_class_file = self.reload_agent(agent, agent_class_file)
+                    except FileNotFoundError:
+                        self.logger.error(f"Agent file {agent_class_file} was not found. Will try again.")
+                        time.sleep(0.5)
+                    except Exception:
+                        self.logger.error("Reloading the agent failed:\n" + traceback.format_exc())
+                        time.sleep(0.5)  # Avoid burning CPU / logs if this starts happening constantly
 
-                # Call agent
-                try:
-                    self.call_agent(agent, self.agent_class_wrapper.get_loaded_class())
-                except Exception as e:
-                    self.logger.error("Call to agent failed:\n" + traceback.format_exc())
+                    # Call agent
+                    try:
+                        self.call_agent(agent, self.agent_class_wrapper.get_loaded_class())
+                    except Exception as e:
+                        self.logger.error("Call to agent failed:\n" + traceback.format_exc())
 
-            # Ratelimit here
-            after = datetime.now()
+                # Ratelimit here
+                rate_limit.acquire()
+        except KeyboardInterrupt:
+            self.terminate_request_event.set()
 
-            rate_limit.acquire(after - before)
-
+        # Shut down the bot by calling cleanup functions.
         if hasattr(agent, 'retire'):
-            agent.retire()
+            try:
+                agent.retire()
+            except Exception as e:
+                self.logger.error("Retiring the agent failed:\n" + traceback.format_exc())
+        if hasattr(agent, 'renderer') and isinstance(agent.renderer, RenderingManager):
+            agent.renderer.clear_all_touched_render_groups()
+        # Zero out the inputs, so it's more obvious that the bot has stopped.
+        self.game_interface.update_player_input(PlayerInput(), self.index)
+
         # If terminated, send callback
         self.termination_complete_event.set()
 
@@ -205,8 +224,8 @@ class BotManager:
         """Get the most recent state of the physics engine."""
         return self.game_interface.update_rigid_body_tick(self.rigid_body_tick)
 
-    def set_game_state(self, game_state):
-        return self.game_interface.set_game_state(game_state)
+    def set_game_state(self, game_state: GameState) -> None:
+        self.game_interface.set_game_state(game_state)
 
     def get_ball_prediction(self):
         return self.game_interface.get_ball_prediction()
@@ -217,11 +236,15 @@ class BotManager:
     def prepare_for_run(self):
         raise NotImplementedError
 
-    def call_agent(self, agent, agent_class):
+    def call_agent(self, agent: BaseAgent, agent_class):
         raise NotImplementedError
 
     def get_game_time(self):
         raise NotImplementedError
 
     def pull_data_from_game(self):
+        raise NotImplementedError
+
+    def is_valid_field_info(self) -> bool:
+        """Checks if the contents of field info are valid."""
         raise NotImplementedError

@@ -53,6 +53,20 @@ def import_class_with_base(python_file, base_class) -> ExternalClassWrapper:
 
 
 def load_external_class(python_file, base_class):
+    """
+    Returns a tuple: (subclass of base_class, module)
+    """
+    loaded_module = load_external_module(python_file)
+
+    # Find a class that extends base_class
+    loaded_class = extract_class(loaded_module, base_class)
+    return loaded_class, loaded_module
+
+def load_external_module(python_file):
+    """
+    Returns the loaded module.
+    All of its newly added dependencies are removed from sys.path after load.
+    """
 
     # There's a special case where python_file may be pointing at the base agent definition here in the framework.
     # This is sometimes done as a default and we want to allow it. Short-circuit the logic because
@@ -61,7 +75,7 @@ def load_external_class(python_file, base_class):
         return BaseAgent, BaseAgent.__module__
 
     if not os.path.isfile(python_file):
-        raise FileNotFoundError("Could not find file {}!".format(python_file))
+        raise FileNotFoundError(f"Could not find file {python_file}!")
 
     dir_name = os.path.dirname(python_file)
     module_name = os.path.splitext(os.path.basename(python_file))[0]
@@ -78,17 +92,13 @@ def load_external_class(python_file, base_class):
     for key in added:
         del sys.modules[key]
 
-    # Find a class that extends base_class
-    loaded_class = extract_class(loaded_module, base_class)
-    return loaded_class, loaded_module
-
+    return loaded_module
 
 def extract_class(containing_module, base_class):
     valid_classes = [agent[1] for agent in inspect.getmembers(containing_module, inspect.isclass)
                      if issubclass(agent[1], base_class) and agent[1].__module__ == containing_module.__name__]
 
     if len(valid_classes) == 0:
-        raise ModuleNotFoundError('Could not locate a suitable bot class in module {}'.format(containing_module.__file__))
+        raise ModuleNotFoundError(f"Could not locate a suitable bot class in module {containing_module.__file__}")
 
     return valid_classes[0]
-

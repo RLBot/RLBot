@@ -1,7 +1,6 @@
-import flatbuffers
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
-from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
-from rlbot.utils import game_state_util
+from rlbot.parsing.custom_config import ConfigObject
+from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
@@ -10,10 +9,9 @@ from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
-BOT_CONFIG_LOADOUT_HEADER = 'Bot Loadout'
-BOT_CONFIG_LOADOUT_ORANGE_HEADER = 'Bot Loadout Orange'
 BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
+BOT_CONFIG_DETAILS_HEADER = 'Details'
 PYTHON_FILE_KEY = 'python_file'
 LOOKS_CONFIG_KEY = 'looks_config'
 BOT_NAME_KEY = "name"
@@ -25,15 +23,33 @@ class SimpleControllerState:
     interface to bot makers.
     """
 
-    def __init__(self):
-        self.steer = 0.0
-        self.throttle = 0.0
-        self.pitch = 0.0
-        self.yaw = 0.0
-        self.roll = 0.0
-        self.jump = False
-        self.boost = False
-        self.handbrake = False
+    def __init__(self,
+                 steer: float = 0.0,
+                 throttle: float = 0.0,
+                 pitch: float = 0.0,
+                 yaw: float = 0.0,
+                 roll: float = 0.0,
+                 jump: bool = False,
+                 boost: bool = False,
+                 handbrake: bool = False):
+        """
+        :param steer:    Range: -1 .. 1, negative=left, positive=right
+        :param throttle: Range: -1 .. 1, negative=backward, positive=forward
+        :param pitch:    Range: -1 .. 1, negative=nose-down, positive=nose-up
+        :param yaw:      Range: -1 .. 1, negative=nose-left, positive=nose-right
+        :param roll:     Range: -1 .. 1, negative=anticlockwise, positive=clockwise  (when looking forwards along the car)
+        :param jump: Analogous to the jump button in game.
+        :param boost: Analogous to the boost button in game.
+        :param handbrake: Analogous to the handbrake button in game.
+        """
+        self.steer = steer
+        self.throttle = throttle
+        self.pitch = pitch
+        self.yaw = yaw
+        self.roll = roll
+        self.jump = jump
+        self.boost = boost
+        self.handbrake = handbrake
 
 
 class BaseAgent:
@@ -54,13 +70,20 @@ class BaseAgent:
     __field_info_func = None
     __game_state_func = None
     __get_rigid_body_tick_func = None
-    renderer = None
+    renderer: RenderingManager = None
 
     def __init__(self, name, team, index):
         self.name = name
         self.team = team
         self.index = index
-        self.logger = get_logger('nameless_bot')
+        self.logger = get_logger(f'bot{index}')
+
+    def init_match_config(self, match_config: 'MatchConfig'):
+        """
+        Override this method if you would like to be informed of what config was used to start the match.
+        Useful for knowing what map you're on, mutators, etc.
+        """
+        pass
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
@@ -101,16 +124,9 @@ class BaseAgent:
         """Get the most recent state of the physics engine."""
         return self.__get_rigid_body_tick_func()
 
-    def set_game_state(self, game_state: game_state_util.GameState):
-        builder = flatbuffers.Builder(0)
-        game_state_offset = game_state.convert_to_flat(builder)
-        if game_state_offset is None:
-            # There are no values to be set, so just skip it
-            return
-
-        builder.Finish(game_state_offset)
-
-        self.__game_state_func(builder)
+    def set_game_state(self, game_state: GameState):
+        """CHEAT: Change the rocket league game to the given game_state"""
+        self.__game_state_func(game_state)
 
     def get_ball_prediction(self):
         """DEPRECATED! Please use get_ball_prediction_struct instead, because this is going away soon!"""
@@ -182,17 +198,9 @@ class BaseAgent:
         :return: A v3 version of the game tick packet"""
         return convert_to_legacy_v3(game_tick_packet, field_info_packet)
 
-
     ############
     #  Methods that should not be called or changed by subclasses
     ############
-
-    @staticmethod
-    def _create_looks_configurations() -> ConfigObject:
-        config = ConfigObject()
-        config.add_header(BOT_CONFIG_LOADOUT_HEADER, BaseAgent._create_loadout())
-        config.add_header(BOT_CONFIG_LOADOUT_ORANGE_HEADER, BaseAgent._create_loadout())
-        return config
 
     def _register_quick_chat(self, quick_chat_func):
         """
@@ -250,41 +258,13 @@ class BaseAgent:
         location_config.add_value(BOT_NAME_KEY, str, default='nameless',
                                   description='The name that will be displayed in game')
 
+        details_config = config.add_header_name(BOT_CONFIG_DETAILS_HEADER)
+        details_config.add_value('developer', str, description="Name of the bot's creator/developer")
+        details_config.add_value('description', str, description="Short description of the bot")
+        details_config.add_value('fun_fact', str, description="Fun fact about the bot")
+        details_config.add_value('github', str, description="Link to github repository")
+        details_config.add_value('language', str, description="Programming language")
+
         cls.create_agent_configurations(config)
 
         return config
-
-    @staticmethod
-    def _create_loadout() -> ConfigHeader:
-        header = ConfigHeader()
-        header.add_value('team_color_id', int, default=27, description='Primary Color selection')
-        header.add_value('custom_color_id', int, default=75, description='Secondary Color selection')
-        header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc')
-        header.add_value('decal_id', int, default=307, description='Type of decal')
-        header.add_value('wheels_id', int, default=1656, description='Wheel selection')
-        header.add_value('boost_id', int, default=0, description='Boost selection')
-        header.add_value('antenna_id', int, default=287, description='Antenna Selection')
-        header.add_value('hat_id', int, default=0, description='Hat Selection')
-        header.add_value('paint_finish_id', int, default=1978, description='Paint Type (for first color)')
-        header.add_value('custom_finish_id', int, default=1978, description='Paint Type (for secondary color)')
-        header.add_value('engine_audio_id', int, default=0, description='Engine Audio Selection')
-        header.add_value('trails_id', int, default=0, description='Car trail Selection')
-        header.add_value('goal_explosion_id', int, default=1971, description='Goal Explosion Selection')
-
-        return header
-
-    @staticmethod
-    def _parse_bot_loadout(player_configuration, bot_config, loadout_header):
-        player_configuration.team_color_id = bot_config.getint(loadout_header, 'team_color_id')
-        player_configuration.custom_color_id = bot_config.getint(loadout_header, 'custom_color_id')
-        player_configuration.car_id = bot_config.getint(loadout_header, 'car_id')
-        player_configuration.decal_id = bot_config.getint(loadout_header, 'decal_id')
-        player_configuration.wheels_id = bot_config.getint(loadout_header, 'wheels_id')
-        player_configuration.boost_id = bot_config.getint(loadout_header, 'boost_id')
-        player_configuration.antenna_id = bot_config.getint(loadout_header, 'antenna_id')
-        player_configuration.hat_id = bot_config.getint(loadout_header, 'hat_id')
-        player_configuration.paint_finish_id = bot_config.getint(loadout_header, 'paint_finish_id')
-        player_configuration.custom_finish_id = bot_config.getint(loadout_header, 'custom_finish_id')
-        player_configuration.engine_audio_id = bot_config.getint(loadout_header, 'engine_audio_id')
-        player_configuration.trails_id = bot_config.getint(loadout_header, 'trails_id')
-        player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')

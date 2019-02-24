@@ -70,6 +70,9 @@ table Touch {
 
   /// The direction of the touch.
   normal:Vector3;
+
+  /// The Team which the touch belongs to, 0 for blue 1 for orange.
+  team:int;
 }
 
 table ScoreInfo {
@@ -128,17 +131,17 @@ table BoostPadState {
 }
 
 enum TileState: byte {
-    Unknown = 0,
-    /// The default state of the tiles.
-    Filled = 1,
-    /// The state when a tile has been damaged.
-    Damaged = 2,
-    /// The state of a tile when it is open and a goal can be scored.
-    Open = 3
+  Unknown = 0,
+  /// The default state of the tiles.
+  Filled = 1,
+  /// The state when a tile has been damaged.
+  Damaged = 2,
+  /// The state of a tile when it is open and a goal can be scored.
+  Open = 3
 }
 
 table DropshotTile {
-  /// True if the tile is damaged
+  /// The amount of damage the tile has sustained.
   tileState: TileState;
 }
 
@@ -149,13 +152,21 @@ table GameInfo {
   isUnlimitedTime:bool;
   /// True when cars are allowed to move, and during the pause menu. False during replays.
   isRoundActive:bool;
-  /// Only true during a kickoff, when the car is allowed to move, and the ball has not been hit,
-  /// and the game clock has not started yet. If both players sit still, game clock will eventually
-  /// start and this will become false.
+  /// True when the clock is paused due to kickoff, but false during kickoff countdown. In other words, it is true
+  /// while cars can move during kickoff. Note that if both players sit still, game clock start and this will become false.
   isKickoffPause:bool;
   /// Turns true after final replay, the moment the 'winner' screen appears. Remains true during next match
   /// countdown. Turns false again the moment the 'choose team' screen appears.
   isMatchEnded:bool;
+  worldGravityZ:float;
+  /// Game speed multiplier, 1.0 is regular game speed.
+  gameSpeed:float;
+}
+
+table TeamInfo {
+  teamIndex:int;
+  /// number of goals scored.
+  score:int;
 }
 
 table GameTickPacket {
@@ -164,6 +175,7 @@ table GameTickPacket {
   ball:BallInfo;
   gameInfo:GameInfo;
   tileInformation:[DropshotTile];
+  teams:[TeamInfo];
 }
 
 root_type GameTickPacket;
@@ -263,180 +275,437 @@ table DesiredBoostState {
   respawnTime:Float;
 }
 
+
+table DesiredGameInfoState {
+  worldGravityZ:Float;
+  gameSpeed:Float;
+}
+
+
 table DesiredGameState {
   ballState:DesiredBallState;
   carStates:[DesiredCarState];
   boostStates:[DesiredBoostState];
+  gameInfoState:DesiredGameInfoState;
 }
 
 root_type DesiredGameState;
 
 enum RenderType : byte {
-    DrawLine2D = 1,
-    DrawLine3D = 2,
-    DrawLine2D_3D = 3,
-    DrawRect2D = 4,
-    DrawRect3D = 5,
-    DrawString2D = 6,
-    DrawString3D = 7,
-    DrawCenteredRect3D = 8
+  DrawLine2D = 1,
+  DrawLine3D = 2,
+  DrawLine2D_3D = 3,
+  DrawRect2D = 4,
+  DrawRect3D = 5,
+  DrawString2D = 6,
+  DrawString3D = 7,
+  DrawCenteredRect3D = 8
 }
 
 table Color {
-    a: ubyte = 0;
-    r: ubyte = 0;
-    g: ubyte = 0;
-    b: ubyte = 0;
+  a: ubyte = 0;
+  r: ubyte = 0;
+  g: ubyte = 0;
+  b: ubyte = 0;
 }
 
 table RenderMessage {
-    renderType: RenderType = 1;
-    color: Color;
-    /// For 2d renders this only grabs x and y
-    start: Vector3;
-    /// For 2d renders this only grabs x and y
-    end:   Vector3;
-    /// Scales the x size of the text/rectangle, is used for rectangles assuming an initial value of 1
-    scaleX: int = 1;
-    /// Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1
-    scaleY: int = 1;
-    text: string;
-    /// Rectangles can be filled or just outlines.
-    isFilled: bool;
+  renderType: RenderType = 1;
+  color: Color;
+  /// For 2d renders this only grabs x and y
+  start: Vector3;
+  /// For 2d renders this only grabs x and y
+  end:   Vector3;
+  /// Scales the x size of the text/rectangle, is used for rectangles assuming an initial value of 1
+  scaleX: int = 1;
+  /// Scales the y size of the text/rectangle, is used for rectangles assuming an initial value of 1
+  scaleY: int = 1;
+  text: string;
+  /// Rectangles can be filled or just outlines.
+  isFilled: bool;
 }
 
 table RenderGroup {
-    renderMessages:[RenderMessage];
-    /// The id of the render group
-    id: int;
+  renderMessages:[RenderMessage];
+  /// The id of the render group
+  id: int;
 }
 
 root_type RenderGroup;
 
 
 enum QuickChatSelection : byte {
-    Information_IGotIt = 0,
-	Information_NeedBoost = 1,
-	Information_TakeTheShot = 2,
-	Information_Defending = 3,
-	Information_GoForIt = 4,
-	Information_Centering = 5,
-	Information_AllYours = 6,
-	Information_InPosition = 7,
-	Information_Incoming = 8,
-	Compliments_NiceShot = 9,
-	Compliments_GreatPass = 10,
-	Compliments_Thanks = 11,
-	Compliments_WhatASave = 12,
-	Compliments_NiceOne = 13,
-	Compliments_WhatAPlay = 14,
-	Compliments_GreatClear = 15,
-	Compliments_NiceBlock = 16,
-	Reactions_OMG = 17,
-	Reactions_Noooo = 18,
-	Reactions_Wow = 19,
-	Reactions_CloseOne = 20,
-	Reactions_NoWay = 21,
-	Reactions_HolyCow = 22,
-	Reactions_Whew = 23,
-	Reactions_Siiiick = 24,
-	Reactions_Calculated = 25,
-	Reactions_Savage = 26,
-	Reactions_Okay = 27,
-	Apologies_Cursing = 28,
-	Apologies_NoProblem = 29,
-	Apologies_Whoops = 30,
-	Apologies_Sorry = 31,
-	Apologies_MyBad = 32,
-	Apologies_Oops = 33,
-	Apologies_MyFault = 34,
-	PostGame_Gg = 35,
-	PostGame_WellPlayed = 36,
-	PostGame_ThatWasFun = 37,
-	PostGame_Rematch = 38,
-	PostGame_OneMoreGame = 39,
-	PostGame_WhatAGame = 40,
-	PostGame_NiceMoves = 41,
-	PostGame_EverybodyDance = 42,
-	/// Custom text chats made by bot makers
-	MaxPysonixQuickChatPresets = 43,
-	/// Waste of CPU cycles
-	Custom_Toxic_WasteCPU = 44,
-	/// Git gud*
-	Custom_Toxic_GitGut = 45,
-	/// De-Allocate Yourself
-	Custom_Toxic_DeAlloc = 46,
-	/// 404: Your skill not found
-	Custom_Toxic_404NoSkill = 47,
-	/// Get a virus
-	Custom_Toxic_CatchVirus = 48,
-	/// Passing!
-	Custom_Useful_Passing = 49,
-	/// Faking!
-	Custom_Useful_Faking = 50,
-	/// Demoing!
-	Custom_Useful_Demoing = 51,
-	/// BOOPING
-	Custom_Useful_Bumping = 52,
-	/// The chances of that was 47525 to 1*
-	Custom_Compliments_TinyChances = 53,
-	/// Who upped your skill level?
-	Custom_Compliments_SkillLevel = 54,
-	/// Your programmer should be proud
-	Custom_Compliments_proud = 55,
-	/// You're the GC of Bots
-	Custom_Compliments_GC = 56,
-	/// Are you <Insert Pro>Bot? *
-	Custom_Compliments_Pro = 57,
+  Information_IGotIt = 0,
+  Information_NeedBoost = 1,
+  Information_TakeTheShot = 2,
+  Information_Defending = 3,
+  Information_GoForIt = 4,
+  Information_Centering = 5,
+  Information_AllYours = 6,
+  Information_InPosition = 7,
+  Information_Incoming = 8,
+  Compliments_NiceShot = 9,
+  Compliments_GreatPass = 10,
+  Compliments_Thanks = 11,
+  Compliments_WhatASave = 12,
+  Compliments_NiceOne = 13,
+  Compliments_WhatAPlay = 14,
+  Compliments_GreatClear = 15,
+  Compliments_NiceBlock = 16,
+  Reactions_OMG = 17,
+  Reactions_Noooo = 18,
+  Reactions_Wow = 19,
+  Reactions_CloseOne = 20,
+  Reactions_NoWay = 21,
+  Reactions_HolyCow = 22,
+  Reactions_Whew = 23,
+  Reactions_Siiiick = 24,
+  Reactions_Calculated = 25,
+  Reactions_Savage = 26,
+  Reactions_Okay = 27,
+  Apologies_Cursing = 28,
+  Apologies_NoProblem = 29,
+  Apologies_Whoops = 30,
+  Apologies_Sorry = 31,
+  Apologies_MyBad = 32,
+  Apologies_Oops = 33,
+  Apologies_MyFault = 34,
+  PostGame_Gg = 35,
+  PostGame_WellPlayed = 36,
+  PostGame_ThatWasFun = 37,
+  PostGame_Rematch = 38,
+  PostGame_OneMoreGame = 39,
+  PostGame_WhatAGame = 40,
+  PostGame_NiceMoves = 41,
+  PostGame_EverybodyDance = 42,
+  /// Custom text chats made by bot makers
+  MaxPysonixQuickChatPresets = 43,
+  /// Waste of CPU cycles
+  Custom_Toxic_WasteCPU = 44,
+  /// Git gud*
+  Custom_Toxic_GitGut = 45,
+  /// De-Allocate Yourself
+  Custom_Toxic_DeAlloc = 46,
+  /// 404: Your skill not found
+  Custom_Toxic_404NoSkill = 47,
+  /// Get a virus
+  Custom_Toxic_CatchVirus = 48,
+  /// Passing!
+  Custom_Useful_Passing = 49,
+  /// Faking!
+  Custom_Useful_Faking = 50,
+  /// Demoing!
+  Custom_Useful_Demoing = 51,
+  /// BOOPING
+  Custom_Useful_Bumping = 52,
+  /// The chances of that was 47525 to 1*
+  Custom_Compliments_TinyChances = 53,
+  /// Who upped your skill level?
+  Custom_Compliments_SkillLevel = 54,
+  /// Your programmer should be proud
+  Custom_Compliments_proud = 55,
+  /// You're the GC of Bots
+  Custom_Compliments_GC = 56,
+  /// Are you <Insert Pro>Bot? *
+  Custom_Compliments_Pro = 57,
 }
 
 table QuickChat {
-    quickChatSelection:      QuickChatSelection;
+  quickChatSelection:      QuickChatSelection;
 
-    /// The index of the player that sent the quick chat
-    playerIndex:    int;
+  /// The index of the player that sent the quick chat
+  playerIndex:    int;
 
-    /// True if the chat is team only false if everyone can see it.
-    teamOnly:      bool;
+  /// True if the chat is team only false if everyone can see it.
+  teamOnly:      bool;
 }
 
 root_type QuickChat;
 
 /// A minimal version of player data, useful when bandwidth needs to be conserved.
 table TinyPlayer {
-    location: Vector3;
-    rotation: Rotator;
-    velocity: Vector3;
-    hasWheelContact: bool;
-    isSupersonic: bool;
-    team: int;
-    boost: int;
+  location: Vector3;
+  rotation: Rotator;
+  velocity: Vector3;
+  hasWheelContact: bool;
+  isSupersonic: bool;
+  team: int;
+  boost: int;
 }
 
 /// A minimal version of the ball, useful when bandwidth needs to be conserved.
 table TinyBall {
-    location: Vector3;
-    velocity: Vector3;
+  location: Vector3;
+  velocity: Vector3;
 }
 
 /// A minimal version of the game tick packet, useful when bandwidth needs to be conserved.
 table TinyPacket {
-    players: [TinyPlayer];
-    ball: TinyBall;
+  players: [TinyPlayer];
+  ball: TinyBall;
 }
 
 table PredictionSlice {
-    /// The moment in game time that this prediction corresponds to.
-    /// This corresponds to 'secondsElapsed' in the GameInfo table.
-    gameSeconds: float;
+  /// The moment in game time that this prediction corresponds to.
+  /// This corresponds to 'secondsElapsed' in the GameInfo table.
+  gameSeconds: float;
 
-    /// The predicted location and motion of the object.
-    physics: Physics;
+  /// The predicted location and motion of the object.
+  physics: Physics;
 }
 
 table BallPrediction {
-    /// A list of places the ball will be at specific times in the future.
-    /// It is guaranteed to sorted so that time increases with each slice.
-    /// It is NOT guaranteed to have a consistent amount of time between slices.
-    slices: [PredictionSlice];
+  /// A list of places the ball will be at specific times in the future.
+  /// It is guaranteed to sorted so that time increases with each slice.
+  /// It is NOT guaranteed to have a consistent amount of time between slices.
+  slices: [PredictionSlice];
+}
+
+/// A bot controlled by the RLBot framework
+table RLBotPlayer {}
+
+/// A normal human player
+table HumanPlayer {}
+
+/// A psyonix bot, e.g. All Star bot
+table PsyonixBotPlayer {
+  botSkill: float;
+}
+
+/// A player that Rocket League treats as human, e.g. has a dedicated camera and can do training mode,
+/// but is actually controlled by a bot.
+table PartyMemberBotPlayer {}
+
+union PlayerClass { RLBotPlayer, HumanPlayer, PsyonixBotPlayer, PartyMemberBotPlayer }
+
+/// The car type, color, and other aspects of the player's appearance.
+/// See https://github.com/RLBot/RLBot/wiki/Bot-Customization
+table PlayerLoadout {
+  teamColorId: int;
+  customColorId: int;
+  carId: int;
+  decalId: int;
+  wheelsId: int;
+  boostId: int;
+  antennaId: int;
+  hatId: int;
+  paintFinishId: int;
+  customFinishId: int;
+  engineAudioId: int;
+  trailsId: int;
+  goalExplosionId: int;
+  loadoutPaint: LoadoutPaint;
+}
+
+/// Specification for 'painted' items. See https://github.com/RLBot/RLBot/wiki/Bot-Customization
+table LoadoutPaint {
+  carPaintId: int;
+  decalPaintId: int;
+  wheelsPaintId: int;
+  boostPaintId: int;
+  antennaPaintId: int;
+  hatPaintId: int;
+  trailsPaintId: int;
+  goalExplosionPaintId: int;
+}
+
+table PlayerConfiguration {
+  // Cannot be named 'class' because that breaks Java.
+  // Cannot be named 'playerClass' because that breaks C#.
+  variety: PlayerClass;
+  name: string;
+  team: int;
+  loadout: PlayerLoadout;
+}
+
+enum GameMode : byte {
+  Soccer,
+  Hoops,
+  Dropshot,
+  Hockey,
+  Rumble
+}
+
+enum GameMap : byte {
+  DFHStadium,
+  Mannfield,
+  ChampionsField,
+  UrbanCentral,
+  BeckwithPark,
+  UtopiaColiseum,
+  Wasteland,
+  NeoTokyo,
+  AquaDome,
+  StarbaseArc,
+  Farmstead,
+  SaltyShores,
+  DFHStadium_Stormy,
+  DFHStadium_Day,
+  Mannfield_Stormy,
+  Mannfield_Night,
+  ChampionsField_Day,
+  BeckwithPark_Stormy,
+  BeckwithPark_Midnight,
+  UrbanCentral_Night,
+  UrbanCentral_Dawn,
+  UtopiaColiseum_Dusk,
+  DFHStadium_Snowy,
+  Mannfield_Snowy,
+  UtopiaColiseum_Snowy,
+  Badlands,
+  Badlands_Night,
+  TokyoUnderpass,
+  Arctagon,
+  Pillars,
+  Cosmic,
+  DoubleGoal,
+  Octagon,
+  Underpass,
+  UtopiaRetro,
+  Hoops_DunkHouse,
+  DropShot_Core707,
+  ThrowbackStadium
+}
+
+enum MatchLength : byte {
+  Five_Minutes,
+  Ten_Minutes,
+  Twenty_Minutes,
+  Unlimited
+}
+
+enum MaxScore : byte {
+  Unlimited,
+  One_Goal,
+  Three_Goals,
+  Five_Goals
+}
+
+enum OvertimeOption : byte {
+  Unlimited,
+  Five_Max_First_Score,
+  Five_Max_Random_Team
+}
+
+enum SeriesLengthOption : byte {
+  Unlimited,
+  Three_Games,
+  Five_Games,
+  Seven_Games
+}
+
+enum GameSpeedOption : byte {
+  Default,
+  Slo_Mo,
+  Time_Warp
+}
+
+enum BallMaxSpeedOption : byte {
+  Default,
+  Slow,
+  Fast,
+  Super_Fast
+}
+
+enum BallTypeOption : byte {
+  Default,
+  Cube,
+  Puck,
+  Basketball
+}
+
+enum BallWeightOption : byte {
+  Default,
+  Light,
+  Heavy,
+  Super_Light
+}
+
+enum BallSizeOption : byte {
+  Default,
+  Small,
+  Large,
+  Gigantic
+}
+
+enum BallBouncinessOption : byte {
+  Default,
+  Low,
+  High,
+  Super_High
+}
+
+enum BoostOption : byte {
+  Normal_Boost,
+  Unlimited_Boost,
+  Slow_Recharge,
+  Rapid_Recharge,
+  No_Boost
+}
+
+enum RumbleOption : byte {
+  None,
+  Default,
+  Slow,
+  Civilized,
+  Destruction_Derby,
+  Spring_Loaded,
+  Spikes_Only
+}
+
+enum BoostStrengthOption : byte {
+  One,
+  OneAndAHalf,
+  Two,
+  Ten
+}
+
+enum GravityOption : byte {
+  Default,
+  Low,
+  High,
+  Super_High
+}
+
+enum DemolishOption : byte {
+  Default,
+  Disabled,
+  Friendly_Fire,
+  On_Contact,
+  On_Contact_FF
+}
+
+enum RespawnTimeOption : byte {
+  Three_Seconds,
+  Two_Seconds,
+  One_Seconds,
+  Disable_Goal_Reset
+}
+
+table MutatorSettings {
+  matchLength: MatchLength;
+  maxScore: MaxScore;
+  overtimeOption: OvertimeOption;
+  seriesLengthOption: SeriesLengthOption;
+  gameSpeedOption: GameSpeedOption;
+  ballMaxSpeedOption: BallMaxSpeedOption;
+  ballTypeOption: BallTypeOption;
+  ballWeightOption: BallWeightOption;
+  ballSizeOption: BallSizeOption;
+  ballBouncinessOption: BallBouncinessOption;
+  boostOption: BoostOption;
+  rumbleOption: RumbleOption;
+  boostStrengthOption: BoostStrengthOption;
+  gravityOption: GravityOption;
+  demolishOption: DemolishOption;
+  respawnTimeOption: RespawnTimeOption;
+}
+
+table MatchSettings {
+  playerConfigurations: [PlayerConfiguration];
+  gameMode: GameMode;
+  gameMap: GameMap;
+  skipReplays: bool;
+  instantStart: bool;
+  mutatorSettings: MutatorSettings;
 }

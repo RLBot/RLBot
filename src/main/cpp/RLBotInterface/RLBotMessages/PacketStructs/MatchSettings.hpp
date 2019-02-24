@@ -22,6 +22,14 @@ struct PlayerConfiguration
 	int						EngineAudioID;
 	int						TrailsID;
 	int						GoalExplosionID;
+	int						CarPaintID;
+	int						DecalPaintID;
+	int						WheelsPaintID;
+	int						BoostPaintID;
+	int						AntennaPaintID;
+	int						HatPaintID;
+	int						TrailsPaintID;
+	int						GoalExplosionPaintID;
 };
 
 enum GameMode

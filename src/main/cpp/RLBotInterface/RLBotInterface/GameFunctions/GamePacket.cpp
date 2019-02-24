@@ -9,15 +9,36 @@
 
 namespace GameFunctions
 {
+	BoostUtilities::SharedMemReader* pFlatFieldMem = nullptr;
+	BoostUtilities::SharedMemReader* pFlatTickMem = nullptr;
+	BoostUtilities::SharedMemReader* pPhysicsTickMem = nullptr;
+
+	ByteBuffer MakeEmptyBuffer()
+	{
+		ByteBuffer empty;
+		empty.ptr = new char[1]; // Arbitrary valid pointer to an array. We'll be calling delete[] on this later.
+		empty.size = 0;
+		return empty;
+	}
+
+	void Initialize_GamePacket()
+	{
+		pFlatFieldMem = new BoostUtilities::SharedMemReader(BoostConstants::FieldInfoFlatName);
+		pFlatTickMem = new BoostUtilities::SharedMemReader(BoostConstants::GameDataFlatName);
+		pPhysicsTickMem = new BoostUtilities::SharedMemReader(BoostConstants::PhysicsTickFlatName);
+	}
+
 	//////////////
 	// FIELD INFO
 	//////////////
 
-	static BoostUtilities::SharedMemReader flatFieldMem(BoostConstants::FieldInfoFlatName);
-
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
 	{
-		return flatFieldMem.fetchData();
+		if (!pFlatFieldMem)
+		{
+			return MakeEmptyBuffer();
+		}
+		return pFlatFieldMem->fetchData();
 	}
 
 	// Ctypes
@@ -34,11 +55,13 @@ namespace GameFunctions
 	// GAME PACKET
 	//////////////
 
-	static BoostUtilities::SharedMemReader flatTickMem(BoostConstants::GameDataFlatName);
-
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{
-		return flatTickMem.fetchData();
+		if (!pFlatTickMem)
+		{
+			return MakeEmptyBuffer();
+		}
+		return pFlatTickMem->fetchData();
 	}
 
 	// Ctypes
@@ -55,11 +78,13 @@ namespace GameFunctions
 	// PHYSICS TICK
 	///////////////
 
-	static BoostUtilities::SharedMemReader physicsTickMem(BoostConstants::PhysicsTickFlatName);
-
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateRigidBodyTickFlatbuffer()
 	{
-		return physicsTickMem.fetchData();
+		if (!pPhysicsTickMem)
+		{
+			return MakeEmptyBuffer();
+		}
+		return pPhysicsTickMem->fetchData();
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdateRigidBodyTick(RigidBodyTick* rigidBodyTick)
