@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.14.7'
+__version__ = '1.14.8'
 
 release_notes = {
-    '1.14.7': """
+    '1.14.8': """
     - Adding a way of starting matches using a flatbuffer message. - tarehart
     - More accurate get_output call frequency for python bots. - Marvin and chip
     - Fixing compilation of RLBotDotNet project with a breaking change. - tarehart
