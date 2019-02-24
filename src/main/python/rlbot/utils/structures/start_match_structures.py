@@ -1,6 +1,6 @@
 import ctypes
 
-MAX_PLAYERS = 13
+MAX_PLAYERS = 40
 MAX_NAME_LENGTH = 32
 
 
