@@ -14,7 +14,7 @@ release_notes = {
     - Pinning the psutil package to 5.5.0 to fix 'access denied', 'OSError'. - tarehart
     - Fixed for the friends update. - ccman32
     - Fix for psyonix bots never using boost. - tarehart
-    - Max 40 bots / players. Only usable without GUI - skyborg
+    - Max 64 bots / players. Be patient while the match is loading :) - skyborg
     """,
 
     '1.13.2': """
