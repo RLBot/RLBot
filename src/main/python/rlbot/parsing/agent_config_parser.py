@@ -18,7 +18,7 @@ logger = get_logger('rlbot')
 
 def add_participant_header(config_object):
     participant_header = config_object.add_header_name(PARTICIPANT_CONFIGURATION_HEADER, is_indexed=True)
-    participant_header.add_value(PARTICIPANT_CONFIG_KEY, str, default='./agents/atba/atba.cfg',
+    participant_header.add_value(PARTICIPANT_CONFIG_KEY, str, default=None,
                                  description="""The location of the configuration file for your agent here.
                                              Only total_num_participants config files will be read!
                                              Everything needs a config, even players and default bots.

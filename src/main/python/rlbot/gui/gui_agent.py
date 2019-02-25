@@ -14,7 +14,7 @@ class GUIAgent:
     """
     overall_config = None
 
-    def __init__(self, overall_index: int, loadout_preset: LoadoutPreset=None, agent_preset: AgentPreset=None):
+    def __init__(self, overall_index: int, loadout_preset: LoadoutPreset = None, agent_preset: AgentPreset = None):
         self.overall_index = overall_index
         self.loadout_preset = loadout_preset
         self.agent_preset = agent_preset
@@ -60,8 +60,12 @@ class GUIAgent:
         return self.agent_preset
 
     def get_agent_config_path(self):
-        return os.path.realpath(self.overall_config.getpath(PARTICIPANT_CONFIGURATION_HEADER,
-                                                            PARTICIPANT_CONFIG_KEY, self.overall_index))
+        path = self.overall_config.getpath(PARTICIPANT_CONFIGURATION_HEADER,
+                                           PARTICIPANT_CONFIG_KEY, self.overall_index)
+
+        if path is None:
+            return None
+        return os.path.realpath(path)
 
     def set_agent_config_path(self, config_path: str):
         # Use relative path in config

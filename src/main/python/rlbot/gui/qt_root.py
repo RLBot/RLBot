@@ -15,13 +15,15 @@ from rlbot.gui.index_manager import IndexManager
 from rlbot.gui.mutator_editor import MutatorEditor
 from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog, index_of_config_path_in_combobox
 from rlbot.gui.presets import AgentPreset, LoadoutPreset
-from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY
+from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, \
+    PARTICIPANT_CONFIG_KEY
 from rlbot.parsing.bot_config_bundle import BotConfigBundle
 from rlbot.parsing.directory_scanner import scan_directory_for_bot_configs
 from rlbot.parsing.match_settings_config_parser import *
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, TEAM_CONFIGURATION_HEADER
 from rlbot.setup_manager import SetupManager, DEFAULT_RLBOT_CONFIG_LOCATION
 from rlbot.utils.file_util import get_python_root, get_rlbot_directory
+from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 
 
 class RLBotQTGui(QMainWindow, Ui_MainWindow):
@@ -32,7 +34,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
         self.overall_config = None
-        self.index_manager = IndexManager(10)
+        self.index_manager = IndexManager(MAX_PLAYERS)
 
         self.agents = []
         self.agent_presets = {}
@@ -83,12 +85,12 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         config = self.overall_config.copy()
 
         used_indices = sorted(self.index_manager.numbers)
-        not_used_indices = [e for e in range(10) if e not in used_indices]
+        not_used_indices = [e for e in range(MAX_PLAYERS) if e not in used_indices]
         order = used_indices + not_used_indices
         header = config[PARTICIPANT_CONFIGURATION_HEADER]
         for name, config_value in header.values.items():
             old_values = list(config_value.value)
-            for i in range(10):
+            for i in range(MAX_PLAYERS):
                 config_value.set_value(old_values[order[i]], index=i)
         return config
 
@@ -123,7 +125,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         agent_configs = {}
         loadout_configs = {}
         index = 0
-        for i in range(10):
+        for i in range(MAX_PLAYERS):
             if i in agent_configs_dict:
                 agent_configs[index] = agent_configs_dict[i]
                 loadout_configs[index] = loadout_configs_dict[i]
@@ -354,7 +356,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         if self.overall_config is None:
             self.overall_config = create_bot_config_layout()
         GUIAgent.overall_config = self.overall_config
-        self.overall_config.init_indices(10)
+        self.overall_config.init_indices(MAX_PLAYERS)
         self.overall_config_path = ""
         self.load_agents()
         # self.load_bot_directory(".")
@@ -399,7 +401,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                                    "Invalid Config File", QMessageBox.Warning)
                 return
         self.overall_config_path = config_path
-        self.overall_config.parse_file(raw_parser, 10, config_directory=os.path.dirname(self.overall_config_path))
+        self.overall_config.parse_file(raw_parser, MAX_PLAYERS, config_directory=os.path.dirname(self.overall_config_path))
         self.load_agents()
         # self.load_bot_directory(".")
         self.update_teams_listwidgets()
@@ -448,7 +450,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         Set all unusued loadout paths to None. This makes sure agents don't have a custom loadout when new agents
         are added in the gui.
         """
-        for i in range(10):
+        for i in range(MAX_PLAYERS):
             if i not in self.index_manager.numbers:
                 self.overall_config.set_value(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, "None", i)
 
@@ -613,6 +615,10 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         agent = self.add_agent(overall_index=overall_index)
 
         path_in_overall_config = agent.get_agent_config_path()
+        if path_in_overall_config is None:
+            # Fall back to the path of the first agent if there's nothing configured.
+            path_in_overall_config = self.overall_config.getpath(PARTICIPANT_CONFIGURATION_HEADER,
+                                                                 PARTICIPANT_CONFIG_KEY, 0)
         agent_preset = self.add_agent_preset(path_in_overall_config)
         agent.set_agent_preset(agent_preset)
         agent.set_name(agent_preset.config.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY))
@@ -712,7 +718,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         :param file_path: the path to load the preset from. We'll throw an exception if it's invalid.
         :return preset: the agent preset created
         """
-        if os.path.isfile(file_path):
+        if file_path is not None and os.path.isfile(file_path):
             name = pathlib.Path(file_path).stem
         else:
             raise FileNotFoundError(f"File path {file_path} is not found!")
