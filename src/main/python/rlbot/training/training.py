@@ -131,7 +131,7 @@ def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], se
                 update_row('match', ren.renderman.white)
                 _setup_match(new_match_config, setup_manager)
                 update_row('bots', ren.renderman.white)
-                _wait_until_bots_ready(setup_manager)
+                _wait_until_bots_ready(setup_manager, new_match_config)
 
             update_row('wait', ren.renderman.white)
             _wait_until_good_ticks(game_interface)
@@ -162,11 +162,12 @@ def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], se
             yield result
 
 
-def _wait_until_bots_ready(setup_manager: SetupManager):
+def _wait_until_bots_ready(setup_manager: SetupManager, match_config: MatchConfig):
     total_ready = 0
     total_ready += setup_manager.try_recieve_agent_metadata()
     logger = get_logger(DEFAULT_LOGGER)
-    while total_ready < setup_manager.num_participants:
+    expected_metadata_calls = sum(1 for player in match_config.player_configs if player.rlbot_controlled)
+    while total_ready < expected_metadata_calls:
         logger.debug('Waiting on all bots to post their metadata.')
         time.sleep(0.1)
         total_ready += setup_manager.try_recieve_agent_metadata()
