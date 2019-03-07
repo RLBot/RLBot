@@ -12,13 +12,15 @@ from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.parsing.rlbot_config_parser import RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY
 
 # ====== rlbot.cfg -> MatchConfig ======
+from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
+
 
 def read_match_config_from_file(match_config_path: Path) -> MatchConfig:
     """
     Parse the rlbot.cfg file on disk into the python datastructure.
     """
     config_obj = create_bot_config_layout()
-    config_obj.parse_file(match_config_path, max_index=10)
+    config_obj.parse_file(match_config_path, max_index=MAX_PLAYERS)
     return parse_match_config(config_obj, match_config_path, {}, {})
 
 

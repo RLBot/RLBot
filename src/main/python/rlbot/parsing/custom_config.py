@@ -274,7 +274,6 @@ class ConfigValue:
 
         if self.value is None:
             return self.default
-
         if index is not None:
             if self.value[index] is None:
                 return self.default

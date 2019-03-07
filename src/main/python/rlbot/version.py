@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.14.9'
+__version__ = '1.14.10'
 
 release_notes = {
-    '1.14.9': """
+    '1.14.10': """
     - Adding a way of starting matches using a flatbuffer message. - tarehart
     - More accurate get_output call frequency for python bots. - Marvin and chip
     - Fixing compilation of RLBotDotNet project with a breaking change. - tarehart
@@ -16,6 +16,7 @@ release_notes = {
     - Fix for psyonix bots never using boost. - tarehart
     - Avoid killing the parent process, e.g. the GUI, when subprocess agents retire. - tarehart
     - Make the GUI allow non-vital cfg sections to be missing. - tarehart
+    - Max 64 bots / players. Be patient while the match is loading :) - skyborg
     """,
 
     '1.13.2': """

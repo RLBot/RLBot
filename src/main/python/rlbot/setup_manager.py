@@ -23,6 +23,7 @@ from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.utils import process_configuration
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
+from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.prediction import prediction_util
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.quick_chats import QuickChatManager
@@ -161,7 +162,7 @@ class SetupManager:
         # Set up RLBot.cfg
         if framework_config is None:
             framework_config = create_bot_config_layout()
-            framework_config.parse_file(config_location, max_index=10)
+            framework_config.parse_file(config_location, max_index=MAX_PLAYERS)
         if bot_configs is None:
             bot_configs = {}
         if looks_configs is None:
