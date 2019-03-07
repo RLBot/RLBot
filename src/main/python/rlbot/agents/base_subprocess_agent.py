@@ -1,5 +1,5 @@
 from multiprocessing import Event
-from signal import CTRL_C_EVENT
+from signal import SIGTERM
 from subprocess import Popen
 
 import rlbot
@@ -36,5 +36,5 @@ class BaseSubprocessAgent(BaseIndependentAgent):
 
         # Block until we are asked to terminate, and then do so.
         terminate_request_event.wait()
-        process.send_signal(CTRL_C_EVENT)
+        process.send_signal(SIGTERM)
         process.wait()

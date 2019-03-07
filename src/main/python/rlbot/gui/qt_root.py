@@ -395,7 +395,7 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             return
         raw_parser = configparser.RawConfigParser()
         raw_parser.read(config_path, encoding='utf8')
-        for section in self.overall_config.headers.keys():
+        for section in ['Match Configuration', 'Participant Configuration']:
             if not raw_parser.has_section(section):
                 self.popup_message(f"Config file is missing the section {section}, not loading it!",
                                    "Invalid Config File", QMessageBox.Warning)
