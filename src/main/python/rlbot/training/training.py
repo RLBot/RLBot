@@ -35,7 +35,7 @@ class Fail:
         return 'FAIL'
 
 
-class FailDueToExerciseException(Fail):
+class FailDueToException(Fail):
     """ Indicates that the test code threw an expetion. """
 
     def __init__(self, exception: Exception, traceback_string: str):
@@ -43,7 +43,17 @@ class FailDueToExerciseException(Fail):
         self.traceback_string = traceback_string
 
     def __repr__(self):
+        return 'FAIL: Exception raised:\n' + self.traceback_string
+
+class FailDueToExerciseException(FailDueToException):
+    """ Indicates that the Exercise or Grader code threw an expetion. """
+    def __repr__(self):
         return 'FAIL: Exception raised by Exercise:\n' + self.traceback_string
+
+class FailDueToExceptionInMatchSetup(FailDueToException):
+    """ Indicates that the Exercise or Grader code threw an expetion. """
+    def __repr__(self):
+        return 'FAIL: Exception raised while setting up the match:\n' + self.traceback_string
 
 
 # Note: not using Grade as a abstract base class for Pass/Fail
@@ -129,7 +139,13 @@ def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], se
             new_match_config = exercise.get_match_config()
             if new_match_config != setup_manager.match_config:
                 update_row('match', ren.renderman.white)
-                _setup_match(new_match_config, setup_manager)
+                try:
+                    _setup_match(new_match_config, setup_manager)
+                except Exception as e:
+                    update_row('match', ren.renderman.red)
+                    yield Result(exercise, seed, FailDueToExceptionInMatchSetup(e, traceback.format_exc()))
+                    continue
+
                 update_row('bots', ren.renderman.white)
                 _wait_until_bots_ready(setup_manager, new_match_config)
 
