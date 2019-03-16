@@ -505,7 +505,7 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Map:"))
         self.label_14.setText(_translate("MainWindow", "Instant Start:"))
         self.edit_mutators_pushbutton.setText(_translate("MainWindow", "Edit Mutators"))
-        self.label_13.setText(_translate("MainWindow", "Skip Replays:"))
+        self.label_13.setText(_translate("MainWindow", "Disable Goal & Match Replays:"))
         self.kill_bots_pushbutton.setText(_translate("MainWindow", "Kill Bots"))
         self.run_button.setText(_translate("MainWindow", "RUN"))
 
