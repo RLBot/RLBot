@@ -198,14 +198,14 @@ respawn_time_mutator_types = [
 def add_match_settings_header(config_object):
     match_header = config_object.add_header_name(MATCH_CONFIGURATION_HEADER)
     match_header.add_value(PARTICIPANT_COUNT_KEY, int, default=0,
-                           description='Number of bots/players which will be spawned.  We support up to max 10.')
+                           description='Number of bots/players which will be spawned.  We support up to max 64.')
     match_header.add_value(GAME_MODE, str, default="Soccer",
                            description="""What game mode the game should load.
                            Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble" """)
     match_header.add_value(GAME_MAP, str, default="DFHStadium",
                            description="""Which map the game should load into. Too many to list.""")
     match_header.add_value(SKIP_REPLAYS, bool, default=False,
-                           description="""Automatically skip replays after a goal.""")
+                           description="""Automatically skip replays after a goal. Also stops match replays from being saved.""")
     match_header.add_value(INSTANT_START, bool, default=False,
                            description="""Skip the kickoff countdown""")
 
