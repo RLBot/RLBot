@@ -205,7 +205,7 @@ def add_match_settings_header(config_object):
     match_header.add_value(GAME_MAP, str, default="DFHStadium",
                            description="""Which map the game should load into. Too many to list.""")
     match_header.add_value(SKIP_REPLAYS, bool, default=False,
-                           description="""Automatically skip replays after a goal.""")
+                           description="""Automatically skip replays after a goal. Also stops match replays from being saved.""")
     match_header.add_value(INSTANT_START, bool, default=False,
                            description="""Skip the kickoff countdown""")
 
