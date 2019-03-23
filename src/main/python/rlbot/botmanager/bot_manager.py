@@ -184,6 +184,9 @@ class BotManager:
                         if new_module_modification_time != last_module_modification_time or self.reload_request_event.is_set():
                             self.reload_request_event.clear()
                             last_module_modification_time = new_module_modification_time
+                            # Clear the render queue on reload.
+                            if hasattr(agent, 'renderer') and isinstance(agent.renderer, RenderingManager):
+                                agent.renderer.clear_all_touched_render_groups()
                             agent, agent_class_file = self.reload_agent(agent, agent_class_file)
                     except FileNotFoundError:
                         self.logger.error(f"Agent file {agent_class_file} was not found. Will try again.")
