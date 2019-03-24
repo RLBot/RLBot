@@ -180,16 +180,12 @@ def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: in
     packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
     seen_times = 0
     while seen_times < required_new_ticks:
-
         game_interface.update_live_data_packet(packet)
         def is_good_tick():
-            # Read from game data shared memory
-            tick_game_time = packet.game_info.seconds_elapsed
             if packet.game_info.seconds_elapsed == last_tick_game_time: return False
             if not packet.game_info.is_round_active: return False
             if any(car.is_demolished for car in packet.game_cars): return False
             return True
-
         if is_good_tick():
             seen_times += 1
         last_tick_game_time = packet.game_info.seconds_elapsed
