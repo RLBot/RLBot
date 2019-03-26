@@ -177,16 +177,18 @@ def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: in
     """Blocks until we're getting new packets, indicating that the match is ready."""
     rate_limit = rate_limiter.RateLimiter(120)
     last_tick_game_time = None  # What the tick time of the last observed tick was
-    game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
+    packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
     seen_times = 0
     while seen_times < required_new_ticks:
-
-        # Read from game data shared memory
-        game_interface.update_live_data_packet(game_tick_packet)
-        tick_game_time = game_tick_packet.game_info.seconds_elapsed
-        if tick_game_time != last_tick_game_time and game_tick_packet.game_info.is_round_active:
-            last_tick_game_time = tick_game_time
+        game_interface.update_live_data_packet(packet)
+        def is_good_tick():
+            if packet.game_info.seconds_elapsed == last_tick_game_time: return False
+            if not packet.game_info.is_round_active: return False
+            if any(car.is_demolished for car in packet.game_cars): return False
+            return True
+        if is_good_tick():
             seen_times += 1
+        last_tick_game_time = packet.game_info.seconds_elapsed
 
         rate_limit.acquire()
 
