@@ -194,7 +194,7 @@ def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: in
 
 
 def _setup_match(match_config: MatchConfig, manager: SetupManager):
-    manager.shut_down(quiet=True)  # To be safe.
+    manager.shut_down(kill_all_pids=True, quiet=True)  # To be safe.
     manager.load_match_config(match_config)
     manager.launch_quick_chat_manager()
     manager.launch_ball_prediction()

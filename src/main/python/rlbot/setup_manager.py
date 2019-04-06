@@ -49,7 +49,7 @@ def setup_manager_context():
     try:
         yield setup_manager
     finally:
-        setup_manager.shut_down()
+        setup_manager.shut_down(kill_all_pids=True)
 
 class SetupManager:
     """
@@ -322,6 +322,8 @@ class SetupManager:
     def kill_sub_processes(self):
         for process in self.sub_processes:
             process.terminate()
+        for process in self.sub_processes:
+            process.join(timeout=1)
         self.sub_processes = []
 
     def kill_agent_process_ids(self):
