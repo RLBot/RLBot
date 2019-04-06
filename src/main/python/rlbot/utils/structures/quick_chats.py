@@ -64,7 +64,7 @@ def register_for_quick_chat(queue_holder, called_func, quit_event):
     def threaded_func(chat_queue, called_func, quit_event):
         while not quit_event.is_set():
             try:
-                next_message = chat_queue.get(timeout=0.01)
+                next_message = chat_queue.get(timeout=0.1)
                 index, team, chat = next_message
                 called_func(index, team, chat)
             except queue.Empty:
@@ -73,11 +73,13 @@ def register_for_quick_chat(queue_holder, called_func, quit_event):
                 # Something else is shutting down - we can no longer communicate.
                 get_logger('chats').debug('quick_chat queue terminated. %s', e)
                 return
-        return
 
-    thread = Thread(target=threaded_func, args=(queue_holder["input"], called_func, quit_event))
+    thread = Thread(
+        target=threaded_func,
+        args=(queue_holder["input"], called_func, quit_event),
+        daemon=True,
+    )
     thread.start()
-    return thread
 
 
 class QuickChatManager:

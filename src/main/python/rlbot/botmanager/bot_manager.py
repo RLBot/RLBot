@@ -2,6 +2,7 @@ import os
 import time
 import traceback
 from datetime import datetime, timedelta
+import multiprocessing as mp
 
 from rlbot.agents.base_agent import BaseAgent
 from rlbot.botmanager.agent_metadata import AgentMetadata
@@ -42,6 +43,7 @@ class BotManager:
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
         self.reload_request_event = reload_request_event
+        self.quick_chat_quit_event = None
         self.bot_configuration = bot_configuration
         self.name = name
         self.team = team
@@ -99,8 +101,10 @@ class BotManager:
         agent._register_ball_prediction(self.get_ball_prediction)
         agent._register_ball_prediction_struct(self.get_ball_prediction_struct)
         agent._register_get_rigid_body_tick(self.get_rigid_body_tick)
-        register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.terminate_request_event)
-
+        if self.quick_chat_quit_event:
+            self.quick_chat_quit_event.set()
+        self.quick_chat_quit_event = mp.Event()
+        register_for_quick_chat(self.quick_chat_queue_holder, agent.handle_quick_chat, self.quick_chat_quit_event)
         while not self.is_valid_field_info():
             time.sleep(0.1)
 
@@ -216,6 +220,7 @@ class BotManager:
             agent.renderer.clear_all_touched_render_groups()
         # Zero out the inputs, so it's more obvious that the bot has stopped.
         self.game_interface.update_player_input(PlayerInput(), self.index)
+        self.quick_chat_quit_event.set()  # Shut down quick chat.
 
         # If terminated, send callback
         self.termination_complete_event.set()
