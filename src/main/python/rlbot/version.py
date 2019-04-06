@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.14.11'
+__version__ = '1.14.12'
 
 release_notes = {
-    '1.14.10': """
+    '1.14.12': """
     - Adding a way of starting matches using a flatbuffer message. - tarehart
     - More accurate get_output call frequency for python bots. - Marvin and chip
     - Fixing compilation of RLBotDotNet project with a breaking change. - tarehart
@@ -18,6 +18,7 @@ release_notes = {
     - Make the GUI allow non-vital cfg sections to be missing. - tarehart
     - Max 64 bots / players. Be patient while the match is loading :) - skyborg
     - Fix quickchats creating more polling threads each reload. - DomNomNom and SauceTheBoss
+    - Fix bot processes not ending when training ends. - DomNomNom
     """,
 
     '1.13.2': """
