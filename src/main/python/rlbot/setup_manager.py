@@ -269,6 +269,7 @@ class SetupManager:
         end_time = datetime.now() + timedelta(seconds=time_limit)
         if self.ball_prediction_process:
             self.ball_prediction_process.terminate()
+            self.ball_prediction_process.wait(timeout=1)
 
         # Wait for all processes to terminate before terminating main process
         terminated = False

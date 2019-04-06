@@ -4,7 +4,7 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.14.10'
+__version__ = '1.14.11'
 
 release_notes = {
     '1.14.10': """
@@ -17,6 +17,7 @@ release_notes = {
     - Avoid killing the parent process, e.g. the GUI, when subprocess agents retire. - tarehart
     - Make the GUI allow non-vital cfg sections to be missing. - tarehart
     - Max 64 bots / players. Be patient while the match is loading :) - skyborg
+    - Fix quickchats creating more polling threads each reload. - DomNomNom and SauceTheBoss
     """,
 
     '1.13.2': """
