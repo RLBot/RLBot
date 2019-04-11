@@ -21,7 +21,7 @@ But if you want to make improvements that help out everyone, you're in the right
 
 The RLBot framework helps people create bots for use in Rocket League's offline modes, just for fun.
 It provides values from the game like car and ball position, and carries back button presses.
-RLBot works for up to 64 bots.
+RLBot works for 10 bots; but it can also be used with 64 bots, but can result in issues (bots dissappearing after goals, spawning inside one another, etc).
 
 ### Requirements
 Windows, Rocket League, Python 3.7, 3.6 (deprecated)
