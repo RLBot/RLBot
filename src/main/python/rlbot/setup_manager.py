@@ -1,3 +1,4 @@
+from typing import List
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 import msvcrt
@@ -77,7 +78,20 @@ class SetupManager:
     start_match_configuration = None
     agent_metadata_queue = None
     extension = None
-    sub_processes = []
+    bot_processes: List[mp.Process] = []
+
+    _matchcomms_address: str = None
+    _matchcomms_process: mp.Process = None
+    @property
+    def foo(self):
+        if self._matchcomms_address is not None:
+            return self._matchcomms_address
+
+        self._matchcomms_address =
+        return self._matchcomms_address
+        return self._foo
+
+
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -186,7 +200,7 @@ class SetupManager:
 
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
-        self.kill_sub_processes()
+        self.kill_bot_processes()
 
         # Launch processes
         for i in range(self.num_participants):
@@ -202,7 +216,7 @@ class SetupManager:
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue,
                                            queue_holder, self.match_config))
                 process.start()
-                self.sub_processes.append(process)
+                self.bot_processes.append(process)
 
         self.logger.debug("Successfully started bot processes")
 
@@ -230,9 +244,9 @@ class SetupManager:
                 elif command.isalpha():
                     self.logger.info(instructions)
 
-            self.try_recieve_agent_metadata()
+            self.try_recieve_bot_metadata()
 
-    def try_recieve_agent_metadata(self):
+    def try_recieve_bot_metadata(self):
         """
         Checks whether any of the started bots have posted their AgentMetadata
         yet. If so, we put them on the agent_metadata_map such that we can
@@ -281,7 +295,7 @@ class SetupManager:
             time.sleep(0.1)
             if datetime.now() > end_time:
                 self.logger.info("Taking too long to quit, trying harder...")
-                self.kill_sub_processes()
+                self.kill_bot_processes()
                 break
 
         if kill_all_pids:
@@ -319,12 +333,12 @@ class SetupManager:
                                   agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
         bm.run()
 
-    def kill_sub_processes(self):
-        for process in self.sub_processes:
+    def kill_bot_processes(self):
+        for process in self.bot_processes:
             process.terminate()
-        for process in self.sub_processes:
+        for process in self.bot_processes:
             process.join(timeout=1)
-        self.sub_processes = []
+        self.bot_processes = []
 
     def kill_agent_process_ids(self):
         pids = process_configuration.extract_all_pids(self.agent_metadata_map)
