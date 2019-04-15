@@ -35,15 +35,14 @@ class MatchcommsServer:
     async def handle_connection(self, websocket: WebSocketServerProtocol, path: str):
         assert path == MatchcommsPaths.BROADCAST  # TODO consider using other channels
         self.users.add(websocket)
-        print('user connected')
+
         try:
             async for message in websocket:
-                print('new message!')
-                await asyncio.wait([
-                    asyncio.ensure_future(user.send(message))
-                    for user in self.users if user != websocket
-                ])
-                print('broadcasted message')
+                if len(self.users):
+                    await asyncio.wait([
+                        asyncio.ensure_future(user.send(message))
+                        for user in self.users if user != websocket
+                    ])
         finally:
             print('server lost connection to the client')
             self.users.remove(websocket)
@@ -65,8 +64,8 @@ def launch_matchcomms_server() -> MatchcommsServerThread:
     port = find_free_port()  # deliberately not using a fixed port to prevent hardcoding fragility.
 
     event_loop = asyncio.new_event_loop()
-    server = MatchcommsServer()
-    start_server = websockets.serve(server.handle_connection, host, port, loop=event_loop)
+    matchcomms_server = MatchcommsServer()
+    start_server = websockets.serve(matchcomms_server.handle_connection, host, port, loop=event_loop)
     server = event_loop.run_until_complete(start_server)
     thread = Thread(target=event_loop.run_forever, daemon=True)
     thread.start()
@@ -82,11 +81,8 @@ def self_test():
     server = launch_matchcomms_server()
     from rlbot.matchcomms.client import MatchcommsClient
     com1 = MatchcommsClient(server.uri)
-    time.sleep(1)
     com2 = MatchcommsClient(server.uri)
-    time.sleep(2)
     com1.outgoing_broadcast.put_nowait({'hi': 'there'})
-    print('put in queue')
     try:
         print('<', com2.incoming_broadcast.get(timeout=2))
     except Empty as e:
