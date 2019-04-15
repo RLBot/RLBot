@@ -28,23 +28,32 @@ class MatchcommsServerThread:
         self._thread.join(1)
         assert not self._thread.is_alive()
 
+@contextmanager
+def keep_in_set(element: Any, s: set):
+    """
+    Ensures the element is in the set while the context is running
+    and removed afterwards.
+    """
+    s.add(element)
+    try:
+        yield
+    finally:
+        s.remove(element)
+
 @dataclass
 class MatchcommsServer:
     users: Set[WebSocketServerProtocol] = field(default_factory=set) # TODO
 
     async def handle_connection(self, websocket: WebSocketServerProtocol, path: str):
         assert path == MatchcommsPaths.BROADCAST  # TODO consider using other channels
-        self.users.add(websocket)
-
-        try:
+        with keep_in_set(websocket, self.users):
             async for message in websocket:
-                if len(self.users):
+                others = [user for user in self.users if user != websocket]
+                if len(others):
                     await asyncio.wait([
-                        asyncio.ensure_future(user.send(message))
-                        for user in self.users if user != websocket
+                        asyncio.ensure_future(other.send(message))
+                        for other in others
                     ])
-        finally:
-            self.users.remove(websocket)
 
 
 def find_free_port() -> int:
