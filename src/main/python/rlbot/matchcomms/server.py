@@ -44,7 +44,6 @@ class MatchcommsServer:
                         for user in self.users if user != websocket
                     ])
         finally:
-            print('server lost connection to the client')
             self.users.remove(websocket)
 
 
@@ -84,7 +83,7 @@ def self_test():
     com2 = MatchcommsClient(server.uri)
     com1.outgoing_broadcast.put_nowait({'hi': 'there'})
     try:
-        print('<', com2.incoming_broadcast.get(timeout=2))
+        print('<', com2.incoming_broadcast.get(timeout=.2))
     except Empty as e:
         print('Did not get stuff from the queue.')
     com1.close()
