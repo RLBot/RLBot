@@ -9,6 +9,7 @@ import json
 from threading import Thread
 import socket
 import asyncio
+import time
 
 from rlbot.utils.logging_utils import get_logger
 from rlbot.matchcomms.shared import MatchcommsPaths, JSON
@@ -22,6 +23,7 @@ class MatchcommsServerThread:
     _thread: Thread
 
     def close(self, timeout=1):
+        # self._server.wait_closed()
         self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         self._thread.join(1)
         assert not self._thread.is_alive()
@@ -33,13 +35,16 @@ class MatchcommsServer:
     async def handle_connection(self, websocket: WebSocketServerProtocol, path: str):
         assert path == MatchcommsPaths.BROADCAST  # TODO consider using other channels
         self.users.add(websocket)
+
         try:
             async for message in websocket:
-                asyncio.wait([
-                    user.send(message)
-                    for user in self.users if user != websocket
-                ])
+                if len(self.users):
+                    await asyncio.wait([
+                        asyncio.ensure_future(user.send(message))
+                        for user in self.users if user != websocket
+                    ])
         finally:
+            print('server lost connection to the client')
             self.users.remove(websocket)
 
 
@@ -50,6 +55,7 @@ def find_free_port() -> int:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
 
+
 def launch_matchcomms_server() -> MatchcommsServerThread:
     """
     Launches a background process that handles match communications.
@@ -58,8 +64,8 @@ def launch_matchcomms_server() -> MatchcommsServerThread:
     port = find_free_port()  # deliberately not using a fixed port to prevent hardcoding fragility.
 
     event_loop = asyncio.new_event_loop()
-    server = MatchcommsServer()
-    start_server = websockets.serve(server.handle_connection, host, port, loop=event_loop)
+    matchcomms_server = MatchcommsServer()
+    start_server = websockets.serve(matchcomms_server.handle_connection, host, port, loop=event_loop)
     server = event_loop.run_until_complete(start_server)
     thread = Thread(target=event_loop.run_forever, daemon=True)
     thread.start()
@@ -76,14 +82,15 @@ def self_test():
     from rlbot.matchcomms.client import MatchcommsClient
     com1 = MatchcommsClient(server.uri)
     com2 = MatchcommsClient(server.uri)
-    com1.outgoing_broadcast.put({'hi': 'there'})
+    com1.outgoing_broadcast.put_nowait({'hi': 'there'})
     try:
-        print('<', com2.incoming_broadcast.get(timeout=0.5))
+        print('<', com2.incoming_broadcast.get(timeout=2))
     except Empty as e:
         print('Did not get stuff from the queue.')
     com1.close()
     com2.close()
     server.close()
+
 
 if __name__ == '__main__':
     self_test()

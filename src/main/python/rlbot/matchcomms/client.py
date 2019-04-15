@@ -29,10 +29,9 @@ class MatchcommsClient:
         thread = Thread(target=self.event_loop.run_forever, daemon=True)
         thread.start()
 
-
-
     async def _run_queue_io(self):
         async with websockets.connect(self.uri + MatchcommsPaths.BROADCAST) as websocket:
+            print('client connected to server')
             done, pending = await asyncio.wait(
                 [
                     read_into_queue(websocket, self.incoming_broadcast),
@@ -40,6 +39,7 @@ class MatchcommsClient:
                 ],
                 return_when=asyncio.FIRST_COMPLETED
             )
+            print('client lost connection to server')
             for d in done:
                 print('matchcomms client done: ', d.result())
             for p in pending:
@@ -55,17 +55,21 @@ def client_main(event_loop):
     blocks indefinitely,
     """
 
-async def read_into_queue(websocket, incoming: Queue):
+
+async def read_into_queue(websocket: WebSocketClientProtocol, incoming: Queue):
     async for message in websocket:
+        print(f'client got a message {message}')
         # TODO: try/catch on parse errors
-        await incoming.put(json.parse(message))
+        incoming.put(json.loads(message))
 
-async def send_from_queue(websocket, outgoing: Queue):
+
+async def send_from_queue(websocket: WebSocketClientProtocol, outgoing: Queue):
     while True:
-        obj = await outgoing.get()
-        websocket.send(json.dumps(obj))
+        while outgoing.empty():
+            await asyncio.sleep(0.1)
 
-
+        obj = outgoing.get_nowait()
+        await websocket.send(json.dumps(obj))
 
 
 if __name__ == '__main__':
