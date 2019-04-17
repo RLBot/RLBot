@@ -1,4 +1,8 @@
+from typing import Optional
+from urllib.parse import ParseResult as URL
+
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
+from rlbot.matchcomms.client import MatchcommsClient
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
@@ -65,12 +69,11 @@ class BaseAgent:
 
     # passed in by the bot manager
     __quick_chat_func = None
-
-    # passed in by the bot manager
     __field_info_func = None
     __game_state_func = None
     __get_rigid_body_tick_func = None
     renderer: RenderingManager = None
+    matchcomms_root: URL = None
 
     def __init__(self, name, team, index):
         self.name = name
@@ -135,6 +138,16 @@ class BaseAgent:
     def get_ball_prediction_struct(self) -> BallPrediction:
         """Fetches a prediction of where the ball will go during the next few seconds."""
         return self.__ball_prediction_struct_func()
+
+    _matchcomms_client: Optional[MatchcommsClient] = None
+    @property
+    def matchcomms_client(self) -> MatchcommsClient:
+        """
+        Gets a client to send and recieve messages to other participants in the match (e.g. bots, trainer)
+        """
+        if self._matchcomms_client is None:
+            self._matchcomms_client = MatchcommsClient(self.matchcomms_root)
+        return self._matchcomms_client  # note: _matchcomms_client.close() is called by the bot_manager.
 
     def load_config(self, config_object_header):
         """

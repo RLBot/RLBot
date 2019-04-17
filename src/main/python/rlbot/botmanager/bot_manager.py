@@ -3,9 +3,11 @@ import time
 import traceback
 from datetime import datetime, timedelta
 import multiprocessing as mp
+from urllib.parse import ParseResult as URL
 
 from rlbot.agents.base_agent import BaseAgent
 from rlbot.botmanager.agent_metadata import AgentMetadata
+from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.utils import rate_limiter
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
@@ -25,7 +27,8 @@ MAX_CARS = 10
 class BotManager:
 
     def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config):
+                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config: MatchConfig,
+                 matchcomms_root: URL):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -39,6 +42,8 @@ class BotManager:
         :param agent_class_wrapper: The ExternalClassWrapper object that can be used to load and reload the bot
         :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive AgentMetadata once available.
         :param quick_chat_queue_holder: A data structure which helps the bot send and receive quickchat
+        :param match_config: Describes the match that is being played.
+        :param matchcomms_root: The server to connect to if you want to communicate to other participants in the match.
         """
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
@@ -61,6 +66,7 @@ class BotManager:
         self.ball_prediction = None
         self.rigid_body_tick = None
         self.match_config = match_config
+        self.matchcomms_root = matchcomms_root
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -101,6 +107,7 @@ class BotManager:
         agent._register_ball_prediction(self.get_ball_prediction)
         agent._register_ball_prediction_struct(self.get_ball_prediction_struct)
         agent._register_get_rigid_body_tick(self.get_rigid_body_tick)
+        agent.matchcomms_root = self.matchcomms_root
         if self.quick_chat_quit_event:
             self.quick_chat_quit_event.set()
         self.quick_chat_quit_event = mp.Event()
@@ -221,6 +228,10 @@ class BotManager:
         # Zero out the inputs, so it's more obvious that the bot has stopped.
         self.game_interface.update_player_input(PlayerInput(), self.index)
         self.quick_chat_quit_event.set()  # Shut down quick chat.
+
+        # Don't trust the agent to shut down its own client in retire().
+        if agent._matchcomms_client is not None:
+            agent._matchcomms_client.close()
 
         # If terminated, send callback
         self.termination_complete_event.set()

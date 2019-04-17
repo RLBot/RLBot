@@ -1,14 +1,15 @@
-from typing import List
 from contextlib import contextmanager
 from datetime import datetime, timedelta
+from typing import List
+from urllib.parse import ParseResult as URL
 import msvcrt
 import multiprocessing as mp
 import os
+import psutil
 import queue
 import time
 import webbrowser
 
-import psutil
 from rlbot import version
 from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
@@ -17,6 +18,7 @@ from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.matchconfig.conversions import parse_match_config
 from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.matchcomms.server import launch_matchcomms_server
 from rlbot.parsing.agent_config_parser import load_bot_appearance
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.parsing.custom_config import ConfigObject
@@ -80,18 +82,6 @@ class SetupManager:
     extension = None
     bot_processes: List[mp.Process] = []
 
-    _matchcomms_address: str = None
-    _matchcomms_process: mp.Process = None
-    @property
-    def foo(self):
-        if self._matchcomms_address is not None:
-            return self._matchcomms_address
-
-        self._matchcomms_address =
-        return self._matchcomms_address
-        return self._foo
-
-
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -104,6 +94,7 @@ class SetupManager:
         self.agent_metadata_map = {}
         self.ball_prediction_process = None
         self.match_config: MatchConfig = None
+        self.matchcomms_server: MatchcommsServerThread = None
 
     def connect_to_game(self):
         if self.has_started:
@@ -202,6 +193,10 @@ class SetupManager:
         self.logger.debug("Launching bot processes")
         self.kill_bot_processes()
 
+        # Start matchcomms here as it's only required for the bots.
+        self.kill_matchcomms_server()
+        self.matchcomms_server = launch_matchcomms_server()
+
         # Launch processes
         for i in range(self.num_participants):
             if self.start_match_configuration.player_configuration[i].rlbot_controlled:
@@ -214,7 +209,7 @@ class SetupManager:
                                      args=(self.quit_event, quit_callback, reload_request, self.parameters[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue,
-                                           queue_holder, self.match_config))
+                                           queue_holder, self.match_config, self.matchcomms_server.root_url))
                 process.start()
                 self.bot_processes.append(process)
 
@@ -301,6 +296,8 @@ class SetupManager:
         if kill_all_pids:
             self.kill_agent_process_ids()
 
+        self.kill_matchcomms_server()
+
         # The quit event can only be set once. Let's reset to our initial state
         self.quit_event = mp.Event()
         self.helper_process_manager = HelperProcessManager(self.quit_event)
@@ -318,19 +315,22 @@ class SetupManager:
 
     @staticmethod
     def run_agent(terminate_event, callback_event, reload_request, config_file, name, team, index, python_file,
-                  agent_telemetry_queue, queue_holder, match_config: MatchConfig):
+                  agent_telemetry_queue, queue_holder, match_config: MatchConfig, matchcomms_root: URL):
 
         agent_class_wrapper = import_agent(python_file)
 
         if hasattr(agent_class_wrapper.get_loaded_class(), "run_independently"):
             bm = BotManagerIndependent(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                       agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
+                                       agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config,
+                                       matchcomms_root)
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
             bm = BotManagerFlatbuffer(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                      agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
+                                      agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config,
+                                      matchcomms_root)
         else:
             bm = BotManagerStruct(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                  agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
+                                  agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config,
+                                  matchcomms_root)
         bm.run()
 
     def kill_bot_processes(self):
@@ -359,6 +359,10 @@ class SetupManager:
             except psutil.NoSuchProcess:
                 self.logger.info("Can't fetch parent process, already dead.")
 
+    def kill_matchcomms_server(self):
+        if self.matchcomms_server:
+            self.matchcomms_server.close()
+            self.matchcomms_server = None
 
 def load_bot_parameters(config_bundle) -> ConfigObject:
     """
