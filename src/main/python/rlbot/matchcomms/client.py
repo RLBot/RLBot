@@ -1,14 +1,9 @@
-from contextlib import contextmanager, closing
-from dataclasses import dataclass, field
-from dataclasses import dataclass, field
 from enum import Enum
 from queue import Queue, Empty  # TODO(python 3.7+): use SimpleQueue
 from threading import Thread
-from typing import Iterator, Dict, Any, Tuple, Set
+from urllib.parse import ParseResult as URL, urlunparse
 import asyncio
 import json
-import multiprocessing as mp
-import socket
 import traceback
 
 import websockets
@@ -17,12 +12,19 @@ from websockets.client import WebSocketClientProtocol
 from rlbot.utils.logging_utils import get_logger
 from rlbot.matchcomms.shared import MatchcommsPaths, JSON
 
-
 class MatchcommsClient:
-    def __init__(self, uri: str):
-        self.uri = uri
+    def __init__(self, server_root_url: URL):
         self.incoming_broadcast = Queue()
         self.outgoing_broadcast = Queue()
+
+        self.broadcast_url = URL(
+            scheme=server_root_url.scheme,
+            netloc=server_root_url.netloc,
+            path=MatchcommsPaths.BROADCAST,
+            params='',
+            query='',
+            fragment='',
+        )
 
         self.event_loop = asyncio.new_event_loop()
         self.event_loop.create_task(self._run_queue_io())
@@ -31,7 +33,7 @@ class MatchcommsClient:
 
     async def _run_queue_io(self):
         try:
-            async with websockets.connect(self.uri + MatchcommsPaths.BROADCAST) as websocket:
+            async with websockets.connect(urlunparse(self.broadcast_url)) as websocket:
                 io_task = self.event_loop.create_task(asyncio.wait(
                     [
                         read_into_queue(websocket, self.incoming_broadcast),
@@ -63,6 +65,7 @@ class MatchcommsClient:
         self.thread.join(1)
         assert not self.thread.is_alive()
 
+
 async def read_into_queue(websocket: WebSocketClientProtocol, incoming: Queue):
     async for message in websocket:
         try:
@@ -70,8 +73,6 @@ async def read_into_queue(websocket: WebSocketClientProtocol, incoming: Queue):
         except json.decoder.JSONDecodeError:
             print('Failed to decode this message:', repr(message))
             traceback.print_exc()
-
-
 
 async def send_from_queue(websocket: WebSocketClientProtocol, outgoing: Queue):
     while True:

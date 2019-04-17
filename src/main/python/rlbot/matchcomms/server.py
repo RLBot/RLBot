@@ -2,14 +2,16 @@ from contextlib import contextmanager, closing
 from dataclasses import dataclass, field
 from enum import Enum
 from queue import Queue, Empty  # TODO(python 3.7+): use SimpleQueue
-from typing import Iterator, Dict, Any, Tuple, Set
-import websockets
-from websockets.server import WebSocketServerProtocol, WebSocketServer
-import json
 from threading import Thread
-import socket
+from typing import Iterator, Dict, Any, Tuple, Set
+from urllib.parse import ParseResult as URL
 import asyncio
+import json
+import socket
 import time
+
+from websockets.server import WebSocketServerProtocol, WebSocketServer
+import websockets
 
 from rlbot.utils.logging_utils import get_logger
 from rlbot.matchcomms.shared import MatchcommsPaths, JSON
@@ -17,13 +19,12 @@ from rlbot.matchcomms.shared import MatchcommsPaths, JSON
 
 @dataclass
 class MatchcommsServerThread:
-    uri: str  # how to connect to the server
+    root_url: URL  # How to connect to the server.
     _server: WebSocketServer
     _event_loop: asyncio.AbstractEventLoop
     _thread: Thread
 
     def close(self, timeout=1):
-        # self._server.wait_closed()
         self._event_loop.call_soon_threadsafe(self._event_loop.stop)
         self._thread.join(1)
         assert not self._thread.is_alive()
@@ -78,7 +79,7 @@ def launch_matchcomms_server() -> MatchcommsServerThread:
     thread = Thread(target=event_loop.run_forever, daemon=True)
     thread.start()
     return MatchcommsServerThread(
-        uri=f'ws://{host}:{port}',
+        root_url=URL(scheme='ws', netloc=f'{host}:{port}', path='', params='', query='', fragment=''),
         _server=server,
         _event_loop=event_loop,
         _thread=thread,
@@ -88,8 +89,8 @@ def launch_matchcomms_server() -> MatchcommsServerThread:
 def self_test():
     server = launch_matchcomms_server()
     from rlbot.matchcomms.client import MatchcommsClient
-    com1 = MatchcommsClient(server.uri)
-    com2 = MatchcommsClient(server.uri)
+    com1 = MatchcommsClient(server.root_url)
+    com2 = MatchcommsClient(server.root_url)
     com1.outgoing_broadcast.put_nowait({'hi': 'there'})
     try:
         print('<', com2.incoming_broadcast.get(timeout=.2))
