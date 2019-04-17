@@ -244,9 +244,9 @@ class SetupManager:
                 elif command.isalpha():
                     self.logger.info(instructions)
 
-            self.try_recieve_bot_metadata()
+            self.try_recieve_agent_metadata()
 
-    def try_recieve_bot_metadata(self):
+    def try_recieve_agent_metadata(self):
         """
         Checks whether any of the started bots have posted their AgentMetadata
         yet. If so, we put them on the agent_metadata_map such that we can
