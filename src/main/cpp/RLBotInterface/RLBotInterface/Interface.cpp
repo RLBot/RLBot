@@ -10,6 +10,10 @@
 #include "GameFunctions\PlayerInfo.hpp"
 #include "RenderFunctions\RenderFunctions.hpp"
 
+#include <Windows.h>
+
+#include <cerrno>
+
 namespace Interface
 {
 	std::atomic_bool bInitialized(false);
@@ -21,7 +25,7 @@ namespace Interface
 
 	DWORD WINAPI Initialize(void*)
 	{
-#ifdef _DEBUG
+#ifdef _DEBUG && _WIN32
 		AllocConsole();
 		AttachConsole(GetCurrentProcessId());
 		freopen("CONOUT$", "w", stdout);
@@ -32,13 +36,13 @@ namespace Interface
 		DEBUG_LOG("Initializing...\n");
 
 		if (!MutexUtilities::WaitForCore())
-			return ERROR_FUNCTION_FAILED;
+			return EINTR;
 
 		if (!FileMappings::Initialize())
-			return ERROR_FUNCTION_FAILED;
+			return EINTR;
 
 		if (!CallbackProcessor::Initialize())
-			return ERROR_FUNCTION_FAILED;
+			return EINTR;
 
 		GameFunctions::Initialize_GamePacket();
 		GameFunctions::Initialize_GameFunctions();
@@ -48,7 +52,7 @@ namespace Interface
 		bInitialized = true;
 		DEBUG_LOG("RLBot Core Interface has been successfully initialized!\n");
 
-		return ERROR_SUCCESS;
+		return 0;
 	}
 
 	void Uninitialize()
@@ -56,7 +60,7 @@ namespace Interface
 		CallbackProcessor::Deinitialize();
 		FileMappings::Deinitialize();
 
-#ifdef _DEBUG
+#ifdef _DEBUG && _WIN32
 		FreeConsole();
 #endif
 	}

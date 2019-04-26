@@ -71,7 +71,7 @@ int runBallPrediction()
 	MutexUtilities::CreateBallPredictionMutex();
 
 	while (!Interface::IsInitialized())
-		Sleep(100);
+		std::this_thread::sleep_for(std::chrono::microseconds(100));
 
 	while (true) 
 	{
