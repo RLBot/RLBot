@@ -51,8 +51,7 @@ namespace FileMappings
 
 	void Lock(void* pSharedMem)
 	{
-		while (InterlockedCompareExchange((unsigned int*)pSharedMem, LOCKED, UNLOCKED) != UNLOCKED)
-			Sleep(0);
+		while (InterlockedCompareExchange((unsigned int*)pSharedMem, LOCKED, UNLOCKED) != UNLOCKED) {}
 	}
 
 	void Unlock(void* pSharedMem)

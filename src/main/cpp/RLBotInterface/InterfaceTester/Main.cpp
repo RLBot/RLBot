@@ -1,14 +1,14 @@
-#include <Windows.h>
+#include <thread>
 #include <GameFunctions\GameFunctions.hpp>
 #include <Interface.hpp>
 
 int main()
 {
 	while (!Interface::IsInitialized())
-		Sleep(100);
+		std::this_thread::sleep_for(std::chrono::microseconds(100));
 
 	MatchSettings settings;
-	ZeroMemory(&settings, sizeof(MatchSettings));
+	memset(&settings, 0, sizeof(MatchSettings));
 
 	PlayerConfiguration& player1 = settings.PlayerConfiguration[0];
 	player1.Bot = false;
@@ -40,5 +40,5 @@ int main()
 
 	GameFunctions::StartMatch(settings, nullptr, nullptr);
 
-	return ERROR_SUCCESS;
+	return 0;
 }

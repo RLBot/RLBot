@@ -1,6 +1,8 @@
 #include "MutexUtilities.hpp"
 
 #include <Windows.h>
+#include <thread>
+#include <cerrno>
 
 #include "..\DebugHelper.hpp"
 
@@ -17,7 +19,7 @@ namespace MutexUtilities
 		{
 			DWORD dwLastError = GetLastError();
 
-			if (dwLastError != ERROR_FILE_NOT_FOUND)
+			if (dwLastError != ENOENT)
 				DEBUG_LOG("OpenMutex failed! Error code: 0x%08X\n", dwLastError);
 
 			return false;
@@ -40,14 +42,13 @@ namespace MutexUtilities
 			{
 				DWORD dwLastError = GetLastError();
 
-				if (dwLastError != ERROR_FILE_NOT_FOUND)
+				if (dwLastError != ENOENT)
 				{
 					DEBUG_LOG("OpenMutex failed! Error code: 0x%08X\n", dwLastError);
 
 					return false;
 				}
-
-				Sleep(100);
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
 		}
 
