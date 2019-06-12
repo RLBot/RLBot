@@ -5,6 +5,7 @@
 </p>
 
 [<img src="https://img.shields.io/pypi/v/rlbot.svg">](https://pypi.org/project/rlbot/)
+[<img src="https://img.shields.io/discord/348658686962696195.svg?colorB=7581dc&logo=discord&logoColor=white">](https://discord.gg/zbaAKPt)
 
 ## Bot Makers Read This!
 
