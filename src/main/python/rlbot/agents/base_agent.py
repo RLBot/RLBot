@@ -50,6 +50,9 @@ class SimpleControllerState:
         self.jump = jump
         self.boost = boost
         self.handbrake = handbrake
+        
+     def __getitem__(self, key):
+        return self[key]
 
 
 class BaseAgent:
