@@ -1,11 +1,4 @@
-# RLBot
-
-<p align="center">
-  <img width="512" height="158" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot.png">
-</p>
-
-[<img src="https://img.shields.io/pypi/v/rlbot.svg">](https://pypi.org/project/rlbot/)
-[<img src="https://img.shields.io/discord/348658686962696195.svg?colorB=7581dc&logo=discord&logoColor=white">](https://discord.gg/zbaAKPt)
+# DO NOT PULL THIS REPO
 
 ## Bot Makers Read This!
 
@@ -16,7 +9,24 @@
  - Scratch - https://github.com/RLBot/RLBotScratchInterface
  - Rust - https://crates.io/crates/rlbot
 
-But if you want to make improvements that help out everyone, you're in the right place!
+## Framework Contributors
+
+This repository is temporarily obsolete because ongoing development has gone 'closed source' to meet the legal needs of the Psyonix API. You should not be pulling this repo as a contributor because it's too outdated to support changes:
+- It doesn't interact successfully with the latest version of Rocket League, so you wouldn't be able to test changes adequately.
+- The closed source branch has diverged enough that merging would be troublesome.
+
+We expect we'll be able to open-source everything eventually, and then this repo will be back in business. 
+
+# RLBot
+
+<p align="center">
+  <img width="512" height="158" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot.png">
+</p>
+
+[<img src="https://img.shields.io/pypi/v/rlbot.svg">](https://pypi.org/project/rlbot/)
+[<img src="https://img.shields.io/discord/348658686962696195.svg?colorB=7581dc&logo=discord&logoColor=white">](https://discord.gg/zbaAKPt)
+
+
 
 ## Framework Info
 
