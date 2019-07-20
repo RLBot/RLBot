@@ -36,7 +36,8 @@ class Touch(Struct):
                 ("time_seconds", ctypes.c_float),
                 ("hit_location", Vector3),
                 ("hit_normal", Vector3),
-                ("team", ctypes.c_int)]
+                ("team", ctypes.c_int),
+                ("player_index", ctypes.c_int)]
 
 
 class ScoreInfo(Struct):

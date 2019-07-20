@@ -49,11 +49,19 @@ class RLBotDllTest {
         int mutatorsOffset = MutatorSettings.createMutatorSettings(matchSettingsBuilder, MatchLength.Ten_Minutes,
                 MaxScore.Five_Goals, OvertimeOption.Five_Max_Random_Team, SeriesLengthOption.Three_Games, GameSpeedOption.Default,
                 BallMaxSpeedOption.Fast, BallTypeOption.Cube, BallWeightOption.Light, BallSizeOption.Small, BallBouncinessOption.Default,
-                BoostOption.Unlimited_Boost, RumbleOption.None, BoostStrengthOption.OneAndAHalf, GravityOption.Low, DemolishOption.Default,
+                BoostOption.Unlimited_Boost, RumbleOption.No_Rumble, BoostStrengthOption.OneAndAHalf, GravityOption.Low, DemolishOption.Default,
                 RespawnTimeOption.Three_Seconds);
 
-        int matchSettingsOffset = MatchSettings.createMatchSettings(matchSettingsBuilder, playerConfigurationsOffset, GameMode.Hoops, GameMap.AquaDome,
-                false, false, mutatorsOffset);
+
+        MatchSettings.startMatchSettings(matchSettingsBuilder);
+        MatchSettings.addPlayerConfigurations(matchSettingsBuilder, playerConfigurationsOffset);
+        MatchSettings.addGameMode(matchSettingsBuilder, GameMode.Hoops);
+        MatchSettings.addGameMap(matchSettingsBuilder, GameMap.Hoops_DunkHouse);
+        MatchSettings.addSkipReplays(matchSettingsBuilder, false);
+        MatchSettings.addInstantStart(matchSettingsBuilder, false);
+        MatchSettings.addMutatorSettings(matchSettingsBuilder, mutatorsOffset);
+        MatchSettings.addExistingMatchBehavior(matchSettingsBuilder, ExistingMatchBehavior.Restart_If_Different);
+        int matchSettingsOffset = MatchSettings.endMatchSettings(matchSettingsBuilder);
 
         matchSettingsBuilder.finish(matchSettingsOffset);
 

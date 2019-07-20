@@ -2,8 +2,6 @@
 
 #include "GamePacket.hpp"
 #include <MessageTranslation\FlatbufferTranslator.hpp>
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
 #include <BoostUtilities\BoostUtilities.hpp>
 #include <BoostUtilities\BoostConstants.hpp>
 
@@ -12,6 +10,7 @@ namespace GameFunctions
 	BoostUtilities::SharedMemReader* pFlatFieldMem = nullptr;
 	BoostUtilities::SharedMemReader* pFlatTickMem = nullptr;
 	BoostUtilities::SharedMemReader* pPhysicsTickMem = nullptr;
+	BoostUtilities::SharedMemReader* pMatchSettingsReader = nullptr;
 
 	ByteBuffer MakeEmptyBuffer()
 	{
@@ -26,6 +25,7 @@ namespace GameFunctions
 		pFlatFieldMem = new BoostUtilities::SharedMemReader(BoostConstants::FieldInfoFlatName);
 		pFlatTickMem = new BoostUtilities::SharedMemReader(BoostConstants::GameDataFlatName);
 		pPhysicsTickMem = new BoostUtilities::SharedMemReader(BoostConstants::PhysicsTickFlatName);
+		pMatchSettingsReader = new BoostUtilities::SharedMemReader(BoostConstants::MatchSettingsName);
 	}
 
 	//////////////
@@ -94,5 +94,14 @@ namespace GameFunctions
 		delete[] flatbuffer.ptr;
 
 		return RLBotCoreStatus::Success;
+	}
+
+	extern "C" DLL_EXPORT ByteBuffer RLBOT_CORE_API GetMatchSettings()
+	{
+		if (!pMatchSettingsReader)
+		{
+			return MakeEmptyBuffer();
+		}
+		return pMatchSettingsReader->fetchData();
 	}
 }

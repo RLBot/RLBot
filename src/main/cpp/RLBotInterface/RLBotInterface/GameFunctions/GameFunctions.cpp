@@ -9,20 +9,20 @@
 #include <BoostUtilities\BoostConstants.hpp>
 #include <BoostUtilities\BoostUtilities.hpp>
 #include <MessageTranslation\FlatbufferTranslator.hpp>
-
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
+#include <MessageTranslation\StructToRLBotFlatbuffer.hpp>
 
 #include <chrono>
 #include <thread>
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
 
 namespace GameFunctions
 {
 	BoostUtilities::QueueSender* pGameStateQueue = nullptr;
+	BoostUtilities::QueueSender* pMatchControlQueue = nullptr;
 
 	void Initialize_GameFunctions()
 	{
 		pGameStateQueue = new BoostUtilities::QueueSender(BoostConstants::GameStateFlatQueueName);
+		pMatchControlQueue = new BoostUtilities::QueueSender(BoostConstants::MatchControlQueueName);
 	}
 
 	extern "C" void RLBOT_CORE_API Free(void* ptr)
@@ -93,7 +93,7 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings)
 	{
 		int numPlayers = matchSettings.NumPlayers;
 		//ToDo: Check the other settings
@@ -102,12 +102,10 @@ namespace GameFunctions
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		BEGIN_GAME_FUNCTION(StartMatchMessage, pStartMatch);
-		REGISTER_CALLBACK(pStartMatch, callback, pID);
-		pStartMatch->MatchSettings = matchSettings;
-		END_GAME_FUNCTION;
+		flatbuffers::FlatBufferBuilder builder;
+		StructToRLBotFlatbuffer::BuildStartMatchMessage(&builder, matchSettings);
 
-		return RLBotCoreStatus::Success;
+		return pMatchControlQueue->sendMessage(builder.GetBufferPointer(), builder.GetSize());
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatchFlatbuffer(void* startMatchSettings, int size)
@@ -120,6 +118,6 @@ namespace GameFunctions
 
 		FlatbufferTranslator::translateToMatchSettingsStruct(buf, &matchSettings);
 
-		return StartMatch(matchSettings, 0, 0); // Pass empty callback function and pid.
+		return StartMatch(matchSettings);
 	}
 }

@@ -1,9 +1,6 @@
-import os
-
-from rlbot.agents.base_java_agent import BaseJavaAgent
+from rlbot.agents.executable_with_socket_agent import ExecutableWithSocketAgent
 
 
-class JavaBot(BaseJavaAgent):
-    def get_port_file_path(self):
-        # Look for a port.cfg file in the same directory as THIS python file.
-        return os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__), 'port.cfg'))
+class JavaBot(ExecutableWithSocketAgent):
+    def get_port(self):
+        return 24008

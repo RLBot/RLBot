@@ -38,8 +38,11 @@ public class RLBotDll {
     private static native int SetGameState(Pointer ptr, int size);
     private static native ByteBufferStruct GetBallPrediction();
     private static native int SendQuickChat(Pointer ptr, int size);
+    private static native ByteBufferStruct ReceiveChat(int botIndex, int teamIndex, int lastMessageIndex);
     private static native int StartMatchFlatbuffer(Pointer ptr, int size);
+    private static native ByteBufferStruct GetMatchSettings();
     private static native boolean IsInitialized();  // This asks the dll instance whether it is done initializing.
+    private static native void Free(Pointer ptr);
 
     // This helps us keep track internally of whether we have initialized, so that we only do it once.
     private static boolean isInitializationComplete = false;
@@ -68,7 +71,15 @@ public class RLBotDll {
             // Currently interfaceDllPath points to a 64 or 32 bit dll based on the bitness
             // of the python installation. That's not what we want, we care about the
             // bitness of the JVM, so pick the correct one from the folder.
-            Path dllSource = Paths.get(interfaceDllPath).getParent().resolve(dllName);
+
+            final Path givenPath = Paths.get(interfaceDllPath);
+            final Path dllFolder;
+            if (Files.isDirectory(givenPath)) {
+                dllFolder = givenPath;
+            } else {
+                dllFolder = givenPath.getParent();
+            }
+            Path dllSource = dllFolder.resolve(dllName);
 
             // Copy the interface dll to a known location that is already on the classpath.
             Files.copy(
@@ -85,7 +96,7 @@ public class RLBotDll {
                     attemptCount++;
                     if (attemptCount > 100) {
                         // Should throw after about 10 seconds of waiting.
-                        throw new IOException("The RLBot interface appears to be taking forever to initialize!");
+                        throw new RLBotInterfaceException("The RLBot interface appears to be taking forever to initialize!");
                     }
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -108,36 +119,38 @@ public class RLBotDll {
     /**
      * Retrieves up-to-date game information like the positions of the ball and cars, among many other things.
      */
-    public static GameTickPacket getFlatbufferPacket() throws IOException {
+    public static GameTickPacket getFlatbufferPacket() throws RLBotInterfaceException {
         try {
             final ByteBufferStruct struct = UpdateLiveDataPacketFlatbuffer();
             if (struct.size < 4) {
-                throw new IOException("Flatbuffer packet is too small, match is probably not running!");
+                throw new RLBotInterfaceException("Flatbuffer packet is too small, match is probably not running!");
             }
             final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            Free(struct.ptr);
             return GameTickPacket.getRootAsGameTickPacket(ByteBuffer.wrap(protoBytes));
         } catch (final UnsatisfiedLinkError error) {
-            throw new IOException("Could not find interface dll! Did initialize get called?", error);
+            throw new RLBotInterfaceException("Could not find interface dll! Did initialize get called?", error);
         } catch (final Error error) {
-            throw new IOException(error);
+            throw new RLBotInterfaceException(error);
         }
     }
 
     /**
      * Retrieves information about boost pad locations, goal locations, dropshot tile locations, etc.
      */
-    public static FieldInfo getFieldInfo() throws IOException {
+    public static FieldInfo getFieldInfo() throws RLBotInterfaceException {
         try {
             final ByteBufferStruct struct = UpdateFieldInfoFlatbuffer();
             if (struct.size < 4) {
-                throw new IOException("Flatbuffer packet is too small, match is probably not running!");
+                throw new RLBotInterfaceException("Flatbuffer packet is too small, match is probably not running!");
             }
             final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            Free(struct.ptr);
             return FieldInfo.getRootAsFieldInfo(ByteBuffer.wrap(protoBytes));
         } catch (final UnsatisfiedLinkError error) {
-            throw new IOException("Could not find interface dll! Did initialize get called?", error);
+            throw new RLBotInterfaceException("Could not find interface dll! Did initialize get called?", error);
         } catch (final Error error) {
-            throw new IOException(error);
+            throw new RLBotInterfaceException(error);
         }
     }
 
@@ -148,16 +161,20 @@ public class RLBotDll {
 
         FlatBufferBuilder builder = new FlatBufferBuilder(50);
 
-        int controllerStateOffset = rlbot.flat.ControllerState.createControllerState(
-                builder,
-                controllerState.getThrottle(),
-                controllerState.getSteer(),
-                controllerState.getPitch(),
-                controllerState.getYaw(),
-                controllerState.getRoll(),
-                controllerState.holdJump(),
-                controllerState.holdBoost(),
-                controllerState.holdHandbrake());
+        rlbot.flat.ControllerState.startControllerState(builder);
+
+        rlbot.flat.ControllerState.addBoost(builder, controllerState.holdBoost());
+        rlbot.flat.ControllerState.addThrottle(builder, controllerState.getThrottle());
+        rlbot.flat.ControllerState.addSteer(builder, controllerState.getSteer());
+        rlbot.flat.ControllerState.addPitch(builder, controllerState.getPitch());
+        rlbot.flat.ControllerState.addYaw(builder, controllerState.getYaw());
+        rlbot.flat.ControllerState.addRoll(builder, controllerState.getRoll());
+        rlbot.flat.ControllerState.addJump(builder, controllerState.holdJump());
+        rlbot.flat.ControllerState.addBoost(builder, controllerState.holdBoost());
+        rlbot.flat.ControllerState.addHandbrake(builder, controllerState.holdHandbrake());
+        rlbot.flat.ControllerState.addUseItem(builder, controllerState.holdUseItem());
+
+        int controllerStateOffset = rlbot.flat.ControllerState.endControllerState(builder);
 
         int playerInputOffset = rlbot.flat.PlayerInput.createPlayerInput(
                 builder,
@@ -196,18 +213,19 @@ public class RLBotDll {
      * Gets the predicted path of the ball as a list of slices.
      * See https://github.com/RLBot/RLBotJavaExample/wiki/Ball-Path-Prediction for more details.
      */
-    public static BallPrediction getBallPrediction() throws IOException {
+    public static BallPrediction getBallPrediction() throws RLBotInterfaceException {
         try {
             final ByteBufferStruct struct = GetBallPrediction();
             if (struct.size < 4) {
-                throw new IOException("Flatbuffer packet is too small, match is probably not running!");
+                throw new RLBotInterfaceException("Flatbuffer packet is too small, match is probably not running!");
             }
             final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            Free(struct.ptr);
             return BallPrediction.getRootAsBallPrediction(ByteBuffer.wrap(protoBytes));
         } catch (final UnsatisfiedLinkError error) {
-            throw new IOException("Could not find interface dll! Did initialize get called?", error);
+            throw new RLBotInterfaceException("Could not find interface dll! Did initialize get called?", error);
         } catch (final Error error) {
-            throw new IOException(error);
+            throw new RLBotInterfaceException(error);
         }
     }
 
@@ -227,17 +245,42 @@ public class RLBotDll {
     public static RLBotCoreStatus sendQuickChat(int playerIndex, boolean teamOnly, byte quickChatSelection) {
         FlatBufferBuilder builder = new FlatBufferBuilder(50);
 
-        int offset = rlbot.flat.QuickChat.createQuickChat(
-                builder,
-                quickChatSelection,
-                playerIndex,
-                teamOnly);
+        QuickChat.startQuickChat(builder);
+        QuickChat.addQuickChatSelection(builder, quickChatSelection);
+        QuickChat.addPlayerIndex(builder, playerIndex);
+        QuickChat.addTeamOnly(builder, teamOnly);
+        int offset = QuickChat.endQuickChat(builder);
 
         builder.finish(offset);
 
         final byte[] protoBytes = builder.sizedByteArray();
         final Memory memory = getMemory(protoBytes);
         return RLBotCoreStatus.fromDllResult(SendQuickChat(memory, protoBytes.length));
+    }
+
+    /**
+     * Reads quickchat that has been sent by other bots.
+     * @param botIndex Please pass the bot's own index so that its own messages aren't returned.
+     * @param teamIndex Pass the bot's team so that the other team's private team chat is not returned.
+     * @param lastMessageIndex Each message has an index inside it. The first time you use this function,
+     *                         you can pass -1. On subsequent calls, you should pass the index that was
+     *                         inside the most recent message so that you don't receive any of the messages
+     *                         twice.
+     */
+    public static QuickChatMessages receiveQuickChat(int botIndex, int teamIndex, int lastMessageIndex) throws RLBotInterfaceException {
+        try {
+            final ByteBufferStruct byteBuffer = ReceiveChat(botIndex, teamIndex, lastMessageIndex);
+            if (byteBuffer.size < 4) {
+                throw new RLBotInterfaceException("Flatbuffer packet is too small, quick chat is probably not available!");
+            }
+            final byte[] protoBytes = byteBuffer.ptr.getByteArray(0, byteBuffer.size);
+            Free(byteBuffer.ptr);
+            return QuickChatMessages.getRootAsQuickChatMessages(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new RLBotInterfaceException("Could not find interface dll! Did initialize get called?", error);
+        } catch (final Error error) {
+            throw new RLBotInterfaceException(error);
+        }
     }
 
     /**
@@ -257,6 +300,26 @@ public class RLBotDll {
         final byte[] bytes = matchSettingsBuilder.sizedByteArray();
         final Memory memory = getMemory(bytes);
         return RLBotCoreStatus.fromDllResult(StartMatchFlatbuffer(memory, bytes.length));
+    }
+
+    /**
+     * Gets the most recent match settings that were sent to RLBot. Useful for determining the game mode,
+     * what map we're playing on, mutators, etc.
+     */
+    public static MatchSettings getMatchSettings() throws RLBotInterfaceException {
+        try {
+            final ByteBufferStruct struct = GetMatchSettings();
+            if (struct.size < 4) {
+                throw new RLBotInterfaceException("Flatbuffer packet is too small, match settings are probably not present!");
+            }
+            final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            Free(struct.ptr);
+            return MatchSettings.getRootAsMatchSettings(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new RLBotInterfaceException("Could not find interface dll! Did initialize get called?", error);
+        } catch (final Error error) {
+            throw new RLBotInterfaceException(error);
+        }
     }
 
     private static Memory getMemory(byte[] protoBytes) {

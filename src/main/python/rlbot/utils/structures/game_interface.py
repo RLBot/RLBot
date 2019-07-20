@@ -1,23 +1,25 @@
 import ctypes
 import os
-import subprocess
 import sys
 import time
-import flatbuffers
+from logging import DEBUG, WARNING
 
+import flatbuffers
+from rlbot.messages.flat.MatchSettings import MatchSettings as MatchSettingsPacket
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
+from rlbot.messages.flat.QuickChatMessages import QuickChatMessages
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.rendering.rendering_manager import RenderingManager
-from rlbot.utils.rlbot_exception import get_exception_from_error_code
+from rlbot.utils.rlbot_exception import get_exception_from_error_code, EmptyDllResponse
+from rlbot.utils.structures import game_data_struct
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, ByteBuffer, FieldInfoPacket
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 from rlbot.utils.structures.start_match_structures import MatchSettings
-from logging import DEBUG, WARNING
 
 
 def wrap_callback(callback_func):
@@ -89,7 +91,7 @@ class GameInterface:
 
         # start match
         func = self.game.StartMatch
-        func.argtypes = [MatchSettings, self.game_status_callback_type, ctypes.c_void_p]
+        func.argtypes = [MatchSettings]
         func.restype = ctypes.c_int
 
         # update player input
@@ -111,10 +113,18 @@ class GameInterface:
         func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
 
+        func = self.game.ReceiveChat
+        func.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        func.restype = ByteBuffer
+
         # set game state
         func = self.game.SetGameState
         func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
+
+        func = self.game.GetMatchSettings
+        func.argtypes = []
+        func.restype = ByteBuffer
 
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
@@ -139,9 +149,7 @@ class GameInterface:
     def start_match(self):
         self.wait_until_loaded()
         # self.game_input_packet.bStartMatch = True
-        rlbot_status = self.game.StartMatch(self.start_match_configuration,
-                                            self.create_status_callback(
-                                                None if self.extension is None else self.extension.onMatchStart), None)
+        rlbot_status = self.game.StartMatch(self.start_match_configuration)
 
         if rlbot_status != 0:
             exception_class = get_exception_from_error_code(rlbot_status)
@@ -163,6 +171,17 @@ class GameInterface:
         self.game_status(None, rlbot_status)
         return rlbot_status
 
+    def receive_chat(self, index, team, last_message_index) -> QuickChatMessages:
+        byte_buffer = self.game.ReceiveChat(index, team, last_message_index)
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            return QuickChatMessages.GetRootAsQuickChatMessages(proto_string, 0)
+        else:
+            raise EmptyDllResponse()
+
     def create_callback(self):
         return
 
@@ -171,13 +190,28 @@ class GameInterface:
             self.logger.log(level, "bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
     def wait_until_loaded(self):
-        self.game.IsInitialized.restype = ctypes.c_bool
-        is_loaded = self.game.IsInitialized()
-        if is_loaded:
-            self.logger.debug('DLL is loaded!')
-        if not is_loaded:
-            time.sleep(1)
-            self.wait_until_loaded()
+        for i in range(0, 120):
+            self.game.IsInitialized.restype = ctypes.c_bool
+            is_loaded = self.game.IsInitialized()
+            if is_loaded:
+                self.logger.info('DLL is initialized!')
+                return
+            else:
+                time.sleep(1)
+        raise TimeoutError("RLBot took too long to initialize! Was Rocket League started with the -rlbot flag? "
+                           "If you're not sure, close Rocket League and let us open it for you next time!")
+
+    def wait_until_valid_packet(self):
+        self.logger.info('Waiting for valid packet...')
+        for i in range(0, 16):
+            packet = game_data_struct.GameTickPacket()
+            self.update_live_data_packet(packet)
+            if packet.num_cars > 0:
+                self.logger.info('Packets are looking good!')
+                return
+            else:
+                time.sleep(0.5)
+        self.logger.info('Gave up waiting for valid packet :(')
 
     def load_interface(self):
         self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)
@@ -185,51 +219,6 @@ class GameInterface:
         self.game = ctypes.CDLL(self.dll_path)
         time.sleep(1)
         self.setup_function_types()
-
-    def inject_dll(self):
-        """
-        Calling this function will inject the DLL without GUI
-        DLL will return status codes from 0 to 5 which correspond to injector_codes
-        DLL injection is only valid if codes are 0->'INJECTION_SUCCESSFUL' or 3->'RLBOT_DLL_ALREADY_INJECTED'
-        It will print the output code and if it's not valid it will kill runner.py
-        If RL isn't running the Injector will stay hidden waiting for RL to open and inject as soon as it does
-        """
-
-        self.logger.info('Injecting DLL')
-        # Inject DLL
-        injector_dir = os.path.join(get_dll_directory(), 'RLBot_Injector.exe')
-
-        for file in ['RLBot_Injector.exe', 'RLBot_Core.dll', 'RLBot_Core_Interface.dll', 'RLBot_Core_Interface_32.dll']:
-            file_path = os.path.join(get_dll_directory(), file)
-            if not os.path.isfile(file_path):
-                raise FileNotFoundError(f'{file} was not found in {get_dll_directory()}. '
-                                        'Please check that the file exists and your antivirus '
-                                        'is not removing it. See https://github.com/RLBot/RLBot/wiki/Antivirus-Notes')
-
-        incode = subprocess.call([injector_dir, 'hidden'])
-        injector_codes = ['INJECTION_SUCCESSFUL',
-                          'INJECTION_FAILED',
-                          'MULTIPLE_ROCKET_LEAGUE_PROCESSES_FOUND',
-                          'RLBOT_DLL_ALREADY_INJECTED',
-                          'RLBOT_DLL_NOT_FOUND',
-                          'MULTIPLE_RLBOT_DLL_FILES_FOUND']
-        injector_valid_codes = ['INJECTION_SUCCESSFUL',
-                                'RLBOT_DLL_ALREADY_INJECTED']
-        injection_status = injector_codes[incode]
-        if injection_status in injector_valid_codes:
-            self.logger.info('Finished Injecting DLL')
-            return injection_status
-        else:
-            self.logger.error('Failed to inject DLL: ' + injection_status)
-            sys.exit()
-
-    def countdown(self, countdown_timer):
-        self.logger.info(f"Waiting {countdown_timer} seconds for DLL to load")
-        for i in range(countdown_timer):
-            sys.stdout.write(".")
-            sys.stdout.flush()
-            time.sleep(1)
-        print('')
 
     def create_status_callback(self, callback=None):
         """
@@ -321,3 +310,18 @@ class GameInterface:
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, RLBotCoreStatus.Success)
             return BallPredictionPacket.GetRootAsBallPrediction(proto_string, 0)
+
+    def get_match_settings(self) -> MatchSettings:
+        """
+        Gets the current match settings in flatbuffer format. Useful for determining map, game mode, mutator settings,
+        etc.
+        """
+        byte_buffer = self.game.GetMatchSettings()
+
+        if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
+            # We're counting on this copying the data over to a new memory location so that the original
+            # pointer can be freed safely.
+            proto_string = ctypes.string_at(byte_buffer.ptr, byte_buffer.size)
+            self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
+            self.game_status(None, RLBotCoreStatus.Success)
+            return MatchSettingsPacket.GetRootAsMatchSettings(proto_string, 0)

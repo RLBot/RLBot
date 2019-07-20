@@ -25,8 +25,8 @@ def record_atba():
     manager.load_config(framework_config=framework_config, config_location=RLBOT_CONFIG_FILE)
     manager.launch_ball_prediction()
     manager.launch_quick_chat_manager()
-    manager.launch_bot_processes()
     manager.start_match()
+    manager.launch_bot_processes()
     manager.infinite_loop()  # Runs terminated by timeout in other thread.
 
 

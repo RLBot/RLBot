@@ -1,6 +1,8 @@
 #ifndef MATCHSETTINGS_STRUCTS_HPP
 #define MATCHSETTINGS_STRUCTS_HPP
 
+#include "LiveDataPacket.hpp"
+
 struct PlayerConfiguration
 {
 	bool					Bot;
@@ -137,7 +139,7 @@ enum class BallMaxSpeedOption
 };
 
 enum class BallTypeOption
-{	
+{
 	Default,
 	Cube,
 	Puck,
@@ -185,7 +187,8 @@ enum class RumbleOption
 	Civilized,
 	Destruction_Derby,
 	Spring_Loaded,
-	Spikes_Only
+	Spikes_Only,
+	Spike_Rush
 };
 
 enum class BoostStrengthOption
@@ -241,6 +244,13 @@ struct MutatorSettings
 	RespawnTimeOption		RespawnTimeOptions;
 };
 
+enum ExistingMatchBehavior
+{
+	Restart_If_Different,
+	Restart,
+	Continue_And_Spawn
+};
+
 struct MatchSettings
 {
 	PlayerConfiguration		PlayerConfiguration[CONST_MaxPlayers];
@@ -250,6 +260,7 @@ struct MatchSettings
 	bool					SkipReplays;
 	bool					InstantStart;
 	MutatorSettings			MutatorSettings;
+	ExistingMatchBehavior	ExistingMatchBehavior;
 };
 
 #endif

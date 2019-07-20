@@ -8,7 +8,7 @@
 
 namespace MutexUtilities
 {
-	const wchar_t* pCoreMutexName = L"Local\\RLBotCore";
+	const wchar_t* pRLBotExeMutexName = L"Local\\RLBotExe";
 	const wchar_t* pBallPredictionMutexName = L"Local\\RLBotBallPrediction";
 
 	bool checkMutexExists(const wchar_t* pName)
@@ -71,11 +71,11 @@ namespace MutexUtilities
 		return true;
 	}
 
-	bool WaitForCore()
+	bool WaitForRLBotExe()
 	{
-		DEBUG_LOG("Waiting for the RLBot Core to initialize...\n");
+		DEBUG_LOG("Waiting for RLBot.exe to initialize...\n");
 
-		return waitForMutex(pCoreMutexName);
+		return waitForMutex(pRLBotExeMutexName);
 	}
 
 	bool IsBallPredictionServiceRunning()
@@ -83,9 +83,9 @@ namespace MutexUtilities
 		return checkMutexExists(pBallPredictionMutexName);
 	}
 
-	bool CreateCoreMutex()
+	bool CreateRLBotExeMutex()
 	{
-		return createMutex(pCoreMutexName);
+		return createMutex(pRLBotExeMutexName);
 	}
 
 	bool CreateBallPredictionMutex()

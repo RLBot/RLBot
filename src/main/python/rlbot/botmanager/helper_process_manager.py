@@ -41,8 +41,10 @@ class HelperProcessManager:
                     self.helper_process_map[helper_req.key] = metadata_queue
 
                 if helper_req.executable is not None:
-                    # TODO: find a nice way to pass the options dict as arguments
-                    process = subprocess.Popen([helper_req.executable])
+                    launch = [helper_req.executable]
+                    if helper_req.exe_args is not None:
+                        launch.extend(helper_req.exe_args)
+                    process = subprocess.Popen(launch)
 
                     agent_metadata.pids.add(process.pid)
 

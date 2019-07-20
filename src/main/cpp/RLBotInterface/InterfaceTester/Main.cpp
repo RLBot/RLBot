@@ -38,7 +38,7 @@ int main()
 	mutators.DemolishOptions = DemolishOption::Default;
 	mutators.RespawnTimeOptions = RespawnTimeOption::Three_Seconds;
 
-	GameFunctions::StartMatch(settings, nullptr, nullptr);
+	GameFunctions::StartMatch(settings);
 
 	return 0;
 }

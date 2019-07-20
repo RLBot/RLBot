@@ -13,5 +13,6 @@
         public bool Jump;
         public bool Boost;
         public bool Handbrake;
+        public bool UseItem;
     }
 }

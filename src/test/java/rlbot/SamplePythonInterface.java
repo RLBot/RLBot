@@ -2,14 +2,15 @@ package rlbot;
 
 import rlbot.manager.BotManager;
 import rlbot.pyinterop.DefaultPythonInterface;
+import rlbot.pyinterop.SocketServer;
 
-public class SamplePythonInterface extends DefaultPythonInterface {
+public class SamplePythonInterface extends SocketServer {
 
-    public SamplePythonInterface(BotManager botManager) {
-        super(botManager);
+    public SamplePythonInterface(int port, BotManager botManager) {
+        super(port, botManager);
     }
 
     protected Bot initBot(int index, String botType, int team) {
-        return new SampleBot(index);
+        return new SampleBot(index, team);
     }
 }

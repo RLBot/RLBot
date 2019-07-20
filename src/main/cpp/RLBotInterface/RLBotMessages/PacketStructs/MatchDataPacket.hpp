@@ -1,6 +1,8 @@
 #ifndef MATCHDATAPACKET_HPP
 #define MATCHDATAPACKET_HPP
 
+#include "LiveDataPacket.hpp"
+
 struct GoalInfo
 {
 	unsigned char           TeamNum;

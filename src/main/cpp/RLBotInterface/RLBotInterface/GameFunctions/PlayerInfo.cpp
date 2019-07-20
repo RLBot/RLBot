@@ -5,21 +5,69 @@
 #include "QuickChatRateLimiter.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
 #include <MessageTranslation\FlatbufferTranslator.hpp>
+#include "../../RLBotMessages/MessageStructs/QuickChatStructs.hpp"
 
 #include <chrono>
 #include <thread>
 
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
+#include <stdlib.h>
+
+ByteBuffer createQuickChatFlatMessage(QuickChatQueue queue, int botIndex, int teamIndex, int lastMessageIndex)
+{
+	flatbuffers::FlatBufferBuilder builder(400);
+
+	std::vector<flatbuffers::Offset<rlbot::flat::QuickChat>> messageOffsets;
+
+	for (int i = queue.Count - 1; i >= 0; i--)
+	{
+		if (lastMessageIndex >= queue.Messages[i].MessageIndex)
+			break;
+
+		if (queue.Messages[i].PlayerIndex == botIndex)
+			continue;
+
+		if (queue.Messages[i].TeamOnly && queue.Messages[i].TeamIndex != teamIndex)
+			continue;
+
+		auto offset = rlbot::flat::CreateQuickChat(builder,
+			(rlbot::flat::QuickChatSelection)queue.Messages[i].QuickChatSelection,
+			queue.Messages[i].PlayerIndex,
+			queue.Messages[i].TeamOnly,
+			queue.Messages[i].MessageIndex,
+			queue.Messages[i].TimeStamp);
+
+		messageOffsets.push_back(offset);
+	}
+
+	auto vectorOffset = builder.CreateVector(messageOffsets);
+
+	auto root = rlbot::flat::CreateQuickChatMessages(builder, vectorOffset);
+
+	builder.Finish(root);
+
+	ByteBuffer flat;
+	flat.ptr = new unsigned char[builder.GetSize()];
+	flat.size = builder.GetSize();
+
+	memcpy(flat.ptr, builder.GetBufferPointer(), flat.size);
+
+	return flat;
+}
+
 
 namespace GameFunctions
 {
 	BoostUtilities::QueueSender* pQuickChatQueue = nullptr;
 	BoostUtilities::QueueSender* pFlatInputQueue = nullptr;
 
+	BoostUtilities::SharedMemReader* pQuickChatReader = nullptr;
+
 	void Initialize_PlayerInfo()
 	{
 		pQuickChatQueue = new BoostUtilities::QueueSender(BoostConstants::QuickChatFlatQueueName);
 		pFlatInputQueue = new BoostUtilities::QueueSender(BoostConstants::PlayerInputFlatQueueName);
+
+		pQuickChatReader = new BoostUtilities::SharedMemReader(BoostConstants::QuickChatDistributionName);
 	}
 
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
@@ -57,28 +105,34 @@ namespace GameFunctions
 		return sendStatus;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam)
 	{
-		RLBotCoreStatus status = checkQuickChatPreset(quickChatPreset);
+		flatbuffers::FlatBufferBuilder builder;
+		auto chat = rlbot::flat::CreateQuickChat(builder, (rlbot::flat::QuickChatSelection) quickChatPreset, playerIndex, bTeam);
+		builder.Finish(chat);
 
-		if (status != RLBotCoreStatus::Success)
-			return status;
+		return SendQuickChat(builder.GetBufferPointer(), builder.GetSize());
+	}
 
-
-		RLBotCoreStatus sendStatus = quickChatRateLimiter.CanSendChat(playerIndex);
-		if (sendStatus == RLBotCoreStatus::Success)
+	extern "C" ByteBuffer RLBOT_CORE_API ReceiveChat(int botIndex, int teamIndex, int lastMessageIndex)
+	{
+		if (!pQuickChatReader)
 		{
-			quickChatRateLimiter.RecordQuickChatSubmission(playerIndex);
-			BEGIN_GAME_FUNCTION(SendChatMessage, pSendChat);
-			REGISTER_CALLBACK(pSendChat, callback, pID);
-			pSendChat->QuickChatPreset = quickChatPreset;
-			pSendChat->PlayerIndex = playerIndex;
-			pSendChat->bTeam = bTeam;
-			END_GAME_FUNCTION;
-
-			return RLBotCoreStatus::Success;
+			return ByteBuffer{ 0 };
 		}
-		return sendStatus;
+
+		ByteBuffer queue_data = pQuickChatReader->fetchData();
+		if (queue_data.size > 0)
+		{
+			QuickChatQueue queue = *(QuickChatQueue*)(queue_data.ptr);
+			ByteBuffer return_buffer = createQuickChatFlatMessage(queue, botIndex, teamIndex, lastMessageIndex);
+			delete[] queue_data.ptr;
+			return return_buffer;
+		}
+		else
+		{
+			return ByteBuffer{ 0 };
+		}
 	}
 
 	// Player info

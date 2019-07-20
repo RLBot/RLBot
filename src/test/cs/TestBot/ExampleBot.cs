@@ -70,6 +70,14 @@ namespace TestBot
                     PhysicsState carPhysicsState = gameState.GetCarState(index).PhysicsState;
                     carPhysicsState.Location = new DesiredVector3(ballLocation.X - 300, ballLocation.Y, 400);
                     carPhysicsState.Velocity = new DesiredVector3(500, 0, 0);
+
+                    if (gameTickPacket.Ball?.LatestTouch?.PlayerIndex is int playerIndex)
+                    {
+                        Console.WriteLine("Latest touch by " + playerIndex);
+                    }
+
+                    MatchSettings matchSettings = GetMatchSettings();
+                    Console.WriteLine("Map: " + matchSettings.GameMap);
                 }
 
                 SetGameState(gameState);
@@ -82,6 +90,8 @@ namespace TestBot
 
             // Set the throttle to 1 so the bot can move.
             controller.Throttle = 1;
+
+            controller.UseItem = controller.Steer > 0; // Spam items
 
             return controller;
         }

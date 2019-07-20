@@ -13,7 +13,7 @@ namespace RLBotDotNet.Utils
     public static class RLBotInterface
     {
         public const string InterfaceDllPath = "dll/RLBot_Core_Interface.dll";
-    
+
         #region DllImports
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
@@ -38,6 +38,9 @@ namespace RLBotDotNet.Utils
         public extern static int SendQuickChat(byte[] quickChatMessage, int protoSize);
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static ByteBufferStruct ReceiveChat(int botIndex, int teamIndex, int lastMessageIndex);
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static int RenderGroup(byte[] renderGroup, int protoSize);
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
@@ -45,6 +48,9 @@ namespace RLBotDotNet.Utils
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static int SetGameState(byte[] bytes, int size);
+
+        [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
+        public extern static ByteBufferStruct GetMatchSettings();
         #endregion
 
         /// <summary>
@@ -66,7 +72,7 @@ namespace RLBotDotNet.Utils
 
 
         /// <summary>
-        /// Returns the current frame's RigidBodyTick. 
+        /// Returns the current frame's RigidBodyTick.
         /// </summary>
         /// <returns>The current frame's RigidBodyTick.</returns>
         public static RigidBodyTick GetRigidBodyTick()
@@ -135,7 +141,8 @@ namespace RLBotDotNet.Utils
                 controller.Roll,
                 controller.Jump,
                 controller.Boost,
-                controller.Handbrake);
+                controller.Handbrake,
+                controller.UseItem);
 
             Offset<PlayerInput> playerInputOffset = PlayerInput.CreatePlayerInput(
                 builder,
@@ -176,6 +183,26 @@ namespace RLBotDotNet.Utils
         }
 
         /// <summary>
+        /// Gets a list of chat messages.
+        /// </summary>
+        /// <param name="botIndex">Index of the receiving bot.</param>
+        /// <param name="teamIndex">Team index of the receiving bot.</param>
+        /// <param name="lastMessageIndex">Message index of the last received message.</param>
+        /// <returns>List of new messages.</returns>
+        public static QuickChatMessages ReceiveQuickChat(int botIndex, int teamIndex, int lastMessageIndex)
+        {
+            ByteBufferStruct byteBuffer = ReceiveChat(botIndex, teamIndex, lastMessageIndex);
+            if (byteBuffer.size < 4)
+                throw new FlatbuffersPacketException("Flatbuffers packet is too small. Match is probably not running!");
+
+            byte[] bufferBytes = new byte[byteBuffer.size];
+            Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
+
+            return QuickChatMessages.GetRootAsQuickChatMessages(new ByteBuffer(bufferBytes)); ;
+        }
+
+        /// <summary>
         /// Sets the current state of the game.
         /// </summary>
         /// <param name="gameState">The desired state.</param>
@@ -201,6 +228,23 @@ namespace RLBotDotNet.Utils
                 throw NewRLBotCoreException((RLBotCoreStatus)status);
         }
 
+        /// <summary>
+        /// Returns the match settings that were most recently sent to RLBot.
+        /// Useful for determining the game mode, what map we're playing on, mutators, etc.
+        /// </summary>
+        /// <returns>The MatchSettings object, as defined in the flatbuffer spec.</returns>
+        public static MatchSettings GetMatchSettingsData()
+        {
+            ByteBufferStruct byteBuffer = GetMatchSettings();
+            if (byteBuffer.size < 4)
+                throw new FlatbuffersPacketException("Flatbuffers packet is too small. Match settings are probably not available!");
+
+            byte[] bufferBytes = new byte[byteBuffer.size];
+            Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
+            Free(byteBuffer.ptr);
+
+            return MatchSettings.GetRootAsMatchSettings(new ByteBuffer(bufferBytes));
+        }
 
         private static RLBotCoreException NewRLBotCoreException(RLBotCoreStatus status)
         {

@@ -101,6 +101,11 @@ class InvalidRenderType(RLBotException):
         super(RLBotException, self).__init__("Invalid render type")
 
 
+class EmptyDllResponse(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Response from dll was empty")
+
+
 error_dict = {1: BufferOverfilledError, 2: MessageLargerThanMaxError, 3: InvalidNumPlayerError,
               4: InvalidBotSkillError, 5: InvalidHumanIndex, 6: InvalidName,
               7: InvalidTeam, 8: InvalidTeamColor, 9: InvalidCustomColor, 10: InvalidGameValues,

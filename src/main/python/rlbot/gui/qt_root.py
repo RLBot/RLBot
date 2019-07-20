@@ -130,15 +130,17 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
                 agent_configs[index] = agent_configs_dict[i]
                 loadout_configs[index] = loadout_configs_dict[i]
                 index += 1
-        self.setup_manager = SetupManager()
+
+        if self.setup_manager is None:
+            self.setup_manager = SetupManager()
+
         self.setup_manager.load_config(self.overall_config, self.overall_config_path, agent_configs, loadout_configs)
         self.setup_manager.connect_to_game()
-        self.setup_manager.launch_ball_prediction()
         self.setup_manager.launch_quick_chat_manager()
-        self.setup_manager.launch_bot_processes()
         self.setup_manager.start_match()
+        self.setup_manager.launch_bot_processes()
         self.launch_in_progress = False
-        self.setup_manager.infinite_loop()
+        self.setup_manager.infinite_loop()  # Runs forever until interrupted
 
     def connect_functions(self):
         """

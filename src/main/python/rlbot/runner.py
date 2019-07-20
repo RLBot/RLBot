@@ -7,12 +7,11 @@ def main():
     print("starting")
     check_python_version()
     manager = SetupManager()
-    manager.connect_to_game()
     manager.load_config()
-    manager.launch_ball_prediction()
+    manager.connect_to_game()
     manager.launch_quick_chat_manager()
-    manager.launch_bot_processes()
     manager.start_match()
+    manager.launch_bot_processes()
     manager.infinite_loop()  # Runs forever until interrupted
 
 

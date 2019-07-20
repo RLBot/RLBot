@@ -15,6 +15,12 @@
 #include <BoostUtilities\BoostUtilities.hpp>
 #include <BoostUtilities\BoostConstants.hpp>
 
+#include "simulation/field.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 vec3 convertVec(const rlbot::flat::Vector3* vec)
 {
 	return vec3{ vec->x(), vec->y(), vec->z() };
@@ -62,6 +68,28 @@ void emplacePrediction(std::list<BallPrediction::BallSlice>* prediction) {
 
 int runBallPrediction()
 {
+#ifdef _WIN32
+	// Get the executable path so RLU knows where to find the map files.
+	char path[256];
+	GetModuleFileNameA(NULL, path, 256);
+
+	std::string exe_directory = std::string(path);
+
+	auto last_slash = exe_directory.rfind("\\");
+	exe_directory.erase(last_slash + 1);
+#endif
+
+	Field::read_mesh_files(exe_directory);
+
+	// Set the arena.
+	Field::initialize_soccar();
+
+	// Set gamemode specific ball physics.
+	Ball::radius = Ball::soccar_radius;
+	Ball::collision_radius = Ball::soccar_collision_radius;
+
+	Ball::I = 0.4f * Ball::m * Ball::radius * Ball::radius;
+
 	printf("Ball Prediction Service Started\n");
 
 	BallPrediction::PredictionService predictionService(/* Number of seconds to predict */ 6.0, /* Seconds between prediction slices */ 1.0 / 60);

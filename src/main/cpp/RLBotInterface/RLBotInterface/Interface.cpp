@@ -2,8 +2,7 @@
 
 #include <atomic>
 #include <Messages.hpp>
-
-#include "CallbackProcessor\CallbackProcessor.hpp"
+#include <Windows.h>
 #include "GameFunctions\BallPrediction.hpp"
 #include "GameFunctions\GamePacket.hpp"
 #include "GameFunctions\GameFunctions.hpp"
@@ -25,23 +24,12 @@ namespace Interface
 
 	DWORD WINAPI Initialize(void*)
 	{
-#ifdef _DEBUG && _WIN32
-		AllocConsole();
-		AttachConsole(GetCurrentProcessId());
-		freopen("CONOUT$", "w", stdout);
-#endif
 		DEBUG_LOG("====================================================================\n");
 		DEBUG_LOG("RLBot Core Interface\n");
 		DEBUG_LOG("====================================================================\n");
 		DEBUG_LOG("Initializing...\n");
 
-		if (!MutexUtilities::WaitForCore())
-			return EINTR;
-
-		if (!FileMappings::Initialize())
-			return EINTR;
-
-		if (!CallbackProcessor::Initialize())
+		if (!MutexUtilities::WaitForRLBotExe())
 			return EINTR;
 
 		GameFunctions::Initialize_GamePacket();
@@ -57,12 +45,8 @@ namespace Interface
 
 	void Uninitialize()
 	{
-		CallbackProcessor::Deinitialize();
-		FileMappings::Deinitialize();
-
-#ifdef _DEBUG && _WIN32
-		FreeConsole();
-#endif
+		// Nothing to do at the moment, but I'll keep this around
+		// as a hook if we need it.
 	}
 }
 

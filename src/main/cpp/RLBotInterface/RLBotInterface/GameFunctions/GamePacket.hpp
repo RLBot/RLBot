@@ -23,6 +23,7 @@ extern "C"
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateLiveDataPacket(LiveDataPacket* pLiveData);
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateRigidBodyTickFlatbuffer();
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateRigidBodyTick(RigidBodyTick* rigidBodyTick);
+		DLL_EXPORT ByteBuffer RLBOT_CORE_API GetMatchSettings();
 	}
 
 #ifdef __cplusplus

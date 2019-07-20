@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Enable users to specify the update frequency.
+      Bots can now use a GetMatchSettings function to learn about the current match.
     </releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>rocket-league</tags>

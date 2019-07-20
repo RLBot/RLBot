@@ -35,7 +35,7 @@ class BaseDotNetAgent(BaseIndependentAgent):
 
     def get_helper_process_request(self):
         if self.is_executable_configured():
-            return HelperProcessRequest(python_file_path=None, key=__file__, executable=self.dotnet_executable_path)
+            return HelperProcessRequest(python_file_path=None, key=__file__ + str(self.port), executable=self.dotnet_executable_path)
         return None
 
     def is_executable_configured(self):

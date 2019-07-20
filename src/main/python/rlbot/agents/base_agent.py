@@ -1,4 +1,9 @@
+from typing import Optional
+from urllib.parse import ParseResult as URL
+
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
+from rlbot.matchcomms.client import MatchcommsClient
+from rlbot.messages.flat import MatchSettings
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
@@ -31,7 +36,8 @@ class SimpleControllerState:
                  roll: float = 0.0,
                  jump: bool = False,
                  boost: bool = False,
-                 handbrake: bool = False):
+                 handbrake: bool = False,
+                 use_item: bool = False):
         """
         :param steer:    Range: -1 .. 1, negative=left, positive=right
         :param throttle: Range: -1 .. 1, negative=backward, positive=forward
@@ -41,6 +47,7 @@ class SimpleControllerState:
         :param jump: Analogous to the jump button in game.
         :param boost: Analogous to the boost button in game.
         :param handbrake: Analogous to the handbrake button in game.
+        :param use_item: Analogous to the use item button (from rumble) in game.
         """
         self.steer = steer
         self.throttle = throttle
@@ -50,6 +57,7 @@ class SimpleControllerState:
         self.jump = jump
         self.boost = boost
         self.handbrake = handbrake
+        self.use_item = use_item
 
 
 class BaseAgent:
@@ -65,12 +73,12 @@ class BaseAgent:
 
     # passed in by the bot manager
     __quick_chat_func = None
-
-    # passed in by the bot manager
     __field_info_func = None
     __game_state_func = None
     __get_rigid_body_tick_func = None
+    __match_settings_func = None
     renderer: RenderingManager = None
+    matchcomms_root: URL = None
 
     def __init__(self, name, team, index):
         self.name = name
@@ -136,6 +144,21 @@ class BaseAgent:
         """Fetches a prediction of where the ball will go during the next few seconds."""
         return self.__ball_prediction_struct_func()
 
+    def get_match_settings(self) -> MatchSettings:
+        """Gets the current match settings in flatbuffer format. Useful for determining map, game mode,
+        mutator settings, etc."""
+        return self.__match_settings_func()
+
+    _matchcomms: Optional[MatchcommsClient] = None
+    @property
+    def matchcomms(self) -> MatchcommsClient:
+        """
+        Gets a client to send and recieve messages to other participants in the match (e.g. bots, trainer)
+        """
+        if self._matchcomms is None:
+            self._matchcomms = MatchcommsClient(self.matchcomms_root)
+        return self._matchcomms  # note: _matchcomms.close() is called by the bot_manager.
+
     def load_config(self, config_object_header):
         """
         Loads a config object this is called after the constructor but before anything else inside the bot.
@@ -198,6 +221,13 @@ class BaseAgent:
         :return: A v3 version of the game tick packet"""
         return convert_to_legacy_v3(game_tick_packet, field_info_packet)
 
+    def is_hot_reload_enabled(self):
+        """
+        If true, the framework will watch all your python files for modifications and instantly reload your bot
+        so that the logic changes take effect. You may wish to disable this if you're concerned about performance.
+        """
+        return True
+
     ############
     #  Methods that should not be called or changed by subclasses
     ############
@@ -237,6 +267,13 @@ class BaseAgent:
         This should not be overwritten by the agent.
         """
         self.__ball_prediction_struct_func = ball_prediction_func
+
+    def _register_match_settings_func(self, match_settings_func):
+        """
+        Sets the function to grab match settings from the interface.
+        This should not be overwritten by the agent.
+        """
+        self.__match_settings_func = match_settings_func
 
     def _set_renderer(self, renderer: RenderingManager):
         self.renderer = renderer

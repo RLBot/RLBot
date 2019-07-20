@@ -4,9 +4,109 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.14.12'
+__version__ = '1.22.1'
 
 release_notes = {
+    '1.22.1': """
+    Bots can now retrieve the settings object used to launch the current match,
+    which can tell you the map, mode, mutator settings, etc.
+    
+    Additional fixes:
+    - Waiting longer for rlbot to connect.
+    - Don't halt forever while waiting for valid packets.
+    - Python hot reload watches all your files.
+    """,
+    '1.21.0': """
+    - Latest ball touch now includes a player index value.
+    - Fixed blue team colors.
+    - Fixed loadout bug that caused incorrect antennas, etc. 
+    """,
+    '1.20.1': """
+    Added support for the awesome new game mode Spike Rush!
+    
+    To try it, set your mutators:
+    Rumble = Spike Rush
+    Respawn Time = 1 Second
+    
+    To retract your spikes, you have use_item available in your controls output!
+    
+    Additional fixes:
+    - Will try harder to find an open port, to avoid 'std exception: listen' error.
+    - Fixed a bug that prevented multiple .net bots from auto-starting. - Kipje13
+    - Fixed a bug that prevented multiple java bots from auto-starting.
+    """,
+    '1.19.1': """
+    Bots can now press the 'use item' button from Rumble mode!
+    They don't know what item they have yet...
+    """,
+    '1.18.1': """
+    Created a cleaner option for starting Java bots. Also:
+    - seconds_elapsed will pause when the game is paused.
+    - game_time_remaining has regained float precision.
+    - unlimited_time will be 'true' when using that mutator.
+    """,
+    '1.17.3': """
+    Quickchat is back!
+
+    Kipje13 added quickchat support deep in the framework so bots will be able to
+    read it across languages! Everything works exactly the same as before from the 
+    bot maker's perspective. Stay tuned for instructions on how to read quick
+    chat for languages like C# and Java. https://github.com/RLBot/RLBot/wiki/Quickchat
+    
+    For now, the chat will use hacky rendering since we don't have official support yet.
+    
+    For richer communication with coordinates etc, check out
+    https://github.com/RLBot/RLBot/wiki/Matchcomms
+    
+    Latest ball touch is also back!
+    """,
+    '1.16.5': """
+    Communication to and between bots is now possible!
+    See: https://github.com/RLBot/RLBot/wiki/Matchcomms
+
+    - Support match communication (matchcomms). - DomNomNom
+    - Warning when Rocket League is not running in -rlbot mode. - tarehart
+    - Fix Python 3.6 compatibility. - DomNomNom
+    - Restoring support for rectangle rendering - tarehart
+    - The world_gravity_z value will be reported correctly again - tarehart
+    - Warnings when you try to use unsupported aspects of state setting - tarehart
+    - Avoid needing to manually click Steam confirmation about -rlbot mode. - DomNomNom
+    - Brought back the stall mechanic. - tarehart
+    """,
+
+    '1.15.10': """
+    Read all about our integration with the new Psyonix API!
+    https://github.com/RLBot/RLBot/wiki/Psyonix-API-Notes
+
+    Big thanks to Jared Cone and the whole team over at Psyonix!
+
+    New since 1.15.7:
+    - Steering will no longer affect dodge angle.
+    - You can now specify whether the match should restart via rlbot.cfg.
+      This will allow us to experiment with LAN matches.
+    """,
+
+    '1.15.7': """
+    Integrating with official Psyonix API! Read all about it at
+    https://github.com/RLBot/RLBot/wiki/Psyonix-API-Notes
+
+    Big thanks to Jared Cone and the whole team over at Psyonix!
+
+    Post-release fixes:
+    - Fixing dodge angle
+    - Support for rigid body tick (now including frame counts)
+    - Restoring boost pickup timers
+    - Rendering turned on by default
+    - Possible to launch dropshot / hoops / etc
+    - is_bot flag now set correctly
+    - Bot performance percentages are back
+    - Support for partial values in state setting
+    - Fixing the is_super_sonic flag
+    - Upgrading to the latest ball prediction code (thanks chip and Kipje13!)
+    - Allow a human to play
+    - Auto join spectate when there is no human player
+    """,
+
     '1.14.12': """
     - Adding a way of starting matches using a flatbuffer message. - tarehart
     - More accurate get_output call frequency for python bots. - Marvin and chip

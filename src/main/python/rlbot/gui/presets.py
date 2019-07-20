@@ -8,6 +8,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, LOOKS_C
 from rlbot.parsing.agent_config_parser import create_looks_configurations
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.utils.class_importer import import_agent
+from rlbot.utils.logging_utils import get_logger
 
 
 class Preset:
@@ -90,6 +91,7 @@ class AgentPreset(Preset):
     def __init__(self, name, file_path=None):
 
         self.looks_path = None
+        self.logger = get_logger('agent_preset')
 
         if file_path is not None and os.path.isfile(file_path):
             config_bundle = get_bot_config_bundle(file_path)
@@ -101,19 +103,18 @@ class AgentPreset(Preset):
 
         try:
             self.agent_class = import_agent(python_file_path).get_loaded_class()
+            super().__init__(self.agent_class.base_create_agent_configurations(), file_path, name)
         except (ValueError, ModuleNotFoundError, FileNotFoundError) as e:
             raise ValueError(f"Problem when processing {file_path}: {str(e)}")
+        except ImportError as e:
+            self.logger.debug(f"Will not use custom config for {file_path} because we failed to load: {str(e)}")
+            super().__init__(BaseAgent.base_create_agent_configurations(), file_path, name)
 
-        super().__init__(self.agent_class.base_create_agent_configurations(), file_path, name)
         # Make sure the path to the python file actually gets set to that path, even if there was no config at file_path
         self.config.set_value(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY, python_file_path)
 
     def get_required_sections(self):
         return ['Locations']
-
-    def load(self, file_path=None):
-        self.config = self.agent_class.base_create_agent_configurations()
-        super().load(file_path)
 
     def load_agent_class(self, python_file_path):
         result = True

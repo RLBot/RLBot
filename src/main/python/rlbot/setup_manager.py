@@ -1,13 +1,19 @@
-from contextlib import contextmanager
-from datetime import datetime, timedelta
 import msvcrt
 import multiprocessing as mp
 import os
+import psutil
 import queue
+import subprocess
 import time
 import webbrowser
+from contextlib import contextmanager
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import List, Optional
+from urllib.parse import ParseResult as URL
 
 import psutil
+from rlbot import gateway_util
 from rlbot import version
 from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
@@ -16,22 +22,27 @@ from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.matchconfig.conversions import parse_match_config
 from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.matchcomms.server import launch_matchcomms_server
 from rlbot.parsing.agent_config_parser import load_bot_appearance
-from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
+from rlbot.parsing.bot_config_bundle import get_bot_config_bundle, BotConfigBundle
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.utils import process_configuration
 from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
+from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
-from rlbot.utils.prediction import prediction_util
 from rlbot.utils.structures.game_interface import GameInterface
-from rlbot.utils.structures.quick_chats import QuickChatManager
 
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
-ROCKET_LEAGUE_PROCESS_INFO = {'gameid': 252950, 'program_name': 'RocketLeague.exe', 'program': 'RocketLeague.exe'}
+class ROCKET_LEAGUE_PROCESS_INFO:
+    GAMEID = 252950
+    PROGRAM_NAME = 'RocketLeague.exe'
+    PROGRAM = 'RocketLeague.exe'
+    REQUIRED_ARGS = {'-rlbot'}
+    IDEAL_ARGS = ['-rlbot', '-nomovie']
 
 @contextmanager
 def setup_manager_context():
@@ -60,7 +71,6 @@ class SetupManager:
         connect_to_game()
         load_config()
         launch_ball_prediction()
-        launch_quick_chat_manager()
         launch_bot_processes()
         start_match()
         infinite_loop()
@@ -73,41 +83,83 @@ class SetupManager:
     names = None
     teams = None
     python_files = None
-    parameters = None
+    bot_bundles: List[BotConfigBundle] = None
     start_match_configuration = None
     agent_metadata_queue = None
     extension = None
-    sub_processes = []
+    bot_processes: List[mp.Process] = []
+
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
         self.game_interface = GameInterface(self.logger)
-        self.quick_chat_manager = QuickChatManager(self.game_interface)
         self.quit_event = mp.Event()
         self.helper_process_manager = HelperProcessManager(self.quit_event)
         self.bot_quit_callbacks = []
         self.bot_reload_requests = []
         self.agent_metadata_map = {}
-        self.ball_prediction_process = None
         self.match_config: MatchConfig = None
+        self.rlbot_gateway_process = None
+        self.matchcomms_server: MatchcommsServerThread = None
 
     def connect_to_game(self):
+        """
+        Ensures the game is running and connects to it by initializing self.game_interface.
+        """
+
+        version.print_current_release_notes()
+        self.ensure_rlbot_gateway_started()
         if self.has_started:
             return
-        version.print_current_release_notes()
-        if not process_configuration.is_process_running(ROCKET_LEAGUE_PROCESS_INFO['program'],
-                                                        ROCKET_LEAGUE_PROCESS_INFO['program_name']):
-            try:
-                self.logger.info("Launching Rocket League...")
 
-                webbrowser.open(f"steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO['gameid']}")
-            except webbrowser.Error:
-                self.logger.info(
-                    "Unable to launch Rocket League automatically. Please launch Rocket League manually to continue.")
-        self.game_interface.inject_dll()
-        self.game_interface.load_interface()
+        try:
+            is_rocket_league_running = process_configuration.is_process_running(
+                ROCKET_LEAGUE_PROCESS_INFO.PROGRAM,
+                ROCKET_LEAGUE_PROCESS_INFO.PROGRAM_NAME,
+                ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS)
+        except WrongProcessArgs:
+            raise Exception(f"Rocket League is not running with {ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS}! "
+                            f"Please close Rocket League and let us start it for you instead!")
+        if not is_rocket_league_running:
+            self.launch_rocket_league()
+
+        try:
+            self.game_interface.load_interface()
+        except Exception as e:
+            self.logger.error("Terminating rlbot gateway and raising:")
+            self.rlbot_gateway_process.terminate()
+            raise e
         self.agent_metadata_queue = mp.Queue()
         self.has_started = True
+
+    def launch_rocket_league(self):
+        """
+        Launches Rocket League but does not connect to it.
+        """
+        self.logger.info('Launching Rocket League...')
+
+        # Try launch via Steam.
+        steam_exe_path = try_get_steam_executable_path()
+        if steam_exe_path:  # Note: This Python 3.8 feature would be useful here https://www.python.org/dev/peps/pep-0572/#abstract
+            exe_and_args = [
+                str(steam_exe_path),
+                '-applaunch',
+                str(ROCKET_LEAGUE_PROCESS_INFO.GAMEID),
+            ] + ROCKET_LEAGUE_PROCESS_INFO.IDEAL_ARGS
+            _ = subprocess.Popen(exe_and_args)  # This is deliberately an orphan process.
+            return
+
+        # TODO: Figure out launching via Epic games
+
+        self.logger.warning('Using fall-back launch method.')
+        self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! "
+                         'https://gfycat.com/AngryQuickFinnishspitz')
+        args_string = '%20'.join(ROCKET_LEAGUE_PROCESS_INFO.IDEAL_ARGS)
+        try:
+            webbrowser.open(f'steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO.GAMEID}//{args_string}')
+        except webbrowser.Error:
+            self.logger.warning(
+                'Unable to launch Rocket League. Please launch Rocket League manually using the -rlbot option to continue.')
 
     def load_match_config(self, match_config: MatchConfig, bot_config_overrides={}):
         """
@@ -127,13 +179,10 @@ class SetupManager:
         self.python_files = [bundle.python_file if bundle else None
                              for bundle in bundles]
 
-        self.parameters = []
+        self.bot_bundles = []
 
         for index, bot in enumerate(match_config.player_configs):
-            python_config = None
-            if bot.rlbot_controlled:
-                python_config = load_bot_parameters(bundles[index])
-            self.parameters.append(python_config)
+            self.bot_bundles.append(bundles[index])
             if bot.loadout_config is None and bundles[index]:
                 looks_config = bundles[index].get_looks_config()
                 bot.loadout_config = load_bot_appearance(looks_config, bot.team)
@@ -171,47 +220,57 @@ class SetupManager:
         match_config = parse_match_config(framework_config, config_location, bot_configs, looks_configs)
         self.load_match_config(match_config, bot_configs)
 
-    def launch_ball_prediction(self):
-        # restart, in case we have changed game mode
-        if self.ball_prediction_process:
-            self.ball_prediction_process.terminate()
+    def ensure_rlbot_gateway_started(self):
 
-        if self.start_match_configuration.game_mode == 1:  # hoops
-            prediction_util.copy_pitch_data_to_temp('hoops')
-        elif self.start_match_configuration.game_mode == 2:  # dropshot
-            prediction_util.copy_pitch_data_to_temp('dropshot')
-        else:
-            prediction_util.copy_pitch_data_to_temp('soccar')
-        self.ball_prediction_process = prediction_util.launch()
+        for proc in psutil.process_iter():
+            if proc.name() == "RLBot.exe":
+                self.rlbot_gateway_process = proc
+                self.logger.info("Already have RLBot.exe running!")
+                return
+
+        if self.rlbot_gateway_process is None or not psutil.pid_exists(self.rlbot_gateway_process.pid):
+            self.rlbot_gateway_process = gateway_util.launch()
+            self.logger.info(f"Python started RLBot.exe with process id {self.rlbot_gateway_process.pid}")
+
+    def launch_ball_prediction(self):
+        # This does nothing now. It's kept here temporarily so that RLBotGUI doesn't break.
+        pass
 
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
-        self.kill_sub_processes()
+        self.kill_bot_processes()
+
+        # Start matchcomms here as it's only required for the bots.
+        self.kill_matchcomms_server()
+        self.matchcomms_server = launch_matchcomms_server()
 
         # Launch processes
         for i in range(self.num_participants):
             if self.start_match_configuration.player_configuration[i].rlbot_controlled:
-                queue_holder = self.quick_chat_manager.create_queue_for_bot(i, self.teams[i])
                 reload_request = mp.Event()
                 quit_callback = mp.Event()
                 self.bot_reload_requests.append(reload_request)
                 self.bot_quit_callbacks.append(quit_callback)
                 process = mp.Process(target=SetupManager.run_agent,
-                                     args=(self.quit_event, quit_callback, reload_request, self.parameters[i],
+                                     args=(self.quit_event, quit_callback, reload_request, self.bot_bundles[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue,
-                                           queue_holder, self.match_config))
+                                           self.match_config, self.matchcomms_server.root_url))
                 process.start()
-                self.sub_processes.append(process)
+                self.bot_processes.append(process)
 
         self.logger.debug("Successfully started bot processes")
 
     def launch_quick_chat_manager(self):
-        self.quick_chat_manager.start_manager(self.quit_event)
-        self.logger.debug("Successfully started quick chat manager")
+        # Quick chat manager is gone since we're using RLBot.exe now.
+        # Keeping this function around for backwards compatibility.
+        pass
 
     def start_match(self):
+        self.logger.info("Python attempting to start match.")
         self.game_interface.start_match()
+        time.sleep(0.5)  # Wait a moment. If we look too soon, we might see a valid packet from previous game.
+        self.game_interface.wait_until_valid_packet()
         self.logger.info("Match has started")
 
     def infinite_loop(self):
@@ -267,9 +326,11 @@ class SetupManager:
 
         self.quit_event.set()
         end_time = datetime.now() + timedelta(seconds=time_limit)
-        if self.ball_prediction_process:
-            self.ball_prediction_process.terminate()
-            self.ball_prediction_process.wait(timeout=1)
+
+        # Don't kill RLBot.exe. It needs to keep running because if we're in a GUI
+        # that will persist after this shut down, the interface dll in charge of starting
+        # matches is already locked in to its shared memory files, and if we start a new
+        # RLBot.exe, those files will go stale. https://github.com/skyborgff/RLBot/issues/9
 
         # Wait for all processes to terminate before terminating main process
         terminated = False
@@ -281,11 +342,13 @@ class SetupManager:
             time.sleep(0.1)
             if datetime.now() > end_time:
                 self.logger.info("Taking too long to quit, trying harder...")
-                self.kill_sub_processes()
+                self.kill_bot_processes()
                 break
 
         if kill_all_pids:
             self.kill_agent_process_ids()
+
+        self.kill_matchcomms_server()
 
         # The quit event can only be set once. Let's reset to our initial state
         self.quit_event = mp.Event()
@@ -303,28 +366,30 @@ class SetupManager:
             print(f'Failed to load extension: {e}')
 
     @staticmethod
-    def run_agent(terminate_event, callback_event, reload_request, config_file, name, team, index, python_file,
-                  agent_telemetry_queue, queue_holder, match_config: MatchConfig):
+    def run_agent(terminate_event, callback_event, reload_request, bundle: BotConfigBundle, name, team, index, python_file,
+                  agent_telemetry_queue, match_config: MatchConfig, matchcomms_root: URL):
 
         agent_class_wrapper = import_agent(python_file)
+        config_file = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
+        config_file.parse_file(bundle.config_obj, config_directory=bundle.config_directory)
 
         if hasattr(agent_class_wrapper.get_loaded_class(), "run_independently"):
             bm = BotManagerIndependent(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                       agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
+                                       agent_class_wrapper, agent_telemetry_queue, match_config, matchcomms_root)
         elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
             bm = BotManagerFlatbuffer(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                      agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
+                                      agent_class_wrapper, agent_telemetry_queue, match_config, matchcomms_root)
         else:
             bm = BotManagerStruct(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                  agent_class_wrapper, agent_telemetry_queue, queue_holder, match_config)
+                                  agent_class_wrapper, agent_telemetry_queue, match_config, matchcomms_root)
         bm.run()
 
-    def kill_sub_processes(self):
-        for process in self.sub_processes:
+    def kill_bot_processes(self):
+        for process in self.bot_processes:
             process.terminate()
-        for process in self.sub_processes:
+        for process in self.bot_processes:
             process.join(timeout=1)
-        self.sub_processes = []
+        self.bot_processes = []
 
     def kill_agent_process_ids(self):
         pids = process_configuration.extract_all_pids(self.agent_metadata_map)
@@ -345,16 +410,28 @@ class SetupManager:
             except psutil.NoSuchProcess:
                 self.logger.info("Can't fetch parent process, already dead.")
 
+    def kill_matchcomms_server(self):
+        if self.matchcomms_server:
+            self.matchcomms_server.close()
+            self.matchcomms_server = None
 
-def load_bot_parameters(config_bundle) -> ConfigObject:
+
+def try_get_steam_executable_path() -> Optional[Path]:
     """
-    Initializes the agent in the bundle's python file and asks it to provide its
-    custom configuration object where its parameters can be set.
-    :return: the parameters as a ConfigObject
+    Tries to find the path of the Steam executable.
+    Has platform specific code.
     """
-    # Python file relative to the config location.
-    python_file = config_bundle.python_file
-    agent_class_wrapper = import_agent(python_file)
-    bot_parameters = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
-    bot_parameters.parse_file(config_bundle.config_obj, config_directory=config_bundle.config_directory)
-    return bot_parameters
+
+    try:
+        from winreg import OpenKey, HKEY_CURRENT_USER, ConnectRegistry, QueryValueEx, REG_SZ
+    except ImportError as e:
+        return None  # TODO: Linux support.
+
+    try:
+        key = OpenKey(ConnectRegistry(None, HKEY_CURRENT_USER), r'Software\Valve\Steam')
+        val, val_type = QueryValueEx(key, 'SteamExe')
+    except FileNotFoundError:
+        return None
+    if val_type != REG_SZ:
+        return None
+    return Path(val)

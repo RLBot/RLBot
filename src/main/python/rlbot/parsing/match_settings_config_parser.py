@@ -27,6 +27,7 @@ GAME_MODE = 'game_mode'
 GAME_MAP = 'game_map'
 SKIP_REPLAYS = 'skip_replays'
 INSTANT_START = 'start_without_countdown'
+EXISTING_MATCH_BEHAVIOR = 'existing_match_behavior'
 
 logger = get_logger('config_parser')
 
@@ -162,7 +163,8 @@ rumble_mutator_types = [
     "Civilized",
     "Destruction Derby",
     "Spring Loaded",
-    "Spikes Only"
+    "Spikes Only",
+    "Spike Rush"
 ]
 
 boost_strength_mutator_types = [
@@ -194,6 +196,12 @@ respawn_time_mutator_types = [
     "Disable Goal Reset",
 ]
 
+existing_match_behavior_types = [
+    "Restart If Different",
+    "Restart",
+    "Continue And Spawn",
+]
+
 
 def add_match_settings_header(config_object):
     match_header = config_object.add_header_name(MATCH_CONFIGURATION_HEADER)
@@ -208,6 +216,8 @@ def add_match_settings_header(config_object):
                            description="""Automatically skip replays after a goal. Also stops match replays from being saved.""")
     match_header.add_value(INSTANT_START, bool, default=False,
                            description="""Skip the kickoff countdown""")
+    match_header.add_value(EXISTING_MATCH_BEHAVIOR, str, default="Restart If Different",
+                           description="""What should we do if you click run while a match is already in progress?""")
 
 
 def add_mutator_header(config_object):
@@ -301,5 +311,6 @@ def parse_match_settings(match_settings, config: ConfigObject):
     match_settings.game_map = config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP)
     match_settings.skip_replays = config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS)
     match_settings.instant_start = config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START)
+    match_settings.existing_match_behavior = config.get(MATCH_CONFIGURATION_HEADER, EXISTING_MATCH_BEHAVIOR)
 
     parse_mutator_settings(match_settings.mutators, config)

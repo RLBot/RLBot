@@ -8,29 +8,7 @@ copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\x64\Release\RLBot_Core_
 copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\Win32\Release\RLBot_Core_Interface.dll ^
  .\src\main\python\rlbot\dll\RLBot_Core_Interface_32.dll
 
-copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\x64\Release\BallPrediction.exe ^
- .\src\main\python\rlbot\dll\BallPrediction.exe
-
-@echo off
-echo.
-
-setlocal enabledelayedexpansion
-
-set /A count=0
-FOR /d %%a in (..\*rlbot?core) DO (
-    echo Found core folder %%a
-    set core_folder=%%a
-    set /A count=count+1
-)
-
-IF %count% GEQ 2 (
-    echo Cannot copy core dll because more than one core directory was found. Please move one of them.
-    EXIT
-)
-
-@echo on
-
-copy /Y "%core_folder%\RLBot Core\Bin\Win32\Release\RLBot Core.dll" ^
- .\src\main\python\rlbot\dll\RLBot_Core.dll
+copy /Y .\src\main\cpp\RLBotInterface\RLBotInterface\Bin\x64\Release\RLBot.exe ^
+ .\src\main\python\rlbot\dll\RLBot.exe
 
 pause

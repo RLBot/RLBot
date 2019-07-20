@@ -46,4 +46,8 @@ public interface ControllerState {
      */
     boolean holdHandbrake();
 
+    /**
+     * True to hold the 'use item' button
+     */
+    boolean holdUseItem();
 }

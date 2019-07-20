@@ -9,4 +9,5 @@ class PlayerInput(ctypes.Structure):
                 ("roll", ctypes.c_float),
                 ("jump", ctypes.c_bool),
                 ("boost", ctypes.c_bool),
-                ("handbrake", ctypes.c_bool)]
+                ("handbrake", ctypes.c_bool),
+                ("use_item", ctypes.c_bool)]

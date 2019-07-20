@@ -12,7 +12,7 @@ namespace FlatbufferTranslator {
 		std::wstring widestr = std::wstring(str.begin(), str.end());
 		const wchar_t* widecstr = widestr.c_str();
 
-		memcpy(structStr, widecstr, min(sizeof(PlayerConfiguration::Name), (wcslen(widecstr) + 1) * sizeof(wchar_t))); // Copy over the string
+		memcpy(structStr, widecstr, std::min(sizeof(PlayerConfiguration::Name), (wcslen(widecstr) + 1) * sizeof(wchar_t))); // Copy over the string
 		structStr[sizeof(PlayerConfiguration::Name) / sizeof(wchar_t) - 1] = L'\0'; // Null terminate the string
 
 	}
@@ -87,6 +87,7 @@ namespace FlatbufferTranslator {
 			fillVector3Struct(touch->normal(), &structTouch->HitNormal);
 			structTouch->TimeSeconds = touch->gameSeconds();
 			structTouch->Team = touch->team();
+			structTouch->PlayerIndex = touch->playerIndex();
 	}
 
 	void fillBallStruct(const rlbot::flat::BallInfo* ball, BallInfo* structBall)
@@ -159,7 +160,7 @@ namespace FlatbufferTranslator {
 
 		auto tiles = flatPacket->tileInformation();
 		if (tiles) {
-			packet->NumTiles = min(tiles->size(), CONST_MaxTiles);
+			packet->NumTiles = std::min((int) tiles->size(), CONST_MaxTiles);
 			for (int i = 0; i < packet->NumTiles; i++) {
 				fillTileStruct(tiles->Get(i), &packet->GameTiles[i]);
 			}
@@ -167,7 +168,7 @@ namespace FlatbufferTranslator {
 
 		auto teams = flatPacket->teams();
 		if (teams) {
-			packet->NumTeams = min(teams->size(), CONST_MaxTeams);
+			packet->NumTeams = std::min((int) teams->size(), CONST_MaxTeams);
 			for (int i = 0; i < packet->NumTeams; i++) {
 				fillTeamStruct(teams->Get(i), &packet->Teams[i]);
 			}
@@ -263,7 +264,8 @@ namespace FlatbufferTranslator {
 			playerInput.Roll,
 			playerInput.Jump,
 			playerInput.Boost,
-			playerInput.Handbrake);
+			playerInput.Handbrake,
+			playerInput.UseItem);
 
 		auto input = rlbot::flat::CreatePlayerInput(*builder, playerIndex, controls);
 
@@ -283,6 +285,7 @@ namespace FlatbufferTranslator {
 		playerInput.Jump = controllerState->jump();
 		playerInput.Boost = controllerState->boost();
 		playerInput.Handbrake = controllerState->handbrake();
+		playerInput.UseItem = controllerState->useItem();
 	}
 
 
@@ -313,6 +316,7 @@ namespace FlatbufferTranslator {
 		structPlayerInput->Jump = controllerState->jump();
 		structPlayerInput->Boost = controllerState->boost();
 		structPlayerInput->Handbrake = controllerState->handbrake();
+		structPlayerInput->UseItem = controllerState->useItem();
 	}
 
 	void fillPlayerPhysicsStruct(const rlbot::flat::PlayerRigidBodyState* playerState, PlayerRigidBodyState* structPlayerState)
@@ -348,29 +352,35 @@ namespace FlatbufferTranslator {
 
 	void fillPlayerLoadoutStruct(const rlbot::flat::PlayerLoadout* playerLoadout, PlayerConfiguration* structPlayerConfig)
 	{
-		structPlayerConfig->TeamColorID = playerLoadout->teamColorId();
-		structPlayerConfig->CustomColorID = playerLoadout->customColorId();
-		structPlayerConfig->CarID = playerLoadout->carId();
-		structPlayerConfig->DecalID = playerLoadout->decalId();
-		structPlayerConfig->WheelsID = playerLoadout->wheelsId();
-		structPlayerConfig->BoostID = playerLoadout->boostId();
-		structPlayerConfig->AntennaID = playerLoadout->antennaId();
-		structPlayerConfig->HatID = playerLoadout->hatId();
-		structPlayerConfig->PaintFinishID = playerLoadout->paintFinishId();
-		structPlayerConfig->CustomFinishID = playerLoadout->customFinishId();
-		structPlayerConfig->EngineAudioID = playerLoadout->engineAudioId();
-		structPlayerConfig->TrailsID = playerLoadout->trailsId();
-		structPlayerConfig->GoalExplosionID = playerLoadout->goalExplosionId();
+		if (playerLoadout)
+		{
+			structPlayerConfig->TeamColorID = playerLoadout->teamColorId();
+			structPlayerConfig->CustomColorID = playerLoadout->customColorId();
+			structPlayerConfig->CarID = playerLoadout->carId();
+			structPlayerConfig->DecalID = playerLoadout->decalId();
+			structPlayerConfig->WheelsID = playerLoadout->wheelsId();
+			structPlayerConfig->BoostID = playerLoadout->boostId();
+			structPlayerConfig->AntennaID = playerLoadout->antennaId();
+			structPlayerConfig->HatID = playerLoadout->hatId();
+			structPlayerConfig->PaintFinishID = playerLoadout->paintFinishId();
+			structPlayerConfig->CustomFinishID = playerLoadout->customFinishId();
+			structPlayerConfig->EngineAudioID = playerLoadout->engineAudioId();
+			structPlayerConfig->TrailsID = playerLoadout->trailsId();
+			structPlayerConfig->GoalExplosionID = playerLoadout->goalExplosionId();
+		}
 
 		auto playerPaint = playerLoadout->loadoutPaint();
-		structPlayerConfig->CarPaintID = playerPaint->carPaintId();
-		structPlayerConfig->DecalPaintID = playerPaint->decalPaintId();
-		structPlayerConfig->WheelsPaintID = playerPaint->wheelsPaintId();
-		structPlayerConfig->BoostPaintID = playerPaint->boostPaintId();
-		structPlayerConfig->AntennaPaintID = playerPaint->antennaPaintId();
-		structPlayerConfig->HatPaintID = playerPaint->hatPaintId();
-		structPlayerConfig->TrailsPaintID = playerPaint->trailsPaintId();
-		structPlayerConfig->GoalExplosionPaintID = playerPaint->goalExplosionPaintId();
+		if (playerPaint)
+		{
+			structPlayerConfig->CarPaintID = playerPaint->carPaintId();
+			structPlayerConfig->DecalPaintID = playerPaint->decalPaintId();
+			structPlayerConfig->WheelsPaintID = playerPaint->wheelsPaintId();
+			structPlayerConfig->BoostPaintID = playerPaint->boostPaintId();
+			structPlayerConfig->AntennaPaintID = playerPaint->antennaPaintId();
+			structPlayerConfig->HatPaintID = playerPaint->hatPaintId();
+			structPlayerConfig->TrailsPaintID = playerPaint->trailsPaintId();
+			structPlayerConfig->GoalExplosionPaintID = playerPaint->goalExplosionPaintId();
+		}
 	}
 
 	void fillPlayerConfigurationStruct(const rlbot::flat::PlayerConfiguration* playerConfig, PlayerConfiguration* structPlayerConfig)
@@ -436,6 +446,7 @@ namespace FlatbufferTranslator {
 		matchSettings->GameMode = static_cast<GameMode>(flatMatch->gameMode());
 		matchSettings->InstantStart = flatMatch->instantStart();
 		matchSettings->SkipReplays = flatMatch->skipReplays();
+		matchSettings->ExistingMatchBehavior = static_cast<ExistingMatchBehavior>(flatMatch->existingMatchBehavior());
 		
 		fillMutatorsStruct(flatMatch->mutatorSettings(), &matchSettings->MutatorSettings);
 	}

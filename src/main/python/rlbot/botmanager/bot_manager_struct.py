@@ -8,14 +8,11 @@ from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 
 class BotManagerStruct(BotManager):
-    def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                 name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder, match_config):
+    def __init__(self, *args, **kwargs):
         """
         See documentation on BotManager.
         """
-        super().__init__(terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
-                         name, team, index, agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder,
-                         match_config)
+        super().__init__(*args, **kwargs)
         self.rigid_body_tick = None
 
     def prepare_for_run(self):
@@ -56,6 +53,10 @@ class BotManagerStruct(BotManager):
         player_input.jump = controller_input.jump
         player_input.boost = controller_input.boost
         player_input.handbrake = controller_input.handbrake
+        if hasattr(controller_input, 'use_item'):
+            # This is needed for rare cases where bots don't conform to the spec,
+            # e.g. Stick returns itself rather than a SimpleControllerState.
+            player_input.use_item = controller_input.use_item
         self.game_interface.update_player_input(player_input, self.index)
 
     def get_game_time(self):

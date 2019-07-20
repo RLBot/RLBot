@@ -27,6 +27,7 @@ class BaseFlatbufferAgent(BaseAgent):
         ControllerState.ControllerStateAddJump(builder, friendly_state.jump)
         ControllerState.ControllerStateAddBoost(builder, friendly_state.boost)
         ControllerState.ControllerStateAddHandbrake(builder, friendly_state.handbrake)
+        ControllerState.ControllerStateAddUseItem(builder, friendly_state.use_item)
         controller_state = ControllerState.ControllerStateEnd(builder)
 
         PlayerInput.PlayerInputStart(builder)

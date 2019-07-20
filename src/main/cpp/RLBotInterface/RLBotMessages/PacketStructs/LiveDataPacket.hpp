@@ -92,6 +92,7 @@ struct Touch
 	PyStruct::Vector3		HitLocation;
 	PyStruct::Vector3		HitNormal;
 	int						Team;
+	int						PlayerIndex;
 };
 
 struct DropShotBallInfo

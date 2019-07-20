@@ -1,7 +1,8 @@
-from typing import Union, Optional, Iterator, Iterable
+from typing import Union, Optional, Iterator, Iterable, Callable
 import random
 import time
 import traceback
+from contextlib import contextmanager
 
 from rlbot.training.status_rendering import training_status_renderer_context, Row
 from rlbot.matchconfig.match_config import MatchConfig
@@ -12,6 +13,7 @@ from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.matchcomms.client import MatchcommsClient
 
 """
 This file contains a minimal API to implement training.
@@ -59,6 +61,10 @@ class Exercise:
     on_tick().
     """
 
+    # Creates a matchcomms client connected to the current match.
+    # Initialized before on_briefing() is called.
+    _matchcomms_factory: Callable[[], MatchcommsClient] = None
+
     def get_name(self) -> str:
         """
         Gets the name to be displayed on screen.
@@ -94,6 +100,18 @@ class Exercise:
         """
         raise NotImplementedError()
 
+    def on_briefing(self) -> Optional[Grade]:
+        """
+        This method is called before state-setting such that bots can be "briefed" on the upcoming exercise.
+        The "briefing" is usually for using matchcomms to convey objectives and parameters.
+        A grade can be returned in case bot responded sufficient to pass or fail the exercise
+        before any on_tick() grading happens.
+        """
+        pass
+
+    def set_matchcomms_factory(self, matchcomms_factory: Callable[[], MatchcommsClient]):
+        self._matchcomms_factory = matchcomms_factory
+
     def render(self, renderer: RenderingManager):
         """
         This method is called each tick to render exercise debug information.
@@ -119,47 +137,81 @@ def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], se
     names = [exercise.get_name() for exercise in exercises]
     with training_status_renderer_context(names, game_interface.renderer) as ren:
         for i, exercise in enumerate(exercises):
-            def update_row(status: str, status_color_func):
-                nonlocal i
-                nonlocal exercise
-                ren.update(i, Row(exercise.get_name(), status, status_color_func))
+            with safe_matchcomms_factory(setup_manager) as matchcomms_factory:
+                def update_row(status: str, status_color_func):
+                    nonlocal i
+                    nonlocal exercise
+                    ren.update(i, Row(exercise.get_name(), status, status_color_func))
 
-            update_row('config', ren.renderman.white)
-            # Only reload the match if the config has changed.
-            new_match_config = exercise.get_match_config()
-            if new_match_config != setup_manager.match_config:
-                update_row('match', ren.renderman.white)
-                _setup_match(new_match_config, setup_manager)
-                update_row('bots', ren.renderman.white)
-                _wait_until_bots_ready(setup_manager, new_match_config)
+                update_row('config', ren.renderman.white)
+                # Only reload the match if the config has changed.
+                new_match_config = exercise.get_match_config()
+                if new_match_config != setup_manager.match_config:
+                    update_row('match', ren.renderman.white)
+                    _setup_match(new_match_config, setup_manager)
+                    update_row('bots', ren.renderman.white)
+                    _wait_until_bots_ready(setup_manager, new_match_config)
 
-            update_row('wait', ren.renderman.white)
-            _wait_until_good_ticks(game_interface)
+                update_row('reload', ren.renderman.white)
+                setup_manager.reload_all_agents(quiet=True)
 
-            update_row('setup', ren.renderman.white)
-            error_result = _setup_exercise(game_interface, exercise, seed)
-            if error_result is not None:
-                update_row('setup', ren.renderman.red)
-                yield error_result
-                continue
+                # Briefing
+                update_row('brief', ren.renderman.white)
+                try:
+                    exercise.set_matchcomms_factory(matchcomms_factory)
+                    early_result = exercise.on_briefing()
+                except Exception as e:
+                    update_row('brief', ren.renderman.red)
+                    yield Result(exercise, seed, FailDueToExerciseException(e, traceback.format_exc()))
+                    continue
+                if early_result is not None:
+                    if isinstance(early_result.grade, Pass):
+                        update_row('PASS', ren.renderman.green)
+                    else:
+                        update_row('FAIL', ren.renderman.red)
+                    yield early_result
+                    continue
 
-            update_row('reload', ren.renderman.white)
-            setup_manager.reload_all_agents(quiet=True)
+                update_row('wait', ren.renderman.white)
+                _wait_until_good_ticks(game_interface)
 
-            # Wait for the set_game_state() to propagate before we start running ex.on_tick()
-            # TODO: wait until the game looks similar.
-            update_row('sleep', ren.renderman.white)
-            time.sleep(0.03)
+                update_row('setup', ren.renderman.white)
+                error_result = _setup_exercise(game_interface, exercise, seed)
+                if error_result is not None:
+                    update_row('setup', ren.renderman.red)
+                    yield error_result
+                    continue
 
-            update_row('>>>>', ren.renderman.white)
-            result = _grade_exercise(game_interface, exercise, seed)
+                # Wait for the set_game_state() to propagate before we start running ex.on_tick()
+                # TODO: wait until the game looks similar.
+                update_row('sleep', ren.renderman.white)
+                time.sleep(0.03)
 
-            if isinstance(result.grade, Pass):
-                update_row('PASS', ren.renderman.green)
-            else:
-                update_row('FAIL', ren.renderman.red)
+                update_row('>>>>', ren.renderman.white)
+                result = _grade_exercise(game_interface, exercise, seed)
 
-            yield result
+                if isinstance(result.grade, Pass):
+                    update_row('PASS', ren.renderman.green)
+                else:
+                    update_row('FAIL', ren.renderman.red)
+                yield result
+
+@contextmanager
+def safe_matchcomms_factory(setup_manager: SetupManager):
+    clients = []
+    has_finished = False
+    def matchcomms_factory() -> MatchcommsClient:
+        assert not has_finished
+        client = MatchcommsClient(setup_manager.matchcomms_server.root_url)
+        clients.append(client)
+        return client
+    try:
+        yield matchcomms_factory
+    finally:
+        has_finished = True
+        for client in clients:
+            client.close()
+
 
 
 def _wait_until_bots_ready(setup_manager: SetupManager, match_config: MatchConfig):
@@ -197,9 +249,8 @@ def _setup_match(match_config: MatchConfig, manager: SetupManager):
     manager.shut_down(kill_all_pids=True, quiet=True)  # To be safe.
     manager.load_match_config(match_config)
     manager.launch_quick_chat_manager()
-    manager.launch_ball_prediction()
-    manager.launch_bot_processes()
     manager.start_match()
+    manager.launch_bot_processes()
 
 
 def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Optional[Result]:

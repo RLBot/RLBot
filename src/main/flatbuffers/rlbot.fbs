@@ -25,6 +25,9 @@ table ControllerState {
 
   /// true if you want to press the handbrake button
   handbrake:bool;
+
+  /// true if you want to press the 'use item' button, used in rumble etc.
+  useItem:bool;
 }
 
 table PlayerInput {
@@ -73,6 +76,9 @@ table Touch {
 
   /// The Team which the touch belongs to, 0 for blue 1 for orange.
   team:int;
+
+  /// The index of the player involved with the touch.
+  playerIndex:int;
 }
 
 table ScoreInfo {
@@ -418,6 +424,10 @@ table QuickChat {
 
   /// True if the chat is team only false if everyone can see it.
   teamOnly:      bool;
+
+  messageIndex: int;
+
+  timeStamp: float;
 }
 
 root_type QuickChat;
@@ -644,13 +654,14 @@ enum BoostOption : byte {
 }
 
 enum RumbleOption : byte {
-  None,
+  No_Rumble, // Cannot be named None because that breaks Python.
   Default,
   Slow,
   Civilized,
   Destruction_Derby,
   Spring_Loaded,
-  Spikes_Only
+  Spikes_Only,
+  Spike_Rush
 }
 
 enum BoostStrengthOption : byte {
@@ -701,6 +712,18 @@ table MutatorSettings {
   respawnTimeOption: RespawnTimeOption;
 }
 
+enum ExistingMatchBehavior : byte {
+  /// Restart the match if any match settings differ. This is the default because old RLBot always worked this way.
+  Restart_If_Different,
+
+  /// Always restart the match, even if config is identical
+  Restart,
+
+  /// Never restart an existing match, just try to remove or spawn cars to match the configuration.
+  /// If we are not in the middle of a match, a match will be started. Handy for LAN matches.
+  Continue_And_Spawn,
+}
+
 table MatchSettings {
   playerConfigurations: [PlayerConfiguration];
   gameMode: GameMode;
@@ -708,4 +731,9 @@ table MatchSettings {
   skipReplays: bool;
   instantStart: bool;
   mutatorSettings: MutatorSettings;
+  existingMatchBehavior: ExistingMatchBehavior;
+}
+
+table QuickChatMessages {
+  messages: [QuickChat];
 }

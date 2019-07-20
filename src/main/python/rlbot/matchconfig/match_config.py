@@ -9,7 +9,7 @@ from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_type
     match_length_types, max_score_types, overtime_mutator_types, series_length_mutator_types, game_speed_mutator_types, \
     ball_max_speed_mutator_types, ball_type_mutator_types, ball_weight_mutator_types, ball_size_mutator_types, \
     ball_bounciness_mutator_types, rumble_mutator_types, boost_strength_mutator_types, gravity_mutator_types, \
-    demolish_mutator_types, respawn_time_mutator_types
+    demolish_mutator_types, respawn_time_mutator_types, existing_match_behavior_types
 from rlbot.utils.structures.start_match_structures import MatchSettings, PlayerConfiguration, MutatorSettings
 
 class Team(Enum):
@@ -64,6 +64,12 @@ class PlayerConfig:
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
 
+def index_or_zero(types, value):
+    if value is None:
+        return 0
+    return types.index(value)
+
+
 class MutatorConfig:
     """
     Represent mutator configuration, e.g. match length, boost amount, etc.
@@ -90,28 +96,24 @@ class MutatorConfig:
         self.respawn_time: str = None
 
     def write(self, mutator_settings: MutatorSettings):
-        mutator_settings.match_length = self.index_or_zero(match_length_types, self.match_length)
-        mutator_settings.max_score = self.index_or_zero(max_score_types, self.max_score)
-        mutator_settings.overtime_option = self.index_or_zero(overtime_mutator_types, self.overtime)
-        mutator_settings.series_length_option = self.index_or_zero(series_length_mutator_types, self.series_length)
-        mutator_settings.game_speed_option = self.index_or_zero(game_speed_mutator_types, self.game_speed)
-        mutator_settings.ball_max_speed_option = self.index_or_zero(ball_max_speed_mutator_types, self.ball_max_speed)
-        mutator_settings.ball_type_option = self.index_or_zero(ball_type_mutator_types, self.ball_type)
-        mutator_settings.ball_weight_option = self.index_or_zero(ball_weight_mutator_types, self.ball_weight)
-        mutator_settings.ball_size_option = self.index_or_zero(ball_size_mutator_types, self.ball_size)
-        mutator_settings.ball_bounciness_option = self.index_or_zero(ball_bounciness_mutator_types, self.ball_bounciness)
-        mutator_settings.boost_amount_option = self.index_or_zero(boost_amount_mutator_types, self.boost_amount)
-        mutator_settings.rumble_option = self.index_or_zero(rumble_mutator_types, self.rumble)
-        mutator_settings.boost_strength_option = self.index_or_zero(boost_strength_mutator_types, self.boost_strength)
-        mutator_settings.gravity_option = self.index_or_zero(gravity_mutator_types, self.gravity)
-        mutator_settings.demolish_option = self.index_or_zero(demolish_mutator_types, self.demolish)
-        mutator_settings.respawn_time_option = self.index_or_zero(respawn_time_mutator_types, self.respawn_time)
+        mutator_settings.match_length = index_or_zero(match_length_types, self.match_length)
+        mutator_settings.max_score = index_or_zero(max_score_types, self.max_score)
+        mutator_settings.overtime_option = index_or_zero(overtime_mutator_types, self.overtime)
+        mutator_settings.series_length_option = index_or_zero(series_length_mutator_types, self.series_length)
+        mutator_settings.game_speed_option = index_or_zero(game_speed_mutator_types, self.game_speed)
+        mutator_settings.ball_max_speed_option = index_or_zero(ball_max_speed_mutator_types, self.ball_max_speed)
+        mutator_settings.ball_type_option = index_or_zero(ball_type_mutator_types, self.ball_type)
+        mutator_settings.ball_weight_option = index_or_zero(ball_weight_mutator_types, self.ball_weight)
+        mutator_settings.ball_size_option = index_or_zero(ball_size_mutator_types, self.ball_size)
+        mutator_settings.ball_bounciness_option = index_or_zero(ball_bounciness_mutator_types, self.ball_bounciness)
+        mutator_settings.boost_amount_option = index_or_zero(boost_amount_mutator_types, self.boost_amount)
+        mutator_settings.rumble_option = index_or_zero(rumble_mutator_types, self.rumble)
+        mutator_settings.boost_strength_option = index_or_zero(boost_strength_mutator_types, self.boost_strength)
+        mutator_settings.gravity_option = index_or_zero(gravity_mutator_types, self.gravity)
+        mutator_settings.demolish_option = index_or_zero(demolish_mutator_types, self.demolish)
+        mutator_settings.respawn_time_option = index_or_zero(respawn_time_mutator_types, self.respawn_time)
 
-    @staticmethod
-    def index_or_zero(types, value):
-        if value is None:
-            return 0
-        return types.index(value)
+    
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -137,11 +139,13 @@ class MatchConfig:
         self.instant_start: bool = None
         self.mutators: MutatorConfig = None
         self.extension_config: ExtensionConfig = None
+        self.existing_match_behavior: str = None
 
     @property
     def num_players(self):
         return len(self.player_configs)
 
+    # TODO: retire the MatchSettings object and just build a flatbuffer here instead.
     def create_match_settings(self) -> MatchSettings:
         match_settings = MatchSettings()
         name_dict = {}
@@ -152,6 +156,7 @@ class MatchConfig:
         match_settings.game_map = map_types.index(self.game_map)
         match_settings.skip_replays = self.skip_replays
         match_settings.instant_start = self.instant_start
+        match_settings.existing_match_behavior = index_or_zero(existing_match_behavior_types, self.existing_match_behavior)
 
         self.mutators.write(match_settings.mutator_settings)
 

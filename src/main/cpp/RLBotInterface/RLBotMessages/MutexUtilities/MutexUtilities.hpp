@@ -3,9 +3,9 @@
 
 namespace MutexUtilities
 {
-	bool WaitForCore();
+	bool WaitForRLBotExe();
 	bool IsBallPredictionServiceRunning();
-	bool CreateCoreMutex();
+	bool CreateRLBotExeMutex();
 	bool CreateBallPredictionMutex();
 };
 

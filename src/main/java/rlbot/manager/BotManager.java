@@ -117,5 +117,6 @@ public class BotManager {
             process.stop();
             botProcesses.remove(index);
         }
+        RLBotDll.setPlayerInputFlatbuffer(new EmptyControls(), index);
     }
 }

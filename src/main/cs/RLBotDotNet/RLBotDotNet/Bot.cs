@@ -31,6 +31,7 @@ namespace RLBotDotNet
         private DateTime lastChatTime;
         private bool resetChatTime;
         private int chatCounter;
+        private int lastMessageId = -1;
         private Renderer.Renderer _renderer;
 
         /// <summary>
@@ -85,6 +86,11 @@ namespace RLBotDotNet
             return RLBotInterface.GetRigidBodyTick();
         }
 
+        protected MatchSettings GetMatchSettings()
+        {
+            return RLBotInterface.GetMatchSettingsData();
+        }
+
         protected void SendQuickChatFromAgent(bool teamOnly, QuickChatSelection quickChat)
         {
             /*
@@ -126,6 +132,22 @@ namespace RLBotDotNet
                                                      "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
                                                      "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
+        }
+
+        /// <summary>
+        /// Gets all messages that have been send since the last call to this method.
+        /// </summary>
+        /// <returns>List of new messages.</returns>
+        public QuickChatMessages ReceiveQuickChat()
+        {
+            QuickChatMessages messages = RLBotInterface.ReceiveQuickChat(index, team, lastMessageId);
+
+            if (messages.MessagesLength > 0)
+            {
+                lastMessageId = messages.Messages(messages.MessagesLength - 1).Value.MessageIndex;
+            }
+
+            return messages;
         }
 
         /// <summary>
