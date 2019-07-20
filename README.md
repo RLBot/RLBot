@@ -1,4 +1,4 @@
-# DO NOT PULL THIS REPO
+# YOU PROBABLY SHOULDN'T PULL THIS REPO
 
 ## Bot Makers Read This!
 
@@ -11,11 +11,11 @@
 
 ## Framework Contributors
 
-This repository is temporarily obsolete because ongoing development has gone 'closed source' to meet the legal needs of the Psyonix API. You should not be pulling this repo as a contributor because it's too outdated to support changes:
-- It doesn't interact successfully with the latest version of Rocket League, so you wouldn't be able to test changes adequately.
-- The closed source branch has diverged enough that merging would be troublesome.
+This repository is currently incomplete to meet the legal needs of the Psyonix API. It is missing the source code behind RLBot.exe, and a few other files. If you want to make a code change that involves RLBot.exe (or the interface dll since it's closely related), you'll need some help from someone with access to the closed repo.
 
-We expect we'll be able to open-source everything eventually, and then this repo will be back in business. 
+We expect we'll be able to open-source everything eventually, and then this repo will be back in business.
+
+**NOTICE:** We intend to cherry-pick any commits you make here into the closed repo. At a later date, when we have permission to open-source everything, we will **force push** the closed repo to this master branch. Your commits will still be there with proper attribution, but if you have any work in progress, it will need to be rebased at that time.
 
 # RLBot
 
