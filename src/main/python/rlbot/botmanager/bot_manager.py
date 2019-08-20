@@ -71,6 +71,9 @@ class BotManager:
         self.agent = None
         self.agent_class_file = None
         self.last_module_modification_time = 0
+        self.scan_last = 0
+        self.scan_temp = 0
+        self.file_iterator = None
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -248,15 +251,23 @@ class BotManager:
         if agent._matchcomms is not None:
             agent._matchcomms.close()
 
-    @staticmethod
-    def check_modification_time(directory):
-        files = [f for f in glob.glob(directory + "/**/*.py", recursive=True)]
-        max_modification_time = 0
-        for file in files:
-            mtime = os.stat(file).st_mtime
-            if mtime > max_modification_time:
-                max_modification_time = mtime
-        return max_modification_time
+    def check_modification_time(self, directory, timeout_ms=1):
+        if self.scan_last > 0 and timeout_ms is not None:
+            stop_time = time.perf_counter_ns() + timeout_ms * 10**6
+        else:
+            stop_time = None
+        if self.file_iterator is None:
+            self.file_iterator = glob.iglob(f"{directory}/**/*.py", recursive=True)
+        for f in self.file_iterator:
+            self.scan_temp = max(self.scan_temp, os.stat(f).st_mtime)
+            if stop_time is not None and time.perf_counter_ns() > stop_time:
+                # Timeout exceeded. The scan will pick up from here on the next call.
+                break
+        else:
+            # Scan finished. Update the modification time and restart the scan:
+            self.scan_last, self.scan_temp = self.scan_temp, 0
+            self.file_iterator = None
+        return self.scan_last
 
     def get_field_info(self):
         return self.game_interface.get_field_info()
