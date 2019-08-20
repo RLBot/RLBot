@@ -39,6 +39,18 @@
     <Filter Include="Source Files\BoostUtilities">
       <UniqueIdentifier>{82c78c7f-9fd0-4d2b-8fca-ee9dce9c863f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\MutexUtilities">
+      <UniqueIdentifier>{c1ea3a96-c36e-4744-a652-f66e42732ad5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MutexUtilities">
+      <UniqueIdentifier>{5b8c9b60-886e-4a8b-8db9-93f434e11288}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MessageTranslation">
+      <UniqueIdentifier>{789134da-e65d-4629-90dd-bf5d11c83f0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MessageTranslation">
+      <UniqueIdentifier>{5f2846f7-9731-4b79-b899-b762b29022c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Messages.hpp">
@@ -47,20 +59,11 @@
     <ClInclude Include="PacketStructs\PacketStructs.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
-    <ClInclude Include="MessageStructs\RendererMessages.hpp">
-      <Filter>Header Files\MessageStructs</Filter>
-    </ClInclude>
     <ClInclude Include="MessageStructs\GameMessages.hpp">
       <Filter>Header Files\MessageStructs</Filter>
     </ClInclude>
     <ClInclude Include="MessageStructs\Message.hpp">
       <Filter>Header Files\MessageStructs</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageProcessor\MessageProcessor.hpp">
-      <Filter>Header Files\MessageProcessor</Filter>
-    </ClInclude>
-    <ClInclude Include="FileMappings\FileMappings.hpp">
-      <Filter>Header Files\FileMappings</Filter>
     </ClInclude>
     <ClInclude Include="MessageStructs\CallbackMessages.hpp">
       <Filter>Header Files\MessageStructs</Filter>
@@ -72,9 +75,6 @@
       <Filter>Header Files\MessageDefines</Filter>
     </ClInclude>
     <ClInclude Include="PacketStructs\MatchDataPacket.hpp">
-      <Filter>Header Files\PacketStructs</Filter>
-    </ClInclude>
-    <ClInclude Include="PacketStructs\LiveDataPacket.hpp">
       <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
     <ClInclude Include="PacketStructs\MatchSettings.hpp">
@@ -89,19 +89,31 @@
     <ClInclude Include="BoostUtilities\BoostUtilities.hpp">
       <Filter>Header Files\BoostUtilities</Filter>
     </ClInclude>
-    <ClInclude Include="MessageTranslation\FlatbufferTranslator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MessageStructs\ByteBuffer.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketStructs\LiveDataPacket.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketStructs\RigidBodyStructs.hpp">
+      <Filter>Header Files\PacketStructs</Filter>
+    </ClInclude>
+    <ClInclude Include="MutexUtilities\MutexUtilities.hpp">
+      <Filter>Header Files\MutexUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageTranslation\StructToRLBotFlatbuffer.hpp">
+      <Filter>Header Files\MessageTranslation</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageTranslation\FlatbufferTranslator.hpp">
+      <Filter>Header Files\MessageTranslation</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageStructs\QuickChatStructs.hpp">
+      <Filter>Header Files\PacketStructs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MessageStructs\Message.cpp">
       <Filter>Source Files\MessageStructs</Filter>
-    </ClCompile>
-    <ClCompile Include="FileMappings\FileMappings.cpp">
-      <Filter>Source Files\FileMappings</Filter>
     </ClCompile>
     <ClCompile Include="BoostUtilities\BoostConstants.cpp">
       <Filter>Source Files\BoostUtilities</Filter>
@@ -111,6 +123,13 @@
     </ClCompile>
     <ClCompile Include="MessageTranslation\FlatbufferTranslator.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MutexUtilities\MutexUtilities.cpp">
+      <Filter>Source Files\MutexUtilities</Filter>
+      <Filter>Source Files\MessageTranslation</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageTranslation\StructToRlbotFlatbuffer.cpp">
+      <Filter>Source Files\MessageTranslation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

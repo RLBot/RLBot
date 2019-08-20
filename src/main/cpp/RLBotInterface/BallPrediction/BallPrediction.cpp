@@ -1,0 +1,162 @@
+// BallPrediction.cpp : Defines the entry point for the console application.
+//
+
+#include <stdio.h>
+#include <chrono>
+#include <thread>
+#include <csignal>
+
+#include <Interface.hpp>
+#include <Messages.hpp>
+
+#include "PredictionService.hpp"
+#include <GameFunctions\GameFunctions.hpp>
+#include <rlbot_generated.h>
+#include <BoostUtilities\BoostUtilities.hpp>
+#include <BoostUtilities\BoostConstants.hpp>
+
+#include "simulation/field.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+vec3 convertVec(const rlbot::flat::Vector3* vec)
+{
+	return vec3{ vec->x(), vec->y(), vec->z() };
+}
+
+rlbot::flat::Vector3 convertVec(vec3 vec)
+{
+	return rlbot::flat::Vector3(vec[0], vec[1], vec[2]);
+}
+
+// Places ball prediction data into shared memory. Bots will later be able to retrieve it by
+// calling a function on the interface dll.
+void emplacePrediction(std::list<BallPrediction::BallSlice>* prediction) {
+
+	std::vector<flatbuffers::Offset<rlbot::flat::PredictionSlice>> slices;
+
+	flatbuffers::FlatBufferBuilder builder;
+
+	for (std::list<BallPrediction::BallSlice>::iterator it = prediction->begin(); it != prediction->end(); it++) {
+
+		rlbot::flat::PhysicsBuilder physicsBuilder(builder);
+		physicsBuilder.add_location(&convertVec(it->Location));
+		physicsBuilder.add_velocity(&convertVec(it->Velocity));
+		physicsBuilder.add_angularVelocity(&convertVec(it->AngularVelocity));
+
+		auto physOffset = physicsBuilder.Finish();
+
+		rlbot::flat::PredictionSliceBuilder sliceBuilder(builder);
+		sliceBuilder.add_gameSeconds(it->gameSeconds);
+		sliceBuilder.add_physics(physOffset);
+		slices.push_back(sliceBuilder.Finish());
+	}
+
+	auto slicesOffset = builder.CreateVector(slices);
+
+	rlbot::flat::BallPredictionBuilder predictionBuilder(builder);
+	predictionBuilder.add_slices(slicesOffset);
+
+	builder.Finish(predictionBuilder.Finish());
+
+	static BoostUtilities::SharedMemWriter ballPredictionWriter(BoostConstants::BallPredictionName);
+
+	ballPredictionWriter.writeData(builder.GetBufferPointer(), builder.GetSize());
+}
+
+int runBallPrediction()
+{
+#ifdef _WIN32
+	// Get the executable path so RLU knows where to find the map files.
+	char path[256];
+	GetModuleFileNameA(NULL, path, 256);
+
+	std::string exe_directory = std::string(path);
+
+	auto last_slash = exe_directory.rfind("\\");
+	exe_directory.erase(last_slash + 1);
+#endif
+
+	Field::read_mesh_files(exe_directory);
+
+	// Set the arena.
+	Field::initialize_soccar();
+
+	// Set gamemode specific ball physics.
+	Ball::radius = Ball::soccar_radius;
+	Ball::collision_radius = Ball::soccar_collision_radius;
+
+	Ball::I = 0.4f * Ball::m * Ball::radius * Ball::radius;
+
+	printf("Ball Prediction Service Started\n");
+
+	BallPrediction::PredictionService predictionService(/* Number of seconds to predict */ 6.0, /* Seconds between prediction slices */ 1.0 / 60);
+
+	std::list<BallPrediction::BallSlice> empty;
+	emplacePrediction(&empty); // Clear out any previous predictions
+	MutexUtilities::CreateBallPredictionMutex();
+
+	while (!Interface::IsInitialized())
+		std::this_thread::sleep_for(std::chrono::microseconds(100));
+
+	while (true) 
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+
+		ByteBuffer buf = GameFunctions::UpdateLiveDataPacketFlatbuffer();
+
+		if (buf.size < 4) {
+			continue; // Don't attempt to deserialize a packet if it's really small.
+		}
+
+		auto packet = flatbuffers::GetRoot<rlbot::flat::GameTickPacket>(buf.ptr);
+
+		auto ball = packet->ball();
+
+		if (ball != nullptr) {
+
+			auto ballPhys = ball->physics();
+
+			BallPrediction::BallSlice slice;
+			slice.Location = convertVec(ballPhys->location());
+			slice.Velocity = convertVec(ballPhys->velocity());
+			slice.AngularVelocity = convertVec(ballPhys->angularVelocity());
+			slice.gameSeconds = packet->gameInfo()->secondsElapsed();
+			float gravity = packet->gameInfo()->worldGravityZ();
+
+			std::list<BallPrediction::BallSlice>* prediction = predictionService.updatePrediction(slice, gravity);
+
+			emplacePrediction(prediction);
+		}
+
+		delete buf.ptr;
+	}
+	
+	printf("Ball Prediction Service Exiting\n");
+	return 0;
+}
+
+void signalHandler(int signum) {
+	exit(signum);
+}
+
+
+int main()
+{
+	try
+	{
+		signal(SIGINT, signalHandler);
+		signal(SIGABRT, signalHandler); 
+		runBallPrediction();
+	}
+	catch (std::exception e)
+	{
+		printf("Encountered a std exception: %s \n", e.what());
+	}
+	catch (...)
+	{
+		printf("Encountered some kind of exception!\n");
+	}
+}

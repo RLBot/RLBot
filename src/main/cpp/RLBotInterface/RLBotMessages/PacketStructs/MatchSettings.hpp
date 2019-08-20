@@ -1,6 +1,8 @@
 #ifndef MATCHSETTINGS_STRUCTS_HPP
 #define MATCHSETTINGS_STRUCTS_HPP
 
+#include "LiveDataPacket.hpp"
+
 struct PlayerConfiguration
 {
 	bool					Bot;
@@ -22,6 +24,14 @@ struct PlayerConfiguration
 	int						EngineAudioID;
 	int						TrailsID;
 	int						GoalExplosionID;
+	int						CarPaintID;
+	int						DecalPaintID;
+	int						WheelsPaintID;
+	int						BoostPaintID;
+	int						AntennaPaintID;
+	int						HatPaintID;
+	int						TrailsPaintID;
+	int						GoalExplosionPaintID;
 };
 
 enum GameMode
@@ -46,6 +56,7 @@ enum GameMap
 	AquaDome,
 	StarbaseArc,
 	Farmstead,
+	SaltyShores,
 	DFHStadium_Stormy,
 	DFHStadium_Day,
 	Mannfield_Stormy,
@@ -71,6 +82,7 @@ enum GameMap
 	UtopiaRetro,
 	Hoops_DunkHouse,
 	DropShot_Core707,
+	ThrowbackStadium,
 	Workshop_Aerial_Map, // http://steamcommunity.com/sharedfiles/filedetails/?id=1212847139&searchtext=
 	Workshop_BeachVolley, // http://steamcommunity.com/sharedfiles/filedetails/?id=916532343&searchtext=
 	Workshop_DribblingChallenge2, // http://steamcommunity.com/sharedfiles/filedetails/?id=964271505&searchtext=
@@ -80,7 +92,7 @@ enum GameMap
 	Workshop_ShipYarr // http://steamcommunity.com/sharedfiles/filedetails/?id=817314448&searchtext=
 };
 
-enum MatchLength
+enum class MatchLength
 {
 	Five_Minutes,
 	Ten_Minutes,
@@ -88,7 +100,77 @@ enum MatchLength
 	Unlimited
 };
 
-enum BoostOption
+enum class MaxScore
+{
+	Unlimited,
+	One_Goal,
+	Three_Goals,
+	Five_Goals
+};
+
+enum class OvertimeOption
+{
+	Unlimited,
+	Five_Max_First_Score,
+	Five_Max_Random_Team
+};
+
+enum class SeriesLengthOption
+{
+	Unlimited,
+	Three_Games,
+	Five_Games,
+	Seven_Games
+};
+
+enum class GameSpeedOption
+{
+	Default,
+	Slo_Mo,
+	Time_Warp
+};
+
+enum class BallMaxSpeedOption
+{
+	Default,
+	Slow,
+	Fast,
+	Super_Fast
+};
+
+enum class BallTypeOption
+{
+	Default,
+	Cube,
+	Puck,
+	Basketball
+};
+
+enum class BallWeightOption
+{
+	Default,
+	Light,
+	Heavy,
+	Super_Light
+};
+
+enum class BallSizeOption
+{
+	Default,
+	Small,
+	Large,
+	Gigantic
+};
+
+enum class BallBouncinessOption
+{
+	Default,
+	Low,
+	High,
+	Super_High
+};
+
+enum class BoostOption
 {
 	Normal_Boost,
 	Unlimited_Boost,
@@ -97,10 +179,76 @@ enum BoostOption
 	No_Boost
 };
 
+enum class RumbleOption
+{
+	None,
+	Default,
+	Slow,
+	Civilized,
+	Destruction_Derby,
+	Spring_Loaded,
+	Spikes_Only,
+	Spike_Rush
+};
+
+enum class BoostStrengthOption
+{
+	One,
+	OneAndAHalf,
+	Two,
+	Ten
+};
+
+enum class GravityOption
+{
+	Default,
+	Low,
+	High,
+	Super_High
+};
+
+enum class DemolishOption
+{
+	Default,
+	Disabled,
+	Friendly_Fire,
+	On_Contact,
+	On_Contact_FF
+};
+
+enum class RespawnTimeOption
+{
+	Three_Seconds,
+	Two_Seconds,
+	One_Seconds,
+	Disable_Goal_Reset
+};
+
 struct MutatorSettings
 {
 	MatchLength				MatchLength;
+	MaxScore				MaxScore;
+	OvertimeOption			OvertimeOptions;
+	SeriesLengthOption		SeriesLengthOptions;
+	GameSpeedOption			GameSpeedOptions;
+	BallMaxSpeedOption		BallMaxSpeedOptions;
+	BallTypeOption			BallTypeOptions;
+	BallWeightOption		BallWeightOptions;
+	BallSizeOption			BallSizeOptions;
+	BallBouncinessOption	BallBouncinessOptions;
 	BoostOption				BoostOptions;
+	RumbleOption			RumbleOptions;
+	BoostStrengthOption		BoostStrengthOptions;
+	GravityOption			GravityOptions;
+	DemolishOption			DemolishOptions;
+	RespawnTimeOption		RespawnTimeOptions;
+};
+
+enum ExistingMatchBehavior
+{
+	Restart_If_Different,
+	Restart,
+	Continue_And_Spawn
 };
 
 struct MatchSettings
@@ -112,6 +260,7 @@ struct MatchSettings
 	bool					SkipReplays;
 	bool					InstantStart;
 	MutatorSettings			MutatorSettings;
+	ExistingMatchBehavior	ExistingMatchBehavior;
 };
 
 #endif

@@ -1,3 +1,5 @@
+from typing import Set
+
 optional_packages_installed = False
 try:
     import psutil
@@ -64,3 +66,33 @@ def configure_processes(agent_metadata_map, logger):
     for pid in shared_pids:
         p = psutil.Process(pid)  # Allow the process to run at high priority
         p.nice(psutil.HIGH_PRIORITY_CLASS)
+
+
+def extract_all_pids(agent_metadata_map):
+    pids = set()
+    for player_index, data in agent_metadata_map.items():
+        pids.update(data.pids)
+    return pids
+
+
+def is_process_running(program, scriptname, required_args: Set[str]):
+    if not optional_packages_installed:
+        return True
+    for pid in psutil.process_iter(attrs=['name', 'exe']):
+        try:
+            p = pid.info.values()
+            if program in p or scriptname in p:
+                try:
+                    args = pid.cmdline()[1:]
+                    if not required_args.issubset(args):
+                        raise WrongProcessArgs(f"{program} is not running with {required_args}!")
+                except psutil.AccessDenied:
+                    print(f"Access denied look at cmdline of {pid}!")
+                return True
+        except psutil.NoSuchProcess:
+            continue
+    return False
+
+
+class WrongProcessArgs(UserWarning):
+    pass

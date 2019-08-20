@@ -7,25 +7,36 @@
 
 #include "GameFunctions.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
-
-#include "..\CallbackProcessor\CallbackProcessor.hpp"
+#include <BoostUtilities\BoostUtilities.hpp>
+#include <MessageTranslation\FlatbufferTranslator.hpp>
+#include <MessageTranslation\StructToRLBotFlatbuffer.hpp>
 
 #include <chrono>
 #include <thread>
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
 
 namespace GameFunctions
 {
+	BoostUtilities::QueueSender* pGameStateQueue = nullptr;
+	BoostUtilities::QueueSender* pMatchControlQueue = nullptr;
+
+	void Initialize_GameFunctions()
+	{
+		pGameStateQueue = new BoostUtilities::QueueSender(BoostConstants::GameStateFlatQueueName);
+		pMatchControlQueue = new BoostUtilities::QueueSender(BoostConstants::MatchControlQueueName);
+	}
+
 	extern "C" void RLBOT_CORE_API Free(void* ptr)
 	{
 		free(ptr);
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateMessage, int messageSize, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size)
 	{
-
-		// TODO: send in the game state via a queue.
-		return RLBotCoreStatus::Success;
+		if (!pGameStateQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+		return pGameStateQueue->sendMessage(gameStateData, size);
 	}
 
 	// Start match
@@ -82,7 +93,7 @@ namespace GameFunctions
 		return RLBotCoreStatus::Success;
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings, CallbackFunction callback, unsigned int* pID)
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings)
 	{
 		int numPlayers = matchSettings.NumPlayers;
 		//ToDo: Check the other settings
@@ -91,11 +102,22 @@ namespace GameFunctions
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		BEGIN_GAME_FUNCTION(StartMatchMessage, pStartMatch);
-		REGISTER_CALLBACK(pStartMatch, callback, pID);
-		pStartMatch->MatchSettings = matchSettings;
-		END_GAME_FUNCTION;
+		flatbuffers::FlatBufferBuilder builder;
+		StructToRLBotFlatbuffer::BuildStartMatchMessage(&builder, matchSettings);
 
-		return RLBotCoreStatus::Success;
+		return pMatchControlQueue->sendMessage(builder.GetBufferPointer(), builder.GetSize());
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatchFlatbuffer(void* startMatchSettings, int size)
+	{
+		ByteBuffer buf;
+		buf.ptr = startMatchSettings;
+		buf.size = size;
+
+		MatchSettings matchSettings = { 0 };
+
+		FlatbufferTranslator::translateToMatchSettingsStruct(buf, &matchSettings);
+
+		return StartMatch(matchSettings);
 	}
 }

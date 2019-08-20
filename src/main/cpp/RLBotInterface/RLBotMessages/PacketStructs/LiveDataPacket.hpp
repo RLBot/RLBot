@@ -3,7 +3,11 @@
 
 
 #define CONST_MaxBoosts		50
-#define CONST_MaxPlayers	10
+#define CONST_MaxTiles		200
+#define CONST_MaxTeams		2
+#define CONST_MaxGoals		200
+#define CONST_MaxPlayers	64
+#define CONST_MAXSLICES		360
 
 struct ScoreInfo
 {
@@ -70,18 +74,51 @@ struct BoostInfo
 	float 					Timer;
 };
 
+struct TileInfo
+{
+	int						tileState;
+};
+
+struct TeamInfo
+{
+	int						TeamIndex;
+	int						Score;
+};
+
 struct Touch
 {
 	wchar_t					PlayerName[32];
 	float					TimeSeconds;
 	PyStruct::Vector3		HitLocation;
 	PyStruct::Vector3		HitNormal;
+	int						Team;
+	int						PlayerIndex;
+};
+
+struct DropShotBallInfo
+{
+	float					AbsorbedForce;
+	int						DamageIndex;
+	float					ForceAccumRecent;
+};
+
+struct Slice
+{
+	Physics 				Physics;
+	float					GameSeconds;
+};
+
+struct BallPredictionPacket
+{
+	Slice				Slice[CONST_MAXSLICES];
+	int					NumSlices;
 };
 
 struct BallInfo
 {
 	Physics 				Physics;
 	Touch					LatestTouch;
+	DropShotBallInfo		DropShotInfo;
 };
 
 struct GameInfo
@@ -91,8 +128,10 @@ struct GameInfo
 	bool					OverTime;
 	bool					UnlimitedTime;
 	bool					RoundActive;
-	bool					BallHasBeenHit;
+	bool					KickoffPause;
 	bool					MatchEnded;
+	float					WorldGravityZ;
+	float					GameSpeed;
 };
 
 struct LiveDataPacket
@@ -103,6 +142,10 @@ struct LiveDataPacket
 	int						NumBoosts;
 	BallInfo  				GameBall;
 	GameInfo				GameInfo;
+	TileInfo				GameTiles[CONST_MaxTiles];
+	int						NumTiles;
+	TeamInfo				Teams[CONST_MaxTeams];
+	int						NumTeams;
 };
 
 #endif

@@ -21,34 +21,40 @@ https://lists.boost.org/Archives/boost/2014/06/214746.php
 */
 typedef boost::interprocess::message_queue_t< boost::interprocess::offset_ptr<void, boost::int32_t, boost::uint64_t>> interop_message_queue;
 
-namespace BoostUtilities {
-
-	class QueueSender {
+namespace BoostUtilities
+{
+	class QueueSender
+	{
 	private:
-		interop_message_queue queue;
+		interop_message_queue* pQueue;
+
 	public:
-		QueueSender(const char* queueName): queue(boost::interprocess::open_only, queueName)
-		{ }
-		RLBotCoreStatus sendMessage(void* message, int messageSize);
+		QueueSender(const char* pQueueName);
+		RLBotCoreStatus sendMessage(void* pMessage, int messageSize);
 	};
 
-
-	class SharedMemReader {
+	class SharedMemReader
+	{
 	private:
-		boost::interprocess::shared_memory_object* sharedMem;
-		boost::interprocess::named_sharable_mutex* mutex;
+		boost::interprocess::shared_memory_object* pSharedMem;
+		boost::interprocess::named_sharable_mutex* pMutex;
+
 	public:
-		SharedMemReader(const char* name);
+		SharedMemReader(const char* pName);
 		ByteBuffer fetchData();
 	};
 
-	class SharedMemWriter {
+	class SharedMemWriter
+	{
 	private:
-		boost::interprocess::shared_memory_object* sharedMem;
-		boost::interprocess::named_sharable_mutex* mutex;
+		boost::interprocess::shared_memory_object* pSharedMem;
+		boost::interprocess::named_sharable_mutex* pMutex;
+		const char* pMemName;
+
 	public:
-		SharedMemWriter(const char* name);
-		void writeData(void* address, int size);
+		SharedMemWriter(const char* pName);
+		~SharedMemWriter();
+		void writeData(void* pAddress, int size);
 	};
 }
 

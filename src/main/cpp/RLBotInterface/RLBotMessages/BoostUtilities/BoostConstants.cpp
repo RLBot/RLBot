@@ -9,6 +9,9 @@ namespace BoostConstants
 	// Game Data
 	const char* GameDataFlatName = "gameDataFlat";
 
+	// Physics Ticks
+	const char* PhysicsTickFlatName = "physicsTickFlat";
+
 	// Player Input
 	const char* PlayerInputFlatQueueName = "playerInputFlatQueue";
 
@@ -20,6 +23,21 @@ namespace BoostConstants
 
 	// Chat
 	const char* QuickChatFlatQueueName = "quickChatQueue";
+
+	// Chat messages distribution
+	const char* QuickChatDistributionName = "quickChatDistribution";
+
+	// Game State Setting
+	const char* GameStateFlatQueueName = "gameStateQueue";
+
+	// Game Data
+	const char* BallPredictionName = "ballPrediction";
+
+	// Match Control
+	const char* MatchControlQueueName = "matchControlQueue";
+
+	// Reading the match settings back out
+	const char* MatchSettingsName = "matchSettings";
 
 	std::string buildSharedMemName(const char* baseName) {
 		std::string name(baseName);

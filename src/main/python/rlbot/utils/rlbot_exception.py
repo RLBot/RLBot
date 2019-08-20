@@ -1,3 +1,6 @@
+from typing import Type
+
+
 class RLBotException(Exception):
     """Base class for exceptions in this module."""
 
@@ -6,17 +9,6 @@ class RLBotException(Exception):
             # Set some default useful error message
             msg = "An error occurred attempting to set RLBot configuration on the dll side"
         super(RLBotException, self).__init__(msg)
-        self.error_dict = {1: BufferOverfilledError(), 2: MessageLargerThanMaxError(), 3: InvalidNumPlayerError(),
-                           4: InvalidBotSkillError(), 5: InvalidPlayerIndexError(), 6: InvalidName(),
-                           7: InvalidTeam, 8: InvalidTeamColor(), 9: InvalidCustomColor, 10: InvalidGameValues,
-                           11: InvalidThrottle, 12: InvalidSteer, 13: InvalidPitch, 14: InvalidRoll,
-                           15: InvalidSteer}
-
-    def raise_exception_from_error_code(self, error_code):
-        try:
-            return self.error_dict[error_code]
-        except KeyError:
-            return self
 
 
 class BufferOverfilledError(RLBotException):
@@ -37,6 +29,11 @@ class InvalidNumPlayerError(RLBotException):
 class InvalidBotSkillError(RLBotException):
     def __init__(self):
         super(RLBotException, self).__init__("Invalid bot skill specified in configuration")
+
+
+class InvalidHumanIndex(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Invalid human index")
 
 
 class InvalidPlayerIndexError(RLBotException):
@@ -92,3 +89,34 @@ class InvalidYaw(RLBotException):
 class InvalidRoll(RLBotException):
     def __init__(self):
         super(RLBotException, self).__init__("Invalid roll input")
+
+
+class InvalidQuickChatPreset(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Invalid quick chat preset")
+
+
+class InvalidRenderType(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Invalid render type")
+
+
+class EmptyDllResponse(RLBotException):
+    def __init__(self):
+        super(RLBotException, self).__init__("Response from dll was empty")
+
+
+error_dict = {1: BufferOverfilledError, 2: MessageLargerThanMaxError, 3: InvalidNumPlayerError,
+              4: InvalidBotSkillError, 5: InvalidHumanIndex, 6: InvalidName,
+              7: InvalidTeam, 8: InvalidTeamColor, 9: InvalidCustomColor, 10: InvalidGameValues,
+              11: InvalidThrottle, 12: InvalidSteer, 13: InvalidPitch, 14: InvalidYaw, 15: InvalidRoll,
+              16: InvalidPlayerIndexError, 17: InvalidQuickChatPreset, 18: InvalidRenderType}
+
+
+# https://stackoverflow.com/questions/33533148/how-do-i-specify-that-the-return-type-of-a-method-is-the-same-as-the-class-itsel
+# https://docs.python.org/3/library/typing.html#classes-functions-and-decorators
+def get_exception_from_error_code(error_code) -> Type['RLBotException']:
+    try:
+        return error_dict[error_code]
+    except KeyError:
+        return RLBotException

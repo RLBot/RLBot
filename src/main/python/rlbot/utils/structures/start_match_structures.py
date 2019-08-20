@@ -1,6 +1,6 @@
 import ctypes
 
-MAX_PLAYERS = 10
+MAX_PLAYERS = 64
 MAX_NAME_LENGTH = 32
 
 
@@ -27,12 +27,34 @@ class PlayerConfiguration(ctypes.Structure):
                 ("custom_finish_id", ctypes.c_int),
                 ("engine_audio_id", ctypes.c_int),
                 ("trails_id", ctypes.c_int),
-                ("goal_explosion_id", ctypes.c_int)]
+                ("goal_explosion_id", ctypes.c_int),
+                ("car_paint_id", ctypes.c_int),
+                ("decal_paint_id", ctypes.c_int),
+                ("wheels_paint_id", ctypes.c_int),
+                ("boost_paint_id", ctypes.c_int),
+                ("antenna_paint_id", ctypes.c_int),
+                ("hat_paint_id", ctypes.c_int),
+                ("trails_paint_id", ctypes.c_int),
+                ("goal_explosion_paint_id", ctypes.c_int)]
 
 
 class MutatorSettings(ctypes.Structure):
     _fields_ = [("match_length", ctypes.c_uint),
-                ("boost_options", ctypes.c_uint),
+                ("max_score", ctypes.c_uint),
+                ("overtime_option", ctypes.c_uint),
+                ("series_length_option", ctypes.c_uint),
+                ("game_speed_option", ctypes.c_uint),
+                ("ball_max_speed_option", ctypes.c_uint),
+                ("ball_type_option", ctypes.c_uint),
+                ("ball_weight_option", ctypes.c_uint),
+                ("ball_size_option", ctypes.c_uint),
+                ("ball_bounciness_option", ctypes.c_uint),
+                ("boost_amount_option", ctypes.c_uint),
+                ("rumble_option", ctypes.c_uint),
+                ("boost_strength_option", ctypes.c_uint),
+                ("gravity_option", ctypes.c_uint),
+                ("demolish_option", ctypes.c_uint),
+                ("respawn_time_option", ctypes.c_uint),
                 ]
 
 
@@ -44,11 +66,5 @@ class MatchSettings(ctypes.Structure):
                 ("skip_replays", ctypes.c_bool),
                 ("instant_start", ctypes.c_bool),
                 ("mutator_settings", MutatorSettings),
+                ("existing_match_behavior", ctypes.c_uint),
                 ]
-
-
-def get_player_configuration_list(match_configuration_wrapper):
-    player_list = []
-    for i in range(MAX_PLAYERS):
-        player_list.append(PlayerConfiguration())
-    return match_configuration_wrapper.player_configuration

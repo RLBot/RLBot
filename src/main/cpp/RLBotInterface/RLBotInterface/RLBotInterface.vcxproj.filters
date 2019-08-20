@@ -41,14 +41,17 @@
     <ClCompile Include="RenderFunctions\RenderFunctions.cpp">
       <Filter>Source Files\RenderFunctions</Filter>
     </ClCompile>
-    <ClCompile Include="CallbackProcessor\CallbackProcessor.cpp">
-      <Filter>Source Files\CallbackProcessor</Filter>
-    </ClCompile>
     <ClCompile Include="GameFunctions\GamePacket.cpp">
       <Filter>Source Files\GameFunctions</Filter>
     </ClCompile>
     <ClCompile Include="GameFunctions\PlayerInfo.cpp">
       <Filter>Source Files\GameFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFunctions\BallPrediction.cpp">
+      <Filter>Source Files\GameFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFunctions\QuickChatRateLimiter.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,9 +64,6 @@
     <ClInclude Include="InterfaceBase\InterfaceBase.hpp">
       <Filter>Header Files\InterfaceBase</Filter>
     </ClInclude>
-    <ClInclude Include="CallbackProcessor\CallbackProcessor.hpp">
-      <Filter>Header Files\CallbackProcessor</Filter>
-    </ClInclude>
     <ClInclude Include="Interface.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,8 +73,11 @@
     <ClInclude Include="GameFunctions\PlayerInfo.hpp">
       <Filter>Header Files\GameFunctions</Filter>
     </ClInclude>
-    <ClInclude Include="CallbackProcessor\SharedMemoryDefinitions.hpp">
-      <Filter>Header Files\CallbackProcessor</Filter>
+    <ClInclude Include="GameFunctions\BallPrediction.hpp">
+      <Filter>Header Files\GameFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunctions\QuickChatRateLimiter.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

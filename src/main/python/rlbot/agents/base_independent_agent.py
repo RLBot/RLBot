@@ -8,3 +8,6 @@ class BaseIndependentAgent(BaseAgent):
 
     def run_independently(self, terminate_request_event):
         raise NotImplementedError
+
+    def is_hot_reload_enabled(self):
+        return False

@@ -34,6 +34,9 @@ class HistoryIO():
             os.remove(self.file_path)
 
     def append(self, game_tick_proto, player_input):
+        if game_tick_proto is None:
+            print('game_tick_proto is None. Not writing history.')
+            return
         with open(self.file_path, 'a') as f:
             f.write(json.dumps({
                 'tick': base64.b64encode(game_tick_proto).decode('ascii'),

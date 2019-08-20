@@ -1,6 +1,8 @@
 #ifndef MATCHDATAPACKET_HPP
 #define MATCHDATAPACKET_HPP
 
+#include "LiveDataPacket.hpp"
+
 struct GoalInfo
 {
 	unsigned char           TeamNum;
@@ -18,7 +20,7 @@ struct FieldInfo
 {
 	BoostPad                BoostPads[CONST_MaxBoosts];
 	int                     NumBoosts;
-	GoalInfo                Goals[2];
+	GoalInfo                Goals[CONST_MaxGoals];
 	int                     NumGoals;
 };
 

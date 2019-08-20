@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.abspath(__file__)) + '/src/main/python/'))
+from rlbot.utils import python_version_check
 from rlbot.gui.qt_root import RLBotQTGui
 
 if __name__ == '__main__':

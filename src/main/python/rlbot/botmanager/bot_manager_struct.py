@@ -1,28 +1,32 @@
 from rlbot.agents.base_agent import BaseAgent
-from rlbot.utils.logging_utils import get_logger
-
 from rlbot.botmanager.bot_manager import BotManager
+from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures import ball_prediction_struct as bp
 from rlbot.utils.structures import game_data_struct as gd
 from rlbot.utils.structures.bot_input_struct import PlayerInput
+from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 
 class BotManagerStruct(BotManager):
-    def __init__(self, terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                 agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder):
+    def __init__(self, *args, **kwargs):
         """
         See documentation on BotManager.
         """
-        super().__init__(terminate_request_event, termination_complete_event, bot_configuration, name, team, index,
-                         agent_class_wrapper, agent_metadata_queue, quick_chat_queue_holder)
-        self.game_tick_proto = None
+        super().__init__(*args, **kwargs)
+        self.rigid_body_tick = None
 
     def prepare_for_run(self):
         # Set up shared memory map (offset makes it so bot only writes to its own input!) and map to buffer
         self.bot_input = PlayerInput()
         # Set up shared memory for game data
-        self.game_tick_packet = gd.GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
+        # We want to do a deep copy for game inputs so people don't mess with em
+        self.game_tick_packet = gd.GameTickPacket()
+        # Set up shared memory for Ball prediction
+        self.ball_prediction = bp.BallPrediction()
+        # Set up shared memory for rigid body tick
+        self.rigid_body_tick = RigidBodyTick()
 
-    def get_field_info(self):
+    def get_field_info(self) -> gd.FieldInfoPacket:
         field_info = gd.FieldInfoPacket()
         self.game_interface.update_field_info_packet(field_info)
         return field_info
@@ -49,6 +53,10 @@ class BotManagerStruct(BotManager):
         player_input.jump = controller_input.jump
         player_input.boost = controller_input.boost
         player_input.handbrake = controller_input.handbrake
+        if hasattr(controller_input, 'use_item'):
+            # This is needed for rare cases where bots don't conform to the spec,
+            # e.g. Stick returns itself rather than a SimpleControllerState.
+            player_input.use_item = controller_input.use_item
         self.game_interface.update_player_input(player_input, self.index)
 
     def get_game_time(self):
@@ -56,3 +64,15 @@ class BotManagerStruct(BotManager):
 
     def pull_data_from_game(self):
         self.game_interface.update_live_data_packet(self.game_tick_packet)
+
+    def get_ball_prediction_struct(self):
+        return self.game_interface.update_ball_prediction(self.ball_prediction)
+
+    def is_valid_field_info(self) -> bool:
+
+        field_info = self.get_field_info()
+
+        if not field_info.num_goals:
+            return False
+
+        return True

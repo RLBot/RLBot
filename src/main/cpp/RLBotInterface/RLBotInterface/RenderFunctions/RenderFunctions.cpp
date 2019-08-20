@@ -4,10 +4,19 @@
 
 namespace RenderFunctions
 {
-	static BoostUtilities::QueueSender renderGroupQueue(BoostConstants::RenderingFlatQueueName);
+	BoostUtilities::QueueSender* pRenderGroupQueue = nullptr;
+
+	void Initialize()
+	{
+		pRenderGroupQueue = new BoostUtilities::QueueSender(BoostConstants::RenderingFlatQueueName);
+	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int protoSize)
 	{
-		return renderGroupQueue.sendMessage(renderGroup, protoSize);
+		if (!pRenderGroupQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+		return pRenderGroupQueue->sendMessage(renderGroup, protoSize);
 	}
 }

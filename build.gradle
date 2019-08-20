@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-    id "com.jfrog.bintray" version "1.7"
+    id "com.jfrog.bintray" version "1.8.4"
 }
 
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
@@ -20,6 +20,9 @@ repositories {
     jcenter()
 }
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 def javaDllDir = 'build/dll'
 
 dependencies {
@@ -28,13 +31,15 @@ dependencies {
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
     compile 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
 
-    // This directory will be created and the interface dll copied into it at runtime.
-    // The end result is that the interface dll will be on the classpath.
+    // This is handy for running the test without needing to supply jna.library.path.
     testRuntime files(javaDllDir)
+    
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
 }
 
 project.setGroup('org.rlbot.commons')
-project.setVersion('0.0.5')
+project.setVersion('1.8.0')
 
 def pythonRoot = './src/main/python/'
 

@@ -18,7 +18,6 @@ typedef MessageStorage<CONST_CALLBACK_INPUT_SIZE>	CallbackOutput;
 #include "MatchDataPacket.hpp"
 #include "MatchSettings.hpp"
 
-#include "..\FileMappings\FileMappings.hpp"
 #include "..\MessageStructs\Message.hpp"
 
 struct PlayerInput
@@ -31,6 +30,7 @@ struct PlayerInput
 	bool					Jump;
 	bool					Boost;
 	bool					Handbrake;
+	bool					UseItem;
 };
 
 struct IndexedPlayerInput

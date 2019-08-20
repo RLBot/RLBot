@@ -38,7 +38,10 @@ enum RLBotCoreStatus
 	InvalidYaw,
 	InvalidRoll,
 	InvalidPlayerIndex,
-	InvalidQuickChatPreset
+	InvalidQuickChatPreset,
+	InvalidRenderType,
+	QuickChatRateExceeded,
+	NotInitialized
 };
 
 #endif

@@ -1,48 +1,138 @@
 #include <DebugHelper.hpp>
-#include <flatbuffers\flatbuffers.h>
+#include <rlbot_generated.h>
 
 #include "PlayerInfo.hpp"
+#include "QuickChatRateLimiter.hpp"
 #include <BoostUtilities\BoostConstants.hpp>
 #include <MessageTranslation\FlatbufferTranslator.hpp>
+#include "../../RLBotMessages/MessageStructs/QuickChatStructs.hpp"
 
 #include <chrono>
 #include <thread>
 
-#include "..\CallbackProcessor\SharedMemoryDefinitions.hpp"
+#include <stdlib.h>
+
+ByteBuffer createQuickChatFlatMessage(QuickChatQueue queue, int botIndex, int teamIndex, int lastMessageIndex)
+{
+	flatbuffers::FlatBufferBuilder builder(400);
+
+	std::vector<flatbuffers::Offset<rlbot::flat::QuickChat>> messageOffsets;
+
+	for (int i = queue.Count - 1; i >= 0; i--)
+	{
+		if (lastMessageIndex >= queue.Messages[i].MessageIndex)
+			break;
+
+		if (queue.Messages[i].PlayerIndex == botIndex)
+			continue;
+
+		if (queue.Messages[i].TeamOnly && queue.Messages[i].TeamIndex != teamIndex)
+			continue;
+
+		auto offset = rlbot::flat::CreateQuickChat(builder,
+			(rlbot::flat::QuickChatSelection)queue.Messages[i].QuickChatSelection,
+			queue.Messages[i].PlayerIndex,
+			queue.Messages[i].TeamOnly,
+			queue.Messages[i].MessageIndex,
+			queue.Messages[i].TimeStamp);
+
+		messageOffsets.push_back(offset);
+	}
+
+	auto vectorOffset = builder.CreateVector(messageOffsets);
+
+	auto root = rlbot::flat::CreateQuickChatMessages(builder, vectorOffset);
+
+	builder.Finish(root);
+
+	ByteBuffer flat;
+	flat.ptr = new unsigned char[builder.GetSize()];
+	flat.size = builder.GetSize();
+
+	memcpy(flat.ptr, builder.GetBufferPointer(), flat.size);
+
+	return flat;
+}
+
 
 namespace GameFunctions
 {
+	BoostUtilities::QueueSender* pQuickChatQueue = nullptr;
+	BoostUtilities::QueueSender* pFlatInputQueue = nullptr;
+
+	BoostUtilities::SharedMemReader* pQuickChatReader = nullptr;
+
+	void Initialize_PlayerInfo()
+	{
+		pQuickChatQueue = new BoostUtilities::QueueSender(BoostConstants::QuickChatFlatQueueName);
+		pFlatInputQueue = new BoostUtilities::QueueSender(BoostConstants::PlayerInputFlatQueueName);
+
+		pQuickChatReader = new BoostUtilities::SharedMemReader(BoostConstants::QuickChatDistributionName);
+	}
+
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
 	{
-		if (quickChatPreset < 0 || quickChatPreset > QuickChatPreset::MaxQuickChatPresets)
+		if (quickChatPreset < 0 || quickChatPreset >= QuickChatPreset::MaxQuickChatPresets)
 			return RLBotCoreStatus::InvalidQuickChatPreset;
 
 		return RLBotCoreStatus::Success;
 	}
 
 	// FLAT
-	static BoostUtilities::QueueSender quickChatQueue(BoostConstants::QuickChatFlatQueueName);
+	static QuickChat::QuickChatRateLimiter quickChatRateLimiter;
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize)
 	{
-		return quickChatQueue.sendMessage(quickChatMessage, protoSize);
-	}
+		if (!pQuickChatQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam, CallbackFunction callback, unsigned int* pID)
-	{
-		RLBotCoreStatus status = checkQuickChatPreset(quickChatPreset);
+		auto parsedChat = flatbuffers::GetRoot<rlbot::flat::QuickChat>(quickChatMessage);
+		int playerIndex = parsedChat->playerIndex();
+
+		RLBotCoreStatus status = checkQuickChatPreset((QuickChatPreset) parsedChat->quickChatSelection());
 
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		BEGIN_GAME_FUNCTION(SendChatMessage, pSendChat);
-		REGISTER_CALLBACK(pSendChat, callback, pID);
-		pSendChat->QuickChatPreset = quickChatPreset;
-		pSendChat->PlayerIndex = playerIndex;
-		pSendChat->bTeam = bTeam;
-		END_GAME_FUNCTION;
+		RLBotCoreStatus sendStatus = quickChatRateLimiter.CanSendChat(playerIndex);
+		if (sendStatus == RLBotCoreStatus::Success)
+		{
+			quickChatRateLimiter.RecordQuickChatSubmission(playerIndex);
+			return pQuickChatQueue->sendMessage(quickChatMessage, protoSize);
+		}
+		return sendStatus;
+	}
 
-		return RLBotCoreStatus::Success;
+	extern "C" RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam)
+	{
+		flatbuffers::FlatBufferBuilder builder;
+		auto chat = rlbot::flat::CreateQuickChat(builder, (rlbot::flat::QuickChatSelection) quickChatPreset, playerIndex, bTeam);
+		builder.Finish(chat);
+
+		return SendQuickChat(builder.GetBufferPointer(), builder.GetSize());
+	}
+
+	extern "C" ByteBuffer RLBOT_CORE_API ReceiveChat(int botIndex, int teamIndex, int lastMessageIndex)
+	{
+		if (!pQuickChatReader)
+		{
+			return ByteBuffer{ 0 };
+		}
+
+		ByteBuffer queue_data = pQuickChatReader->fetchData();
+		if (queue_data.size > 0)
+		{
+			QuickChatQueue queue = *(QuickChatQueue*)(queue_data.ptr);
+			ByteBuffer return_buffer = createQuickChatFlatMessage(queue, botIndex, teamIndex, lastMessageIndex);
+			delete[] queue_data.ptr;
+			return return_buffer;
+		}
+		else
+		{
+			return ByteBuffer{ 0 };
+		}
 	}
 
 	// Player info
@@ -69,21 +159,37 @@ namespace GameFunctions
 	// Ctypes
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInput(PlayerInput playerInput, int playerIndex)
 	{
-		RLBotCoreStatus status = checkInputConfiguration(playerInput);
+		flatbuffers::FlatBufferBuilder builder;
+		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
+		RLBotCoreStatus status = UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
 
 		if (status != RLBotCoreStatus::Success)
 			return status;
 
-		flatbuffers::FlatBufferBuilder builder;
-		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
-		return UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
+		return checkInputConfiguration(playerInput);
 	}
 
 	// FLAT
-	static BoostUtilities::QueueSender flatInputQueue(BoostConstants::PlayerInputFlatQueueName);
-
 	extern "C" RLBotCoreStatus RLBOT_CORE_API UpdatePlayerInputFlatbuffer(void* controllerState, int protoSize)
 	{
-		return flatInputQueue.sendMessage(controllerState, protoSize);
+		if (!pFlatInputQueue)
+		{
+			return RLBotCoreStatus::NotInitialized;
+		}
+
+		RLBotCoreStatus status = pFlatInputQueue->sendMessage(controllerState, protoSize);
+
+		if (status != RLBotCoreStatus::Success)
+			return status;
+
+		// We're validating the input *after* sending it to the core dll because the core dll
+		// is going to clamp it for us with no issues. We're reporting validation errors to
+		// users just for their information because it might help them discover faulty logic.
+		PlayerInput playerInput;
+		FlatbufferTranslator::inputStructFromFlatbuffer(controllerState, playerInput);
+		return checkInputConfiguration(playerInput);
 	}
 }

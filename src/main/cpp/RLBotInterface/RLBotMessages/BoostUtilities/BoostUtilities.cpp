@@ -1,29 +1,33 @@
 #include "BoostUtilities.hpp"
 #include "BoostConstants.hpp"
 
-namespace BoostUtilities {
+namespace BoostUtilities
+{
+	QueueSender::QueueSender(const char* queueName)
+	{
+		pQueue = new interop_message_queue(boost::interprocess::open_only, queueName);
+	}
 
-	
 	SharedMemReader::SharedMemReader(const char* name)
 	{
 		// The intermediate variables in this function are necessary for some reason.
-
 		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
 		const char* sharedMemChar = sharedMemName.c_str();
-		sharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::open_only, sharedMemChar, boost::interprocess::read_only);
+		pSharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::open_only, sharedMemChar, boost::interprocess::read_only);
 
 		std::string mutexName = BoostConstants::buildMutexName(name);
 		const char* mutexChar = mutexName.c_str();
-		mutex = new boost::interprocess::named_sharable_mutex(boost::interprocess::open_only, mutexChar);
+		pMutex = new boost::interprocess::named_sharable_mutex(boost::interprocess::open_only, mutexChar);
 	}
 
 	ByteBuffer SharedMemReader::fetchData() 
 	{
 		// The lock will be released when this object goes out of scope
-		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*mutex);
+		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*pMutex);
 
 		boost::interprocess::offset_t size;
-		sharedMem->get_size(size);
+		pSharedMem->get_size(size);
+
 		if (size == 0)
 		{
 			// Bail out early because mapped_region will freak out if size is zero.
@@ -33,7 +37,7 @@ namespace BoostUtilities {
 			return empty;
 		}
 
-		boost::interprocess::mapped_region region(*sharedMem, boost::interprocess::read_only);
+		boost::interprocess::mapped_region region(*pSharedMem, boost::interprocess::read_only);
 		unsigned char *buffer = new unsigned char[region.get_size()];
 		memcpy(buffer, region.get_address(), region.get_size());
 
@@ -48,38 +52,51 @@ namespace BoostUtilities {
 	{
 		// The intermediate variables in this function are necessary for some reason.
 
+		pMemName = name;
+
 		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
 		const char* sharedMemChar = sharedMemName.c_str();
 		boost::interprocess::shared_memory_object::remove(sharedMemChar);
-		sharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::create_only, sharedMemChar, boost::interprocess::read_write);
+		pSharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::create_only, sharedMemChar, boost::interprocess::read_write);
 
 		std::string mutexName = BoostConstants::buildMutexName(name);
 		const char* mutexChar = mutexName.c_str();
 		boost::interprocess::named_sharable_mutex::remove(mutexChar);
-		mutex = new boost::interprocess::named_sharable_mutex(boost::interprocess::create_only, mutexChar);
+		pMutex = new boost::interprocess::named_sharable_mutex(boost::interprocess::create_only, mutexChar);
 	}
 
-	void SharedMemWriter::writeData(void* address, int size) {
+	SharedMemWriter::~SharedMemWriter()
+	{
+		std::string mutexName = BoostConstants::buildMutexName(pMemName);
+		const char* mutexChar = mutexName.c_str();
+		boost::interprocess::named_sharable_mutex::remove(mutexChar);
+		boost::interprocess::shared_memory_object::remove(pSharedMem->get_name());
+	}
 
+	void SharedMemWriter::writeData(void* address, int size)
+	{
 		// The lock will be released when this object goes out of scope, i.e. when this function exits.
-		boost::interprocess::scoped_lock<boost::interprocess::named_sharable_mutex> myLock(*mutex);
+		boost::interprocess::scoped_lock<boost::interprocess::named_sharable_mutex> myLock(*pMutex);
 
-		sharedMem->truncate(size);
+		pSharedMem->truncate(size);
 		if (size > 0)
 		{
-			boost::interprocess::mapped_region region(*sharedMem, boost::interprocess::read_write);
+			boost::interprocess::mapped_region region(*pSharedMem, boost::interprocess::read_write);
 			std::memcpy(region.get_address(), address, size);
 		}
 	}
 
 	RLBotCoreStatus QueueSender::sendMessage(void* message, int messageSize)
 	{
-		if (messageSize > queue.get_max_msg_size()) {
+		if (messageSize > pQueue->get_max_msg_size())
+		{
 			return RLBotCoreStatus::MessageLargerThanMax;
 		}
 
-		bool sent = queue.try_send(message, messageSize, 0);
-		if (!sent) {
+		bool sent = pQueue->try_send(message, messageSize, 0);
+
+		if (!sent)
+		{
 			return RLBotCoreStatus::BufferOverfilled;
 		}
 		return RLBotCoreStatus::Success;

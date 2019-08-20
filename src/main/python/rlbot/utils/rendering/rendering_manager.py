@@ -1,8 +1,10 @@
 import ctypes
 import hashlib
+from typing import Optional, Set
 
 import flatbuffers
 from rlbot.utils.structures.game_status import RLBotCoreStatus
+from rlbot.utils.structures.game_data_struct import Vector3 as GameDataStructVector3
 from rlbot.utils.logging_utils import get_logger
 
 from rlbot.messages.flat import RenderGroup
@@ -15,33 +17,39 @@ from rlbot.messages.flat.RenderType import RenderType
 
 MAX_INT = 2147483647 // 2
 
+DEFAULT_GROUP_ID = 'default'
 
 class RenderingManager:
     """
     Manages rendering and statefully bundles rendering into a group, can only render one group at a time.
     """
-    renderGroup = None
-    render_state = False
-    builder = None
-    render_list = []
-    group_id = None
-    bot_index = 0
+
+    def __init__(self):
+        self.renderGroup = None
+        self.render_state = False
+        self.builder = None
+        self.render_list = []
+        self.bot_index = 0
+        self.bot_team = 0
+        self.group_id: Optional[str] = None
+        self.touched_group_ids: Set[str] = set()
 
     def setup_function_types(self, dll_instance):
         self.renderGroup = dll_instance.RenderGroup
-
         self.renderGroup.argtypes = [ctypes.c_void_p, ctypes.c_int]
         self.renderGroup.restype = ctypes.c_int
 
-    def set_bot_index(self, bot_index=0):
+    def set_bot_index_and_team(self, bot_index=0, bot_team=0):
         self.bot_index = bot_index
+        self.bot_team = bot_team
 
     def send_group(self, buffer):
         rlbot_status = self.renderGroup(bytes(buffer), len(buffer))
         if rlbot_status != RLBotCoreStatus.Success:
             get_logger("Renderer").error("bad status %s", RLBotCoreStatus.status_list[rlbot_status])
 
-    def begin_rendering(self, group_id='default'):
+    def begin_rendering(self, group_id: str=DEFAULT_GROUP_ID):
+        self.touched_group_ids.add(group_id)
         self.group_id = group_id
         self.builder = flatbuffers.Builder(0)
         self.render_list = []
@@ -50,7 +58,7 @@ class RenderingManager:
     def end_rendering(self):
         self.render_state = False
         if self.group_id is None:
-            self.group_id = 'default'
+            self.group_id = DEFAULT_GROUP_ID
 
         group_id = str(self.bot_index) + str(self.group_id)
         group_id_hashed = int(hashlib.sha256(str(group_id).encode('utf-8')).hexdigest(), 16) % MAX_INT
@@ -74,9 +82,17 @@ class RenderingManager:
         buf = self.builder.Output()
         self.send_group(buf)
 
-    def clear_screen(self, group_id='default'):
+    def clear_screen(self, group_id: str=DEFAULT_GROUP_ID):
         self.begin_rendering(group_id)
         self.end_rendering()
+
+    def clear_all_touched_render_groups(self):
+        """
+        Clears all render groups which have been drawn to using `begin_rendering(group_id)`.
+        Note: This does not clear render groups created by e.g. other bots.
+        """
+        for group_id in self.touched_group_ids:
+            self.clear_screen(group_id)
 
     def is_rendering(self):
         return self.render_state
@@ -94,17 +110,53 @@ class RenderingManager:
         self.render_list.append(message)
         return self
 
+    def draw_polyline_2d(self, vectors, color):
+        if len(vectors) < 2:
+            get_logger("Renderer").error("draw_polyline_2d requires atleast 2 vectors!")
+            return self
+
+        messageBuilder = self.builder
+
+        for i in range(0, len(vectors) - 1):
+            RenderMessage.RenderMessageStart(messageBuilder)
+            RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
+            RenderMessage.RenderMessageAddColor(messageBuilder, color)
+            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i + 1]))
+            message = RenderMessage.RenderMessageEnd(messageBuilder)
+            self.render_list.append(message)
+
+        return self
+
     def draw_line_3d(self, vec1, vec2, color):
         messageBuilder = self.builder
 
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec1))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(*vec2))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec1))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec2))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
+        return self
+
+    def draw_polyline_3d(self, vectors, color):
+        if len(vectors) < 2:
+            get_logger("Renderer").error("draw_polyline_3d requires atleast 2 vectors!")
+            return self
+
+        messageBuilder = self.builder
+
+        for i in range(0, len(vectors) - 1):
+            RenderMessage.RenderMessageStart(messageBuilder)
+            RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
+            RenderMessage.RenderMessageAddColor(messageBuilder, color)
+            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
+            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i + 1]))
+            message = RenderMessage.RenderMessageEnd(messageBuilder)
+            self.render_list.append(message)
+
         return self
 
     def draw_line_2d_3d(self, x, y, vec, color):
@@ -114,7 +166,7 @@ class RenderingManager:
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D_3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
         RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(*vec))
+        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec))
         message = RenderMessage.RenderMessageEnd(messageBuilder)
 
         self.render_list.append(message)
@@ -135,13 +187,15 @@ class RenderingManager:
         self.render_list.append(message)
         return self
 
-    def draw_rect_3d(self, vec, width, height, filled, color):
+    def draw_rect_3d(self, vec, width, height, filled, color, centered=False):
         messageBuilder = self.builder
 
         RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect3D)
+        RenderMessage.RenderMessageAddRenderType(
+            messageBuilder,
+            RenderType.DrawCenteredRect3D if centered else RenderType.DrawRect3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
         RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
@@ -173,7 +227,7 @@ class RenderingManager:
         RenderMessage.RenderMessageStart(messageBuilder)
         RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawString3D)
         RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(*vec))
+        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec))
         RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
         RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
         RenderMessage.RenderMessageAddText(messageBuilder, builtString)
@@ -198,18 +252,114 @@ class RenderingManager:
     def white(self):
         return self.create_color(255, 255, 255, 255)
 
-    def get_rendering_manager(self, bot_index=0):
+    def gray(self):
+        return self.create_color(255, 128, 128, 128)
+
+    def grey(self):
+        return self.gray()
+
+    def blue(self):
+        return self.create_color(255, 0, 0, 255)
+
+    def red(self):
+        return self.create_color(255, 255, 0, 0)
+
+    def green(self):
+        return self.create_color(255, 0, 128, 0)
+
+    def lime(self):
+        return self.create_color(255, 0, 255, 0)
+
+    def yellow(self):
+        return self.create_color(255, 255, 255, 0)
+
+    def orange(self):
+        return self.create_color(255, 225, 128, 0)
+
+    def cyan(self):
+        return self.create_color(255, 0, 255, 255)
+
+    def pink(self):
+        return self.create_color(255, 255, 0, 255)
+
+    def purple(self):
+        return self.create_color(255, 128, 0, 128)
+
+    def teal(self):
+        return self.create_color(255, 0, 128, 128)
+
+    def team_color(self, team=None, alt_color=False):
+        """
+        Returns the team color of the bot. Team 0: blue, team 1: orange, other: white
+        :param team: Specify which team's color. If None, the associated bot's team color will be returned.
+        :param alt_color: If True, returns the alternate team colors instead. Team 0: cyan, team 1: red, other: gray
+        :return: a team color
+        """
+        if team is None:
+            team = self.bot_team
+
+        if team == 0:
+            return self.cyan() if alt_color else self.blue()
+        elif team == 1:
+            return self.red() if alt_color else self.orange()
+        else:
+            return self.gray() if alt_color else self.white()
+
+    def get_rendering_manager(self, bot_index=0, bot_team=0):
         """
         Gets all the raw render functions but without giving access to any internal logic or the dll
         :return: An object with the same interface as the functions above
         """
-        self.set_bot_index(bot_index)
+        self.set_bot_index_and_team(bot_index, bot_team)
         return self
 
     def __wrap_float(self, number):
         return Float.CreateFloat(self.builder, number)
 
-    def __create_vector(self, x, y, z=None):
-        if z is None:
-            z = 0
+    def __create_vector(self, *vec) -> Vector3:
+        """
+        Converts a variety of vector types to a flatbuffer Vector3.
+        Supports Flatbuffers Vector3, cTypes Vector3, list/tuple of numbers, or passing x,y,z (z optional)
+        """
+        import numbers
+
+        if len(vec) == 1:
+            if hasattr(vec[0], "__getitem__"):  # Support all subscriptable types.
+                try:
+                    x = float(vec[0][0])
+                    y = float(vec[0][1])
+                    try:
+                        z = float(vec[0][2])
+                    except (ValueError, IndexError):
+                        z = 0
+                except ValueError:
+                    raise ValueError(f"Unexpected type(s) for creating vector: {type(vec[0][0])}, {type(vec[0][1])}")
+                except IndexError:
+                    raise IndexError(f"Unexpected IndexError when creating vector from type: {type(vec[0])}")
+            elif isinstance(vec[0], Vector3.Vector3):
+                x = vec[0].X()
+                y = vec[0].Y()
+                z = vec[0].Z()
+            elif isinstance(vec[0], GameDataStructVector3):
+                x = vec[0].x
+                y = vec[0].y
+                z = vec[0].z
+            else:
+                raise ValueError(f"Unexpected type for creating vector: {type(vec[0])}")
+        elif len(vec) == 2 or len(vec) == 3:
+            if isinstance(vec[0], numbers.Number) and isinstance(vec[1], numbers.Number):
+                x = vec[0]
+                y = vec[1]
+                if len(vec) == 2:
+                    z = 0
+                else:
+                    if isinstance(vec[2], numbers.Number):
+                        z = vec[2]
+                    else:
+                        raise ValueError(f"Unexpected type for creating vector: {type(vec[0])}")
+            else:
+                raise ValueError(f"Unexpected type(s) for creating vector: {type(vec[0])}, {type(vec[1])}")
+        else:
+            raise ValueError("Unexpected number of arguments for creating vector")
+
         return Vector3.CreateVector3(self.builder, x, y, z)

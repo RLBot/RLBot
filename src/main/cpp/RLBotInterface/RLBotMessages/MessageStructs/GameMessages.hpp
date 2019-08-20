@@ -55,6 +55,21 @@ enum QuickChatPreset
 	PostGame_WhatAGame,
 	PostGame_NiceMoves,
 	PostGame_EverybodyDance,
+	MaxPysonixQuickChatPresets,
+	Custom_Toxic_WasteCPU,
+	Custom_Toxic_GitGut,
+	Custom_Toxic_DeAlloc,
+	Custom_Toxic_404NoSkill,
+	Custom_Toxic_CatchVirus,
+	Custom_Useful_Passing,
+	Custom_Useful_Faking,
+	Custom_Useful_Demoing,
+	Custom_Useful_Bumping,
+	Custom_Compliments_TinyChances,
+	Custom_Compliments_SkillLevel,
+	Custom_Compliments_proud,
+	Custom_Compliments_GC,
+	Custom_Compliments_Pro,
 	MaxQuickChatPresets
 };
 

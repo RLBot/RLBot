@@ -1,14 +1,14 @@
-import msvcrt
 import os
 import time
 
 import psutil
 from py4j.java_gateway import GatewayParameters
 from py4j.java_gateway import JavaGateway
-from rlbot.utils.structures import game_interface
 
 from rlbot.agents.base_independent_agent import BaseIndependentAgent
+from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures import game_interface
 
 
 class BaseJavaAgent(BaseIndependentAgent):
@@ -19,6 +19,8 @@ class BaseJavaAgent(BaseIndependentAgent):
         self.javaInterface = None
         self.logger = get_logger('ProtoJava' + str(self.index))
         self.port = self.read_port_from_file()
+        self.is_retired = False
+        self.java_executable_path = None
 
     def read_port_from_file(self):
         try:
@@ -48,26 +50,45 @@ class BaseJavaAgent(BaseIndependentAgent):
                 self.logger.warn(str(e))
             time.sleep(1)
 
+    def get_helper_process_request(self):
+        if self.is_executable_configured():
+            return HelperProcessRequest(python_file_path=None, key=__file__ + str(self.port),
+                                        executable=self.java_executable_path)
+        return None
+
+    def is_executable_configured(self):
+        return self.java_executable_path is not None and os.path.isfile(self.java_executable_path)
+
     def get_extra_pids(self):
         """
         Gets the list of process ids that should be marked as high priority.
         :return: A list of process ids that are used by this bot in addition to the ones inside the python process.
         """
-        while True:
-            if msvcrt.kbhit():
-                return []
+        while not self.is_retired:
             for proc in psutil.process_iter():
                 for conn in proc.connections():
                     if conn.laddr.port == self.port:
-                        self.logger.debug('py4j server for {} appears to have pid {}'.format(self.name, proc.pid))
+                        self.logger.debug(f'py4j server for {self.name} appears to have pid {proc.pid}')
                         return [proc.pid]
+            if self.is_executable_configured():
+                # The helper process will start java and report the PID. Nothing to do here.
+                return []
             time.sleep(1)
+            if self.java_executable_path is None:
+                self.logger.info(
+                    "Can't auto-start java because no executable is configured. Please start java manually!")
+            else:
+                self.logger.info(f"Can't auto-start java because {self.java_executable_path} is not found. "
+                                 "Please start java manually!")
 
     def retire(self):
         try:
-            self.javaInterface.retireBot(self.index)
+            # Shut down the whole java process, because currently java is clumsy with the interface dll
+            # and cannot really survive a restart of the python framework.
+            self.javaInterface.shutdown()
         except Exception as e:
             self.logger.warn(str(e))
+        self.is_retired = True
 
     def init_py4j_stuff(self):
         self.logger.info("Connecting to Java Gateway on port " + str(self.port))
