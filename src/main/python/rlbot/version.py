@@ -4,13 +4,35 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.22.1'
+__version__ = '1.25.5'
 
 release_notes = {
+    '1.25.5': """
+    - Added DummyRenderer, allowing its users to swallow all draw calls. - DomNomNom
+    - Fixed a bug where player names with special characters would cause crashes.
+    - Giving 'independent' bots more time to shut down.
+    - Fixed performance problem with python hot reload for large directories. - RamenAndVitamins
+    """,
+    '1.24.0': """
+    - Car hitbox data is now available for bots.
+    - The ball info now includes the shape (sphere, cube, etc.) and size of the ball.
+    - Hopefully reduces the amount of crashes when shutting down bot processes.
+    """,
+    '1.23.2': """
+    - Added goal dimensions to field info. - Kipje13
+    - Fixed bug where 'restart if different' doesn't start a match once the postgame timer expires.
+    - Setting current working directory to the executable location for java and .net bots.
+    - Bots can now include a logo! Either put a file called logo.png in the same folder as
+      your bot cfg, OR specify logo_file = ... in your bot cfg in the same section as python_file.
+      Dimensions of 400x300 are preferred. It will appear soon in RLBotGUI, and maybe on stream!
+    """,
+    '1.22.2': """
+    Fixed the bug that stopped many bots from working after the 1.22.1 update.
+    """,
     '1.22.1': """
     Bots can now retrieve the settings object used to launch the current match,
     which can tell you the map, mode, mutator settings, etc.
-    
+
     Additional fixes:
     - Waiting longer for rlbot to connect.
     - Don't halt forever while waiting for valid packets.
@@ -19,17 +41,17 @@ release_notes = {
     '1.21.0': """
     - Latest ball touch now includes a player index value.
     - Fixed blue team colors.
-    - Fixed loadout bug that caused incorrect antennas, etc. 
+    - Fixed loadout bug that caused incorrect antennas, etc.
     """,
     '1.20.1': """
     Added support for the awesome new game mode Spike Rush!
-    
+
     To try it, set your mutators:
     Rumble = Spike Rush
     Respawn Time = 1 Second
-    
+
     To retract your spikes, you have use_item available in your controls output!
-    
+
     Additional fixes:
     - Will try harder to find an open port, to avoid 'std exception: listen' error.
     - Fixed a bug that prevented multiple .net bots from auto-starting. - Kipje13
@@ -49,15 +71,15 @@ release_notes = {
     Quickchat is back!
 
     Kipje13 added quickchat support deep in the framework so bots will be able to
-    read it across languages! Everything works exactly the same as before from the 
+    read it across languages! Everything works exactly the same as before from the
     bot maker's perspective. Stay tuned for instructions on how to read quick
     chat for languages like C# and Java. https://github.com/RLBot/RLBot/wiki/Quickchat
-    
+
     For now, the chat will use hacky rendering since we don't have official support yet.
-    
+
     For richer communication with coordinates etc, check out
     https://github.com/RLBot/RLBot/wiki/Matchcomms
-    
+
     Latest ball touch is also back!
     """,
     '1.16.5': """

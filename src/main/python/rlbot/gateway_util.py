@@ -29,7 +29,7 @@ def launch():
     print("Launching RLBot.exe...")
     path = os.path.join(get_dll_directory(), "RLBot.exe")
     if os.access(path, os.X_OK):
-        return subprocess.Popen([path, str(port)])
+        return subprocess.Popen([path, str(port)], shell=True)
     if os.access(path, os.F_OK):
         raise PermissionError('Unable to execute RLBot.exe due to file permissions! Is your antivirus messing you up? '
                               f'Check https://github.com/RLBot/RLBot/wiki/Antivirus-Notes. The exact path is {path}')

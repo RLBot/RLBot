@@ -18,6 +18,7 @@ BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 BOT_CONFIG_DETAILS_HEADER = 'Details'
 PYTHON_FILE_KEY = 'python_file'
+LOGO_FILE_KEY = 'logo_file'
 LOOKS_CONFIG_KEY = 'looks_config'
 BOT_NAME_KEY = "name"
 
@@ -294,6 +295,8 @@ class BaseAgent:
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
         location_config.add_value(BOT_NAME_KEY, str, default='nameless',
                                   description='The name that will be displayed in game')
+        location_config.add_value(LOGO_FILE_KEY, str,
+                                  description="Location of an image file to use as your bot's logo")
 
         details_config = config.add_header_name(BOT_CONFIG_DETAILS_HEADER)
         details_config.add_value('developer', str, description="Name of the bot's creator/developer")

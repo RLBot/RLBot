@@ -45,6 +45,31 @@ namespace PyStruct
 	};
 }
 
+struct BoxShape
+{
+	float Length;
+	float Width;
+	float Height;
+};
+
+struct SphereShape {
+	float Diameter;
+};
+
+struct CylinderShape {
+	float Diameter;
+	float Height;
+};
+
+enum CollisionShapeType { BoxType, SphereType, CylinderType };
+
+struct CollisionShape {
+	CollisionShapeType Type;
+	BoxShape Box;
+	SphereShape Sphere;
+	CylinderShape Cylinder;
+};
+
 struct Physics
 {
 	PyStruct::Vector3 		Location;
@@ -66,6 +91,7 @@ struct PlayerInfo
 	wchar_t					Name[32];
 	unsigned char			Team;
 	int 					Boost;
+	BoxShape				Hitbox;
 };
 
 struct BoostInfo
@@ -119,6 +145,7 @@ struct BallInfo
 	Physics 				Physics;
 	Touch					LatestTouch;
 	DropShotBallInfo		DropShotInfo;
+	CollisionShape			CollisionShape;
 };
 
 struct GameInfo

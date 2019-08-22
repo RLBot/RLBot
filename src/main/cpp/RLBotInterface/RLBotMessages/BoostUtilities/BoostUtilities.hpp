@@ -38,10 +38,12 @@ namespace BoostUtilities
 	private:
 		boost::interprocess::shared_memory_object* pSharedMem;
 		boost::interprocess::named_sharable_mutex* pMutex;
+		bool hasLock = false;
 
 	public:
 		SharedMemReader(const char* pName);
 		ByteBuffer fetchData();
+		void unlockMutex();
 	};
 
 	class SharedMemWriter

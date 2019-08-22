@@ -7,7 +7,12 @@
 #include <math.h>
 #include <rlbot_generated.h>
 
+#include <codecvt>
+#include <cwchar>
 #include <iostream>
+#include <locale>
+
+
 
 /*
 Note: The code in this file looks goofy because flatbuffers requires us to construct things 'pre-order',
@@ -51,6 +56,21 @@ namespace StructToRLBotFlatbuffer
 			convertURot(structRot.Roll));
 	}
 
+	flatbuffers::Offset<rlbot::flat::BoxShape> createBoxShape(flatbuffers::FlatBufferBuilder & builder, BoxShape boxshape)
+	{
+		return rlbot::flat::CreateBoxShape(builder, boxshape.Length, boxshape.Width, boxshape.Height);
+	}
+
+	flatbuffers::Offset<rlbot::flat::SphereShape> createSphereShape(flatbuffers::FlatBufferBuilder & builder, SphereShape sphereshape)
+	{
+		return rlbot::flat::CreateSphereShape(builder, sphereshape.Diameter);
+	}
+
+	flatbuffers::Offset<rlbot::flat::CylinderShape> createCylinderShape(flatbuffers::FlatBufferBuilder & builder, CylinderShape cylindershape)
+	{
+		return rlbot::flat::CreateCylinderShape(builder, cylindershape.Diameter, cylindershape.Height);
+	}
+
 	flatbuffers::Offset<rlbot::flat::BoostPad> createBoostPad(flatbuffers::FlatBufferBuilder* builder, BoostPad boostPad)
 	{
 		auto location = createVector3(boostPad.Location);
@@ -92,7 +112,12 @@ namespace StructToRLBotFlatbuffer
 		{
 			auto location = createVector3(fieldInfo.Goals[i].Location);
 			auto direction = createVector3(fieldInfo.Goals[i].Direction);
-			goals.push_back(rlbot::flat::CreateGoalInfo(*builder, fieldInfo.Goals[i].TeamNum, &location, &direction));
+			goals.push_back(rlbot::flat::CreateGoalInfo(*builder, 
+														fieldInfo.Goals[i].TeamNum, 
+														&location,
+														&direction, 
+														fieldInfo.Goals[i].Width,
+														fieldInfo.Goals[i].Height));
 		}
 
 		auto fieldInfoBuffer = rlbot::flat::CreateFieldInfo(*builder, builder->CreateVector(boostPads), builder->CreateVector(goals));
@@ -113,9 +138,18 @@ namespace StructToRLBotFlatbuffer
 
 	std::string convertString(wchar_t* w)
 	{
+		// This conversion from wstring to u16string only works on windows.
+		// Might need something like https://stackoverflow.com/a/42743775 to work on linux.
 		std::wstring ws(w);
-		std::string str(ws.begin(), ws.end());
-		return str;
+		std::u16string u16s(ws.begin(), ws.end());
+
+		// Needs some weird casts because does not compile on VS 2017 otherwise.
+		// See https://stackoverflow.com/a/35103224
+		std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
+		auto p = reinterpret_cast<const int16_t *>(u16s.data());
+		std::string result = convert.to_bytes(p, p + u16s.size());
+
+		return result;
 	}
 
 	flatbuffers::Offset<rlbot::flat::PlayerInfo> createPlayerInfo(flatbuffers::FlatBufferBuilder* builder, PlayerInfo playerInfo)
@@ -135,6 +169,7 @@ namespace StructToRLBotFlatbuffer
 		std::string name = convertString(playerInfo.Name);
 		auto flatName = builder->CreateString(name); // Must do this before PlayerInfoBuilder is started.
 		auto physics = createPhysics(builder, playerInfo.Physics);
+		auto hitbox = createBoxShape(*builder, playerInfo.Hitbox);
 
 		rlbot::flat::PlayerInfoBuilder pib(*builder);
 
@@ -149,8 +184,39 @@ namespace StructToRLBotFlatbuffer
 		pib.add_doubleJumped(playerInfo.DoubleJumped);
 		pib.add_team(playerInfo.Team);
 		pib.add_boost(playerInfo.Boost);
+		pib.add_hitbox(hitbox);
 
 		return pib.Finish();
+	}
+
+	flatbuffers::Offset<void> createCollisionShape(flatbuffers::FlatBufferBuilder & builder, CollisionShape collisionShape)
+	{
+		switch (collisionShape.Type)
+		{
+		case BoxType:
+			return createBoxShape(builder, collisionShape.Box).Union();
+
+		case SphereType:
+			return createSphereShape(builder, collisionShape.Sphere).Union();
+
+		case CylinderType:
+			return createCylinderShape(builder, collisionShape.Cylinder).Union();
+		}
+	}
+
+	rlbot::flat::CollisionShape createCollisionShapeType(CollisionShapeType collisionShapeType)
+	{
+		switch (collisionShapeType)
+		{
+		case BoxType:
+			return rlbot::flat::CollisionShape_BoxShape;
+
+		case SphereType:
+			return rlbot::flat::CollisionShape_SphereShape;
+
+		case CylinderType:
+			return rlbot::flat::CollisionShape_CylinderShape;
+		}
 	}
 
 	flatbuffers::Offset<rlbot::flat::BallInfo> createBallInfo(flatbuffers::FlatBufferBuilder* builder, BallInfo ballInfo)
@@ -191,6 +257,7 @@ namespace StructToRLBotFlatbuffer
 
 		dropShotBallOffset = dbib.Finish();
 		
+		auto collisionshape = createCollisionShape(*builder, ballInfo.CollisionShape);
 
 		rlbot::flat::BallInfoBuilder bib(*builder);
 		bib.add_physics(physics);
@@ -198,8 +265,9 @@ namespace StructToRLBotFlatbuffer
 		if (hasTouch)
 			bib.add_latestTouch(touchOffset);
 
-
 		bib.add_dropShotInfo(dropShotBallOffset);
+		bib.add_shape(collisionshape);
+		bib.add_shape_type(createCollisionShapeType(ballInfo.CollisionShape.Type));
 
 		return bib.Finish();
 	}
@@ -265,35 +333,6 @@ namespace StructToRLBotFlatbuffer
 		builder->Finish(gtb.Finish());
 
 		return true;
-	}
-
-	bool FillFieldInfoPacket(flatbuffers::FlatBufferBuilder* builder, FieldInfo fieldInfoPacket)
-	{
-		bool filled;
-
-		std::vector<flatbuffers::Offset<rlbot::flat::BoostPad>> boostPads;
-
-		for (int i = 0; i < fieldInfoPacket.NumBoosts; i++)
-		{
-			boostPads.push_back(createBoostPad(builder, fieldInfoPacket.BoostPads[i]));
-		}
-
-		std::vector<flatbuffers::Offset<rlbot::flat::GoalInfo>> goals;
-
-		for (int i = 0; i < fieldInfoPacket.NumGoals; i++)
-		{
-			GoalInfo goal = fieldInfoPacket.Goals[i];
-			auto location = createVector3(goal.Location);
-			auto direction = createVector3(goal.Direction);
-			goals.push_back(rlbot::flat::CreateGoalInfo(*builder, goal.TeamNum, &location, &direction));
-
-			filled = true;
-		}
-
-		auto fieldInfo = rlbot::flat::CreateFieldInfo(*builder, builder->CreateVector(boostPads), builder->CreateVector(goals));
-		builder->Finish(fieldInfo);
-
-		return filled;
 	}
 
 	flatbuffers::Offset<rlbot::flat::PlayerLoadout> buildPlayerLoadout(flatbuffers::FlatBufferBuilder* builder, PlayerConfiguration structPlayerConfig)

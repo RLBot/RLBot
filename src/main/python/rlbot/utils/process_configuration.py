@@ -1,5 +1,7 @@
 from typing import Set
 
+from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
+
 optional_packages_installed = False
 try:
     import psutil
@@ -55,17 +57,23 @@ def configure_processes(agent_metadata_map, logger):
             team_cpu_offset = cpus_per_team * team
             team_cpus = list(range(cpu_count - cpus_per_team - team_cpu_offset, cpu_count - team_cpu_offset))
             for pid in team_pids:
-                p = psutil.Process(pid)
-                p.cpu_affinity(team_cpus)  # Restrict the process to run on the cpus assigned to the team
-                p.nice(psutil.HIGH_PRIORITY_CLASS)  # Allow the process to run at high priority
+                try:
+                    p = psutil.Process(pid)
+                    p.cpu_affinity(team_cpus)  # Restrict the process to run on the cpus assigned to the team
+                    p.nice(psutil.HIGH_PRIORITY_CLASS)  # Allow the process to run at high priority
+                except Exception as e:
+                    get_logger(DEFAULT_LOGGER).info(e)
     else:
         # Consider everything a shared pid, because we are not in a position to split up cpus.
         for team, team_set in team_pids_map.items():
             shared_pids.update(team_set)
 
     for pid in shared_pids:
-        p = psutil.Process(pid)  # Allow the process to run at high priority
-        p.nice(psutil.HIGH_PRIORITY_CLASS)
+        try:
+            p = psutil.Process(pid)  # Allow the process to run at high priority
+            p.nice(psutil.HIGH_PRIORITY_CLASS)
+        except Exception as e:
+            get_logger(DEFAULT_LOGGER).info(e)
 
 
 def extract_all_pids(agent_metadata_map):

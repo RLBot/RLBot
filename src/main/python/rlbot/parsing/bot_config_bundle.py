@@ -1,7 +1,8 @@
 import configparser
 import os
 
-from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, PYTHON_FILE_KEY
+from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, \
+    PYTHON_FILE_KEY, LOGO_FILE_KEY
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
     PARTICIPANT_CONFIG_KEY
 from rlbot.parsing.custom_config import ConfigObject
@@ -21,6 +22,14 @@ class BotConfigBundle:
         self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
         self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
         self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+
+    def get_logo_file(self):
+        # logo.png is a convention we established during the wintertide tournament.
+        logo_name = self.base_agent_config.get(BOT_CONFIG_MODULE_HEADER, LOGO_FILE_KEY) or 'logo.png'
+        logo_file = os.path.join(self.config_directory, logo_name)
+        if os.path.exists(logo_file):
+            return os.path.realpath(logo_file)
+        return None
 
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)

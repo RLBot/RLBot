@@ -44,7 +44,7 @@ class HelperProcessManager:
                     launch = [helper_req.executable]
                     if helper_req.exe_args is not None:
                         launch.extend(helper_req.exe_args)
-                    process = subprocess.Popen(launch)
+                    process = subprocess.Popen(launch, cwd=helper_req.current_working_directory)
 
                     agent_metadata.pids.add(process.pid)
 

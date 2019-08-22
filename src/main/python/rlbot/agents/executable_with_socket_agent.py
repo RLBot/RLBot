@@ -30,7 +30,8 @@ class ExecutableWithSocketAgent(BaseIndependentAgent):
     def get_helper_process_request(self):
         if self.is_executable_configured():
             return HelperProcessRequest(python_file_path=None, key=__file__ + str(self.get_port()),
-                                        executable=self.executable_path, exe_args=[str(self.get_port())])
+                                        executable=self.executable_path, exe_args=[str(self.get_port())],
+                                        current_working_directory=os.path.dirname(self.executable_path))
         return None
 
     def retire(self):

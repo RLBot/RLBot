@@ -1,5 +1,6 @@
 import ctypes
 import math
+from enum import IntEnum
 
 from rlbot.utils.structures.start_match_structures import MAX_NAME_LENGTH, MAX_PLAYERS
 from rlbot.utils.structures.struct import Struct
@@ -51,6 +52,34 @@ class ScoreInfo(Struct):
                 ("demolitions", ctypes.c_int)]
 
 
+class BoxShape(Struct):
+    _fields_ = [("length", ctypes.c_float),
+                ("width", ctypes.c_float),
+                ("height", ctypes.c_float)]
+
+
+class SphereShape(Struct):
+    _fields_ = [("diameter", ctypes.c_float)]
+
+
+class CylinderShape(Struct):
+	_fields_ = [("diameter", ctypes.c_float),
+                ("height", ctypes.c_float)]
+
+
+class ShapeType(IntEnum):
+    box = 0
+    sphere = 1
+    cylinder = 2
+
+
+class CollisionShape(Struct):
+    _fields_ = [("type", ctypes.c_int),
+                ("box", BoxShape),
+                ("sphere", SphereShape),
+                ("cylinder", CylinderShape)]
+
+
 class PlayerInfo(Struct):
     _fields_ = [("physics", Physics),
                 ("score_info", ScoreInfo),
@@ -66,7 +95,8 @@ class PlayerInfo(Struct):
                 ("double_jumped", ctypes.c_bool),
                 ("name", ctypes.c_wchar * MAX_NAME_LENGTH),
                 ("team", ctypes.c_ubyte),
-                ("boost", ctypes.c_int)]
+                ("boost", ctypes.c_int),
+                ("hitbox", BoxShape)]
 
 
 class DropShotInfo(Struct):
@@ -78,7 +108,8 @@ class DropShotInfo(Struct):
 class BallInfo(Struct):
     _fields_ = [("physics", Physics),
                 ("latest_touch", Touch),
-                ("drop_shot_info", DropShotInfo)]
+                ("drop_shot_info", DropShotInfo),
+                ("collision_shape", CollisionShape)]
 
 
 class BoostPadState(Struct):
@@ -138,7 +169,9 @@ class BoostPad(Struct):
 class GoalInfo(Struct):
     _fields_ = [("team_num", ctypes.c_ubyte),
                 ("location", Vector3),
-                ("direction", Vector3)]
+                ("direction", Vector3),
+                ("width", ctypes.c_float),
+                ("height", ctypes.c_float)]
 
 
 class FieldInfoPacket(Struct):

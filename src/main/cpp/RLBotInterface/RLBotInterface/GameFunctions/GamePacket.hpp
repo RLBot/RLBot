@@ -17,6 +17,7 @@ extern "C"
 	namespace GameFunctions
 	{
 		void Initialize_GamePacket();
+		void Uninitialize_GamePacket();
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer();
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateFieldInfo(FieldInfo* pFieldInfo);
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer();

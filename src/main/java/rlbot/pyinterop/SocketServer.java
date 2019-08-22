@@ -97,6 +97,9 @@ public abstract class SocketServer implements PythonInterface {
 
     protected void retireBot(final int index) {
         botManager.retireBot(index);
+        if (botManager.getRunningBotIndices().isEmpty()) {
+            shutdown();
+        }
     }
 
     protected abstract Bot initBot(final int index, final String botType, final int team);

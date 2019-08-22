@@ -31,6 +31,45 @@ namespace FlatbufferTranslator {
 		structVec->Roll = rot->roll();
 	}
 
+	void fillBoxShapeStruct(const rlbot::flat::BoxShape* shape, BoxShape* structshape)
+	{
+		structshape->Length = shape->length();
+		structshape->Width = shape->width();
+		structshape->Height = shape->height();
+	}
+
+	void fillSphereShapeStruct(const rlbot::flat::SphereShape* shape, SphereShape* structshape)
+	{
+		structshape->Diameter = shape->diameter();
+	}
+
+	void fillCylinderShapeStruct(const rlbot::flat::CylinderShape* shape, CylinderShape* structshape)
+	{
+		structshape->Diameter = shape->diameter();
+		structshape->Height = shape->height();
+	}
+
+	void fillCollisionShape(const rlbot::flat::BallInfo* ball, CollisionShape* shape)
+	{
+		switch (ball->shape_type())
+		{
+		case rlbot::flat::CollisionShape_BoxShape:
+			shape->Type = BoxType;
+			fillBoxShapeStruct(ball->shape_as_BoxShape(), &shape->Box);
+			break;
+
+		case rlbot::flat::CollisionShape_SphereShape:
+			shape->Type = SphereType;
+			fillSphereShapeStruct(ball->shape_as_SphereShape(), &shape->Sphere);
+			break;
+
+		case rlbot::flat::CollisionShape_CylinderShape:
+			shape->Type = CylinderType;
+			fillCylinderShapeStruct(ball->shape_as_CylinderShape(), &shape->Cylinder);
+			break;
+		}
+	}
+
 	void fillPhysicsStruct(const::rlbot::flat::Physics* physics, Physics* structPhysics)
 	{
 		fillVector3Struct(physics->location(), &structPhysics->Location);
@@ -65,6 +104,7 @@ namespace FlatbufferTranslator {
 		fillScoreStruct(player->scoreInfo(), &structPlayer->Score);
 		structPlayer->SuperSonic = player->isSupersonic();
 		structPlayer->Team = player->team();
+		fillBoxShapeStruct(player->hitbox(), &structPlayer->Hitbox);
 	}
 
 	void fillBoostStruct(const rlbot::flat::BoostPadState* boostState, BoostInfo* structBoost)
@@ -110,6 +150,7 @@ namespace FlatbufferTranslator {
 			structBall->DropShotInfo.ForceAccumRecent = ball->dropShotInfo()->forceAccumRecent();
 		}
 
+		fillCollisionShape(ball, &structBall->CollisionShape);
 	}
 
 	void fillGameInfoStruct(const rlbot::flat::GameInfo* gameInfo, GameInfo* structGameInfo)
@@ -221,6 +262,8 @@ namespace FlatbufferTranslator {
 		structGoalInfo->TeamNum = goalInfo->teamNum();
 		fillVector3Struct(goalInfo->location(), &structGoalInfo->Location);
 		fillVector3Struct(goalInfo->direction(), &structGoalInfo->Direction);
+		structGoalInfo->Width = goalInfo->width();
+		structGoalInfo->Height = goalInfo->height();
 	}
 
 	void translateToFieldInfoStruct(ByteBuffer flatbufferData, FieldInfo* packet)

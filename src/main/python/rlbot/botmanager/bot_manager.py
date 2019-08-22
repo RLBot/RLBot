@@ -119,6 +119,7 @@ class BotManager:
 
         # Once all engine setup is done, do the agent-specific initialization, if any:
         self.agent.initialize_agent()
+        return self.agent, self.agent_class_file
 
     def set_render_manager(self):
         """

@@ -206,7 +206,7 @@ class GameInterface:
         for i in range(0, 16):
             packet = game_data_struct.GameTickPacket()
             self.update_live_data_packet(packet)
-            if packet.num_cars > 0:
+            if packet.num_cars >= self.start_match_configuration.num_players and not packet.game_info.is_match_ended:
                 self.logger.info('Packets are looking good!')
                 return
             else:

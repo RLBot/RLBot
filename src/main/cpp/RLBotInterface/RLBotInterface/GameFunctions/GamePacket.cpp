@@ -28,6 +28,13 @@ namespace GameFunctions
 		pMatchSettingsReader = new BoostUtilities::SharedMemReader(BoostConstants::MatchSettingsName);
 	}
 
+	void Uninitialize_GamePacket()
+	{
+		pFlatFieldMem->unlockMutex();
+		pFlatTickMem->unlockMutex();
+		pPhysicsTickMem->unlockMutex();
+	}
+
 	//////////////
 	// FIELD INFO
 	//////////////

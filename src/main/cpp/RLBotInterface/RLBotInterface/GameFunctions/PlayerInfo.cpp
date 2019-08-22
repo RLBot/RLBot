@@ -70,6 +70,11 @@ namespace GameFunctions
 		pQuickChatReader = new BoostUtilities::SharedMemReader(BoostConstants::QuickChatDistributionName);
 	}
 
+	void Uninitialize_PlayerInfo()
+	{
+		pQuickChatReader->unlockMutex();
+	}
+
 	RLBotCoreStatus checkQuickChatPreset(QuickChatPreset quickChatPreset)
 	{
 		if (quickChatPreset < 0 || quickChatPreset >= QuickChatPreset::MaxQuickChatPresets)

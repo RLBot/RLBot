@@ -45,8 +45,8 @@ namespace Interface
 
 	void Uninitialize()
 	{
-		// Nothing to do at the moment, but I'll keep this around
-		// as a hook if we need it.
+		GameFunctions::Uninitialize_GamePacket();
+		GameFunctions::Uninitialize_PlayerInfo();
 	}
 }
 

@@ -1,6 +1,8 @@
 #include "BoostUtilities.hpp"
 #include "BoostConstants.hpp"
 
+#include "stdlib.h"
+
 namespace BoostUtilities
 {
 	QueueSender::QueueSender(const char* queueName)
@@ -24,6 +26,7 @@ namespace BoostUtilities
 	{
 		// The lock will be released when this object goes out of scope
 		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*pMutex);
+		hasLock = true;
 
 		boost::interprocess::offset_t size;
 		pSharedMem->get_size(size);
@@ -45,7 +48,18 @@ namespace BoostUtilities
 		buf.ptr = buffer;
 		buf.size = region.get_size();
 
+		hasLock = false;
+
 		return buf;
+	}
+
+	void SharedMemReader::unlockMutex()
+	{
+		if (hasLock)
+		{
+			pMutex->unlock_sharable();
+			hasLock = false;
+		}
 	}
 
 	SharedMemWriter::SharedMemWriter(const char* name)

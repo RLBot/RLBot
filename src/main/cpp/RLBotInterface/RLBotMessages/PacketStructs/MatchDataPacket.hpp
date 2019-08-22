@@ -8,6 +8,8 @@ struct GoalInfo
 	unsigned char           TeamNum;
 	PyStruct::Vector3       Location;
 	PyStruct::Vector3       Direction;
+	float					Width;
+	float					Height;
 };
 
 struct BoostPad

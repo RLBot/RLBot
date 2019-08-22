@@ -1,3 +1,5 @@
+import time
+
 from rlbot.botmanager.bot_manager import BotManager
 
 
@@ -14,6 +16,9 @@ class BotManagerIndependent(BotManager):
         agent.run_independently(self.terminate_request_event)
         if hasattr(agent, 'retire'):
             agent.retire()
+        # Give the independent process some time to exit gracefully.
+        # We really don't want the setup manager to call kill on us.
+        time.sleep(2)
         # If terminated, send callback
         self.termination_complete_event.set()
 

@@ -61,6 +61,23 @@ struct Quaternion {
   w:float;
 }
 
+table BoxShape {
+  length:float;
+  width:float;
+  height:float;
+}
+
+table SphereShape {
+  diameter:float;
+}
+
+table CylinderShape {
+  diameter: float;
+  height:float;
+}
+
+union CollisionShape { BoxShape, SphereShape, CylinderShape }
+
 table Touch {
   /// The name of the player involved with the touch.
   playerName:string;
@@ -114,6 +131,7 @@ table PlayerInfo {
   name:string;
   team:int;
   boost:int;
+  hitbox:BoxShape;
 }
 
 table DropShotBallInfo {
@@ -126,6 +144,7 @@ table BallInfo {
   physics:Physics;
   latestTouch:Touch;
   dropShotInfo:DropShotBallInfo;
+  shape:CollisionShape;
 }
 
 table BoostPadState {
@@ -221,6 +240,8 @@ table GoalInfo {
   teamNum:int;
   location:Vector3;
   direction:Vector3;
+  width:float;
+  height:float;
 }
 
 table BoostPad {

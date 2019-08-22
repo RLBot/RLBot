@@ -13,6 +13,7 @@ extern "C"
 	namespace GameFunctions
 	{
 		void Initialize_PlayerInfo();
+		void Uninitialize_PlayerInfo();
 
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendQuickChat(void* quickChatMessage, int protoSize);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SendChat(QuickChatPreset quickChatPreset, int playerIndex, bool bTeam);

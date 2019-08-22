@@ -53,7 +53,8 @@ class BaseJavaAgent(BaseIndependentAgent):
     def get_helper_process_request(self):
         if self.is_executable_configured():
             return HelperProcessRequest(python_file_path=None, key=__file__ + str(self.port),
-                                        executable=self.java_executable_path)
+                                        executable=self.java_executable_path,
+                                        current_working_directory=os.path.dirname(self.java_executable_path))
         return None
 
     def is_executable_configured(self):

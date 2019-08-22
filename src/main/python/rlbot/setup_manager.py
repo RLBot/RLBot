@@ -59,6 +59,9 @@ def setup_manager_context():
     setup_manager.connect_to_game()
     try:
         yield setup_manager
+    except Exception as e:
+        get_logger(DEFAULT_LOGGER).error(e)
+        raise e
     finally:
         setup_manager.shut_down(kill_all_pids=True)
 
@@ -223,10 +226,13 @@ class SetupManager:
     def ensure_rlbot_gateway_started(self):
 
         for proc in psutil.process_iter():
-            if proc.name() == "RLBot.exe":
-                self.rlbot_gateway_process = proc
-                self.logger.info("Already have RLBot.exe running!")
-                return
+            try:
+                if proc.name() == "RLBot.exe":
+                    self.rlbot_gateway_process = proc
+                    self.logger.info("Already have RLBot.exe running!")
+                    return
+            except Exception as e:
+                self.logger.error(f"Failed to read the name of a process while hunting for RLBot.exe: {e}")
 
         if self.rlbot_gateway_process is None or not psutil.pid_exists(self.rlbot_gateway_process.pid):
             self.rlbot_gateway_process = gateway_util.launch()
@@ -269,7 +275,7 @@ class SetupManager:
     def start_match(self):
         self.logger.info("Python attempting to start match.")
         self.game_interface.start_match()
-        time.sleep(0.5)  # Wait a moment. If we look too soon, we might see a valid packet from previous game.
+        time.sleep(2)  # Wait a moment. If we look too soon, we might see a valid packet from previous game.
         self.game_interface.wait_until_valid_packet()
         self.logger.info("Match has started")
 
@@ -297,7 +303,7 @@ class SetupManager:
         yet. If so, we put them on the agent_metadata_map such that we can
         kill their process later when we shut_down(kill_agent_process_ids=True)
 
-        Returns how from how many bots we recieved metadata from.
+        Returns how from how many bots we received metadata from.
         """
         num_recieved = 0
         while True:  # will exit on queue.Empty
@@ -309,10 +315,6 @@ class SetupManager:
                 process_configuration.configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
                 return num_recieved
-            except Exception as ex:
-                self.logger.error(ex)
-                return num_recieved
-        return num_recieved
 
     def reload_all_agents(self, quiet=False):
         if not quiet:
@@ -409,6 +411,10 @@ class SetupManager:
                     self.logger.info("Already dead.")
             except psutil.NoSuchProcess:
                 self.logger.info("Can't fetch parent process, already dead.")
+            except psutil.AccessDenied as ex:
+                self.logger.error(f"Access denied when trying to kill a bot pid! {ex}")
+            except Exception as ex:
+                self.logger.error(f"Unexpected exception when trying to kill a bot pid! {ex}")
 
     def kill_matchcomms_server(self):
         if self.matchcomms_server:
