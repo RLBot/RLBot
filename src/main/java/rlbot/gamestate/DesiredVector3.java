@@ -53,14 +53,14 @@ public class DesiredVector3 {
      */
     public int toFlatbuffer(FlatBufferBuilder builder) {
         Vector3Partial.startVector3Partial(builder);
-        if (x != null) {
-            Vector3Partial.addX(builder, rlbot.flat.Float.createFloat(builder, x));
+        if (getX() != null) {
+            Vector3Partial.addX(builder, rlbot.flat.Float.createFloat(builder, getX()));
         }
-        if (y != null) {
-            Vector3Partial.addY(builder, rlbot.flat.Float.createFloat(builder, y));
+        if (getY() != null) {
+            Vector3Partial.addY(builder, rlbot.flat.Float.createFloat(builder, getY()));
         }
-        if (z != null) {
-            Vector3Partial.addZ(builder, rlbot.flat.Float.createFloat(builder, z));
+        if (getZ() != null) {
+            Vector3Partial.addZ(builder, rlbot.flat.Float.createFloat(builder, getZ()));
         }
         return Vector3Partial.endVector3Partial(builder);
     }
