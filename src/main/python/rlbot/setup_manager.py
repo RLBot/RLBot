@@ -1,7 +1,7 @@
-import msvcrt
 import multiprocessing as mp
 import os
 import psutil
+import platform
 import queue
 import subprocess
 import time
@@ -9,7 +9,7 @@ import webbrowser
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 from urllib.parse import ParseResult as URL
 
 import psutil
@@ -34,6 +34,9 @@ from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.structures.game_interface import GameInterface
 
+if platform.system() == 'Windows':
+    import msvcrt
+
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
@@ -41,8 +44,15 @@ class ROCKET_LEAGUE_PROCESS_INFO:
     GAMEID = 252950
     PROGRAM_NAME = 'RocketLeague.exe'
     PROGRAM = 'RocketLeague.exe'
-    REQUIRED_ARGS = {'-rlbot'}
-    IDEAL_ARGS = ['-rlbot', '-nomovie']
+    REQUIRED_ARGS = {r'-rlbot', r'RLBot_ControllerURL=127.0.0.1:[0-9]+'}
+    PORT_PLACEHOLDER = '%PORT%'
+    IDEAL_ARGS = ['-rlbot', f'RLBot_ControllerURL=127.0.0.1:{PORT_PLACEHOLDER}', '-nomovie']
+
+    @staticmethod
+    def get_ideal_args(port):
+        return [arg.replace(ROCKET_LEAGUE_PROCESS_INFO.PORT_PLACEHOLDER, str(port))
+                for arg in ROCKET_LEAGUE_PROCESS_INFO.IDEAL_ARGS]
+
 
 @contextmanager
 def setup_manager_context():
@@ -90,7 +100,7 @@ class SetupManager:
     start_match_configuration = None
     agent_metadata_queue = None
     extension = None
-    bot_processes: List[mp.Process] = []
+    bot_processes: Dict[int, mp.Process] = {}
 
 
     def __init__(self):
@@ -104,6 +114,8 @@ class SetupManager:
         self.match_config: MatchConfig = None
         self.rlbot_gateway_process = None
         self.matchcomms_server: MatchcommsServerThread = None
+        self.early_start_seconds = 0
+        self.num_metadata_received = 0
 
     def connect_to_game(self):
         """
@@ -111,20 +123,26 @@ class SetupManager:
         """
 
         version.print_current_release_notes()
-        self.ensure_rlbot_gateway_started()
+        port = self.ensure_rlbot_gateway_started()
         if self.has_started:
             return
 
         try:
-            is_rocket_league_running = process_configuration.is_process_running(
+            is_rocket_league_running, proc = process_configuration.is_process_running(
                 ROCKET_LEAGUE_PROCESS_INFO.PROGRAM,
                 ROCKET_LEAGUE_PROCESS_INFO.PROGRAM_NAME,
                 ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS)
+
+            if proc is not None:
+                rocket_league_port = self._read_port_from_rocket_league_args(proc.cmdline())
+                if rocket_league_port is not None and rocket_league_port != port:
+                    raise Exception(f"Rocket League is already running with port {rocket_league_port} but we wanted "
+                                    f"{port}! Please close Rocket League and let us start it for you instead!")
         except WrongProcessArgs:
             raise Exception(f"Rocket League is not running with {ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS}! "
                             f"Please close Rocket League and let us start it for you instead!")
         if not is_rocket_league_running:
-            self.launch_rocket_league()
+            self.launch_rocket_league(port=port)
 
         try:
             self.game_interface.load_interface()
@@ -135,11 +153,21 @@ class SetupManager:
         self.agent_metadata_queue = mp.Queue()
         self.has_started = True
 
-    def launch_rocket_league(self):
+    @staticmethod
+    def _read_port_from_rocket_league_args(args):
+        for arg in args:
+            # The arg will look like RLBot_ControllerURL="127.0.0.1:23233"
+            if 'RLBot_ControllerURL' in arg:
+                rocket_league_port = int(arg.split(':')[1].replace('"', ''))
+                return int(rocket_league_port)
+        return None
+
+    def launch_rocket_league(self, port):
         """
         Launches Rocket League but does not connect to it.
         """
-        self.logger.info('Launching Rocket League...')
+        ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
+        self.logger.info(f'Launching Rocket League with args: {ideal_args}')
 
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
@@ -148,7 +176,7 @@ class SetupManager:
                 str(steam_exe_path),
                 '-applaunch',
                 str(ROCKET_LEAGUE_PROCESS_INFO.GAMEID),
-            ] + ROCKET_LEAGUE_PROCESS_INFO.IDEAL_ARGS
+            ] + ideal_args
             _ = subprocess.Popen(exe_and_args)  # This is deliberately an orphan process.
             return
 
@@ -157,7 +185,7 @@ class SetupManager:
         self.logger.warning('Using fall-back launch method.')
         self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! "
                          'https://gfycat.com/AngryQuickFinnishspitz')
-        args_string = '%20'.join(ROCKET_LEAGUE_PROCESS_INFO.IDEAL_ARGS)
+        args_string = '%20'.join(ideal_args)
         try:
             webbrowser.open(f'steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO.GAMEID}//{args_string}')
         except webbrowser.Error:
@@ -223,36 +251,64 @@ class SetupManager:
         match_config = parse_match_config(framework_config, config_location, bot_configs, looks_configs)
         self.load_match_config(match_config, bot_configs)
 
-    def ensure_rlbot_gateway_started(self):
+    def ensure_rlbot_gateway_started(self) -> int:
+        """
+        Ensures that RLBot.exe is running. Returns the port that it will be listening on for connections from
+        Rocket League. Rocket League should be passed a command line argument so that it starts with this same port.
+        :return:
+        """
+        self.rlbot_gateway_process, port = gateway_util.find_existing_process()
+        if self.rlbot_gateway_process is not None:
+            self.logger.info(f"Already have RLBot.exe running! Port is {port}")
+            return port
 
-        for proc in psutil.process_iter():
-            try:
-                if proc.name() == "RLBot.exe":
-                    self.rlbot_gateway_process = proc
-                    self.logger.info("Already have RLBot.exe running!")
-                    return
-            except Exception as e:
-                self.logger.error(f"Failed to read the name of a process while hunting for RLBot.exe: {e}")
-
-        if self.rlbot_gateway_process is None or not psutil.pid_exists(self.rlbot_gateway_process.pid):
-            self.rlbot_gateway_process = gateway_util.launch()
-            self.logger.info(f"Python started RLBot.exe with process id {self.rlbot_gateway_process.pid}")
+        self.rlbot_gateway_process, port = gateway_util.launch()
+        self.logger.info(f"Python started RLBot.exe with process id {self.rlbot_gateway_process.pid} "
+                         f"and port {port}")
+        return port
 
     def launch_ball_prediction(self):
         # This does nothing now. It's kept here temporarily so that RLBotGUI doesn't break.
         pass
 
+    def has_received_metadata_from_all_bots(self):
+        expected_metadata_calls = sum(1 for player in self.match_config.player_configs if player.rlbot_controlled)
+        return self.num_metadata_received >= expected_metadata_calls
+
+    def launch_early_start_bot_processes(self):
+        """
+        Some bots can start up before the game is ready and not be bothered by missing
+        or strange looking values in the game tick packet, etc. Such bots can opt in to the
+        early start category and enjoy extra time to load up before the match starts.
+        """
+        self.logger.debug("Launching early-start bot processes")
+        num_started = self.launch_bot_process_helper(early_starters_only=True)
+        self.try_recieve_agent_metadata()
+        if num_started > 0 and self.early_start_seconds > 0:
+            self.logger.info(f"Waiting for {self.early_start_seconds} seconds to let early-start bots load.")
+            end_time = datetime.now() + timedelta(seconds=self.early_start_seconds)
+            while datetime.now() < end_time:
+                self.try_recieve_agent_metadata()
+                time.sleep(0.1)
+
     def launch_bot_processes(self):
         self.logger.debug("Launching bot processes")
-        self.kill_bot_processes()
+        self.launch_bot_process_helper(early_starters_only=False)
 
+    def launch_bot_process_helper(self, early_starters_only=False):
         # Start matchcomms here as it's only required for the bots.
         self.kill_matchcomms_server()
         self.matchcomms_server = launch_matchcomms_server()
 
+        num_started = 0
+
         # Launch processes
         for i in range(self.num_participants):
-            if self.start_match_configuration.player_configuration[i].rlbot_controlled:
+            if not self.start_match_configuration.player_configuration[i].rlbot_controlled:
+                continue
+            if early_starters_only and not self.bot_bundles[i].supports_early_start:
+                continue
+            if i not in self.bot_processes:
                 reload_request = mp.Event()
                 quit_callback = mp.Event()
                 self.bot_reload_requests.append(reload_request)
@@ -263,9 +319,11 @@ class SetupManager:
                                            self.teams[i], i, self.python_files[i], self.agent_metadata_queue,
                                            self.match_config, self.matchcomms_server.root_url))
                 process.start()
-                self.bot_processes.append(process)
+                self.bot_processes[i] = process
+                num_started += 1
 
-        self.logger.debug("Successfully started bot processes")
+        self.logger.debug(f"Successfully started {num_started} bot processes")
+        return num_started
 
     def launch_quick_chat_manager(self):
         # Quick chat manager is gone since we're using RLBot.exe now.
@@ -284,16 +342,18 @@ class SetupManager:
         self.logger.info(instructions)
         while not self.quit_event.is_set():
             # Handle commands
-            if msvcrt.kbhit():
-                command = msvcrt.getwch()
-                if command.lower() == 'r':  # r: reload
-                    self.reload_all_agents()
-                elif command.lower() == 'q' or command == '\u001b':  # q or ESC: quit
-                    self.shut_down()
-                    break
-                # Print instructions again if a alphabet character was pressed but no command was found
-                elif command.isalpha():
-                    self.logger.info(instructions)
+            # TODO windows only library
+            if platform.system() == 'Windows':
+                if msvcrt.kbhit():
+                    command = msvcrt.getwch()
+                    if command.lower() == 'r':  # r: reload
+                        self.reload_all_agents()
+                    elif command.lower() == 'q' or command == '\u001b':  # q or ESC: quit
+                        self.shut_down()
+                        break
+                    # Print instructions again if a alphabet character was pressed but no command was found
+                    elif command.isalpha():
+                        self.logger.info(instructions)
 
             self.try_recieve_agent_metadata()
 
@@ -314,6 +374,7 @@ class SetupManager:
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
                 process_configuration.configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
+                self.num_metadata_received += num_recieved
                 return num_recieved
 
     def reload_all_agents(self, quiet=False):
@@ -344,8 +405,9 @@ class SetupManager:
             time.sleep(0.1)
             if datetime.now() > end_time:
                 self.logger.info("Taking too long to quit, trying harder...")
-                self.kill_bot_processes()
                 break
+
+        self.kill_bot_processes()
 
         if kill_all_pids:
             self.kill_agent_process_ids()
@@ -387,11 +449,12 @@ class SetupManager:
         bm.run()
 
     def kill_bot_processes(self):
-        for process in self.bot_processes:
+        for process in self.bot_processes.values():
             process.terminate()
-        for process in self.bot_processes:
+        for process in self.bot_processes.values():
             process.join(timeout=1)
-        self.bot_processes = []
+        self.bot_processes.clear()
+        self.num_metadata_received = 0
 
     def kill_agent_process_ids(self):
         pids = process_configuration.extract_all_pids(self.agent_metadata_map)

@@ -2,6 +2,7 @@ import ctypes
 import os
 import sys
 import time
+import platform
 from logging import DEBUG, WARNING
 
 import flatbuffers
@@ -21,6 +22,12 @@ from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 from rlbot.utils.structures.start_match_structures import MatchSettings
 
+if platform.system() == 'Windows':
+    dll_name_64 = 'RLBot_Core_Interface.dll'
+    dll_name_32 = 'RLBot_Core_Interface_32.dll'
+elif platform.system() == 'Linux':
+    dll_name_64 = 'libRLBotInterface.so'
+    dll_name_32 = 'libRLBotInterface32.so'
 
 def wrap_callback(callback_func):
     def caller(id, status):
@@ -30,11 +37,11 @@ def wrap_callback(callback_func):
 
 
 def get_dll_location():
-    return os.path.join(get_dll_directory(), 'RLBot_Core_Interface.dll')
+    return os.path.join(get_dll_directory(), dll_name_64)
 
 
 def get_dll_32_location():
-    return os.path.join(get_dll_directory(), 'RLBot_Core_Interface_32.dll')
+    return os.path.join(get_dll_directory(), dll_name_32)
 
 
 def is_32_bit_python():

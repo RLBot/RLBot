@@ -308,12 +308,18 @@ table DesiredGameInfoState {
   gameSpeed:Float;
 }
 
+/// A console command which we will try to execute inside Rocket League.
+/// See https://github.com/RLBot/RLBot/wiki/Console-Commands for a list of known commands.
+table ConsoleCommand {
+  command:string;
+}
 
 table DesiredGameState {
   ballState:DesiredBallState;
   carStates:[DesiredCarState];
   boostStates:[DesiredBoostState];
   gameInfoState:DesiredGameInfoState;
+  consoleCommands:[ConsoleCommand];
 }
 
 root_type DesiredGameState;
@@ -753,6 +759,7 @@ table MatchSettings {
   instantStart: bool;
   mutatorSettings: MutatorSettings;
   existingMatchBehavior: ExistingMatchBehavior;
+  enableLockstep: bool;
 }
 
 table QuickChatMessages {

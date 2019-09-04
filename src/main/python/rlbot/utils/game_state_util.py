@@ -1,8 +1,8 @@
 import flatbuffers
-from typing import Union
+from typing import Union, List
 
 from rlbot.messages.flat import Float, RotatorPartial, Vector3Partial, DesiredPhysics, DesiredGameState, \
-    DesiredCarState, DesiredBallState, DesiredBoostState, DesiredGameInfoState, Bool
+    DesiredCarState, DesiredBallState, DesiredBoostState, DesiredGameInfoState, Bool, ConsoleCommand
 from rlbot.utils.structures import game_data_struct
 from rlbot.messages.flat import GameTickPacket
 
@@ -164,14 +164,17 @@ class GameInfoState:
 
 class GameState:
 
-    def __init__(self, ball: BallState = None, cars=None, boosts=None, game_info: GameInfoState = None):
+    def __init__(self, ball: BallState = None, cars=None, boosts=None, game_info: GameInfoState = None,
+                 console_commands: List[str]=[]):
         self.ball = ball
         self.cars = cars
         self.boosts = boosts
         self.game_info = game_info
+        self.console_commands = console_commands
 
     def convert_to_flat(self, builder=None) -> DesiredGameState:
-        if self.ball is None and self.cars is None and self.boosts is None and self.game_info is None:
+        if self.ball is None and self.cars is None and self.boosts is None and self.game_info is None and \
+                len(self.console_commands) == 0:
             return None
 
         if builder is None:
@@ -215,6 +218,20 @@ class GameState:
                 builder.PrependUOffsetTRelative(boost_offsets[i])
             boost_list_offset = builder.EndVector(len(boost_offsets))
 
+        console_commands_offsets = []
+        for cmd in self.console_commands:
+            str_offset = builder.CreateString(cmd)
+            ConsoleCommand.ConsoleCommandStart(builder)
+            ConsoleCommand.ConsoleCommandAddCommand(builder, str_offset)
+            console_commands_offsets.append(ConsoleCommand.ConsoleCommandEnd(builder))
+
+        console_command_list_offset = None
+        if self.console_commands is not None and len(self.console_commands) > 0:
+            DesiredGameState.DesiredGameStateStartConsoleCommandsVector(builder, len(console_commands_offsets))
+            for i in reversed(range(0, len(console_commands_offsets))):
+                builder.PrependUOffsetTRelative(console_commands_offsets[i])
+            console_command_list_offset = builder.EndVector(len(console_commands_offsets))
+
         DesiredGameState.DesiredGameStateStart(builder)
         if ball_offset is not None:
             DesiredGameState.DesiredGameStateAddBallState(builder, ball_offset)
@@ -224,6 +241,8 @@ class GameState:
             DesiredGameState.DesiredGameStateAddBoostStates(builder, boost_list_offset)
         if game_info_offset is not None:
             DesiredGameState.DesiredGameStateAddGameInfoState(builder, game_info_offset)
+        if console_command_list_offset is not None:
+            DesiredGameState.DesiredGameStateAddConsoleCommands(builder, console_command_list_offset)
 
         return DesiredGameState.DesiredGameStateEnd(builder)
 

@@ -4,9 +4,42 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.25.5'
+__version__ = '1.28.0'
 
 release_notes = {
+    '1.28.0': """
+    Linux Support!
+    
+    Kipje13 has really done it, you can run RLBot in Linux now :D
+    - Tested in Ubuntu 18.04 with basic python bots, it works great.
+    - All the latest features like lockstep are present.
+    - This is early days, so many bots and languages won't work yet. Please think of this
+      as an alpha and help us find the bugs. Most of the remaining work will be in the
+      open source area of RLBot, so drop by #framework-dev if you want to contribute!
+
+    More info at https://github.com/RLBot/RLBot/wiki/Operating-System-Support
+    """,
+    '1.27.1': """
+    Introducing lockstep mode--if you set enable_lockstep = True in rlbot.cfg, the 
+    framework will wait for outputs from all bots before advancing to the next frame.
+    
+    This feature brought to you by Redox!
+    
+    Other features:
+    - No longer trying to configure Rocket League with .ini files, which was error-prone.
+    """,
+    '1.26.4': """
+    Adding the ability to execute arbitrary console commands in Rocket League.
+    See https://github.com/RLBot/RLBot/wiki/Console-Commands for details!
+    
+    Other features:
+    - Adding a built-in version of the Scratch bot manager so we can push updates.
+    - Adding an early-start system you can opt into if your bot is very slow to start.
+      See https://github.com/RLBot/RLBot/wiki/Config-File-Documentation#early-start-system
+    - Scratch bots can optionally open a browser-per-bot and pretend to be player 1 on the
+      blue team. Good for tournaments!
+    - Adding back gravity and game speed setting. - Redox
+    """,
     '1.25.5': """
     - Added DummyRenderer, allowing its users to swallow all draw calls. - DomNomNom
     - Fixed a bug where player names with special characters would cause crashes.

@@ -67,4 +67,5 @@ class MatchSettings(ctypes.Structure):
                 ("instant_start", ctypes.c_bool),
                 ("mutator_settings", MutatorSettings),
                 ("existing_match_behavior", ctypes.c_uint),
+                ("enable_lockstep", ctypes.c_bool),
                 ]

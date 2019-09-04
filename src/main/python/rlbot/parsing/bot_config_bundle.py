@@ -2,7 +2,7 @@ import configparser
 import os
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, \
-    PYTHON_FILE_KEY, LOGO_FILE_KEY
+    PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
     PARTICIPANT_CONFIG_KEY
 from rlbot.parsing.custom_config import ConfigObject
@@ -22,6 +22,7 @@ class BotConfigBundle:
         self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
         self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
         self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+        self.supports_early_start = self.base_agent_config.get(BOT_CONFIG_MODULE_HEADER, SUPPORTS_EARLY_START_KEY)
 
     def get_logo_file(self):
         # logo.png is a convention we established during the wintertide tournament.

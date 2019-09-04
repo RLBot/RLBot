@@ -1,5 +1,6 @@
+import re
 from typing import Set
-
+import platform
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 
 optional_packages_installed = False
@@ -60,7 +61,8 @@ def configure_processes(agent_metadata_map, logger):
                 try:
                     p = psutil.Process(pid)
                     p.cpu_affinity(team_cpus)  # Restrict the process to run on the cpus assigned to the team
-                    p.nice(psutil.HIGH_PRIORITY_CLASS)  # Allow the process to run at high priority
+                    if platform.system() == 'Windows': # TODO only works on windows
+                        p.nice(psutil.HIGH_PRIORITY_CLASS)  # Allow the process to run at high priority
                 except Exception as e:
                     get_logger(DEFAULT_LOGGER).info(e)
     else:
@@ -71,7 +73,8 @@ def configure_processes(agent_metadata_map, logger):
     for pid in shared_pids:
         try:
             p = psutil.Process(pid)  # Allow the process to run at high priority
-            p.nice(psutil.HIGH_PRIORITY_CLASS)
+            if platform.system() == 'Windows': # TODO only works on windows
+                p.nice(psutil.HIGH_PRIORITY_CLASS)
         except Exception as e:
             get_logger(DEFAULT_LOGGER).info(e)
 
@@ -85,21 +88,23 @@ def extract_all_pids(agent_metadata_map):
 
 def is_process_running(program, scriptname, required_args: Set[str]):
     if not optional_packages_installed:
-        return True
-    for pid in psutil.process_iter(attrs=['name', 'exe']):
+        return True, None
+    for process in psutil.process_iter(attrs=['name', 'exe']):
         try:
-            p = pid.info.values()
+            p = process.info.values()
             if program in p or scriptname in p:
                 try:
-                    args = pid.cmdline()[1:]
-                    if not required_args.issubset(args):
-                        raise WrongProcessArgs(f"{program} is not running with {required_args}!")
+                    args = process.cmdline()[1:]
+                    for required_arg in required_args:
+                        matching_args = [arg for arg in args if re.match(required_arg, arg) is not None]
+                        if len(matching_args) == 0:
+                            raise WrongProcessArgs(f"{program} is not running with {required_arg}!")
                 except psutil.AccessDenied:
-                    print(f"Access denied look at cmdline of {pid}!")
-                return True
+                    print(f"Access denied when trying to look at cmdline of {process}!")
+                return True, process
         except psutil.NoSuchProcess:
             continue
-    return False
+    return False, None
 
 
 class WrongProcessArgs(UserWarning):

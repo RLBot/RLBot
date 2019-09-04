@@ -1,9 +1,11 @@
-import fileinput
 import os
+import platform
 import socket
 import subprocess
-import sys
 
+import psutil
+
+from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.structures.game_interface import get_dll_directory
 
 # Generated randomly by Kipje13, and confirmed to have no conflict with any common programs
@@ -13,28 +15,44 @@ IDEAL_RLBOT_PORT = 23233
 # This is the port that Rocket League will use by default if we cannot override it.
 DEFAULT_RLBOT_PORT = 50000
 
+if platform.system() == 'Windows':
+    executable_name = 'RLBot.exe'
+elif platform.system() == 'Linux':
+    executable_name = 'RLBot'
 
 def launch():
     port = DEFAULT_RLBOT_PORT
     try:
-        rlbot_ini = find_rlbot_ini()
-        if rlbot_ini is not None:
-            desired_port = find_usable_port()
-            # TODO: instead of manipulating the ini, start Rocket League with special args once they become available.
-            write_port_to_ini(desired_port, rlbot_ini)
-            port = desired_port
+        desired_port = find_usable_port()
+        port = desired_port
     except Exception as e:
         print(str(e))
 
     print("Launching RLBot.exe...")
-    path = os.path.join(get_dll_directory(), "RLBot.exe")
+    path = os.path.join(get_dll_directory(), executable_name)
     if os.access(path, os.X_OK):
-        return subprocess.Popen([path, str(port)], shell=True)
+        return subprocess.Popen([path, str(port)], shell=True), port
     if os.access(path, os.F_OK):
         raise PermissionError('Unable to execute RLBot.exe due to file permissions! Is your antivirus messing you up? '
                               f'Check https://github.com/RLBot/RLBot/wiki/Antivirus-Notes. The exact path is {path}')
     raise FileNotFoundError(f'Unable to find RLBot.exe at {path}! Is your antivirus messing you up? Check '
                             'https://github.com/RLBot/RLBot/wiki/Antivirus-Notes.')
+
+
+def find_existing_process():
+    logger = get_logger(DEFAULT_LOGGER)
+    for proc in psutil.process_iter():
+        try:
+            if proc.name() == "RLBot.exe":
+                if len(proc.cmdline()) > 1:
+                    port = int(proc.cmdline()[1])
+                    return proc, port
+                logger.error(f"Failed to find the RLBot port being used in the process args! Guessing "
+                             f"{DEFAULT_RLBOT_PORT}.")
+                return proc, DEFAULT_RLBOT_PORT
+        except Exception as e:
+            logger.error(f"Failed to read the name of a process while hunting for RLBot.exe: {e}")
+    return None, None
 
 
 def find_usable_port():
@@ -52,23 +70,3 @@ def is_port_accessible(port):
             return True
         except:
             return False
-
-
-def find_rlbot_ini():
-    for games_folder in ['~/Documents/My Games', '~/OneDrive/Documents/My Games']:
-        path_to_test = os.path.expanduser(f'{games_folder}/Rocket League/TAGame/Config/TARLBot.ini')
-        if os.access(path_to_test, os.F_OK):
-            return path_to_test
-    return None
-
-
-def write_port_to_ini(port, ini_path):
-    print(f"Setting port in RLBot ini file at {ini_path} to {port}")
-    replace_all(ini_path, 'ControllerURL=', f'ControllerURL=127.0.0.1:{port}\n')
-
-
-def replace_all(file, prefix, replacement):
-    for line in fileinput.input(file, inplace=1):
-        if line.startswith(prefix):
-            line = replacement
-        sys.stdout.write(line)

@@ -26,6 +26,12 @@ REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
 MAX_CARS = 10
 
+# Backward compatibility with Python 3.6:
+try:
+    time.perf_counter_ns()
+except AttributeError:
+    time.perf_counter_ns = lambda: time.perf_counter() * 1e9
+
 
 # Backward compatibility with Python 3.6:
 try:

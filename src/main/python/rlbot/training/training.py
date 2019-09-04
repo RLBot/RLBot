@@ -215,14 +215,11 @@ def safe_matchcomms_factory(setup_manager: SetupManager):
 
 
 def _wait_until_bots_ready(setup_manager: SetupManager, match_config: MatchConfig):
-    total_ready = 0
-    total_ready += setup_manager.try_recieve_agent_metadata()
     logger = get_logger(DEFAULT_LOGGER)
-    expected_metadata_calls = sum(1 for player in match_config.player_configs if player.rlbot_controlled)
-    while total_ready < expected_metadata_calls:
+    while not setup_manager.has_received_metadata_from_all_bots():
         logger.debug('Waiting on all bots to post their metadata.')
+        setup_manager.try_recieve_agent_metadata()
         time.sleep(0.1)
-        total_ready += setup_manager.try_recieve_agent_metadata()
 
 
 def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: int=3):
@@ -248,7 +245,7 @@ def _wait_until_good_ticks(game_interface: GameInterface, required_new_ticks: in
 def _setup_match(match_config: MatchConfig, manager: SetupManager):
     manager.shut_down(kill_all_pids=True, quiet=True)  # To be safe.
     manager.load_match_config(match_config)
-    manager.launch_quick_chat_manager()
+    manager.launch_early_start_bot_processes()
     manager.start_match()
     manager.launch_bot_processes()
 

@@ -21,6 +21,7 @@ PYTHON_FILE_KEY = 'python_file'
 LOGO_FILE_KEY = 'logo_file'
 LOOKS_CONFIG_KEY = 'looks_config'
 BOT_NAME_KEY = "name"
+SUPPORTS_EARLY_START_KEY = "supports_early_start"
 
 
 class SimpleControllerState:
@@ -297,6 +298,8 @@ class BaseAgent:
                                   description='The name that will be displayed in game')
         location_config.add_value(LOGO_FILE_KEY, str,
                                   description="Location of an image file to use as your bot's logo")
+        location_config.add_value(SUPPORTS_EARLY_START_KEY, bool,
+                                  description="True if this bot can be started before the Rocket League match begins.")
 
         details_config = config.add_header_name(BOT_CONFIG_DETAILS_HEADER)
         details_config.add_value('developer', str, description="Name of the bot's creator/developer")

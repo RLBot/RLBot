@@ -28,6 +28,7 @@ GAME_MAP = 'game_map'
 SKIP_REPLAYS = 'skip_replays'
 INSTANT_START = 'start_without_countdown'
 EXISTING_MATCH_BEHAVIOR = 'existing_match_behavior'
+ENABLE_LOCKSTEP = 'enable_lockstep'
 
 logger = get_logger('config_parser')
 
@@ -218,6 +219,8 @@ def add_match_settings_header(config_object):
                            description="""Skip the kickoff countdown""")
     match_header.add_value(EXISTING_MATCH_BEHAVIOR, str, default="Restart If Different",
                            description="""What should we do if you click run while a match is already in progress?""")
+    match_header.add_value(ENABLE_LOCKSTEP, bool, default=False,
+                           description="""If True, the framework will wait for outputs from all bots before advancing to the next frame.""")
 
 
 def add_mutator_header(config_object):
@@ -312,5 +315,6 @@ def parse_match_settings(match_settings, config: ConfigObject):
     match_settings.skip_replays = config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS)
     match_settings.instant_start = config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START)
     match_settings.existing_match_behavior = config.get(MATCH_CONFIGURATION_HEADER, EXISTING_MATCH_BEHAVIOR)
+    match_settings.enable_lockstep = config.getboolean(MATCH_CONFIGURATION_HEADER, ENABLE_LOCKSTEP)
 
     parse_mutator_settings(match_settings.mutators, config)

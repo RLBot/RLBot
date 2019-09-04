@@ -140,6 +140,7 @@ class MatchConfig:
         self.mutators: MutatorConfig = None
         self.extension_config: ExtensionConfig = None
         self.existing_match_behavior: str = None
+        self.enable_lockstep: bool = None
 
     @property
     def num_players(self):
@@ -157,6 +158,7 @@ class MatchConfig:
         match_settings.skip_replays = self.skip_replays
         match_settings.instant_start = self.instant_start
         match_settings.existing_match_behavior = index_or_zero(existing_match_behavior_types, self.existing_match_behavior)
+        match_settings.enable_lockstep = self.enable_lockstep
 
         self.mutators.write(match_settings.mutator_settings)
 

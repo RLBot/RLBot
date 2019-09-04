@@ -70,6 +70,10 @@ class Atba(BaseAgent):
         # Not making this configurable because it's easier to just modify the code
         # self.render_packet(game_tick_packet)
 
+        if random() > .997:
+            game_state = GameState(console_commands=["Stat FPS"])
+            self.set_game_state(game_state)
+
         if random() > .99:
             game_map = self.get_match_settings().MutatorSettings().RumbleOption()
             self.logger.info(f'Is Spike Rush? {game_map == RumbleOption.Spike_Rush}')
