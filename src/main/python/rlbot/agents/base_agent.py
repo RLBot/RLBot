@@ -22,6 +22,7 @@ LOGO_FILE_KEY = 'logo_file'
 LOOKS_CONFIG_KEY = 'looks_config'
 BOT_NAME_KEY = "name"
 SUPPORTS_EARLY_START_KEY = "supports_early_start"
+MAXIMUM_TICK_RATE_PREFERENCE_KEY = "maximum_tick_rate_preference"
 
 
 class SimpleControllerState:
@@ -300,6 +301,8 @@ class BaseAgent:
                                   description="Location of an image file to use as your bot's logo")
         location_config.add_value(SUPPORTS_EARLY_START_KEY, bool,
                                   description="True if this bot can be started before the Rocket League match begins.")
+        location_config.add_value(MAXIMUM_TICK_RATE_PREFERENCE_KEY, int, default=60,
+                                  description="The maximum number of ticks per second that your bot wishes to receive.")
 
         details_config = config.add_header_name(BOT_CONFIG_DETAILS_HEADER)
         details_config.add_value('developer', str, description="Name of the bot's creator/developer")
