@@ -5,15 +5,17 @@ import json
 import os
 import queue
 import time
+import shutil
 from datetime import datetime, timedelta
 
 import flatbuffers
 import websockets
 from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.botmanager.bot_helper_process import BotHelperProcess
-from rlbot.messages.flat import GameTickPacket, ControllerState, PlayerInput, TinyPacket, TinyPlayer, Vector3, Rotator, \
+from rlbot.messages.flat import ControllerState, PlayerInput, TinyPacket, TinyPlayer, Vector3, Rotator, \
     TinyBall
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.structures.game_data_struct import GameTickPacket
 from rlbot.utils.structures.game_interface import GameInterface
 from selenium import webdriver
 from selenium.common.exceptions import SessionNotCreatedException
@@ -48,16 +50,22 @@ class ScratchManager(BotHelperProcess):
 
     async def data_exchange(self, websocket, path):
         async for message in websocket:
-            controller_states = json.loads(message)
+            try:
+                controller_states = json.loads(message)
+                if not self.has_received_input:
+                    self.has_received_input = True
+                    self.logger.info(f"Just got first input from Scratch {self.sb3_file} {self.port}")
 
-            if not self.has_received_input:
-                self.has_received_input = True
-                self.logger.info(f"Just got first input from Scratch {self.sb3_file} {self.port}")
-
-            for key, scratch_state in controller_states.items():
-                scratch_index = int(key)
-                rlbot_index = self.get_rlbot_index(scratch_index)
-                self.game_interface.update_player_input_flat(self.convert_to_flatbuffer(scratch_state, rlbot_index))
+                for key, scratch_state in controller_states.items():
+                    scratch_index = int(key)
+                    rlbot_index = self.get_rlbot_index(scratch_index)
+                    self.game_interface.update_player_input_flat(self.convert_to_flatbuffer(scratch_state, rlbot_index))
+            except UnicodeDecodeError:
+                backup_location = os.path.join(os.path.dirname(self.sb3_file), f'backup-{str(int(os.path.getmtime(self.sb3_file)))}.sb3')
+                print(f"Saving new version of {self.sb3_file} and backing up old version to {backup_location}")
+                shutil.move(self.sb3_file, backup_location)
+                with open(self.sb3_file, 'wb') as output:
+                    output.write(message)
 
             self.current_sockets.add(websocket)
 
@@ -148,33 +156,31 @@ class ScratchManager(BotHelperProcess):
         last_tick_game_time = None  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
 
+        packet = GameTickPacket()
+
         # Run until main process tells to stop
         while not self.quit_event.is_set():
             before = datetime.now()
 
-            game_tick_flat_binary = self.game_interface.get_live_data_flat_binary()
-            if game_tick_flat_binary is None:
-                continue
-
-            game_tick_flat = GameTickPacket.GameTickPacket.GetRootAsGameTickPacket(game_tick_flat_binary, 0)
+            self.game_interface.update_live_data_packet(packet)
 
             # Run the Agent only if the gameInfo has updated.
-            tick_game_time = self.get_game_time(game_tick_flat)
+            tick_game_time = packet.game_info.seconds_elapsed
             worth_communicating = tick_game_time != last_tick_game_time or \
                                   datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
 
-            ball = game_tick_flat.Ball()
-            if ball is not None and worth_communicating:
+            ball = packet.game_ball
+            if ball is not None and worth_communicating and max(self.running_indices) < packet.num_cars:
                 last_tick_game_time = tick_game_time
                 last_call_real_time = datetime.now()
 
                 tiny_player_offsets = []
                 builder = flatbuffers.Builder(0)
 
-                for i in range(game_tick_flat.PlayersLength()):
-                    tiny_player_offsets.append(self.copy_player(game_tick_flat.Players(i), builder))
+                for i in range(packet.num_cars):
+                    tiny_player_offsets.append(self.copy_player(packet.game_cars[i], builder))
 
-                TinyPacket.TinyPacketStartPlayersVector(builder, game_tick_flat.PlayersLength())
+                TinyPacket.TinyPacketStartPlayersVector(builder, packet.num_cars)
                 for i in reversed(range(0, len(tiny_player_offsets))):
                     rlbot_index = self.get_rlbot_index(i)
                     builder.PrependUOffsetTRelative(tiny_player_offsets[rlbot_index])
@@ -203,12 +209,6 @@ class ScratchManager(BotHelperProcess):
             if sleep_secs > 0:
                 await asyncio.sleep(sleep_secs)
 
-    def get_game_time(self, game_tick_flat):
-        try:
-            return game_tick_flat.GameInfo().SecondsElapsed()
-        except AttributeError:
-            return 0.0
-
     def convert_to_flatbuffer(self, json_state: dict, index: int):
         builder = flatbuffers.Builder(0)
 
@@ -236,29 +236,29 @@ class ScratchManager(BotHelperProcess):
 
     def copy_v3(self, v3, builder):
         if self.should_flip_field:
-            return Vector3.CreateVector3(builder, -v3.X(), -v3.Y(), v3.Z())
-        return Vector3.CreateVector3(builder, v3.X(), v3.Y(), v3.Z())
+            return Vector3.CreateVector3(builder, -v3.x, -v3.y, v3.z)
+        return Vector3.CreateVector3(builder, v3.x, v3.y, v3.z)
 
     def copy_rot(self, rot, builder):
-        yaw = rot.Yaw()
+        yaw = rot.yaw
         if self.should_flip_field:
             yaw = yaw + math.pi if yaw < 0 else yaw - math.pi
-        return Rotator.CreateRotator(builder, rot.Pitch(), yaw, rot.Roll())
+        return Rotator.CreateRotator(builder, rot.pitch, yaw, rot.roll)
 
     def copy_player(self, player, builder):
         TinyPlayer.TinyPlayerStart(builder)
-        TinyPlayer.TinyPlayerAddLocation(builder, self.copy_v3(player.Physics().Location(), builder))
-        TinyPlayer.TinyPlayerAddVelocity(builder, self.copy_v3(player.Physics().Velocity(), builder))
-        TinyPlayer.TinyPlayerAddRotation(builder, self.copy_rot(player.Physics().Rotation(), builder))
-        TinyPlayer.TinyPlayerAddTeam(builder, invert_team(player.Team()) if self.should_flip_field else player.Team())
-        TinyPlayer.TinyPlayerAddBoost(builder, player.Boost())
+        TinyPlayer.TinyPlayerAddLocation(builder, self.copy_v3(player.physics.location, builder))
+        TinyPlayer.TinyPlayerAddVelocity(builder, self.copy_v3(player.physics.velocity, builder))
+        TinyPlayer.TinyPlayerAddRotation(builder, self.copy_rot(player.physics.rotation, builder))
+        TinyPlayer.TinyPlayerAddTeam(builder, invert_team(player.team) if self.should_flip_field else player.team)
+        TinyPlayer.TinyPlayerAddBoost(builder, player.boost)
         return TinyPlayer.TinyPlayerEnd(builder)
 
     def copy_ball(self, ball, builder):
-        phys = ball.Physics()
+        phys = ball.physics
         TinyBall.TinyBallStart(builder)
-        TinyBall.TinyBallAddLocation(builder, self.copy_v3(phys.Location(), builder))
-        TinyBall.TinyBallAddVelocity(builder, self.copy_v3(phys.Velocity(), builder))
+        TinyBall.TinyBallAddLocation(builder, self.copy_v3(phys.location, builder))
+        TinyBall.TinyBallAddVelocity(builder, self.copy_v3(phys.velocity, builder))
         return TinyBall.TinyBallEnd(builder)
 
 

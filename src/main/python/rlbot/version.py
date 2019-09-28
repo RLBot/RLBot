@@ -4,10 +4,16 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.28.0'
+__version__ = '1.29.0'
 
 release_notes = {
-    '1.28.0': """
+    '1.29.0': """
+    Python bots will now be able to specify their preferred tick rate. Do you like running at 120Hz?
+    You'll need to add "maximum_tick_rate_preference = 120" to your config file! Example:
+    https://github.com/RLBot/RLBot/blob/add379ab700d26f66ee31119a3b4e718a736f7aa/src/test/python/agents/atba/atba.cfg#L9
+    The default will be for python bots to run at 60, since that's how most bots have been developed and tested.
+    """,
+    '1.28.3': """
     Linux Support!
     
     Kipje13 has really done it, you can run RLBot in Linux now :D
@@ -18,6 +24,11 @@ release_notes = {
       open source area of RLBot, so drop by #framework-dev if you want to contribute!
 
     More info at https://github.com/RLBot/RLBot/wiki/Operating-System-Support
+    
+    Additional fixes:
+    - Open RL using Popen on Linux - cominixo
+    - Fixed bug in Scratch manager and switched it to use structs.
+    - Ability to save scratch bots over the websocket.
     """,
     '1.27.1': """
     Introducing lockstep mode--if you set enable_lockstep = True in rlbot.cfg, the 
