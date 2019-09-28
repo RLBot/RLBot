@@ -3,10 +3,9 @@ import os
 import time
 import traceback
 from datetime import datetime, timedelta
-import multiprocessing as mp
 from urllib.parse import ParseResult as URL
 
-from rlbot.agents.base_agent import BaseAgent
+from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, MAXIMUM_TICK_RATE_PREFERENCE_KEY
 from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.messages.flat import MatchSettings
@@ -87,6 +86,8 @@ class BotManager:
         self.scan_last = 0
         self.scan_temp = 0
         self.file_iterator = None
+        self.maximum_tick_rate_preference = bot_configuration.get(BOT_CONFIG_MODULE_HEADER,
+                                                                  MAXIMUM_TICK_RATE_PREFERENCE_KEY)
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -174,8 +175,9 @@ class BotManager:
 
         # Create Ratelimiter
         rate_limit = rate_limiter.RateLimiter(GAME_TICK_PACKET_POLLS_PER_SECOND)
-        last_tick_game_time = None  # What the tick time of the last observed tick was
+        last_tick_game_time = 0  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
+        frame_urgency = 0  # If the bot is getting called more than its preferred max rate, urgency will go negative.
 
         # Get bot module
         self.load_agent()
@@ -191,36 +193,20 @@ class BotManager:
 
                 # Run the Agent only if the game_info has updated.
                 tick_game_time = self.get_game_time()
-                should_call_while_paused = datetime.now() - last_call_real_time >= MAX_AGENT_CALL_PERIOD
-                if tick_game_time != last_tick_game_time or should_call_while_paused:
-                    last_tick_game_time = tick_game_time
-                    last_call_real_time = datetime.now()
+                now = datetime.now()
+                should_call_while_paused = now - last_call_real_time >= MAX_AGENT_CALL_PERIOD
 
-                    # Reload the Agent if it has been modified or if reload is requested from outside.
-                    if self.agent.is_hot_reload_enabled():
-                        self.hot_reload_if_necessary()
+                if frame_urgency < 4 / self.maximum_tick_rate_preference:
+                    # Urgency increases every frame, but don't let it build up a large backlog
+                    frame_urgency += tick_game_time - last_tick_game_time
 
-                    try:
-                        chat_messages = self.game_interface.receive_chat(self.index, self.team, self.last_message_index)
-                        for i in range(0, chat_messages.MessagesLength()):
-                            message = chat_messages.Messages(i)
-                            if len(self.match_config.player_configs) > message.PlayerIndex():
-                                self.agent.handle_quick_chat(
-                                    index=message.PlayerIndex(),
-                                    team=self.match_config.player_configs[message.PlayerIndex()].team,
-                                    quick_chat=message.QuickChatSelection())
-                            else:
-                                self.logger.debug(f"Skipping quick chat delivery for {message.MessageIndex()} because "
-                                                  "we don't recognize the player index. Probably stale.")
-                            self.last_message_index = message.MessageIndex()
-                    except EmptyDllResponse:
-                        self.logger.debug("Empty response when reading chat!")
+                if (tick_game_time != last_tick_game_time or should_call_while_paused) and frame_urgency >= 0:
+                    last_call_real_time = now
+                    # Urgency decreases when a tick is processed.
+                    frame_urgency -= 1 / self.maximum_tick_rate_preference
+                    self.perform_tick()
 
-                    # Call agent
-                    try:
-                        self.call_agent(self.agent, self.agent_class_wrapper.get_loaded_class())
-                    except Exception as e:
-                        self.logger.error("Call to agent failed:\n" + traceback.format_exc())
+                last_tick_game_time = tick_game_time
 
                 # Ratelimit here
                 rate_limit.acquire()
@@ -231,6 +217,31 @@ class BotManager:
 
         # If terminated, send callback
         self.termination_complete_event.set()
+
+    def perform_tick(self):
+        # Reload the Agent if it has been modified or if reload is requested from outside.
+        if self.agent.is_hot_reload_enabled():
+            self.hot_reload_if_necessary()
+        try:
+            chat_messages = self.game_interface.receive_chat(self.index, self.team, self.last_message_index)
+            for i in range(0, chat_messages.MessagesLength()):
+                message = chat_messages.Messages(i)
+                if len(self.match_config.player_configs) > message.PlayerIndex():
+                    self.agent.handle_quick_chat(
+                        index=message.PlayerIndex(),
+                        team=self.match_config.player_configs[message.PlayerIndex()].team,
+                        quick_chat=message.QuickChatSelection())
+                else:
+                    self.logger.debug(f"Skipping quick chat delivery for {message.MessageIndex()} because "
+                                      "we don't recognize the player index. Probably stale.")
+                self.last_message_index = message.MessageIndex()
+        except EmptyDllResponse:
+            self.logger.debug("Empty response when reading chat!")
+        # Call agent
+        try:
+            self.call_agent(self.agent, self.agent_class_wrapper.get_loaded_class())
+        except Exception as e:
+            self.logger.error("Call to agent failed:\n" + traceback.format_exc())
 
     def hot_reload_if_necessary(self):
         try:
