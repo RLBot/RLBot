@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
@@ -24,6 +25,7 @@ public class BotManager {
 
     private final Object dinnerBell = new Object();
     private GameTickPacket latestPacket;
+    private AtomicInteger refreshRate = new AtomicInteger(60);
 
     public void ensureBotRegistered(final int index, final Supplier<Bot> botSupplier) {
         if (botProcesses.containsKey(index)) {
@@ -98,8 +100,7 @@ public class BotManager {
             }
 
             try {
-                // Fetch the latest game tick packet at 60 Hz.
-                Thread.sleep(16);
+                Thread.sleep(1000 / refreshRate.get());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -118,5 +119,12 @@ public class BotManager {
             botProcesses.remove(index);
         }
         RLBotDll.setPlayerInputFlatbuffer(new EmptyControls(), index);
+    }
+
+    /**
+     * Sets the maximum amount of packets your bot will receive per second
+     */
+    public void setRefreshRate(int refreshRate){
+        this.refreshRate.set(refreshRate);
     }
 }
