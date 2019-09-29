@@ -28,7 +28,7 @@ public class DesiredVector3 {
      * @returns {@code true} If x is not null.
      */
     public boolean hasX() {
-        return x != null
+        return x != null;
     }
 
     public DesiredVector3 withX(Float x) {
@@ -44,7 +44,7 @@ public class DesiredVector3 {
      * @returns {@code true} If y is not null.
      */
     public boolean hasY() {
-        return y != null
+        return y != null;
     }
 
     public DesiredVector3 withY(Float y) {
@@ -60,7 +60,7 @@ public class DesiredVector3 {
      * @returns {@code true} If z is not null.
      */
     public boolean hasZ() {
-        return z != null
+        return z != null;
     }
 
     public DesiredVector3 withZ(Float z) {
