@@ -125,6 +125,7 @@ public class BotManager {
      * Sets the maximum amount of packets your bot will receive per second
      */
     public void setRefreshRate(int refreshRate){
-        this.refreshRate.set(refreshRate);
+        // Cap the refresh between 10hz and 120hz
+        this.refreshRate.set(Math.max(10, Math.min(120, refreshRate)));
     }
 }
