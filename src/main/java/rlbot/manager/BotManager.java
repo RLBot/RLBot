@@ -88,9 +88,10 @@ public class BotManager {
     }
 
     private void doLoop() {
+        long timeOfLastRefresh = System.currentTimeMillis();
         while (keepRunning) {
-
             try {
+                timeOfLastRefresh = System.currentTimeMillis();
                 latestPacket = RLBotDll.getFlatbufferPacket();
                 synchronized (dinnerBell) {
                     dinnerBell.notifyAll();
@@ -100,7 +101,13 @@ public class BotManager {
             }
 
             try {
-                Thread.sleep(1000 / refreshRate.get());
+                // Retrieve Refresh Rate
+                long timeout = 1000 / refreshRate.get();
+                // Subtract the target time by the current time
+                timeout = (timeOfLastRefresh + timeout) - System.currentTimeMillis();
+                // Make sure that no errors are thrown
+                timeout = Math.max(0, timeout);
+                Thread.sleep(timeout);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
