@@ -88,29 +88,58 @@ public class BotManager {
     }
 
     private void doLoop() {
-        long timeOfLastRefresh = System.currentTimeMillis();
+        // Minimum call rate when paused.
+        final long MAX_AGENT_CALL_PERIOD = 1000 / 30;
+
+        long rateLimitTime = System.currentTimeMillis();
+
+        float lastTickGameTime = -1;
+        float frameUrgency = 0;
+        long lastCallRealTime = System.currentTimeMillis();
         while (keepRunning) {
-            try {
-                timeOfLastRefresh = System.currentTimeMillis();
+            // Python version: https://github.com/RLBot/RLBot/blob/master/src/main/python/rlbot/botmanager/bot_manager.py#L194-L212
+            final int refreshRate = this.refreshRate.get();
+            try{
+                // Retrieve latest packet
                 latestPacket = RLBotDll.getFlatbufferPacket();
-                synchronized (dinnerBell) {
-                    dinnerBell.notifyAll();
+
+                // Run the bot only if gameInfo has updated
+                final float tickGameTime = latestPacket.gameInfo().secondsElapsed();
+                final long now = System.currentTimeMillis();
+                final boolean shouldCallWhilePaused = now - lastCallRealTime >= MAX_AGENT_CALL_PERIOD;
+
+                if(lastTickGameTime < 0 || lastTickGameTime > tickGameTime + 1) // Make sure we don't mess up our frameUrgency when the bot starts in the middle of the game
+                    lastTickGameTime = tickGameTime - (1f / refreshRate);
+
+                if(frameUrgency < 4f / refreshRate) // Urgency increases every frame, but don't let it build up a large backlog
+                    frameUrgency += tickGameTime - lastTickGameTime;
+
+                if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0){
+                    lastCallRealTime = now;
+                    // Urgency decreases when a tick is processed.
+                    frameUrgency -= 1f / refreshRate;
+                    synchronized (dinnerBell) {
+                        dinnerBell.notifyAll();
+                    }
                 }
-            } catch (IOException e) {
+
+                lastTickGameTime = tickGameTime;
+
+                try{
+                    long timeout = 1000 / (2 * refreshRate); // https://en.wikipedia.org/wiki/Nyquist_rate
+                    // Subtract the target time by the current time
+                    timeout = (rateLimitTime + timeout) - System.currentTimeMillis();
+                    // Make sure that no errors are thrown
+                    timeout = Math.max(0, timeout);
+                    Thread.sleep(timeout);
+                }catch (InterruptedException e){
+                    throw new RuntimeException(e);
+                }
+
+            }catch (IOException e){
                 e.printStackTrace();
             }
 
-            try {
-                // Retrieve Refresh Rate
-                long timeout = 1000 / refreshRate.get();
-                // Subtract the target time by the current time
-                timeout = (timeOfLastRefresh + timeout) - System.currentTimeMillis();
-                // Make sure that no errors are thrown
-                timeout = Math.max(0, timeout);
-                Thread.sleep(timeout);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
@@ -132,7 +161,7 @@ public class BotManager {
      * Sets the maximum amount of packets your bot will receive per second
      */
     public void setRefreshRate(int refreshRate){
-        // Cap the refresh between 10hz and 120hz
-        this.refreshRate.set(Math.max(10, Math.min(120, refreshRate)));
+        // Cap the refresh between 30hz and 120hz
+        this.refreshRate.set(Math.max(30, Math.min(120, refreshRate)));
     }
 }
