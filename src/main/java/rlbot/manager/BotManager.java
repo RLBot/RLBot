@@ -92,14 +92,15 @@ public class BotManager {
         final long MAX_AGENT_CALL_PERIOD = 1000 / 30;
 
         long rateLimitTime = System.currentTimeMillis();
+        long lastCallRealTime = System.currentTimeMillis();
 
         float lastTickGameTime = -1;
         float frameUrgency = 0;
-        long lastCallRealTime = System.currentTimeMillis();
+
         while (keepRunning) {
             // Python version: https://github.com/RLBot/RLBot/blob/master/src/main/python/rlbot/botmanager/bot_manager.py#L194-L212
             final int refreshRate = this.refreshRate.get();
-            try{
+            try {
                 // Retrieve latest packet
                 latestPacket = RLBotDll.getFlatbufferPacket();
 
@@ -125,21 +126,19 @@ public class BotManager {
 
                 lastTickGameTime = tickGameTime;
 
-                try{
+                try {
                     long timeout = 1000 / (2 * refreshRate); // https://en.wikipedia.org/wiki/Nyquist_rate
                     // Subtract the target time by the current time
                     timeout = (rateLimitTime + timeout) - System.currentTimeMillis();
                     // Make sure that no errors are thrown
                     timeout = Math.max(0, timeout);
                     Thread.sleep(timeout);
-                }catch (InterruptedException e){
+                }catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-            }catch (IOException e){
+            }catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
