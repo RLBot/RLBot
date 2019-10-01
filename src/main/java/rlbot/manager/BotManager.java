@@ -90,9 +90,8 @@ public class BotManager {
     private void doLoop() {
         // Minimum call rate when paused.
         final long MAX_AGENT_CALL_PERIOD = 1000 / 30;
-        final float tarehartsConstant = 2f;
+        final float TAREHARTS_CONSTANT = 1f;
 
-        long rateLimitTime = System.currentTimeMillis();
         long lastCallRealTime = System.currentTimeMillis();
 
         float lastTickGameTime = -1;
@@ -110,11 +109,8 @@ public class BotManager {
                 final long now = System.currentTimeMillis();
                 final boolean shouldCallWhilePaused = now - lastCallRealTime >= MAX_AGENT_CALL_PERIOD;
 
-                if(lastTickGameTime < 0 || lastTickGameTime > tickGameTime + 1) // Make sure we don't mess up our frameUrgency when the bot starts in the middle of the game
-                    lastTickGameTime = tickGameTime - (1f / refreshRate);
-
-                if(frameUrgency < tarehartsConstant / refreshRate) // Urgency increases every frame, but don't let it build up a large backlog
-                    frameUrgency = Math.min(frameUrgency + (tickGameTime - lastTickGameTime), tarehartsConstant / refreshRate);
+                if(frameUrgency < TAREHARTS_CONSTANT / refreshRate) // Urgency increases every frame, but don't let it build up a large backlog
+                    frameUrgency = Math.min(frameUrgency + (tickGameTime - lastTickGameTime), TAREHARTS_CONSTANT / refreshRate);
 
                 if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0){
                     lastCallRealTime = now;
@@ -128,15 +124,7 @@ public class BotManager {
                 lastTickGameTime = tickGameTime;
 
                 try {
-                    long timeout = 1000 / (2 * refreshRate); // https://en.wikipedia.org/wiki/Nyquist_rate
-                    long rateLimitNow = System.currentTimeMillis();
-                    // Subtract the target time by the current time
-                    timeout = (rateLimitTime + timeout) - rateLimitNow;
-                    // Make sure that no errors are thrown
-                    timeout = Math.max(0, timeout);
-                    // Reset the rate limitter
-                    rateLimitTime = rateLimitNow;
-                    Thread.sleep(timeout);
+                    Thread.sleep(1000 / (2 * refreshRate));
                 }catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
