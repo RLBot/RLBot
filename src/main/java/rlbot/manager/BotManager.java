@@ -90,6 +90,7 @@ public class BotManager {
     private void doLoop() {
         // Minimum call rate when paused.
         final long MAX_AGENT_CALL_PERIOD = 1000 / 30;
+        final float tarehartsConstant = 2f;
 
         long rateLimitTime = System.currentTimeMillis();
         long lastCallRealTime = System.currentTimeMillis();
@@ -112,8 +113,8 @@ public class BotManager {
                 if(lastTickGameTime < 0 || lastTickGameTime > tickGameTime + 1) // Make sure we don't mess up our frameUrgency when the bot starts in the middle of the game
                     lastTickGameTime = tickGameTime - (1f / refreshRate);
 
-                if(frameUrgency < 4f / refreshRate) // Urgency increases every frame, but don't let it build up a large backlog
-                    frameUrgency += tickGameTime - lastTickGameTime;
+                if(frameUrgency < tarehartsConstant / refreshRate) // Urgency increases every frame, but don't let it build up a large backlog
+                    frameUrgency = Math.min(frameUrgency + (tickGameTime - lastTickGameTime), tarehartsConstant / refreshRate);
 
                 if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0){
                     lastCallRealTime = now;
@@ -128,10 +129,13 @@ public class BotManager {
 
                 try {
                     long timeout = 1000 / (2 * refreshRate); // https://en.wikipedia.org/wiki/Nyquist_rate
+                    long rateLimitNow = System.currentTimeMillis();
                     // Subtract the target time by the current time
-                    timeout = (rateLimitTime + timeout) - System.currentTimeMillis();
+                    timeout = (rateLimitTime + timeout) - rateLimitNow;
                     // Make sure that no errors are thrown
                     timeout = Math.max(0, timeout);
+                    // Reset the rate limitter
+                    rateLimitTime = rateLimitNow;
                     Thread.sleep(timeout);
                 }catch (InterruptedException e) {
                     throw new RuntimeException(e);
