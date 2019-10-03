@@ -21,10 +21,13 @@ extern "C"
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer();
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateFieldInfo(FieldInfo* pFieldInfo);
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer();
+		DLL_EXPORT ByteBuffer RLBOT_CORE_API FreshLiveDataPacketFlatbuffer(int timeoutMillis, int key);
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateLiveDataPacket(LiveDataPacket* pLiveData);
+		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API FreshLiveDataPacket(LiveDataPacket* pLiveData, int timeoutMillis, int key);
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API UpdateRigidBodyTickFlatbuffer();
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API UpdateRigidBodyTick(RigidBodyTick* rigidBodyTick);
 		DLL_EXPORT ByteBuffer RLBOT_CORE_API GetMatchSettings();
+		DLL_EXPORT char RLBOT_CORE_API GetFrameCount();
 	}
 
 #ifdef __cplusplus

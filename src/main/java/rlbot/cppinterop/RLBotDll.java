@@ -32,6 +32,7 @@ public class RLBotDll {
     private static final String DLL_NAME_SANS_EXTENSION_32 = "RLBot_Core_Interface_32";
 
     private static native ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
+    private static native ByteBufferStruct FreshLiveDataPacketFlatbuffer(int timeoutMillis, int key);
     private static native int UpdatePlayerInputFlatbuffer(Pointer ptr, int size);
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
     private static native int RenderGroup(Pointer ptr, int size);
@@ -121,7 +122,7 @@ public class RLBotDll {
      */
     public static GameTickPacket getFlatbufferPacket() throws RLBotInterfaceException {
         try {
-            final ByteBufferStruct struct = UpdateLiveDataPacketFlatbuffer();
+            final ByteBufferStruct struct = FreshLiveDataPacketFlatbuffer(1000, 0);
             if (struct.size < 4) {
                 throw new RLBotInterfaceException("Flatbuffer packet is too small, match is probably not running!");
             }

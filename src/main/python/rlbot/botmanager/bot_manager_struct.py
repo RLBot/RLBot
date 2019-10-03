@@ -63,7 +63,7 @@ class BotManagerStruct(BotManager):
         return self.game_tick_packet.game_info.seconds_elapsed
 
     def pull_data_from_game(self):
-        self.game_interface.update_live_data_packet(self.game_tick_packet)
+        self.game_interface.fresh_live_data_packet(self.game_tick_packet, 500, 0)
 
     def get_ball_prediction_struct(self):
         return self.game_interface.update_ball_prediction(self.ball_prediction)

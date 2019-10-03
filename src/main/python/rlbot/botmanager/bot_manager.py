@@ -19,7 +19,7 @@ from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.quick_chats import send_quick_chat_flat
 
-GAME_TICK_PACKET_POLLS_PER_SECOND = 120  # 2*60. https://en.wikipedia.org/wiki/Nyquist_rate
+MAX_POLLS_PER_SECOND = 125  # Slightly higher than 120hz. The dll will sleep till the packet is fresh.
 MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
@@ -174,7 +174,7 @@ class BotManager:
         self.prepare_for_run()
 
         # Create Ratelimiter
-        rate_limit = rate_limiter.RateLimiter(GAME_TICK_PACKET_POLLS_PER_SECOND)
+        rate_limit = rate_limiter.RateLimiter(MAX_POLLS_PER_SECOND)
         last_tick_game_time = 0  # What the tick time of the last observed tick was
         last_call_real_time = datetime.now()  # When we last called the Agent
         frame_urgency = 0  # If the bot is getting called more than its preferred max rate, urgency will go negative.

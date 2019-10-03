@@ -133,6 +133,14 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
+        func = self.game.GetFrameCount
+        func.argtypes = []
+        func.restype = ctypes.c_char
+
+        func = self.game.FreshLiveDataPacket
+        func.argtypes = [ctypes.POINTER(GameTickPacket), ctypes.c_int, ctypes.c_int]
+        func.restype = ctypes.c_int
+
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
@@ -142,6 +150,11 @@ class GameInterface:
 
     def update_live_data_packet(self, game_tick_packet: GameTickPacket):
         rlbot_status = self.game.UpdateLiveDataPacket(game_tick_packet)
+        self.game_status(None, rlbot_status)
+        return game_tick_packet
+
+    def fresh_live_data_packet(self, game_tick_packet: GameTickPacket, timeout_millis: int, key: int):
+        rlbot_status = self.game.FreshLiveDataPacket(game_tick_packet, timeout_millis, key)
         self.game_status(None, rlbot_status)
         return game_tick_packet
 
@@ -332,3 +345,7 @@ class GameInterface:
             self.game.Free(byte_buffer.ptr)  # Avoid a memory leak
             self.game_status(None, RLBotCoreStatus.Success)
             return MatchSettingsPacket.GetRootAsMatchSettings(proto_string, 0)
+
+    def get_frame_count(self) -> int:
+        frame_count = self.game.GetFrameCount()
+        return int.from_bytes(frame_count, "little")

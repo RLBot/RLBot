@@ -58,6 +58,28 @@ namespace BoostUtilities
 		~SharedMemWriter();
 		void writeData(void* pAddress, int size);
 	};
+
+	class SharedByteReader
+	{
+	private:
+		boost::interprocess::shared_memory_object* pSharedMem;
+
+	public:
+		SharedByteReader(const char* pName);
+		char fetchByte();
+	};
+
+	class SharedByteWriter
+	{
+	private:
+		boost::interprocess::shared_memory_object* pSharedMem;
+		const char* pMemName;
+
+	public:
+		SharedByteWriter(const char* pName);
+		~SharedByteWriter();
+		void writeByte(char data);
+	};
 }
 
 #endif

@@ -6,6 +6,8 @@ import rlbot.cppinterop.RLBotDll;
 import rlbot.flat.GameTickPacket;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,19 +91,14 @@ public class BotManager {
         while (keepRunning) {
 
             try {
+                Instant before = Instant.now();
                 latestPacket = RLBotDll.getFlatbufferPacket();
+                System.out.println(Duration.between(before, Instant.now()).toMillis());
                 synchronized (dinnerBell) {
                     dinnerBell.notifyAll();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-
-            try {
-                // Fetch the latest game tick packet at 60 Hz.
-                Thread.sleep(16);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         }
     }
