@@ -20,6 +20,12 @@ public class DesiredVector3 {
         this.z = z;
     }
 
+    public DesiredVector3(rlbot.flat.Vector3 vector) {
+        this.x = vector.x();
+        this.y = vector.y();
+        this.z = vector.z();
+    }
+
     public Float getX() {
         return x;
     }
