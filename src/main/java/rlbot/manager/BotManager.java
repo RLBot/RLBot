@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
@@ -24,6 +25,7 @@ public class BotManager {
 
     private final Object dinnerBell = new Object();
     private GameTickPacket latestPacket;
+    private AtomicInteger refreshRate = new AtomicInteger(60);
 
     public void ensureBotRegistered(final int index, final Supplier<Bot> botSupplier) {
         if (botProcesses.containsKey(index)) {
@@ -86,22 +88,48 @@ public class BotManager {
     }
 
     private void doLoop() {
+        // Minimum call rate when paused.
+        final long MAX_AGENT_CALL_PERIOD = 1000 / 30;
+        final float TAREHARTS_CONSTANT = 1f;
+
+        long lastCallRealTime = System.currentTimeMillis();
+
+        float lastTickGameTime = -1;
+        float frameUrgency = 0;
+
         while (keepRunning) {
-
+            // Python version: https://github.com/RLBot/RLBot/blob/master/src/main/python/rlbot/botmanager/bot_manager.py#L194-L212
+            final int refreshRate = this.refreshRate.get();
             try {
+                // Retrieve latest packet
                 latestPacket = RLBotDll.getFlatbufferPacket();
-                synchronized (dinnerBell) {
-                    dinnerBell.notifyAll();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-            try {
-                // Fetch the latest game tick packet at 60 Hz.
-                Thread.sleep(16);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                // Run the bot only if gameInfo has updated
+                final float tickGameTime = latestPacket.gameInfo().secondsElapsed();
+                final long now = System.currentTimeMillis();
+                final boolean shouldCallWhilePaused = now - lastCallRealTime >= MAX_AGENT_CALL_PERIOD;
+
+                if(frameUrgency < TAREHARTS_CONSTANT / refreshRate) // Urgency increases every frame, but don't let it build up a large backlog
+                    frameUrgency = Math.min(frameUrgency + (tickGameTime - lastTickGameTime), TAREHARTS_CONSTANT / refreshRate);
+
+                if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0){
+                    lastCallRealTime = now;
+                    // Urgency decreases when a tick is processed.
+                    frameUrgency -= 1f / refreshRate;
+                    synchronized (dinnerBell) {
+                        dinnerBell.notifyAll();
+                    }
+                }
+
+                lastTickGameTime = tickGameTime;
+
+                try {
+                    Thread.sleep(1000 / (2 * refreshRate));
+                }catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -118,5 +146,13 @@ public class BotManager {
             botProcesses.remove(index);
         }
         RLBotDll.setPlayerInputFlatbuffer(new EmptyControls(), index);
+    }
+
+    /**
+     * Sets the maximum amount of packets your bot will receive per second
+     */
+    public void setRefreshRate(int refreshRate){
+        // Cap the refresh between 30hz and 120hz
+        this.refreshRate.set(Math.max(30, Math.min(120, refreshRate)));
     }
 }
