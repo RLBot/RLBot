@@ -32,6 +32,15 @@ public class RLBotDll {
     private static final String DLL_NAME_SANS_EXTENSION_32 = "RLBot_Core_Interface_32";
 
     private static native ByteBufferStruct UpdateLiveDataPacketFlatbuffer();
+
+    /**
+     * @param timeoutMillis will give up waiting for a fresh packet and just return a stale one
+     *                      after this number of milliseconds.
+     * @param key answers the question "fresh from whose perspective?". Freshness will be tracked separately
+     *            for whatever key you pass. Bot index is a reasonable choice.
+     * @return
+     */
+    private static native ByteBufferStruct FreshLiveDataPacketFlatbuffer(int timeoutMillis, int key);
     private static native int UpdatePlayerInputFlatbuffer(Pointer ptr, int size);
     private static native ByteBufferStruct UpdateFieldInfoFlatbuffer();
     private static native int RenderGroup(Pointer ptr, int size);
@@ -121,7 +130,13 @@ public class RLBotDll {
      */
     public static GameTickPacket getFlatbufferPacket() throws RLBotInterfaceException {
         try {
-            final ByteBufferStruct struct = UpdateLiveDataPacketFlatbuffer();
+            // Use an 18 millisecond timeout so we don't stop sending packets when they go stale.
+            // Java bots are accustomed to getting a packet every 16ms no matter what, so I've
+            // chosen a number reasonably close to that so the behavior is similar when
+            // the dll is producing fresh data very slowly (should be very rare).
+            // I'm not making it exactly 16 because that would not allow for freshness in cases
+            // where Rocket League or the API are tuned to 60Hz (which is the default).
+            final ByteBufferStruct struct = FreshLiveDataPacketFlatbuffer(18, 0);
             if (struct.size < 4) {
                 throw new RLBotInterfaceException("Flatbuffer packet is too small, match is probably not running!");
             }

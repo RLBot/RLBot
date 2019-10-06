@@ -3,9 +3,12 @@ package rlbot.manager;
 import rlbot.Bot;
 import rlbot.ControllerState;
 import rlbot.cppinterop.RLBotDll;
+import rlbot.cppinterop.RLBotInterfaceException;
 import rlbot.flat.GameTickPacket;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,12 +93,23 @@ public class BotManager {
     private void doLoop() {
         // Minimum call rate when paused.
         final long MAX_AGENT_CALL_PERIOD = 1000 / 30;
+
+        // Sets a limit on how much frame urgency can be buffered up.
         final float TAREHARTS_CONSTANT = 1f;
 
         long lastCallRealTime = System.currentTimeMillis();
+        float lastTickGameTime = 0;
 
-        float lastTickGameTime = -1;
-        float frameUrgency = 0;
+        try {
+            latestPacket = RLBotDll.getFlatbufferPacket();
+            lastTickGameTime = latestPacket.gameInfo().secondsElapsed();
+        } catch (RLBotInterfaceException e) {
+            e.printStackTrace();
+        }
+
+        // Set the initial value so that as urgency flips up and down, the variation will be centered over
+        // the threshold (0 urgency) and have minimal likelihood of drifting away and skipping a frame
+        float frameUrgency = -0.5f / this.refreshRate.get();
 
         while (keepRunning) {
             // Python version: https://github.com/RLBot/RLBot/blob/master/src/main/python/rlbot/botmanager/bot_manager.py#L194-L212
@@ -109,8 +123,8 @@ public class BotManager {
                 final long now = System.currentTimeMillis();
                 final boolean shouldCallWhilePaused = now - lastCallRealTime >= MAX_AGENT_CALL_PERIOD;
 
-                if(frameUrgency < TAREHARTS_CONSTANT / refreshRate) // Urgency increases every frame, but don't let it build up a large backlog
-                    frameUrgency = Math.min(frameUrgency + (tickGameTime - lastTickGameTime), TAREHARTS_CONSTANT / refreshRate);
+                // Urgency increases every frame, but don't let it build up a large backlog
+                frameUrgency = Math.min(frameUrgency + (tickGameTime - lastTickGameTime), TAREHARTS_CONSTANT / refreshRate);
 
                 if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0){
                     lastCallRealTime = now;
@@ -122,12 +136,6 @@ public class BotManager {
                 }
 
                 lastTickGameTime = tickGameTime;
-
-                try {
-                    Thread.sleep(1000 / (2 * refreshRate));
-                }catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
             }catch (IOException e) {
                 e.printStackTrace();
             }
