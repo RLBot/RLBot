@@ -12,6 +12,8 @@ using RLBotDotNet.Renderer;
 
 namespace RLBotDotNet
 {
+    public enum PacketFetchMethod { Dynamic, Frequency60, Frequency120 };
+
     /// <summary>
     /// Manages the C# bots and runs them.
     /// </summary>
@@ -32,15 +34,39 @@ namespace RLBotDotNet
         /// <summary>
         /// Construct a new instance of BotManager.
         /// </summary>
-        /// <param name="frequency">The frequency that the bot updates at: [1, 120]</param>
+        /// <param name="frequency">The frequency that the bot updates at: [1, 120] or 0 for dynamic.</param>
         public BotManager(int frequency)
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
 
-            if (frequency > 120 || frequency < 1)
+            if (frequency > 120 || frequency < 0)
                 throw new ArgumentOutOfRangeException("frequency");
 
             this.frequency = frequency;
+        }
+
+        /// <summary>
+        /// Construct a new instance of BotManager.
+        /// </summary>
+        /// <param name="frequencyType">How to retrieve new packets</param>
+        public BotManager(PacketFetchMethod frequencyType)
+        {
+            _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
+
+            switch (frequencyType)
+            {
+                case PacketFetchMethod.Dynamic:
+                    frequency = 0;
+                    break;
+
+                case PacketFetchMethod.Frequency60:
+                    frequency = 60;
+                    break;
+
+                case PacketFetchMethod.Frequency120:
+                    frequency = 120;
+                    break;
+            }
         }
 
         /// <summary>
@@ -120,28 +146,46 @@ namespace RLBotDotNet
         /// </summary>
         private void MainBotLoop()
         {
-            TimeSpan timerResolution = TimerResolutionInterop.CurrentResolution;
-            TimeSpan targetSleepTime = new TimeSpan(10000000/frequency);
+            if (frequency > 0)
+            { 
+                // Retrieve packets at a fixed frequency.
 
-            Stopwatch stopwatch = new Stopwatch();
-            while (true)
-            {
-                // Start the timer
-                stopwatch.Restart();
+                TimeSpan timerResolution = TimerResolutionInterop.CurrentResolution;
+                TimeSpan targetSleepTime = new TimeSpan(10000000 / frequency);
 
-                // Set off events that end up running the bot code later down the line
-                foreach (BotProcess proc in botProcesses)
+                Stopwatch stopwatch = new Stopwatch();
+                while (true)
                 {
-                    proc.botRunEvent.Set();
+                    // Start the timer
+                    stopwatch.Restart();
+
+                    // Set off events that end up running the bot code later down the line
+                    foreach (BotProcess proc in botProcesses)
+                    {
+                        proc.botRunEvent.Set();
+                    }
+
+                    // Sleep efficiently (but inaccurately) for as long as we can
+                    TimeSpan maxInaccurateSleepTime = targetSleepTime - stopwatch.Elapsed - timerResolution;
+                    if (maxInaccurateSleepTime > TimeSpan.Zero)
+                        Thread.Sleep(maxInaccurateSleepTime);
+
+                    // We can sleep the rest of the time accurately with the use of a spin-wait, this will drastically reduce the amount of duplicate packets when running at higher frequencies.
+                    while (stopwatch.Elapsed < targetSleepTime) ;
                 }
+            }
+            else
+            {   
+                // Dynamicly retrieve new packets.
+                while (true)
+                {
+                    RLBotInterface.WaitForFreshPacket(100, 0);
 
-                // Sleep efficiently (but inaccurately) for as long as we can
-                TimeSpan maxInaccurateSleepTime = targetSleepTime - stopwatch.Elapsed - timerResolution;
-                if (maxInaccurateSleepTime > TimeSpan.Zero)
-                    Thread.Sleep(maxInaccurateSleepTime);
-
-                // We can sleep the rest of the time accurately with the use of a spin-wait, this will drastically reduce the amount of duplicate packets when running at higher frequencies.
-                while (stopwatch.Elapsed < targetSleepTime);
+                    foreach (BotProcess proc in botProcesses)
+                    {
+                        proc.botRunEvent.Set();
+                    }
+                }
             }
         }
 
