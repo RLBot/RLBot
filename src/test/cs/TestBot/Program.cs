@@ -13,7 +13,7 @@ namespace TestBot
             int port = int.Parse(text);
 
             // BotManager is a generic which takes in your bot as its T type.
-            BotManager<ExampleBot> botManager = new BotManager<ExampleBot>(PacketFetchMethod.Dynamic);
+            BotManager<ExampleBot> botManager = new BotManager<ExampleBot>(0);
             // Start the server on the port given in the port.cfg file.
             botManager.Start(port);
         }

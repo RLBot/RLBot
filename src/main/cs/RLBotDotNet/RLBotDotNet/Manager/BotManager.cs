@@ -12,8 +12,6 @@ using RLBotDotNet.Renderer;
 
 namespace RLBotDotNet
 {
-    public enum PacketFetchMethod { Dynamic, Frequency60, Frequency120 };
-
     /// <summary>
     /// Manages the C# bots and runs them.
     /// </summary>
@@ -34,7 +32,7 @@ namespace RLBotDotNet
         /// <summary>
         /// Construct a new instance of BotManager.
         /// </summary>
-        /// <param name="frequency">The frequency that the bot updates at: [1, 120] or 0 for dynamic.</param>
+        /// <param name="frequency">The frequency that the bot updates at: [1, 120] or 0 to update at each new packet.</param>
         public BotManager(int frequency)
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
@@ -43,30 +41,6 @@ namespace RLBotDotNet
                 throw new ArgumentOutOfRangeException("frequency");
 
             this.frequency = frequency;
-        }
-
-        /// <summary>
-        /// Construct a new instance of BotManager.
-        /// </summary>
-        /// <param name="frequencyType">How to retrieve new packets</param>
-        public BotManager(PacketFetchMethod frequencyType)
-        {
-            _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
-
-            switch (frequencyType)
-            {
-                case PacketFetchMethod.Dynamic:
-                    frequency = 0;
-                    break;
-
-                case PacketFetchMethod.Frequency60:
-                    frequency = 60;
-                    break;
-
-                case PacketFetchMethod.Frequency120:
-                    frequency = 120;
-                    break;
-            }
         }
 
         /// <summary>
