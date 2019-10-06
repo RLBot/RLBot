@@ -39,6 +39,9 @@ namespace BoostConstants
 	// Reading the match settings back out
 	const char* MatchSettingsName = "matchSettings";
 
+	// Location to store the number of frames processed by RLBot
+	const char* FrameCountName = "frameCount";
+
 	std::string buildSharedMemName(const char* baseName) {
 		std::string name(baseName);
 		name.append("-SharedMem");

@@ -29,7 +29,7 @@ public class DesiredVector3 {
     public Float getX() {
         return x;
     }
-    
+
     /**
      * @returns {@code true} If x is not null.
      */
@@ -45,7 +45,7 @@ public class DesiredVector3 {
     public Float getY() {
         return y;
     }
-    
+
     /**
      * @returns {@code true} If y is not null.
      */
@@ -61,7 +61,7 @@ public class DesiredVector3 {
     public Float getZ() {
         return z;
     }
-    
+
     /**
      * @returns {@code true} If z is not null.
      */

@@ -2,17 +2,15 @@ import ctypes
 import hashlib
 from typing import Optional, Set
 
-import flatbuffers
-from rlbot.utils.structures.game_status import RLBotCoreStatus
-from rlbot.utils.structures.game_data_struct import Vector3 as GameDataStructVector3
+from rlbot.utils.structures.game_data_struct import Vector3
+from rlbot.utils.structures.struct import Struct
 from rlbot.utils.logging_utils import get_logger
 
-from rlbot.messages.flat import RenderGroup
-from rlbot.messages.flat import Color
-from rlbot.messages.flat import RenderMessage
-from rlbot.messages.flat import Vector3
-from rlbot.messages.flat import Float
-from rlbot.messages.flat.RenderType import RenderType
+class Color(Struct):
+    _fields_ = [("r", ctypes.c_ubyte),
+                ("g", ctypes.c_ubyte),
+                ("b", ctypes.c_ubyte),
+                ("a", ctypes.c_ubyte)]
 
 
 MAX_INT = 2147483647 // 2
@@ -20,10 +18,6 @@ MAX_INT = 2147483647 // 2
 DEFAULT_GROUP_ID = 'default'
 
 class RenderingManager:
-    """
-    Manages rendering and statefully bundles rendering into a group, can only render one group at a time.
-    """
-
     def __init__(self):
         self.renderGroup = None
         self.render_state = False
@@ -34,10 +28,44 @@ class RenderingManager:
         self.group_id: Optional[str] = None
         self.touched_group_ids: Set[str] = set()
 
+        self.native_constructor = None
+        self.native_destructor = None
+        self.native_finish_and_send = None
+        self.native_draw_line_3d = None
+        self.native_draw_polyline_2d = None
+        self.native_draw_string_2d = None
+        self.native_draw_string_3d = None
+        self.native_draw_rect_2d = None
+        self.native_draw_rect_3d = None
+
     def setup_function_types(self, dll_instance):
-        self.renderGroup = dll_instance.RenderGroup
-        self.renderGroup.argtypes = [ctypes.c_void_p, ctypes.c_int]
-        self.renderGroup.restype = ctypes.c_int
+        self.native_constructor = dll_instance.Renderer_Constructor
+        self.native_constructor.argtypes = [ctypes.c_int]
+        self.native_constructor.restype = ctypes.c_void_p
+
+        self.native_destructor = dll_instance.Renderer_Destructor
+        self.native_destructor.argtypes = [ctypes.c_void_p]
+
+        self.native_finish_and_send = dll_instance.Renderer_FinishAndSend
+        self.native_finish_and_send.argtypes = [ctypes.c_void_p]
+
+        self.native_draw_line_3d = dll_instance.Renderer_DrawLine3D
+        self.native_draw_line_3d.argtypes = [ctypes.c_void_p, Color, Vector3, Vector3]
+
+        self.native_draw_polyline_3d = dll_instance.Renderer_DrawPolyLine3D
+        self.native_draw_polyline_3d.argtypes = [ctypes.c_void_p, Color, ctypes.POINTER(Vector3), ctypes.c_int]
+
+        self.native_draw_string_2d = dll_instance.Renderer_DrawString2D
+        self.native_draw_string_2d.argtypes = [ctypes.c_void_p, ctypes.c_char_p, Color, Vector3, ctypes.c_int, ctypes.c_int]
+
+        self.native_draw_string_3d = dll_instance.Renderer_DrawString3D
+        self.native_draw_string_3d.argtypes = [ctypes.c_void_p, ctypes.c_char_p, Color, Vector3, ctypes.c_int, ctypes.c_int]
+
+        self.native_draw_rect_2d = dll_instance.Renderer_DrawRect2D
+        self.native_draw_rect_2d.argtypes = [ctypes.c_void_p, Color, Vector3, ctypes.c_int, ctypes.c_int, ctypes.c_bool]
+
+        self.native_draw_rect_3d = dll_instance.Renderer_DrawRect3D
+        self.native_draw_rect_3d.argtypes = [ctypes.c_void_p, Color, Vector3, ctypes.c_int, ctypes.c_int, ctypes.c_bool, ctypes.c_bool]
 
     def set_bot_index_and_team(self, bot_index=0, bot_team=0):
         self.bot_index = bot_index
@@ -51,36 +79,29 @@ class RenderingManager:
     def begin_rendering(self, group_id: str=DEFAULT_GROUP_ID):
         self.touched_group_ids.add(group_id)
         self.group_id = group_id
-        self.builder = flatbuffers.Builder(0)
         self.render_list = []
         self.render_state = True
 
-    def end_rendering(self):
-        self.render_state = False
         if self.group_id is None:
             self.group_id = DEFAULT_GROUP_ID
 
         group_id = str(self.bot_index) + str(self.group_id)
         group_id_hashed = int(hashlib.sha256(str(group_id).encode('utf-8')).hexdigest(), 16) % MAX_INT
 
-        list_length = len(self.render_list)
+        # Prevent memory leak
+        if self.builder is not None:
+            self.native_destructor(self.builder)
 
-        RenderGroup.RenderGroupStartRenderMessagesVector(self.builder, list_length)
+        self.builder = self.native_constructor(group_id_hashed)
 
-        for i in reversed(range(0, list_length)):
-            self.builder.PrependUOffsetTRelative(self.render_list[i])
 
-        messages = self.builder.EndVector(list_length)
-
-        RenderGroup.RenderGroupStart(self.builder)
-        RenderGroup.RenderGroupAddId(self.builder, group_id_hashed)
-        RenderGroup.RenderGroupAddRenderMessages(self.builder, messages)
-        result = RenderGroup.RenderGroupEnd(self.builder)
-
-        self.builder.Finish(result)
-
-        buf = self.builder.Output()
-        self.send_group(buf)
+    def end_rendering(self):
+        if self.builder is not None:
+            self.native_finish_and_send(self.builder)
+            self.native_destructor(self.builder)
+        self.builder = None
+        
+        self.render_state = False
 
     def clear_screen(self, group_id: str=DEFAULT_GROUP_ID):
         self.begin_rendering(group_id)
@@ -98,16 +119,7 @@ class RenderingManager:
         return self.render_state
 
     def draw_line_2d(self, x1, y1, x2, y2, color):
-        messageBuilder = self.builder
-
-        RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
-        RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x1, y1))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(x2, y2))
-        message = RenderMessage.RenderMessageEnd(messageBuilder)
-
-        self.render_list.append(message)
+        get_logger("Renderer").error("draw_line_2d is not supported!")
         return self
 
     def draw_polyline_2d(self, vectors, color):
@@ -115,30 +127,15 @@ class RenderingManager:
             get_logger("Renderer").error("draw_polyline_2d requires atleast 2 vectors!")
             return self
 
-        messageBuilder = self.builder
-
-        for i in range(0, len(vectors) - 1):
-            RenderMessage.RenderMessageStart(messageBuilder)
-            RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D)
-            RenderMessage.RenderMessageAddColor(messageBuilder, color)
-            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
-            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i + 1]))
-            message = RenderMessage.RenderMessageEnd(messageBuilder)
-            self.render_list.append(message)
-
+        get_logger("Renderer").error("draw_polyline_2d is not supported!")
         return self
 
     def draw_line_3d(self, vec1, vec2, color):
-        messageBuilder = self.builder
+        if self.builder is None:
+            get_logger("Renderer").error("Use begin_rendering before using any of the drawing functions!")
+            return self
 
-        RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
-        RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec1))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec2))
-        message = RenderMessage.RenderMessageEnd(messageBuilder)
-
-        self.render_list.append(message)
+        self.native_draw_line_3d(self.builder, color, self.__create_vector(vec1), self.__create_vector(vec2))
         return self
 
     def draw_polyline_3d(self, vectors, color):
@@ -146,105 +143,50 @@ class RenderingManager:
             get_logger("Renderer").error("draw_polyline_3d requires atleast 2 vectors!")
             return self
 
-        messageBuilder = self.builder
-
-        for i in range(0, len(vectors) - 1):
-            RenderMessage.RenderMessageStart(messageBuilder)
-            RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine3D)
-            RenderMessage.RenderMessageAddColor(messageBuilder, color)
-            RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vectors[i]))
-            RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vectors[i + 1]))
-            message = RenderMessage.RenderMessageEnd(messageBuilder)
-            self.render_list.append(message)
+        if self.builder is None:
+            get_logger("Renderer").error("Use begin_rendering before using any of the drawing functions!")
+            return self
+        
+        # TODO: would be nice to use a native function
+        for i in range(len(vectors) - 1):
+            self.draw_line_3d(vectors[i], vectors[i+1], color)
 
         return self
 
     def draw_line_2d_3d(self, x, y, vec, color):
-        messageBuilder = self.builder
-
-        RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawLine2D_3D)
-        RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
-        RenderMessage.RenderMessageAddEnd(messageBuilder, self.__create_vector(vec))
-        message = RenderMessage.RenderMessageEnd(messageBuilder)
-
-        self.render_list.append(message)
+        get_logger("Renderer").error("draw_line_2d_3d is not supported!")
         return self
 
     def draw_rect_2d(self, x, y, width, height, filled, color):
-        messageBuilder = self.builder
-
-        RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawRect2D)
-        RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
-        RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
-        RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
-        RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
-        message = RenderMessage.RenderMessageEnd(messageBuilder)
-
-        self.render_list.append(message)
+        if self.builder is None:
+            get_logger("Renderer").error("Use begin_rendering before using any of the drawing functions!")
+            return self
+        self.native_draw_rect_2d(self.builder, color, self.__create_vector([x,y,0]), width, height, filled)
         return self
 
     def draw_rect_3d(self, vec, width, height, filled, color, centered=False):
-        messageBuilder = self.builder
-
-        RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(
-            messageBuilder,
-            RenderType.DrawCenteredRect3D if centered else RenderType.DrawRect3D)
-        RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec))
-        RenderMessage.RenderMessageAddScaleX(messageBuilder, width)
-        RenderMessage.RenderMessageAddScaleY(messageBuilder, height)
-        RenderMessage.RenderMessageAddIsFilled(messageBuilder, filled)
-        message = RenderMessage.RenderMessageEnd(messageBuilder)
-
-        self.render_list.append(message)
+        if self.builder is None:
+            get_logger("Renderer").error("Use begin_rendering before using any of the drawing functions!")
+            return self
+        self.native_draw_rect_3d(self.builder, color, self.__create_vector(vec), width, height, filled, centered)
         return self
 
     def draw_string_2d(self, x, y, scale_x, scale_y, text, color):
-        messageBuilder = self.builder
-        builtString = messageBuilder.CreateString(text)
-
-        RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawString2D)
-        RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(x, y))
-        RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
-        RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
-        RenderMessage.RenderMessageAddText(messageBuilder, builtString)
-        message = RenderMessage.RenderMessageEnd(messageBuilder)
-
-        self.render_list.append(message)
+        if self.builder is None:
+            get_logger("Renderer").error("Use begin_rendering before using any of the drawing functions!")
+            return self
+        self.native_draw_string_2d(self.builder, text.encode('utf-8'), color, self.__create_vector([x,y,0]), scale_x, scale_y)
         return self
 
     def draw_string_3d(self, vec, scale_x, scale_y, text, color):
-        messageBuilder = self.builder
-        builtString = messageBuilder.CreateString(text)
-
-        RenderMessage.RenderMessageStart(messageBuilder)
-        RenderMessage.RenderMessageAddRenderType(messageBuilder, RenderType.DrawString3D)
-        RenderMessage.RenderMessageAddColor(messageBuilder, color)
-        RenderMessage.RenderMessageAddStart(messageBuilder, self.__create_vector(vec))
-        RenderMessage.RenderMessageAddScaleX(messageBuilder, scale_x)
-        RenderMessage.RenderMessageAddScaleY(messageBuilder, scale_y)
-        RenderMessage.RenderMessageAddText(messageBuilder, builtString)
-        message = RenderMessage.RenderMessageEnd(messageBuilder)
-
-        self.render_list.append(message)
+        if self.builder is None:
+            get_logger("Renderer").error("Use begin_rendering before using any of the drawing functions!")
+            return self
+        self.native_draw_string_3d(self.builder, text.encode('utf-8'), color, self.__create_vector(vec), scale_x, scale_y)
         return self
 
     def create_color(self, alpha, red, green, blue):
-        colorBuilder = self.builder
-        # Color.CreateColor(colorBuilder, alpha, red, green, blue)
-        Color.ColorStart(colorBuilder)
-        Color.ColorAddA(colorBuilder, alpha)
-        Color.ColorAddR(colorBuilder, red)
-        Color.ColorAddG(colorBuilder, green)
-        Color.ColorAddB(colorBuilder, blue)
-        return Color.ColorEnd(colorBuilder)
+        return Color(red, green, blue, alpha)
 
     def black(self):
         return self.create_color(255, 0, 0, 0)
@@ -336,11 +278,11 @@ class RenderingManager:
                     raise ValueError(f"Unexpected type(s) for creating vector: {type(vec[0][0])}, {type(vec[0][1])}")
                 except IndexError:
                     raise IndexError(f"Unexpected IndexError when creating vector from type: {type(vec[0])}")
-            elif isinstance(vec[0], Vector3.Vector3):
-                x = vec[0].X()
-                y = vec[0].Y()
-                z = vec[0].Z()
-            elif isinstance(vec[0], GameDataStructVector3):
+            #elif isinstance(vec[0], Vector3.Vector3):
+            #    x = vec[0].X()
+            #    y = vec[0].Y()
+            #    z = vec[0].Z()
+            elif isinstance(vec[0], Vector3):
                 x = vec[0].x
                 y = vec[0].y
                 z = vec[0].z
@@ -362,7 +304,7 @@ class RenderingManager:
         else:
             raise ValueError("Unexpected number of arguments for creating vector")
 
-        return Vector3.CreateVector3(self.builder, x, y, z)
+        return Vector3(x, y, z)
 
 
 class DummyRenderer(RenderingManager):

@@ -4,9 +4,15 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.29.0'
+__version__ = '1.30.0'
 
 release_notes = {
+    '1.30.0': """
+    Kipje13 has a major speedup for rendering in python! You'll get the benefits
+    automatically, but ask him for the details if you're curious.
+    
+    Also laying the groundwork for fresher game ticks.
+    """,
     '1.29.0': """
     Python bots will now be able to specify their preferred tick rate. Do you like running at 120Hz?
     You'll need to add "maximum_tick_rate_preference = 120" to your config file! Example:

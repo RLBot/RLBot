@@ -116,4 +116,57 @@ namespace BoostUtilities
 		return RLBotCoreStatus::Success;
 	}
 
+	SharedByteReader::SharedByteReader(const char* name)
+	{
+		// The intermediate variables in this function are necessary for some reason.
+		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
+		const char* sharedMemChar = sharedMemName.c_str();
+		pSharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::open_only, sharedMemChar, boost::interprocess::read_only);
+	}
+
+	// This is expected to be very fast and cheap to call because it does not take a lock
+	// and just reads a single byte from shared memory. Suitable for being called at
+	// high frequency from multiple processes.
+	char SharedByteReader::fetchByte()
+	{
+		boost::interprocess::offset_t size;
+		pSharedMem->get_size(size);
+
+		if (size == 0)
+		{
+			// Bail out early because mapped_region will freak out if size is zero.
+			return 0;
+		}
+
+		boost::interprocess::mapped_region region(*pSharedMem, boost::interprocess::read_only);
+		unsigned char *buffer = new unsigned char[1];
+		memcpy(buffer, region.get_address(), 1);
+		return buffer[0];
+	}
+
+	SharedByteWriter::SharedByteWriter(const char* name)
+	{
+		// The intermediate variables in this function are necessary for some reason.
+
+		pMemName = name;
+
+		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
+		const char* sharedMemChar = sharedMemName.c_str();
+		boost::interprocess::shared_memory_object::remove(sharedMemChar);
+		pSharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::create_only, sharedMemChar, boost::interprocess::read_write);
+		pSharedMem->truncate(1);
+	}
+
+	SharedByteWriter::~SharedByteWriter()
+	{
+		boost::interprocess::shared_memory_object::remove(pSharedMem->get_name());
+	}
+
+	void SharedByteWriter::writeByte(char data)
+	{
+		char dataArr[] = { data };
+		boost::interprocess::mapped_region region(*pSharedMem, boost::interprocess::read_write);
+		std::memcpy(region.get_address(), dataArr, 1);
+	}
+
 }

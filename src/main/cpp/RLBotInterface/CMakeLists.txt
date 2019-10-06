@@ -22,9 +22,9 @@ file(GLOB_RECURSE rlbotmessages_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMe
 
 add_library(RLBotMessages STATIC ${rlbotmessages_sources})
 target_include_directories(RLBotMessages PRIVATE
-    src/RLBotMessages 
-    ${rlbot_generated} 
-    ${flatbuffers} 
+    src/RLBotMessages
+    ${rlbot_generated}
+    ${flatbuffers}
     ${Boost_INCLUDE_DIRS})
 target_link_libraries(RLBotMessages ${Boost_LIBRARIES})
 target_compile_features(RLBotMessages PRIVATE cxx_std_17)
@@ -40,8 +40,8 @@ add_library(RLBotInterface SHARED ${rlbotinterface_sources})
 target_include_directories(RLBotInterface PRIVATE
     src/RLBotInterface
     src/RLBotMessages
-    ${rlbot_generated} 
-    ${flatbuffers} 
+    ${rlbot_generated}
+    ${flatbuffers}
     ${Boost_INCLUDE_DIRS})
 
 if (UNIX)
@@ -61,8 +61,8 @@ add_executable(RLBot ${rlbot_sources} ${rlu_sources})
 target_include_directories(RLBot PRIVATE
     src/RLBot
     src/RLBotMessages
-    ${rlbot_generated} 
-    ${flatbuffers} 
+    ${rlbot_generated}
+    ${flatbuffers}
     ${Boost_INCLUDE_DIRS}
     ${rlu_include})
 
@@ -77,16 +77,22 @@ target_compile_features(RLBot PRIVATE cxx_std_17)
 if (WIN32)
     # Set target version to windows xp. This should in theory work as a minimum supported platform.
     target_compile_definitions(RLBot PRIVATE _WIN32_WINNT=0x501)
+
+    add_custom_command(TARGET RLBotMessages
+                       PRE_BUILD
+                       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}\\src\\RLBotMessages\\generate-flatbuffers.bat )
 endif()
 
 # ---- InterfaceTester ----
 file(GLOB_RECURSE interfacetester_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/InterfaceTester/*.?pp)
 
 add_executable(InterfaceTester ${interfacetester_sources})
-target_include_directories(InterfaceTester PRIVATE 
-    src/InterfaceTester 
+target_include_directories(InterfaceTester PRIVATE
+    src/InterfaceTester
     src/RLBotInterface
-    src/RLBotMessages)
+    src/RLBotMessages
+    ${rlbot_generated}
+    ${flatbuffers})
 
 if (UNIX)
     target_link_libraries(InterfaceTester RLBotInterface pthread rt)
