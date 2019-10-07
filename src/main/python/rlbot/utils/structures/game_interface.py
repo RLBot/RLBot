@@ -133,6 +133,14 @@ class GameInterface:
         func.argtypes = []
         func.restype = ByteBuffer
 
+        func = self.game.FreshLiveDataPacket
+        func.argtypes = [ctypes.POINTER(GameTickPacket), ctypes.c_int, ctypes.c_int]
+        func.restype = ctypes.c_int
+
+        func = self.game.FreshLiveDataPacketFlatbuffer
+        func.argtypes = [ctypes.c_int, ctypes.c_int]
+        func.restype = ByteBuffer
+
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
@@ -142,6 +150,11 @@ class GameInterface:
 
     def update_live_data_packet(self, game_tick_packet: GameTickPacket):
         rlbot_status = self.game.UpdateLiveDataPacket(game_tick_packet)
+        self.game_status(None, rlbot_status)
+        return game_tick_packet
+
+    def fresh_live_data_packet(self, game_tick_packet: GameTickPacket, timeout_millis: int, key: int):
+        rlbot_status = self.game.FreshLiveDataPacket(game_tick_packet, timeout_millis, key)
         self.game_status(None, rlbot_status)
         return game_tick_packet
 
@@ -270,6 +283,22 @@ class GameInterface:
         data recorder that lives inside the core dll.
         """
         byte_buffer = self.game.UpdateLiveDataPacketFlatbuffer()
+        return self._process_live_flatbuffer(byte_buffer)
+
+    def get_fresh_live_data_flat_binary(self, timeout_millis: int, key: int):
+        """
+        Gets the live data packet in flatbuffer binary format. You'll need to do something like
+        GameTickPacket.GetRootAsGameTickPacket(binary, 0) to get the data out.
+        This one blocks until a fresh frame is available, or until the timeout has elapsed.
+        :param timeout_millis: will give up waiting for a fresh packet and just return a stale one
+        after this number of milliseconds.
+        :param key: answers the question "fresh from whose perspective?". Freshness will be
+        tracked separately for whatever key you pass. Bot index is a reasonable choice.
+        """
+        byte_buffer = self.game.FreshLiveDataPacketFlatbuffer(timeout_millis, key)
+        return self._process_live_flatbuffer(byte_buffer)
+
+    def _process_live_flatbuffer(self, byte_buffer):
         if byte_buffer.size >= 4:  # GetRootAsGameTickPacket gets angry if the size is less than 4
             # We're counting on this copying the data over to a new memory location so that the original
             # pointer can be freed safely.

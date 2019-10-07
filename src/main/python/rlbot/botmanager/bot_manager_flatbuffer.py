@@ -28,7 +28,9 @@ class BotManagerFlatbuffer(BotManager):
             return 0.0
 
     def pull_data_from_game(self):
-        self.game_tick_flat_binary = self.game_interface.get_live_data_flat_binary()
+        # Set a timeout of 30 milliseconds. It's slightly less than the number of milliseconds (33.33)
+        # caused by MAX_AGENT_CALL_PERIOD defined in bot_manager.py
+        self.game_tick_flat_binary = self.game_interface.get_fresh_live_data_flat_binary(30, self.index)
         if self.game_tick_flat_binary is not None:
             self.game_tick_flat = GameTickPacket.GameTickPacket.GetRootAsGameTickPacket(self.game_tick_flat_binary, 0)
 

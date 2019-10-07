@@ -63,7 +63,9 @@ class BotManagerStruct(BotManager):
         return self.game_tick_packet.game_info.seconds_elapsed
 
     def pull_data_from_game(self):
-        self.game_interface.update_live_data_packet(self.game_tick_packet)
+        # Set a timeout of 30 milliseconds. It's slightly less than the number of milliseconds (33.33)
+        # caused by MAX_AGENT_CALL_PERIOD defined in bot_manager.py
+        self.game_interface.fresh_live_data_packet(self.game_tick_packet, 30, self.index)
 
     def get_ball_prediction_struct(self):
         return self.game_interface.update_ball_prediction(self.ball_prediction)
