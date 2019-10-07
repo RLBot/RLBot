@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Bots can now access the hitbox dimensions of the cars aswell as the shape and size of the ball.
+      Allow bots to fetch packets whenever a new one appears.
     </releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>rocket-league</tags>
