@@ -13,30 +13,20 @@ import rlbot.input.DropshotTile;
 import rlbot.input.FieldInfoManager;
 import rlbot.manager.BotLoopRenderer;
 import rlbot.output.ControlsOutput;
-import rlbot.render.NamedRenderer;
 import rlbot.render.Renderer;
 import rlbot.vec.Vector2;
 
-import java.awt.*;
 import java.awt.Color;
 import java.io.IOException;
 
 public class SampleBot extends BaseBot {
 
-    private final NamedRenderer triangleRenderer;
     private FieldInfoManager fieldInfoManager = new FieldInfoManager();
 
     public SampleBot(int playerIndex, int team) {
         super(playerIndex, team);
 
         System.out.println("Constructed sample bot " + playerIndex);
-
-        triangleRenderer = new NamedRenderer("Triangle" + playerIndex);
-        triangleRenderer.startPacket();
-        triangleRenderer.drawLine2d(Color.cyan, new Point(50, 50), new Point(20, 80));
-        triangleRenderer.drawLine2d(Color.cyan, new Point(20, 80), new Point(80, 80));
-        triangleRenderer.drawLine2d(Color.cyan, new Point(50, 50), new Point(80, 80));
-        triangleRenderer.finishAndSend();
     }
 
     private ControlsOutput processInput(DataPacket input) {
@@ -93,10 +83,6 @@ public class SampleBot extends BaseBot {
             e.printStackTrace();
         }
 
-        if (input.ball.position.z > 1000) {
-            triangleRenderer.eraseFromScreen();
-        }
-
         try {
             final BallPrediction ballPrediction = RLBotDll.getBallPrediction();
 
@@ -110,7 +96,7 @@ public class SampleBot extends BaseBot {
         return new ControlsOutput()
                 .withSteer(steer)
                 .withThrottle(1)
-                .withUseItem(steer > 0);
+                .withUseItem(myCar.velocity.y > 0);
     }
 
     @Override

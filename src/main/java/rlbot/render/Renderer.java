@@ -72,6 +72,8 @@ public abstract class Renderer {
 
     /**
      * Draws a line in screen coordinates.
+     *
+     * @deprecated We unfortunately don't support 2d lines anymore!
      */
     public void drawLine2d(java.awt.Color color, Point start, Point end) {
 
@@ -106,6 +108,8 @@ public abstract class Renderer {
 
     /**
      * Draws a 2D line which starts at screen coordinates and ends at a 3D coordinate.
+     *
+     * @deprecated We unfortunately don't support 2d3d lines anymore!
      */
     public void drawLine2d3d(java.awt.Color color, Point start, rlbot.vector.Vector3 end) {
 
@@ -122,6 +126,8 @@ public abstract class Renderer {
     }
 
     /**
+     * WARNING: setting filled=false no longer works!
+     *
      * This draws a 2D rectangle in screen coordinates.
      * @param upperLeft The upper left corner of the rectangle.
      * @param width in pixels.
@@ -145,6 +151,8 @@ public abstract class Renderer {
     }
 
     /**
+     * WARNING: setting filled=false no longer works!
+     *
      * This draws a 2D rectangle at a 3D-tracked position.
      * @param upperLeft The upper left corner of the rectangle.
      * @param width in pixels.
@@ -156,6 +164,8 @@ public abstract class Renderer {
     }
 
     /**
+     * WARNING: setting filled=false no longer works!
+     *
      * This draws a 2D rectangle at a 3D-tracked position.
      * @param position The center of the rectangle.
      * @param width in pixels.
