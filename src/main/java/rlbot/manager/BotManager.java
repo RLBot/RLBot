@@ -7,8 +7,6 @@ import rlbot.cppinterop.RLBotInterfaceException;
 import rlbot.flat.GameTickPacket;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -94,9 +92,6 @@ public class BotManager {
         // Minimum call rate when paused.
         final long MAX_AGENT_CALL_PERIOD = 1000 / 30;
 
-        // Sets a limit on how much frame urgency can be buffered up.
-        final float TAREHARTS_CONSTANT = 1f;
-
         long lastCallRealTime = System.currentTimeMillis();
         float lastTickGameTime = 0;
 
@@ -124,7 +119,8 @@ public class BotManager {
                 final boolean shouldCallWhilePaused = now - lastCallRealTime >= MAX_AGENT_CALL_PERIOD;
 
                 // Urgency increases every frame, but don't let it build up a large backlog
-                frameUrgency = Math.min(frameUrgency + (tickGameTime - lastTickGameTime), TAREHARTS_CONSTANT / refreshRate);
+                frameUrgency += tickGameTime - lastTickGameTime;
+                frameUrgency = clamp(frameUrgency, -1f / refreshRate, 1f / refreshRate);
 
                 if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0){
                     lastCallRealTime = now;
@@ -161,6 +157,14 @@ public class BotManager {
      */
     public void setRefreshRate(int refreshRate){
         // Cap the refresh between 30hz and 120hz
-        this.refreshRate.set(Math.max(30, Math.min(120, refreshRate)));
+        this.refreshRate.set(clamp(refreshRate, 30, 120));
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    private static float clamp(float value, float min, float max) {
+        return Math.max(min, Math.min(value, max));
     }
 }
