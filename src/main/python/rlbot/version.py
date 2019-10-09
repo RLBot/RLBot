@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.30.1'
+__version__ = '1.30.2'
 
 release_notes = {
-    '1.30.1': """
+    '1.30.2': """
     Kipje13 has a major speedup for rendering in python! You'll get the benefits
     automatically, but ask him for the details if you're curious.
     

@@ -68,6 +68,11 @@ target_include_directories(RLBot PRIVATE
 
 if (UNIX)
     target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES} pthread rt)
+
+    add_custom_command(TARGET RLBotMessages
+                       PRE_BUILD
+                       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/generate-flatbuffers.sh )
+
 else (UNIX)
     target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES})
 endif (UNIX)
