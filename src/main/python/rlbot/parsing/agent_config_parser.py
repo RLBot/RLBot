@@ -84,7 +84,7 @@ def create_loadout() -> ConfigHeader:
     header = ConfigHeader()
     header.add_value('team_color_id', int, default=60, description='Primary Color selection')
     header.add_value('custom_color_id', int, default=0, description='Secondary Color selection')
-    header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc')
+    header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc)')
     header.add_value('decal_id', int, default=0, description='Type of decal')
     header.add_value('wheels_id', int, default=1565, description='Wheel selection')
     header.add_value('boost_id', int, default=35, description='Boost selection')
