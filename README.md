@@ -35,13 +35,12 @@ It provides values from the game like car and ball position, and carries back bu
 RLBot works for up to 10 bots reliably; it can be used up to 64, but can result in issues (bots disappearing after goals, spawning inside one another, etc).
 
 ### Requirements
-Windows, Rocket League, Python 3.7, 3.6 (deprecated)
+Rocket League, Python 3.6+
 
 ### Quick Start
 
-1. Double-click on setup.bat
-2. Open up Rocket League
-4. Open a terminal and execute `python runner.py`
+1. Run setup.bat (or equivalent if you're on Linux or Mac)
+1. Open a terminal and execute `python runner.py`
 
 ### Development Workflow
 
