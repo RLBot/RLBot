@@ -54,7 +54,7 @@ namespace BoostUtilities
 		const char* pMemName;
 
 	public:
-		SharedMemWriter(const char* pName);
+		SharedMemWriter(const char* pName, int size);
 		~SharedMemWriter();
 		void writeData(void* pAddress, int size);
 	};

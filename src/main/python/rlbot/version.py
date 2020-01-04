@@ -4,9 +4,39 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.30.2'
+__version__ = '1.34.3'
 
 release_notes = {
+    '1.34.3': """
+    Mac support is here! https://github.com/RLBot/RLBot/wiki/Operating-System-Support
+    
+    Also:
+    - Improving Remote RLBot so that multiple client computers can connect from behind
+      the same IP address.
+    - Fixing bug where bots would take a very long time to start if a human was in the
+      match config.
+    - Fixing input percentages and lockstep feature.
+    """,
+    '1.33.1': """
+    Remote TCP functionality, primarily for classroom use.
+    See https://github.com/RLBot/RLBot/wiki/Remote-RLBot for details!
+    
+    Minor updates:
+     - Fixing a bug that makes RLBot stutter unpredictably.
+    """,
+    '1.32.1': """
+    - You can specify your car's primary and secondary color swatches by the nearest
+      RGB value instead of looking up the color id's on our wiki. You're still constrained
+      to the normal color choices, don't get too excited! 
+      See https://github.com/RLBot/RLBot/wiki/Bot-Customization#colors for details.
+    - The lockstep feature should be more reliable now.
+    """,
+    '1.31.1': """
+    Hitbox offsets are now available in the GameTickPacket. 
+    This should make it possible to use hitboxes without hardcoding any values.
+
+    - Fixes hitboxes issues after RL update.
+    """,
     '1.30.2': """
     Kipje13 has a major speedup for rendering in python! You'll get the benefits
     automatically, but ask him for the details if you're curious.

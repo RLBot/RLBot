@@ -3,7 +3,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/shm.h>
@@ -26,7 +26,7 @@ namespace MutexUtilities
 	const CHAR* pBallPredictionMutexName = L"Local\\RLBotBallPrediction";
 	#endif
 
-	#ifdef __linux__
+	#if defined(__linux__) || defined(__APPLE__)
 	#define CHAR char
 	const CHAR* pRLBotExeMutexName = "RLBotExeMutex";
 	const CHAR* pBallPredictionMutexName = "RLBotBallPredictionMutex";
@@ -52,7 +52,7 @@ namespace MutexUtilities
 		return true;
 		#endif
 
-		#ifdef __linux__
+		#if defined(__linux__) || defined(__APPLE__)
 		int handle = shm_open(pName, O_RDWR, S_IRWXU|S_IRWXO);
 
 		if (handle == -1)
@@ -98,7 +98,7 @@ namespace MutexUtilities
 		return true;
 		#endif
 
-		#ifdef __linux__
+		#if defined(__linux__) || defined(__APPLE__)
 		while (!checkMutexExists(pName))
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -123,7 +123,7 @@ namespace MutexUtilities
 		return true;
 		#endif
 
-		#ifdef __linux__
+		#if defined(__linux__) || defined(__APPLE__)
 		int handle = shm_open(pName, O_RDWR|O_CREAT, S_IRWXU|S_IRWXO);
 
 		if (handle == -1)
@@ -142,7 +142,7 @@ namespace MutexUtilities
 	{
 		// windows should free these automatically.
 
-		#ifdef __linux__
+		#if defined(__linux__) || defined(__APPLE__)
 		shm_unlink(pName);
 		#endif 
 	}

@@ -89,9 +89,9 @@ def extract_all_pids(agent_metadata_map):
 def is_process_running(program, scriptname, required_args: Set[str]):
     if not optional_packages_installed:
         return True, None
-    for process in psutil.process_iter(attrs=['name', 'exe']):
+    for process in psutil.process_iter():
         try:
-            p = process.info.values()
+            p = process.name()
             if program in p or scriptname in p:
                 try:
                     args = process.cmdline()[1:]

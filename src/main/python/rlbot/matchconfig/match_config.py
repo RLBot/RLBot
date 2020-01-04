@@ -1,5 +1,6 @@
 from pathlib import Path
 from enum import Enum
+from random import randint
 from typing import List, Dict
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig
@@ -12,9 +13,11 @@ from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_type
     demolish_mutator_types, respawn_time_mutator_types, existing_match_behavior_types
 from rlbot.utils.structures.start_match_structures import MatchSettings, PlayerConfiguration, MutatorSettings
 
+
 class Team(Enum):
     BLUE = 0
     ORANGE = 1
+
 
 class PlayerConfig:
     """
@@ -43,7 +46,7 @@ class PlayerConfig:
         bot_config.bot = True
         bot_config.rlbot_controlled = True
         bot_config.team = team.value
-        bot_config.config_path = str(player_config_path.absolute()) # TODO: Refactor to use Path's
+        bot_config.config_path = str(player_config_path.absolute())  # TODO: Refactor to use Path's
         config_bundle = get_bot_config_bundle(bot_config.config_path)
         bot_config.name = config_bundle.name
         bot_config.loadout_config = load_bot_appearance(config_bundle.get_looks_config(), bot_config.team)
@@ -56,6 +59,7 @@ class PlayerConfig:
         player_configuration.human_index = self.human_index or 0
         player_configuration.name = get_sanitized_bot_name(name_dict, self.name)
         player_configuration.team = self.team
+        player_configuration.spawn_id = randint(1, 65535)
 
         if self.loadout_config:
             self.loadout_config.write(player_configuration)
@@ -113,8 +117,6 @@ class MutatorConfig:
         mutator_settings.demolish_option = index_or_zero(demolish_mutator_types, self.demolish)
         mutator_settings.respawn_time_option = index_or_zero(respawn_time_mutator_types, self.respawn_time)
 
-    
-
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
@@ -122,6 +124,7 @@ class MutatorConfig:
 class ExtensionConfig:
     def __init__(self):
         self.python_file_path: str = None
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
@@ -141,6 +144,8 @@ class MatchConfig:
         self.extension_config: ExtensionConfig = None
         self.existing_match_behavior: str = None
         self.enable_lockstep: bool = None
+        self.networking_role: str = None
+        self.network_address: str = None
 
     @property
     def num_players(self):

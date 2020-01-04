@@ -96,7 +96,9 @@ class PlayerInfo(Struct):
                 ("name", ctypes.c_wchar * MAX_NAME_LENGTH),
                 ("team", ctypes.c_ubyte),
                 ("boost", ctypes.c_int),
-                ("hitbox", BoxShape)]
+                ("hitbox", BoxShape),
+                ("hitbox_offset", Vector3),
+                ("spawn_id", ctypes.c_int)]
 
 
 class DropShotInfo(Struct):

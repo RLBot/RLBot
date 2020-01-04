@@ -15,7 +15,7 @@ namespace GameFunctions
 	extern "C" DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API StartMatchFlatbuffer(void* startMatchSettings, int size);
 	#endif
 
-	#ifdef __linux__
+	#if defined(__linux__) || defined(__APPLE__)
 	extern "C" DLL_EXPORT void RLBOT_CORE_API Free(void* ptr);
 	extern "C" DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size);
 	extern "C" DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API StartMatch(MatchSettings matchSettings);

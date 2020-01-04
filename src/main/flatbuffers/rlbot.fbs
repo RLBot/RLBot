@@ -132,6 +132,10 @@ table PlayerInfo {
   team:int;
   boost:int;
   hitbox:BoxShape;
+  hitboxOffset:Vector3;
+  /// In the case where the requested player index is not available, spawnId will help
+  /// the framework figure out what index was actually assigned to this player instead.
+  spawnId: int;
 }
 
 table DropShotBallInfo {
@@ -306,6 +310,8 @@ table DesiredBoostState {
 table DesiredGameInfoState {
   worldGravityZ:Float;
   gameSpeed:Float;
+  paused:Bool;
+  endMatch:Bool;
 }
 
 /// A console command which we will try to execute inside Rocket League.
@@ -532,6 +538,12 @@ table PlayerLoadout {
   trailsId: int;
   goalExplosionId: int;
   loadoutPaint: LoadoutPaint;
+  /// Sets the primary color of the car to the swatch that most closely matches the provided
+  /// RGB color value. If set, this overrides teamColorId.
+  primaryColorLookup:Color;
+  /// Sets the secondary color of the car to the swatch that most closely matches the provided
+  /// RGB color value. If set, this overrides customColorId.
+  secondaryColorLookup:Color;
 }
 
 /// Specification for 'painted' items. See https://github.com/RLBot/RLBot/wiki/Bot-Customization
@@ -553,6 +565,9 @@ table PlayerConfiguration {
   name: string;
   team: int;
   loadout: PlayerLoadout;
+  /// In the case where the requested player index is not available, spawnId will help
+  /// the framework figure out what index was actually assigned to this player instead.
+  spawnId: int;
 }
 
 enum GameMode : byte {

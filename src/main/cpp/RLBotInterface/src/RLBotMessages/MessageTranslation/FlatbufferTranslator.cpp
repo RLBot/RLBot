@@ -105,6 +105,8 @@ namespace FlatbufferTranslator {
 		structPlayer->superSonic = player->isSupersonic();
 		structPlayer->team = player->team();
 		fillBoxShapeStruct(player->hitbox(), &structPlayer->hitbox);
+		fillVector3Struct(player->hitboxOffset(), &structPlayer->hitboxOffset);
+		structPlayer->spawnId = player->spawnId();
 	}
 
 	void fillBoostStruct(const rlbot::flat::BoostPadState* boostState, BoostInfo* structBoost)
@@ -393,6 +395,14 @@ namespace FlatbufferTranslator {
 		fillBallPhysicsStruct(physicsTick->ball(), &structTick->ball);
 	}
 
+	void fillColor(const rlbot::flat::Color* color, Color* structColor)
+	{
+		structColor->a = color->a();
+		structColor->r = color->r();
+		structColor->g = color->g();
+		structColor->b = color->b();
+	}
+
 	void fillPlayerLoadoutStruct(const rlbot::flat::PlayerLoadout* playerLoadout, PlayerConfiguration* structPlayerConfig)
 	{
 		if (playerLoadout)
@@ -410,6 +420,17 @@ namespace FlatbufferTranslator {
 			structPlayerConfig->engineAudioID = playerLoadout->engineAudioId();
 			structPlayerConfig->trailsID = playerLoadout->trailsId();
 			structPlayerConfig->goalExplosionID = playerLoadout->goalExplosionId();
+			if (playerLoadout->primaryColorLookup())
+			{
+				structPlayerConfig->useRgbLookup = true;
+				fillColor(playerLoadout->primaryColorLookup(), &structPlayerConfig->primaryColorLookup);
+			}
+
+			if (playerLoadout->secondaryColorLookup())
+			{
+				structPlayerConfig->useRgbLookup = true;
+				fillColor(playerLoadout->secondaryColorLookup(), &structPlayerConfig->secondaryColorLookup);
+			}
 		}
 
 		auto playerPaint = playerLoadout->loadoutPaint();
@@ -447,6 +468,8 @@ namespace FlatbufferTranslator {
 		structPlayerConfig->team = playerConfig->team();
 
 		fillPlayerLoadoutStruct(playerConfig->loadout(), structPlayerConfig);
+
+		structPlayerConfig->spawnId = playerConfig->spawnId();
 	}
 
 	void fillMutatorsStruct(const rlbot::flat::MutatorSettings* flatMutators, MutatorSettings* structMutators)

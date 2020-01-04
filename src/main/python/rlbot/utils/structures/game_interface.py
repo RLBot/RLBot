@@ -28,6 +28,9 @@ if platform.system() == 'Windows':
 elif platform.system() == 'Linux':
     dll_name_64 = 'libRLBotInterface.so'
     dll_name_32 = 'libRLBotInterface32.so'
+elif platform.system() == 'Darwin':
+    dll_name_64 = 'libRLBotInterface.dylib'
+    dll_name_32 = 'libRLBotInterface32.dylib'
 
 def wrap_callback(callback_func):
     def caller(id, status):
@@ -223,14 +226,27 @@ class GameInterface:
 
     def wait_until_valid_packet(self):
         self.logger.info('Waiting for valid packet...')
-        for i in range(0, 16):
+        for i in range(0, 60):
             packet = game_data_struct.GameTickPacket()
             self.update_live_data_packet(packet)
-            if packet.num_cars >= self.start_match_configuration.num_players and not packet.game_info.is_match_ended:
-                self.logger.info('Packets are looking good!')
-                return
-            else:
-                time.sleep(0.5)
+            if not packet.game_info.is_match_ended:
+                spawn_ids = set()
+                for k in range(0, self.start_match_configuration.num_players):
+                    player_config = self.start_match_configuration.player_configuration[k]
+                    if player_config.rlbot_controlled:
+                        spawn_ids.add(player_config.spawn_id)
+
+                for n in range(0, packet.num_cars):
+                    try:
+                        spawn_ids.remove(packet.game_cars[n].spawn_id)
+                    except KeyError:
+                        pass
+
+                if len(spawn_ids) == 0:
+                    self.logger.info('Packets are looking good, all spawn ids accounted for!')
+                    return
+
+            time.sleep(0.5)
         self.logger.info('Gave up waiting for valid packet :(')
 
     def load_interface(self):

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Color.hpp"
+#include <PacketStructs/Color.hpp>
 
 #include "flatbuffers/flatbuffers.h"
 #include "rlbot_generated.h"

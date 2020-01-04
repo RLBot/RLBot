@@ -486,7 +486,7 @@ ray Field::collide(const sphere & s) {
   auto contact_point = ray{ vec3{0.0, 0.0, 0.0}, vec3{0.0f, 0.0f, 0.0f} };
 
   if (mode == std::string("Uninitialized")) {
-    std::cout << "Attempting to query an uninitialized Field." << std::endl;
+    // std::cout << "Attempting to query an uninitialized Field." << std::endl;
   }
   else {
     float count = 0.0f;

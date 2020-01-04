@@ -9,6 +9,8 @@ import rlbot.flat.DesiredGameInfoState;
 public class GameInfoState {
     private Float worldGravityZ;
     private Float gameSpeed;
+    private Boolean paused;
+    private Boolean endMatch;
 
     public GameInfoState() {
     }
@@ -37,6 +39,24 @@ public class GameInfoState {
         return this;
     }
 
+    public Boolean getPaused() {
+        return paused;
+    }
+
+    public GameInfoState withPaused(Boolean paused) {
+        this.paused = paused;
+        return this;
+    }
+
+    public Boolean getEndMatch() {
+        return endMatch;
+    }
+
+    public GameInfoState withEndMatch(Boolean endMatch) {
+        this.endMatch = endMatch;
+        return this;
+    }
+
     public int toFlatbuffer(FlatBufferBuilder builder) {
         DesiredGameInfoState.startDesiredGameInfoState(builder);
         if (worldGravityZ != null) {
@@ -44,6 +64,12 @@ public class GameInfoState {
         }
         if (gameSpeed != null) {
             DesiredGameInfoState.addGameSpeed(builder, rlbot.flat.Float.createFloat(builder, gameSpeed));
+        }
+        if (paused != null) {
+            DesiredGameInfoState.addPaused(builder, rlbot.flat.Bool.createBool(builder, paused));
+        }
+        if (endMatch != null) {
+            DesiredGameInfoState.addEndMatch(builder, rlbot.flat.Bool.createBool(builder, endMatch));
         }
         return DesiredGameInfoState.endDesiredGameInfoState(builder);
     }

@@ -92,6 +92,8 @@ struct PlayerInfo
 	unsigned char			team;
 	int 					boost;
 	BoxShape				hitbox;
+	PyStruct::Vector3		hitboxOffset;
+	int						spawnId;
 };
 
 struct BoostInfo

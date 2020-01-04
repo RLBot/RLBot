@@ -2,6 +2,7 @@
 #define MATCHSETTINGS_STRUCTS_HPP
 
 #include "LiveDataPacket.hpp"
+#include "PacketStructs/Color.hpp"
 
 struct PlayerConfiguration
 {
@@ -32,6 +33,10 @@ struct PlayerConfiguration
 	int						hatPaintID;
 	int						trailsPaintID;
 	int						goalExplosionPaintID;
+	bool					useRgbLookup;
+	Color					primaryColorLookup;
+	Color					secondaryColorLookup;
+	int						spawnId;
 };
 
 enum GameMode

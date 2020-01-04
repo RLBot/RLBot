@@ -46,7 +46,7 @@ inline uint32_t clz(uint32_t n) {
 }
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 inline uint32_t clz(uint32_t n) {
   return n == 0 ? 32 : __builtin_clz(n);
 }

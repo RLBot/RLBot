@@ -18,7 +18,7 @@ from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.quick_chats import send_quick_chat_flat
 
-MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 30)  # Minimum call rate when paused.
+MAX_AGENT_CALL_PERIOD = timedelta(seconds=1.0 / 2)  # Minimum call rate when paused.
 REFRESH_IN_PROGRESS = 1
 REFRESH_NOT_IN_PROGRESS = 0
 MAX_CARS = 10
@@ -41,7 +41,7 @@ class BotManager:
 
     def __init__(self, terminate_request_event, termination_complete_event, reload_request_event, bot_configuration,
                  name, team, index, agent_class_wrapper, agent_metadata_queue, match_config: MatchConfig,
-                 matchcomms_root: URL):
+                 matchcomms_root: URL, spawn_id: int):
         """
         :param terminate_request_event: an Event (multiprocessing) which will be set from the outside when the program is trying to terminate
         :param termination_complete_event: an Event (multiprocessing) which should be set from inside this class when termination has completed successfully
@@ -56,6 +56,8 @@ class BotManager:
         :param agent_metadata_queue: a Queue (multiprocessing) which expects to receive AgentMetadata once available.
         :param match_config: Describes the match that is being played.
         :param matchcomms_root: The server to connect to if you want to communicate to other participants in the match.
+        :param spawn_id: The identifier we expect to see in the game tick packet at our player index. If it does not
+            match, then we will force the agent to retire. Pass None to opt out of this behavior.
         """
         self.terminate_request_event = terminate_request_event
         self.termination_complete_event = termination_complete_event
@@ -86,6 +88,7 @@ class BotManager:
         self.file_iterator = None
         self.maximum_tick_rate_preference = bot_configuration.get(BOT_CONFIG_MODULE_HEADER,
                                                                   MAXIMUM_TICK_RATE_PREFERENCE_KEY)
+        self.spawn_id = spawn_id
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -194,13 +197,20 @@ class BotManager:
                     # Urgency increases every frame, but don't let it build up a large backlog
                     frame_urgency += tick_game_time - last_tick_game_time
 
-                if (tick_game_time != last_tick_game_time or should_call_while_paused) and frame_urgency >= 0:
+                if tick_game_time != last_tick_game_time and frame_urgency >= 0 or should_call_while_paused:
                     last_call_real_time = now
                     # Urgency decreases when a tick is processed.
-                    frame_urgency -= 1 / self.maximum_tick_rate_preference
+                    if frame_urgency > 0:
+                        frame_urgency -= 1 / self.maximum_tick_rate_preference
                     self.perform_tick()
 
                 last_tick_game_time = tick_game_time
+                if self.spawn_id is not None:
+                    packet_spawn_id = self.get_spawn_id()
+                    if packet_spawn_id != self.spawn_id:
+                        self.logger.warn(f"The bot's spawn id {self.spawn_id} does not match the one in the packet "
+                                         f"{packet_spawn_id}, retiring!")
+                        break
 
         except KeyboardInterrupt:
             self.terminate_request_event.set()
@@ -319,4 +329,7 @@ class BotManager:
 
     def is_valid_field_info(self) -> bool:
         """Checks if the contents of field info are valid."""
+        raise NotImplementedError
+
+    def get_spawn_id(self):
         raise NotImplementedError

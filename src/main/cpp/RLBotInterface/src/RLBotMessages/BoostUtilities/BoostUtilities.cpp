@@ -16,13 +16,13 @@ namespace BoostUtilities
 		std::string sharedMemName = BoostConstants::buildSharedMemName(name);
 		const char* sharedMemChar = sharedMemName.c_str();
 		pSharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::open_only, sharedMemChar, boost::interprocess::read_only);
-		
+
 		std::string mutexName = BoostConstants::buildMutexName(name);
 		const char* mutexChar = mutexName.c_str();
 		pMutex = new boost::interprocess::named_sharable_mutex(boost::interprocess::open_only, mutexChar);
 	}
 
-	ByteBuffer SharedMemReader::fetchData() 
+	ByteBuffer SharedMemReader::fetchData()
 	{
 		// The lock will be released when this object goes out of scope
 		boost::interprocess::sharable_lock<boost::interprocess::named_sharable_mutex> myLock(*pMutex);
@@ -62,7 +62,7 @@ namespace BoostUtilities
 		}
 	}
 
-	SharedMemWriter::SharedMemWriter(const char* name)
+	SharedMemWriter::SharedMemWriter(const char* name, int size)
 	{
 		// The intermediate variables in this function are necessary for some reason.
 
@@ -72,6 +72,7 @@ namespace BoostUtilities
 		const char* sharedMemChar = sharedMemName.c_str();
 		boost::interprocess::shared_memory_object::remove(sharedMemChar);
 		pSharedMem = new boost::interprocess::shared_memory_object(boost::interprocess::create_only, sharedMemChar, boost::interprocess::read_write);
+		pSharedMem->truncate(size);
 
 		std::string mutexName = BoostConstants::buildMutexName(name);
 		const char* mutexChar = mutexName.c_str();
@@ -92,7 +93,6 @@ namespace BoostUtilities
 		// The lock will be released when this object goes out of scope, i.e. when this function exits.
 		boost::interprocess::scoped_lock<boost::interprocess::named_sharable_mutex> myLock(*pMutex);
 
-		pSharedMem->truncate(size);
 		if (size > 0)
 		{
 			boost::interprocess::mapped_region region(*pSharedMem, boost::interprocess::read_write);
@@ -139,9 +139,7 @@ namespace BoostUtilities
 		}
 
 		boost::interprocess::mapped_region region(*pSharedMem, boost::interprocess::read_only);
-		unsigned char *buffer = new unsigned char[1];
-		memcpy(buffer, region.get_address(), 1);
-		return buffer[0];
+		return *(char*)(region.get_address());
 	}
 
 	SharedByteWriter::SharedByteWriter(const char* name)

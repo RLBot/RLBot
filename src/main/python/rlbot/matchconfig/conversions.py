@@ -8,7 +8,7 @@ from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bund
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.parsing.match_settings_config_parser import get_num_players, parse_match_settings
-from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
+from rlbot.parsing.rlbot_config_parser import create_bot_config_layout, NETWORKING_ROLE_KEY, NETWORK_ADDRESS_KEY
 from rlbot.parsing.rlbot_config_parser import RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY
 
 # ====== rlbot.cfg -> MatchConfig ======
@@ -60,6 +60,9 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
     if extension_path and extension_path != 'None':  # The string 'None' ends up in people's config a lot.
         match_config.extension_config = ExtensionConfig()
         match_config.extension_config.python_file_path = extension_path
+
+    match_config.networking_role = config_parser.get(RLBOT_CONFIGURATION_HEADER, NETWORKING_ROLE_KEY)
+    match_config.network_address = config_parser.get(RLBOT_CONFIGURATION_HEADER, NETWORK_ADDRESS_KEY)
 
     return match_config
 

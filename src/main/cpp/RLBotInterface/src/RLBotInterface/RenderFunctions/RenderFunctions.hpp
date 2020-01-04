@@ -2,6 +2,7 @@
 #define RENDERFUNCTIONS_HPP
 
 #include <Messages.hpp>
+#include <PacketStructs/Color.hpp>
 #include "Renderer.hpp"
 #include "InterfaceBase/InterfaceBase.hpp"
 

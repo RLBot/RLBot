@@ -146,9 +146,13 @@ class BoostState:
 
 class GameInfoState:
 
-    def __init__(self, world_gravity_z: float = None, game_speed: float = None):
+    def __init__(self, world_gravity_z: float = None, game_speed: float = None, paused: bool = None,
+                 end_match: bool = None):
+
         self.world_gravity_z = world_gravity_z
         self.game_speed = game_speed
+        self.paused = paused
+        self.end_match = end_match
 
     def convert_to_flat(self, builder):
 
@@ -159,6 +163,12 @@ class GameInfoState:
         if self.game_speed is not None:
             DesiredGameInfoState.DesiredGameInfoStateAddGameSpeed(
                 builder, Float.CreateFloat(builder, self.game_speed))
+        if self.paused is not None:
+            DesiredGameInfoState.DesiredGameInfoStateAddPaused(
+                builder, Bool.CreateBool(builder, self.paused))
+        if self.end_match is not None:
+            DesiredGameInfoState.DesiredGameInfoStateAddEndMatch(
+                builder, Bool.CreateBool(builder, self.end_match))
         return DesiredGameInfoState.DesiredGameInfoStateEnd(builder)
 
 

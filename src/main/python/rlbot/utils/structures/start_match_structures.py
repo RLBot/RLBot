@@ -8,6 +8,13 @@ def get_player_configuration_list_type():
     return PlayerConfiguration * MAX_PLAYERS
 
 
+class Color(ctypes.Structure):
+    _fields_ = [("r", ctypes.c_ubyte),
+                ("g", ctypes.c_ubyte),
+                ("b", ctypes.c_ubyte),
+                ("a", ctypes.c_ubyte)]
+
+
 class PlayerConfiguration(ctypes.Structure):
     _fields_ = [("bot", ctypes.c_bool),
                 ("rlbot_controlled", ctypes.c_bool),
@@ -35,7 +42,11 @@ class PlayerConfiguration(ctypes.Structure):
                 ("antenna_paint_id", ctypes.c_int),
                 ("hat_paint_id", ctypes.c_int),
                 ("trails_paint_id", ctypes.c_int),
-                ("goal_explosion_paint_id", ctypes.c_int)]
+                ("goal_explosion_paint_id", ctypes.c_int),
+                ("use_rgb_lookup", ctypes.c_bool),
+                ("primary_color_lookup", Color),
+                ("secondary_color_lookup", Color),
+                ("spawn_id", ctypes.c_int)]
 
 
 class MutatorSettings(ctypes.Structure):

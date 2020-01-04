@@ -1,4 +1,7 @@
-from rlbot.matchconfig.loadout_config import LoadoutConfig, LoadoutPaintConfig
+import json
+from json import JSONDecodeError
+
+from rlbot.matchconfig.loadout_config import LoadoutConfig, LoadoutPaintConfig, Color
 from rlbot.parsing.custom_config import ConfigObject, ConfigHeader
 from rlbot.utils.logging_utils import get_logger
 
@@ -51,7 +54,6 @@ def add_participant_header(config_object):
 
 
 def load_bot_appearance(looks_config_object: ConfigObject, team_num: int) -> LoadoutConfig:
-
     loadout_config = LoadoutConfig()
     loadout_config.paint_config = LoadoutPaintConfig()
 
@@ -95,6 +97,12 @@ def create_loadout() -> ConfigHeader:
     header.add_value('engine_audio_id', int, default=0, description='Engine Audio Selection')
     header.add_value('trails_id', int, default=3220, description='Car trail Selection')
     header.add_value('goal_explosion_id', int, default=3018, description='Goal Explosion Selection')
+    header.add_value('primary_color_lookup', str, default=None,
+                     description='Finds the closest primary color swatch based on the provided RGB value '
+                                 'like [34, 255, 60]')
+    header.add_value('secondary_color_lookup', str, default=None,
+                     description='Finds the closest secondary color swatch based on the provided RGB value '
+                                 'like [34, 255, 60]')
 
     return header
 
@@ -128,14 +136,33 @@ def parse_bot_loadout(player_configuration, bot_config, loadout_header):
     player_configuration.engine_audio_id = bot_config.getint(loadout_header, 'engine_audio_id')
     player_configuration.trails_id = bot_config.getint(loadout_header, 'trails_id')
     player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')
+    player_configuration.primary_color_lookup = parse_color_string(bot_config.get(loadout_header, 'primary_color_lookup'))
+    player_configuration.secondary_color_lookup = parse_color_string(bot_config.get(loadout_header, 'secondary_color_lookup'))
 
 
-def parse_bot_loadout_paint(player_configuration, bot_config: ConfigObject, loadout_header: str):
-    player_configuration.car_paint_id = bot_config.getint(loadout_header, 'car_paint_id')
-    player_configuration.decal_paint_id = bot_config.getint(loadout_header, 'decal_paint_id')
-    player_configuration.wheels_paint_id = bot_config.getint(loadout_header, 'wheels_paint_id')
-    player_configuration.boost_paint_id = bot_config.getint(loadout_header, 'boost_paint_id')
-    player_configuration.antenna_paint_id = bot_config.getint(loadout_header, 'antenna_paint_id')
-    player_configuration.hat_paint_id = bot_config.getint(loadout_header, 'hat_paint_id')
-    player_configuration.trails_paint_id = bot_config.getint(loadout_header, 'trails_paint_id')
-    player_configuration.goal_explosion_paint_id = bot_config.getint(loadout_header, 'goal_explosion_paint_id')
+def parse_color_string(color_lookup_string):
+    if color_lookup_string is None:
+        return None
+    if color_lookup_string == 'None':
+        return None
+    try:
+        color_array = json.loads(color_lookup_string)
+        return Color(
+            red=color_array[0],
+            green=color_array[1],
+            blue=color_array[2],
+            alpha=color_array[3] if len(color_array) > 3 else 255)
+    except JSONDecodeError:
+        logger.warn(f"Failed to parse color lookup: {color_lookup_string}")
+        return None
+
+
+def parse_bot_loadout_paint(paint_config: LoadoutPaintConfig, bot_config: ConfigObject, loadout_header: str):
+    paint_config.car_paint_id = bot_config.getint(loadout_header, 'car_paint_id')
+    paint_config.decal_paint_id = bot_config.getint(loadout_header, 'decal_paint_id')
+    paint_config.wheels_paint_id = bot_config.getint(loadout_header, 'wheels_paint_id')
+    paint_config.boost_paint_id = bot_config.getint(loadout_header, 'boost_paint_id')
+    paint_config.antenna_paint_id = bot_config.getint(loadout_header, 'antenna_paint_id')
+    paint_config.hat_paint_id = bot_config.getint(loadout_header, 'hat_paint_id')
+    paint_config.trails_paint_id = bot_config.getint(loadout_header, 'trails_paint_id')
+    paint_config.goal_explosion_paint_id = bot_config.getint(loadout_header, 'goal_explosion_paint_id')

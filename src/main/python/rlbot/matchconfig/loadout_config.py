@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+
 from rlbot.utils.structures.start_match_structures import PlayerConfiguration
+from rlbot.utils.structures.start_match_structures import Color as ColorStruct
 
 
 class LoadoutConfig:
@@ -17,6 +20,8 @@ class LoadoutConfig:
         self.trails_id: int = 0
         self.goal_explosion_id: int = 0
         self.paint_config: LoadoutPaintConfig = LoadoutPaintConfig()
+        self.primary_color_lookup: Color = None
+        self.secondary_color_lookup: Color = None
 
     def write(self, player_configuration: PlayerConfiguration):
         player_configuration.team_color_id = self.team_color_id
@@ -35,6 +40,14 @@ class LoadoutConfig:
 
         if self.paint_config:
             self.paint_config.write(player_configuration)
+
+        if self.primary_color_lookup:
+            player_configuration.use_rgb_lookup = True
+            self.primary_color_lookup.write(player_configuration.primary_color_lookup)
+
+        if self.secondary_color_lookup:
+            player_configuration.use_rgb_lookup = True
+            self.secondary_color_lookup.write(player_configuration.secondary_color_lookup)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -63,3 +76,17 @@ class LoadoutPaintConfig:
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+
+@dataclass
+class Color:
+    red: int
+    green: int
+    blue: int
+    alpha: int
+
+    def write(self, color: ColorStruct):
+        color.r = self.red
+        color.g = self.green
+        color.b = self.blue
+        color.a = self.alpha

@@ -48,3 +48,9 @@ class BotManagerFlatbuffer(BotManager):
             return False
 
         return True
+
+    def get_spawn_id(self):
+        try:
+            return self.game_tick_flat.Players(self.index).SpawnId()
+        except:
+            return None

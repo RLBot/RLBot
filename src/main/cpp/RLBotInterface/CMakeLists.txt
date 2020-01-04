@@ -26,7 +26,7 @@ target_include_directories(RLBotMessages PRIVATE
     ${rlbot_generated}
     ${flatbuffers}
     ${Boost_INCLUDE_DIRS})
-target_link_libraries(RLBotMessages ${Boost_LIBRARIES})
+target_link_libraries(RLBotMessages ${Boost_DATETIME_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 target_compile_features(RLBotMessages PRIVATE cxx_std_17)
 
 if (UNIX)
@@ -45,7 +45,11 @@ target_include_directories(RLBotInterface PRIVATE
     ${Boost_INCLUDE_DIRS})
 
 if (UNIX)
-    target_link_libraries(RLBotInterface RLBotMessages ${Boost_LIBRARIES} rt)
+    if (APPLE)
+        target_link_libraries(RLBotInterface RLBotMessages ${Boost_DATETIME_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+    else (APPLE)
+        target_link_libraries(RLBotInterface RLBotMessages ${Boost_LIBRARIES} rt)
+    endif (APPLE)
     set_target_properties(RLBotInterface PROPERTIES COMPILE_FLAGS -fPIC)
 else (UNIX)
     target_link_libraries(RLBotInterface RLBotMessages ${Boost_LIBRARIES})
@@ -67,11 +71,15 @@ target_include_directories(RLBot PRIVATE
     ${rlu_include})
 
 if (UNIX)
-    target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES} pthread rt)
-
-    add_custom_command(TARGET RLBotMessages
-                       PRE_BUILD
-                       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/generate-flatbuffers.sh )
+    if (APPLE)
+        target_link_libraries(RLBot RLBotMessages ${Boost_DATETIME_LIBRARY} ${Boost_SYSTEM_LIBRARY} pthread)
+    else (APPLE)
+        add_custom_command(TARGET RLBotMessages
+                           PRE_BUILD
+                           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/generate-flatbuffers.sh )
+        target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES} pthread rt)
+    endif (APPLE)
+    set_target_properties(RLBotInterface PROPERTIES COMPILE_FLAGS -fPIC)
 
 else (UNIX)
     target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES})
@@ -100,7 +108,12 @@ target_include_directories(InterfaceTester PRIVATE
     ${flatbuffers})
 
 if (UNIX)
-    target_link_libraries(InterfaceTester RLBotInterface pthread rt)
+    if (APPLE)
+        target_link_libraries(InterfaceTester RLBotInterface pthread)
+    else (APPLE)
+        target_link_libraries(InterfaceTester RLBotInterface pthread rt)
+    endif (APPLE)
+    set_target_properties(RLBotInterface PROPERTIES COMPILE_FLAGS -fPIC)
 else (UNIX)
     target_link_libraries(InterfaceTester RLBotInterface)
 endif (UNIX)

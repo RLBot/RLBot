@@ -47,7 +47,7 @@ namespace Interface
 	}
 	#endif
 
-	#ifdef __linux__
+	#if defined(__linux__) || defined(__APPLE__)
 	void Initialize()
 	{
 		//DEBUG_LOG("====================================================================\n");
@@ -93,7 +93,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID)
 }
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 __attribute__((constructor)) void init(void) 
 { 
 	Interface::Initialize();

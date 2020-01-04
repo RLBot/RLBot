@@ -160,6 +160,7 @@ namespace StructToRLBotFlatbuffer
 		auto flatName = builder->CreateString(name); // Must do this before PlayerInfoBuilder is started.
 		auto physics = createPhysics(builder, playerInfo.physics);
 		auto hitbox = createBoxShape(*builder, playerInfo.hitbox);
+		auto hitboxOffset = createVector3(playerInfo.hitboxOffset);
 
 		rlbot::flat::PlayerInfoBuilder pib(*builder);
 
@@ -175,6 +176,8 @@ namespace StructToRLBotFlatbuffer
 		pib.add_team(playerInfo.team);
 		pib.add_boost(playerInfo.boost);
 		pib.add_hitbox(hitbox);
+		pib.add_hitboxOffset(&hitboxOffset);
+		pib.add_spawnId(playerInfo.spawnId);
 
 		return pib.Finish();
 	}
@@ -325,6 +328,11 @@ namespace StructToRLBotFlatbuffer
 		return true;
 	}
 
+	flatbuffers::Offset<rlbot::flat::Color> buildColor(flatbuffers::FlatBufferBuilder* builder, Color structColor)
+	{
+		return rlbot::flat::CreateColor(*builder, structColor.a, structColor.r, structColor.g, structColor.b);
+	}
+
 	flatbuffers::Offset<rlbot::flat::PlayerLoadout> buildPlayerLoadout(flatbuffers::FlatBufferBuilder* builder, PlayerConfiguration structPlayerConfig)
 	{
 		rlbot::flat::LoadoutPaintBuilder paintBuilder(*builder);
@@ -337,6 +345,9 @@ namespace StructToRLBotFlatbuffer
 		paintBuilder.add_trailsPaintId(structPlayerConfig.trailsPaintID);
 		paintBuilder.add_goalExplosionPaintId(structPlayerConfig.goalExplosionPaintID);
 		auto paintOffset = paintBuilder.Finish();
+
+		auto primaryColorOffset = buildColor(builder, structPlayerConfig.primaryColorLookup);
+		auto secondaryColorOffset = buildColor(builder, structPlayerConfig.secondaryColorLookup);
 
 		rlbot::flat::PlayerLoadoutBuilder loadoutBuilder(*builder);
 		loadoutBuilder.add_teamColorId(structPlayerConfig.teamColorID);
@@ -353,6 +364,12 @@ namespace StructToRLBotFlatbuffer
 		loadoutBuilder.add_trailsId(structPlayerConfig.trailsID);
 		loadoutBuilder.add_goalExplosionId(structPlayerConfig.goalExplosionID);
 		loadoutBuilder.add_loadoutPaint(paintOffset);
+		if (structPlayerConfig.useRgbLookup)
+		{
+			loadoutBuilder.add_primaryColorLookup(primaryColorOffset);
+			loadoutBuilder.add_secondaryColorLookup(secondaryColorOffset);
+		}
+
 		return loadoutBuilder.Finish();
 	}
 
@@ -397,6 +414,7 @@ namespace StructToRLBotFlatbuffer
 		configBuilder.add_team(structPlayerConfig.team);
 		configBuilder.add_variety(player);
 		configBuilder.add_variety_type(variety);
+		configBuilder.add_spawnId(structPlayerConfig.spawnId);
 
 		return configBuilder.Finish();
 	}

@@ -5,13 +5,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import rlbot.flat.*;
-import rlbot.gamestate.CarState;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class RLBotDllTest {
 
@@ -34,15 +29,20 @@ class RLBotDllTest {
 
         int loadoutOffset = PlayerLoadout.createPlayerLoadout(matchSettingsBuilder, 2, 2,
                 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                2, 2, paintOffset);
+                2, 2, paintOffset, 0, 0);
 
         RLBotPlayer.startRLBotPlayer(matchSettingsBuilder);
         int playerClassOffset = RLBotPlayer.endRLBotPlayer(matchSettingsBuilder);
 
         int nameOffset = matchSettingsBuilder.createString("JavaUnitTest");
 
-        int playerConfigurationOffset = PlayerConfiguration.createPlayerConfiguration(matchSettingsBuilder, PlayerClass.RLBotPlayer, playerClassOffset,
-                nameOffset, 0, loadoutOffset);
+        PlayerConfiguration.startPlayerConfiguration(matchSettingsBuilder);
+        PlayerConfiguration.addVarietyType(matchSettingsBuilder, PlayerClass.RLBotPlayer);
+        PlayerConfiguration.addVariety(matchSettingsBuilder, playerClassOffset);
+        PlayerConfiguration.addName(matchSettingsBuilder, nameOffset);
+        PlayerConfiguration.addTeam(matchSettingsBuilder, 0);
+        PlayerConfiguration.addLoadout(matchSettingsBuilder, loadoutOffset);
+        int playerConfigurationOffset = PlayerConfiguration.endPlayerConfiguration(matchSettingsBuilder);
 
         int playerConfigurationsOffset = MatchSettings.createPlayerConfigurationsVector(matchSettingsBuilder, new int[]{playerConfigurationOffset});
 

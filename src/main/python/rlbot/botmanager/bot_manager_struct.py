@@ -78,3 +78,8 @@ class BotManagerStruct(BotManager):
             return False
 
         return True
+
+    def get_spawn_id(self):
+        if self.game_tick_packet.num_cars <= self.index:
+            return None
+        return self.game_tick_packet.game_cars[self.index].spawn_id

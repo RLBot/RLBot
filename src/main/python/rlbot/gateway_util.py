@@ -1,7 +1,10 @@
 import os
 import platform
 import socket
+import stat
 import subprocess
+from dataclasses import dataclass
+from enum import IntEnum
 
 import psutil
 
@@ -19,8 +22,24 @@ if platform.system() == 'Windows':
     executable_name = 'RLBot.exe'
 elif platform.system() == 'Linux':
     executable_name = 'RLBot'
+elif platform.system() == 'Darwin':
+    executable_name = 'RLBot_mac'
 
-def launch():
+
+class NetworkingRole(IntEnum):
+    none = 0
+    lan_client = 1
+    remote_rlbot_server = 2
+    remote_rlbot_client = 3
+
+
+@dataclass
+class LaunchOptions:
+    networking_role: NetworkingRole = NetworkingRole.none
+    remote_address: str = '127.0.0.1'
+
+
+def launch(launch_options: LaunchOptions = None):
     port = DEFAULT_RLBOT_PORT
     try:
         desired_port = find_usable_port()
@@ -28,28 +47,38 @@ def launch():
     except Exception as e:
         print(str(e))
 
-    print("Launching RLBot.exe...")
     path = os.path.join(get_dll_directory(), executable_name)
-    if os.access(path, os.X_OK):
-        return subprocess.Popen([path, str(port)], shell=True), port
-    if os.access(path, os.F_OK):
-        raise PermissionError('Unable to execute RLBot.exe due to file permissions! Is your antivirus messing you up? '
-                              f'Check https://github.com/RLBot/RLBot/wiki/Antivirus-Notes. The exact path is {path}')
-    raise FileNotFoundError(f'Unable to find RLBot.exe at {path}! Is your antivirus messing you up? Check '
+    if not os.access(path, os.F_OK):
+        raise FileNotFoundError(f'Unable to find RLBot binary at {path}! Is your antivirus messing you up? Check '
                             'https://github.com/RLBot/RLBot/wiki/Antivirus-Notes.')
+    if not os.access(path, os.X_OK):
+        os.chmod(path, stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    if not os.access(path, os.X_OK):
+        raise PermissionError('Unable to execute RLBot binary due to file permissions! Is your antivirus messing you up? '
+                              f'Check https://github.com/RLBot/RLBot/wiki/Antivirus-Notes. The exact path is {path}')
+
+    args = [path, str(port)]
+    if launch_options is not None:
+        args.append(launch_options.remote_address)
+        args.append(str(int(launch_options.networking_role)))
+    print(f"Launching RLBot binary with args {args}")
+    if platform.system() != 'Windows':
+        # Unix only works this way, not sure why. Windows works better with the array, guards against spaces in path.
+        args = ' '.join(args)
+    return subprocess.Popen(args, shell=True, cwd=get_dll_directory()), port
 
 
 def find_existing_process():
     logger = get_logger(DEFAULT_LOGGER)
     for proc in psutil.process_iter():
         try:
-            if proc.name() == "RLBot.exe":
+            if proc.name() == executable_name:
                 if len(proc.cmdline()) > 1:
                     port = int(proc.cmdline()[1])
                     return proc, port
                 logger.error(f"Failed to find the RLBot port being used in the process args! Guessing "
-                             f"{DEFAULT_RLBOT_PORT}.")
-                return proc, DEFAULT_RLBOT_PORT
+                             f"{IDEAL_RLBOT_PORT}.")
+                return proc, IDEAL_RLBOT_PORT
         except Exception as e:
             logger.error(f"Failed to read the name of a process while hunting for RLBot.exe: {e}")
     return None, None
