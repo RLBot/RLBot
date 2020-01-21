@@ -129,9 +129,6 @@ class BotManager:
         self.agent._register_match_settings_func(self.get_match_settings)
         self.agent.matchcomms_root = self.matchcomms_root
 
-        while not self.is_valid_field_info():
-            time.sleep(0.1)
-
         # Once all engine setup is done, do the agent-specific initialization, if any:
         self.agent.initialize_agent()
         return self.agent, self.agent_class_file
