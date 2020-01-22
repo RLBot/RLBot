@@ -37,18 +37,6 @@ class BotManagerFlatbuffer(BotManager):
     def prepare_for_run(self):
         pass
 
-    def is_valid_field_info(self) -> bool:
-
-        field_info = self.get_field_info()
-
-        if field_info is None:
-            return False
-
-        if not field_info.GoalsLength():
-            return False
-
-        return True
-
     def get_spawn_id(self):
         try:
             return self.game_tick_flat.Players(self.index).SpawnId()

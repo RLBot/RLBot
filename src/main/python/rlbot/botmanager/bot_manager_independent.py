@@ -33,6 +33,3 @@ class BotManagerIndependent(BotManager):
 
     def prepare_for_run(self):
         pass
-
-    def is_valid_field_info(self) -> bool:
-        return True

@@ -324,9 +324,5 @@ class BotManager:
     def pull_data_from_game(self):
         raise NotImplementedError
 
-    def is_valid_field_info(self) -> bool:
-        """Checks if the contents of field info are valid."""
-        raise NotImplementedError
-
     def get_spawn_id(self):
         raise NotImplementedError
