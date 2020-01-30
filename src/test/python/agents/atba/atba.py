@@ -6,7 +6,8 @@ from rlbot.messages.flat.RumbleOption import RumbleOption
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, GameInfoState, Physics, Vector3
 from rlbot.utils.game_state_util import Rotator
-from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
+from rlbot.utils.structures.game_data_struct import DropshotTileState
+from rlbot.utils.structures.game_data_struct_autocomplete import GameTickPacket
 from rlbot.utils.structures.quick_chats import QuickChats
 
 

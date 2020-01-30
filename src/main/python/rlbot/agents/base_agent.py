@@ -9,7 +9,7 @@ from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
-from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
+from rlbot.utils.structures.game_data_struct_autocomplete import GameTickPacket, FieldInfoPacket
 from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
