@@ -89,6 +89,7 @@ class BotManager:
         self.maximum_tick_rate_preference = bot_configuration.get(BOT_CONFIG_MODULE_HEADER,
                                                                   MAXIMUM_TICK_RATE_PREFERENCE_KEY)
         self.spawn_id = spawn_id
+        self.counter = 0
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
         """
@@ -199,7 +200,9 @@ class BotManager:
                     # Urgency decreases when a tick is processed.
                     if frame_urgency > 0:
                         frame_urgency -= 1 / self.maximum_tick_rate_preference
+
                     self.perform_tick()
+                    self.counter += 1
 
                 last_tick_game_time = tick_game_time
                 if self.spawn_id is not None:
@@ -219,7 +222,8 @@ class BotManager:
 
     def perform_tick(self):
         # Reload the Agent if it has been modified or if reload is requested from outside.
-        if self.agent.is_hot_reload_enabled():
+        # But only do that every 20th tick.
+        if self.agent.is_hot_reload_enabled() and self.counter % 20 == 1:
             self.hot_reload_if_necessary()
         try:
             chat_messages = self.game_interface.receive_chat(self.index, self.team, self.last_message_index)
