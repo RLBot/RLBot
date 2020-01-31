@@ -225,6 +225,11 @@ class GameInterface:
                            "If you're not sure, close Rocket League and let us open it for you next time!")
 
     def wait_until_valid_packet(self):
+        num_players = self.start_match_configuration.num_players
+        if num_players > 10:
+            self.logger.info(f"Will not wait for all players to spawn in because there isn't room for {num_players} anyway.")
+            return
+
         self.logger.info('Waiting for valid packet...')
         for i in range(0, 60):
             packet = game_data_struct.GameTickPacket()

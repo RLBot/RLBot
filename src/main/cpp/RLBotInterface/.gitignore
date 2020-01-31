@@ -56,3 +56,9 @@ packages/
 
 !lib/
 !lib/**/*.lib
+
+CMakeCache.txt
+CMakeFiles
+Makefile
+RLBot
+cmake_install.cmake

@@ -193,3 +193,9 @@ class FieldInfoPacket:
     num_boosts: int
     goals: List[GoalInfo]
     num_goals: int
+
+class DropshotTileState(IntEnum):
+    UNKNOWN = 0
+    FILLED = 1
+    DAMAGED = 2
+    OPEN = 3

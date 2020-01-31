@@ -70,6 +70,11 @@ enum QuickChatPreset
 	Custom_Compliments_proud,
 	Custom_Compliments_GC,
 	Custom_Compliments_Pro,
+	Custom_Excuses_Lag,
+	Custom_Excuses_GhostInputs,
+	Custom_Excuses_Rigged,
+	Custom_Toxic_MafiaPlays,
+	Custom_Exclamation_Yeet,
 	MaxQuickChatPresets
 };
 

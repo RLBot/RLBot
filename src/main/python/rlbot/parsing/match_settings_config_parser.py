@@ -78,7 +78,11 @@ map_types = [
     "UtopiaRetro",
     "Hoops_DunkHouse",
     "DropShot_Core707",
-    "ThrowbackStadium"
+    "ThrowbackStadium",
+    "ForbiddenTemple",
+    "RivalsArena",
+    "Farmstead_Night",
+    "SaltyShores_Night"
 ]
 
 match_length_types = [

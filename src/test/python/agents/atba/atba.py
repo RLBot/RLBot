@@ -6,8 +6,7 @@ from rlbot.messages.flat.RumbleOption import RumbleOption
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, GameInfoState, Physics, Vector3
 from rlbot.utils.game_state_util import Rotator
-from rlbot.utils.structures.game_data_struct import DropshotTileState
-from rlbot.utils.structures.game_data_struct_autocomplete import GameTickPacket
+from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
 
 
@@ -30,6 +29,7 @@ class Atba(BaseAgent):
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
                                 game_tick_packet.game_ball.physics.location.y)
 
+        game_tick_packet.game_ball.physics
         my_car = game_tick_packet.game_cars[self.index]
         car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
         car_direction = get_car_facing_vector(my_car)
@@ -48,7 +48,7 @@ class Atba(BaseAgent):
 
         if self.test_quickchat:
             if turn == -1.0 and random() > .99:
-                self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Information_IGotIt)
+                self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Custom_Excuses_Rigged)
 
             if turn == 1.0 and random() > .99:
                 self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Reactions_HolyCow)

@@ -4,10 +4,17 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.34.3'
+__version__ = '1.35.2'
 
 release_notes = {
-    '1.34.3': """
+    '1.35.2': """
+    - Adding the Forbidden Temple stadium and a few others.
+    - Adding a few custom quick chats.
+    - Better support for loading levels that have no goals. - Skyborg
+    - Reducing the frequency of python hot reload checks. - Marvin
+    - Providing a way to get autocomplete on the game tick packet.
+    """,
+    '1.34.5': """
     Mac support is here! https://github.com/RLBot/RLBot/wiki/Operating-System-Support
     
     Also:
@@ -16,6 +23,7 @@ release_notes = {
     - Fixing bug where bots would take a very long time to start if a human was in the
       match config.
     - Fixing input percentages and lockstep feature.
+    - Fix inconsistencies with has_wheel_contact. - Kipje13
     """,
     '1.33.1': """
     Remote TCP functionality, primarily for classroom use.

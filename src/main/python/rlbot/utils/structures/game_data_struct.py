@@ -63,7 +63,7 @@ class SphereShape(Struct):
 
 
 class CylinderShape(Struct):
-	_fields_ = [("diameter", ctypes.c_float),
+    _fields_ = [("diameter", ctypes.c_float),
                 ("height", ctypes.c_float)]
 
 
@@ -146,6 +146,7 @@ class GameInfo(Struct):
                 # Game speed multiplier, 1.0 is regular game speed.
                 ("game_speed", ctypes.c_float)]
 
+
 # On the c++ side this struct has a long at the beginning for locking.
 # This flag is removed from this struct so it isn't visible to users.
 
@@ -219,7 +220,7 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
     # Rotate yaw 180 degrees is all that is necessary.
     ball_yaw = game_tick_packet.game_ball.physics.rotation.yaw
     game_tick_packet.game_ball.physics.rotation.yaw = ball_yaw \
-        + math.pi if ball_yaw < 0 else ball_yaw - math.pi
+                                                      + math.pi if ball_yaw < 0 else ball_yaw - math.pi
 
     for i in range(game_tick_packet.num_cars):
         game_tick_packet.game_cars[i].physics.location.x = \
@@ -237,7 +238,7 @@ def rotate_game_tick_packet_boost_omitted(game_tick_packet):
 
         car_yaw = game_tick_packet.game_cars[i].physics.rotation.yaw
         game_tick_packet.game_cars[i].physics.rotation.yaw = car_yaw \
-            + math.pi if car_yaw < 0 else car_yaw - math.pi
+                                                             + math.pi if car_yaw < 0 else car_yaw - math.pi
 
 
 DropshotTileState = create_enum_object(["UNKNOWN",
