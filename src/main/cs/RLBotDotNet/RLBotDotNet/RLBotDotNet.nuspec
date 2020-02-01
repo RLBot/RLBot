@@ -8,7 +8,7 @@
         <owners>rlbotofficial</owners>
         <license type="expression">MIT</license>
         <projectUrl>https://github.com/RLBot/RLBot</projectUrl>
-        <iconUrl>https://raw.githubusercontent.com/RLBot/RLBot/src/main/cs/RLBotDotNet/RLBotDotNet/logo.png</iconUrl>
+        <iconUrl>https://raw.githubusercontent.com/RLBot/RLBot/master/src/main/cs/RLBotDotNet/RLBotDotNet/logo.png</iconUrl>
         <icon>logo.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Framework for writing Rocket League bots in .NET languages.</description>
