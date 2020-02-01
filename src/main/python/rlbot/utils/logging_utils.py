@@ -1,4 +1,4 @@
-import inspect
+import sys
 import logging
 
 
@@ -20,11 +20,7 @@ def get_logger(logger_name, log_creation=True):
     if logger_name == DEFAULT_LOGGER:
         return logger
     if log_creation:
-        curframe = inspect.currentframe()
-        calframe = inspect.getouterframes(curframe, 2)
-        parent_call = calframe[1]
-        file_name = parent_call.filename
-        logger.debug('creating logger for %s', file_name)
+        logger.debug('creating logger for %s', sys._getframe().f_back)
     return logger
 
 
