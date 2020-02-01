@@ -23,10 +23,7 @@ namespace RLBotDotNet.GameState
                 return ballState;
             }
 
-            set
-            {
-                ballState = value;
-            }
+            set => ballState = value;
         }
 
         public GameInfoState GameInfoState
@@ -39,10 +36,7 @@ namespace RLBotDotNet.GameState
                 return gameInfoState;
             }
 
-            set
-            {
-                gameInfoState = value;
-            }
+            set => gameInfoState = value;
         }
 
         public CarState GetCarState(int index)

@@ -1,4 +1,4 @@
-using rlbot.flat;
+﻿using rlbot.flat;
 using RLBotDotNet.Utils;
 using System;
 using RLBotDotNet.Renderer;
@@ -12,8 +12,8 @@ namespace RLBotDotNet
     /// </summary>
     public abstract class Bot : IDisposable
     {
-        private const float MAX_CHAT_RATE = 2.0f;
-        private const int MAX_CHAT_COUNT = 5;
+        private const float MaxChatRate = 2.0f;
+        private const int MaxChatCount = 5;
 
         /// <summary>
         /// The name given to the bot in its configuration file.
@@ -120,7 +120,7 @@ namespace RLBotDotNet
             try
             {
                 TimeSpan timeSinceLastChat = DateTime.Now - lastChatTime;
-                if (!resetChatTime && timeSinceLastChat.TotalSeconds >= MAX_CHAT_RATE)
+                if (!resetChatTime && timeSinceLastChat.TotalSeconds >= MaxChatRate)
                 {
                     resetChatTime = true;
                 }
@@ -132,14 +132,14 @@ namespace RLBotDotNet
                     resetChatTime = false;
                 }
 
-                if (chatCounter < MAX_CHAT_COUNT)
+                if (chatCounter < MaxChatCount)
                 {
                     RLBotInterface.SendQuickChatFlat(index, teamOnly, quickChat);
                     chatCounter++;
                 }
                 else
                 {
-                    Console.WriteLine($"Quick chat disabled for {(int)(MAX_CHAT_RATE - timeSinceLastChat.TotalSeconds)} seconds.");
+                    Console.WriteLine($"Quick chat disabled for {(int)(MaxChatRate - timeSinceLastChat.TotalSeconds)} seconds.");
                 }
             }
             catch (FlatbuffersPacketException)
@@ -172,7 +172,7 @@ namespace RLBotDotNet
         protected void SetGameState(GameState.GameState gameState)
         {
             if (gameState == null)
-                throw new ArgumentNullException("gameState");
+                throw new ArgumentNullException(nameof(gameState));
 
             RLBotInterface.SetGameStatePacket(gameState.BuildGameStatePacket());
         }

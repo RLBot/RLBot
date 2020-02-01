@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using System.IO;
+using RLBotDotNet.Manager;
 using RLBotDotNet.Renderer;
 
 namespace RLBotDotNet
@@ -49,25 +50,25 @@ namespace RLBotDotNet
         private void RegisterBot(string name, int team, int index)
         {
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
-            if (!botProcesses.Any(b => b.bot.index == index))
+            if (botProcesses.Any(b => b.bot.index == index))
+                return;
+            
+            AutoResetEvent botRunEvent = new AutoResetEvent(false);
+
+            // Create a bot instance, run it in a separate thread, and add it to botProcesses.
+            T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
+            Thread thread = new Thread(() => RunBot(bot, botRunEvent));
+            thread.Start();
+
+            BotProcess botProcess = new BotProcess()
             {
-                AutoResetEvent botRunEvent = new AutoResetEvent(false);
+                bot = bot,
+                thread = thread,
+                botRunEvent = botRunEvent
+            };
 
-                // Create a bot instance, run it in a separate thread, and add it to botProcesses.
-                T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
-                Thread thread = new Thread(() => RunBot(bot, botRunEvent));
-                thread.Start();
-
-                BotProcess botProcess = new BotProcess()
-                {
-                    bot = bot,
-                    thread = thread,
-                    botRunEvent = botRunEvent
-                };
-
-                botProcesses.Add(botProcess);
-                Console.WriteLine("Registered bot: name={0}, team={1}, index={2}", name, team, index);
-            }
+            botProcesses.Add(botProcess);
+            Console.WriteLine($"Registered bot: name={name}, team={team}, index={index}");
         }
 
         /// <summary>
@@ -168,9 +169,10 @@ namespace RLBotDotNet
         private void StopBotProcess(BotProcess botProcess)
         {
             botProcess.thread.Abort();
+            Bot bot = botProcess.bot;
             try
             {
-                botProcess.bot.Dispose();
+                bot.Dispose();
                 botProcess.botRunEvent.Dispose();
             }
             catch (Exception e)
@@ -181,8 +183,7 @@ namespace RLBotDotNet
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
             }
-            Console.WriteLine("Stopped bot: name={0}, team={1}, index={2}",
-                botProcess.bot.name, botProcess.bot.team, botProcess.bot.index);
+            Console.WriteLine($"Stopped bot: name={bot.name}, team={bot.team}, index={bot.index}");
         }
 
         /// <summary>

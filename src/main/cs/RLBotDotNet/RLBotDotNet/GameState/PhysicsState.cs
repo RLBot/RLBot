@@ -21,10 +21,7 @@ namespace RLBotDotNet.GameState
                 return location;
             }
 
-            set
-            {
-                location = value;
-            }
+            set => location = value;
         }
 
         public DesiredVector3 Velocity
@@ -37,10 +34,7 @@ namespace RLBotDotNet.GameState
                 return velocity;
             }
 
-            set
-            {
-                velocity = value;
-            }
+            set => velocity = value;
         }
 
         public DesiredRotator Rotation
@@ -53,10 +47,7 @@ namespace RLBotDotNet.GameState
                 return rotation;
             }
 
-            set
-            {
-                rotation = value;
-            }
+            set => rotation = value;
         }
 
         public DesiredVector3 AngularVelocity
@@ -69,10 +60,7 @@ namespace RLBotDotNet.GameState
                 return angularVelocity;
             }
 
-            set
-            {
-                angularVelocity = value;
-            }
+            set => angularVelocity = value;
         }
         #endregion
 
@@ -101,10 +89,10 @@ namespace RLBotDotNet.GameState
 
         public Offset<DesiredPhysics> ToFlatBuffer(FlatBufferBuilder builder)
         {
-            int locationOffset = Location == null ? -1 : Location.ToFlatBuffer(builder).Value;
-            int velocityOffset = Velocity == null ? -1 : Velocity.ToFlatBuffer(builder).Value;
-            int rotationOffset = Rotation == null ? -1 : Rotation.ToFlatBuffer(builder).Value;
-            int angularVelocityOffset = AngularVelocity == null ? -1 : AngularVelocity.ToFlatBuffer(builder).Value;
+            int locationOffset = Location?.ToFlatBuffer(builder).Value ?? -1;
+            int velocityOffset = Velocity?.ToFlatBuffer(builder).Value ?? -1;
+            int rotationOffset = Rotation?.ToFlatBuffer(builder).Value ?? -1;
+            int angularVelocityOffset = AngularVelocity?.ToFlatBuffer(builder).Value ?? -1;
 
             DesiredPhysics.StartDesiredPhysics(builder);
 
