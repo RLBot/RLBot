@@ -24,7 +24,7 @@ namespace RLBotDotNet.Server
         }
 
         /// <summary>
-        /// Starts the server, which continously listens for clients until it is stopped.
+        /// Starts the server, which continuously listens for clients until it is stopped.
         /// </summary>
         /// <param name="port">The port to run the server on.</param>
         public void Start(int port)
@@ -34,7 +34,7 @@ namespace RLBotDotNet.Server
                 listener = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
                 listener.Start();
 
-                Console.WriteLine("Listening for clients on 127.0.0.1 on port {0}...", port);
+                Console.WriteLine($"Listening for clients on 127.0.0.1 on port {port}...");
 
                 while (true)
                 {

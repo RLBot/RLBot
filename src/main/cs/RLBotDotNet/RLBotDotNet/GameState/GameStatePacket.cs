@@ -2,7 +2,7 @@
 {
     public class GameStatePacket
     {
-        public byte[] Data { get; private set; }
+        public byte[] Data { get; }
 
         public GameStatePacket(byte[] data)
         {

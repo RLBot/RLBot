@@ -23,10 +23,7 @@ namespace RLBotDotNet.GameState
                 return ballState;
             }
 
-            set
-            {
-                ballState = value;
-            }
+            set => ballState = value;
         }
 
         public GameInfoState GameInfoState
@@ -39,10 +36,7 @@ namespace RLBotDotNet.GameState
                 return gameInfoState;
             }
 
-            set
-            {
-                gameInfoState = value;
-            }
+            set => gameInfoState = value;
         }
 
         public CarState GetCarState(int index)
@@ -97,10 +91,9 @@ namespace RLBotDotNet.GameState
         }
 
         /// <summary>
-        /// Creates a GameState from a GameTickPacket. Usefull for saving a scenario.
+        /// Creates a GameState from a GameTickPacket. Useful for saving a scenario and implementing "quicksave/quickload" functionality.
         /// </summary>
         /// <param name="gameTickPacket">The packet to create the GameState from.</param>
-        /// <returns></returns>
         public static GameState CreateFromGameTickPacket(GameTickPacket gameTickPacket)
         {
             GameState gameState = new GameState();

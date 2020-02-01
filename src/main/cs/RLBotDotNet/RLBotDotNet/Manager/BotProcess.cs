@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace RLBotDotNet
+namespace RLBotDotNet.Manager
 {
     internal struct BotProcess
     {

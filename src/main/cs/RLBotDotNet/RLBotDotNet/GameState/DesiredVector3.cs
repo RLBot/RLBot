@@ -9,7 +9,7 @@ namespace RLBotDotNet.GameState
         public float? Y;
         public float? Z;
 
-        public static DesiredVector3 Zero { get { return new DesiredVector3(0, 0, 0); } }
+        public static DesiredVector3 Zero => new DesiredVector3(0, 0, 0);
 
         public DesiredVector3(float? x = null, float? y = null, float? z = null)
         {

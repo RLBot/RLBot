@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using System.IO;
+using RLBotDotNet.Manager;
 using RLBotDotNet.Renderer;
 
 namespace RLBotDotNet
@@ -30,15 +31,15 @@ namespace RLBotDotNet
         public BotManager() : this(60) { }
 
         /// <summary>
-        /// Construct a new instance of BotManager.
+        /// Constructs a new instance of BotManager.
         /// </summary>
-        /// <param name="frequency">The frequency that the bot updates at: [1, 120] or 0 to update at each new packet.</param>
+        /// <param name="frequency">The frequency that the bot updates at: [1, 120]. Set to 0 to update at each new packet.</param>
         public BotManager(int frequency)
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
 
             if (frequency > 120 || frequency < 0)
-                throw new ArgumentOutOfRangeException("frequency");
+                throw new ArgumentOutOfRangeException(nameof(frequency));
 
             this.frequency = frequency;
         }
@@ -46,40 +47,38 @@ namespace RLBotDotNet
         /// <summary>
         /// Adds a bot to the <see cref="botProcesses"/> list if the index is not there already.
         /// </summary>
-        /// <param name="bot"></param>
         private void RegisterBot(string name, int team, int index)
         {
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
-            if (!botProcesses.Any(b => b.bot.index == index))
+            if (botProcesses.Any(b => b.bot.index == index))
+                return;
+            
+            AutoResetEvent botRunEvent = new AutoResetEvent(false);
+
+            // Create a bot instance, run it in a separate thread, and add it to botProcesses.
+            T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
+            Thread thread = new Thread(() => RunBot(bot, botRunEvent));
+            thread.Start();
+
+            BotProcess botProcess = new BotProcess()
             {
-                AutoResetEvent botRunEvent = new AutoResetEvent(false);
+                bot = bot,
+                thread = thread,
+                botRunEvent = botRunEvent
+            };
 
-                // Create a bot instance, run it in a separate thread, and add it to botProcesses.
-                T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
-                Thread thread = new Thread(() => RunBot(bot, botRunEvent));
-                thread.Start();
-
-                BotProcess botProcess = new BotProcess()
-                {
-                    bot = bot,
-                    thread = thread,
-                    botRunEvent = botRunEvent
-                };
-
-                botProcesses.Add(botProcess);
-                Console.WriteLine("Registered bot: name={0}, team={1}, index={2}", name, team, index);
-            }
+            botProcesses.Add(botProcess);
+            Console.WriteLine($"Registered bot: name={name}, team={team}, index={index}");
         }
 
         /// <summary>
         /// Calls the given bot's <see cref="Bot.GetOutput(GameTickPacket)"/> method and
         /// updates its input through the interface DLL.
         /// </summary>
-        /// <param name="bot"></param>
         private void RunBot(Bot bot, AutoResetEvent botRunEvent)
         {
-            var renderer = GetRendererForBot(bot);
-            bot.SetRenderer(renderer);
+            BotLoopRenderer renderer = GetRendererForBot(bot);
+            bot.Renderer = renderer;
 
             Console.WriteLine("Waiting for the RLBot Interface to initialize...");
 
@@ -150,7 +149,7 @@ namespace RLBotDotNet
             }
             else
             {   
-                // Dynamicly retrieve new packets.
+                // Dynamically retrieve new packets.
                 while (true)
                 {
                     RLBotInterface.WaitForFreshPacket(100, 0);
@@ -170,9 +169,10 @@ namespace RLBotDotNet
         private void StopBotProcess(BotProcess botProcess)
         {
             botProcess.thread.Abort();
+            Bot bot = botProcess.bot;
             try
             {
-                botProcess.bot.Dispose();
+                bot.Dispose();
                 botProcess.botRunEvent.Dispose();
             }
             catch (Exception e)
@@ -183,8 +183,7 @@ namespace RLBotDotNet
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
             }
-            Console.WriteLine("Stopped bot: name={0}, team={1}, index={2}",
-                botProcess.bot.name, botProcess.bot.team, botProcess.bot.index);
+            Console.WriteLine($"Stopped bot: name={bot.name}, team={bot.team}, index={bot.index}");
         }
 
         /// <summary>
@@ -234,7 +233,7 @@ namespace RLBotDotNet
                     BotProcess proc = botProcesses.Find(b => b.bot.index == index);
 
                     // Only call the bot stopping/removing methods if proc references an object and not a default value.
-                    // Referencing a default value happens when Linq's Find method can't find any matches.
+                    // Referencing a default value happens when LINQ's Find method can't find any matches.
                     if (!proc.Equals(default(BotProcess)))
                     {
                         StopBotProcess(proc);
@@ -253,9 +252,9 @@ namespace RLBotDotNet
         }
 
         /// <summary>
-        /// Places the interface DLLs from the given directory into
+        /// Places the interface DLLs from the given directory into the bot's own DLL directory.
         /// </summary>
-        /// <param name="dllDirectory"></param>
+        /// <param name="dllDirectory">The directory to get the DLLs from</param>
         private void PlaceInterfaceDlls(string dllDirectory)
         {
             if (Directory.Exists(dllDirectory))

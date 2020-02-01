@@ -21,10 +21,7 @@ namespace RLBotDotNet.GameState
                 return physicsState;
             }
 
-            set
-            {
-                physicsState = value;
-            }
+            set => physicsState = value;
         }
 
         public CarState(PhysicsState physicsState = null, bool? jumped = null, bool? doubleJumped = null, float? boost = null)
@@ -47,7 +44,7 @@ namespace RLBotDotNet.GameState
 
         public Offset<DesiredCarState> ToFlatBuffer(FlatBufferBuilder builder)
         {
-            int physicsStateOffset = PhysicsState == null ? -1 : PhysicsState.ToFlatBuffer(builder).Value;
+            int physicsStateOffset = PhysicsState?.ToFlatBuffer(builder).Value ?? -1;
 
             DesiredCarState.StartDesiredCarState(builder);
 
