@@ -24,7 +24,7 @@ namespace RLBotDotNet.Server
         }
 
         /// <summary>
-        /// Starts the server, which continously listens for clients until it is stopped.
+        /// Starts the server, which continuously listens for clients until it is stopped.
         /// </summary>
         /// <param name="port">The port to run the server on.</param>
         public void Start(int port)

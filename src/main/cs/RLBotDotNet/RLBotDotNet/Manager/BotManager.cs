@@ -233,7 +233,7 @@ namespace RLBotDotNet
                     BotProcess proc = botProcesses.Find(b => b.bot.index == index);
 
                     // Only call the bot stopping/removing methods if proc references an object and not a default value.
-                    // Referencing a default value happens when Linq's Find method can't find any matches.
+                    // Referencing a default value happens when LINQ's Find method can't find any matches.
                     if (!proc.Equals(default(BotProcess)))
                     {
                         StopBotProcess(proc);

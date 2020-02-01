@@ -19,10 +19,12 @@ namespace RLBotDotNet
         /// The name given to the bot in its configuration file.
         /// </summary>
         public readonly string name;
+
         /// <summary>
         /// The team the bot is on (0 for blue, 1 for orange).
         /// </summary>
         public readonly int team;
+
         /// <summary>
         /// The index of the bot in the match.
         /// </summary>
@@ -68,9 +70,9 @@ namespace RLBotDotNet
             catch (FlatbuffersPacketException)
             {
                 throw new FlatbuffersPacketException("The game did not send any information. " +
-                    "This could mean that the match has not started yet. " +
-                    "This happens when you run the bot before (or as soon as) RLBot.exe gets started " +
-                    "and the game has not started the match yet. This usually happens on the map loading screen.");
+                                                     "This could mean that the match has not started yet. " +
+                                                     "This happens when you run the bot before (or as soon as) RLBot.exe gets started " +
+                                                     "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
         }
 
@@ -78,6 +80,13 @@ namespace RLBotDotNet
         /// Gets a <see cref="BallPrediction"/> object containing the simulated path of the ball for the next 6 seconds.
         /// Each slice of the prediction advances by 1/60 of a second.
         /// </summary>
+        /// <example>
+        /// Sample code to get ball prediction and get the initial slice:
+        /// <code>
+        /// BallPrediction prediction = GetBallPrediction();
+        /// PredictionSlide initialSlice = prediction.Slices(0).Value;
+        /// </code>
+        /// </example>
         protected BallPrediction GetBallPrediction()
         {
             return RLBotInterface.GetBallPredictionData();
@@ -96,6 +105,13 @@ namespace RLBotDotNet
         /// <summary>
         /// Gets the configuration (possibly from RLBot.cfg) for the current match being played.
         /// </summary>
+        /// <example>
+        /// Sample code to get current map:
+        /// <code>
+        /// MatchSettings matchSettings = GetMatchSettings();
+        /// GameMap map = matchSettings.GameMap;
+        /// </code>
+        /// </example>
         protected MatchSettings GetMatchSettings()
         {
             return RLBotInterface.GetMatchSettingsData();
@@ -115,6 +131,12 @@ namespace RLBotDotNet
         /// You could spam them in a short duration but they will be then throttled.
         /// </remarks>
         /// <exception cref="FlatbuffersPacketException">Throws when the game has not started yet.</exception>
+        /// <example>
+        /// Sample code to send "What a save!" globally:
+        /// <code>
+        /// SendQuickChatFromAgent(false, QuickChatSelection.Compliments_WhatASave);
+        /// </code>
+        /// </example>
         protected void SendQuickChatFromAgent(bool teamOnly, QuickChatSelection quickChat)
         {
             try
@@ -139,7 +161,7 @@ namespace RLBotDotNet
                 }
                 else
                 {
-                    Console.WriteLine($"Quick chat disabled for {(int)(MaxChatRate - timeSinceLastChat.TotalSeconds)} seconds.");
+                    Console.WriteLine($"Quick chat disabled for {(int) (MaxChatRate - timeSinceLastChat.TotalSeconds)} seconds.");
                 }
             }
             catch (FlatbuffersPacketException)
@@ -155,6 +177,18 @@ namespace RLBotDotNet
         /// Gets all messages that have been sent since the last call to this method.
         /// </summary>
         /// <returns>List of new messages.</returns>
+        /// messages.Messages(0).Value.QuickChatSelection
+        /// <example>
+        /// Sample code to print all messages:
+        /// <code>
+        /// QuickChatMessages messages = ReceiveQuickChat();
+        /// for (int i = 0; i &lt; messages.MessagesLength; i++)
+        /// {
+        ///     QuickChat quickChat = messages.Messages(i).Value;
+        ///     Console.WriteLine($"Received {quickChat.QuickChatSelection} from player #{quickChat.PlayerIndex}");
+        /// }
+        /// </code>
+        /// </example>
         public QuickChatMessages ReceiveQuickChat()
         {
             QuickChatMessages messages = RLBotInterface.ReceiveQuickChat(index, team, lastMessageId);
@@ -169,6 +203,40 @@ namespace RLBotDotNet
         /// Allows the bot to set the game's state just like in training mode.
         /// </summary>
         /// <param name="gameState">The game state that should be set.</param>
+        /// <example>
+        /// Sample code to set the game state:
+        /// <code>
+        /// GameState gameState = new GameState();
+        /// CarState carState = new CarState
+        /// {
+        ///     Boost = 87f,
+        ///     PhysicsState = new PhysicsState(
+        ///         velocity: new DesiredVector3(null, null, 500),
+        ///         rotation: new DesiredRotator((float) Math.PI / 2, 0, 0),
+        ///         angularVelocity: new DesiredVector3(0, 0, 0)
+        ///     )
+        /// };
+        /// gameState.SetCarState(this.index, carState);
+        /// gameState.BallState.PhysicsState.Location = new DesiredVector3(0, 0, null);
+        /// gameState.GameInfoState.WorldGravityZ = 700f;
+        /// gameState.GameInfoState.GameSpeed = 0.8f;
+        /// SetGameState(gameState);
+        /// </code>
+        /// With the above code:
+        /// <list type="bullet">
+        ///     <item>The bot will fling itself upward with its front pointed to the ceiling.</item>
+        ///     <item>The ball will warp to the middle of the field but without altering its z position.</item>
+        ///     <item>The world gravity will act weakly upwards. Note: Setting gravity to 0 will reset the gravity to normal settings.</item>
+        ///     <item>If you want to disable gravity, set the gravity to something very small like 0.0001.</item>
+        ///     <item>The game's speed will be reduced to 80% of the normal speed.</item>
+        /// </list>
+        /// In the above example, the ball's X and Y locations will be set to 0, but the Z will be untouched.
+        /// </example>
+        /// <remarks>
+        /// A <c>null</c> means that the property will not be changed.
+        /// Warning: Setting gravity and game speed every frame will likely cause your game to lag!
+        /// It is strongly recommended you only set them when required (e.g. only at the start of the game).
+        /// </remarks>
         protected void SetGameState(GameState.GameState gameState)
         {
             if (gameState == null)
