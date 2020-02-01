@@ -32,7 +32,7 @@ namespace RLBotDotNet.Renderer
         /// Gets and sets the FlatBufferBuilder used to build the render messages.
         /// </summary>
         protected FlatBufferBuilder Builder { get; set; }
-        
+
         /// <summary>
         /// Removes any draw calls that have been queued up and starts over.
         /// Can be called at any time.
@@ -71,14 +71,13 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a line in screen coordinates.
+        /// Draws a line in screen space.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="start">The start point of the line.</param>
         /// <param name="end">The end point of the line.</param>
         public void DrawLine2D(Color color, Vector2 start, Vector2 end)
         {
-
             var colorOffset = color.ToOffsetColor(Builder);
 
             RenderMessage.StartRenderMessage(Builder);
@@ -92,7 +91,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a polyline between screen coordinates.
+        /// Draws a line joined by several points in screen space.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="vectors">The vectors of the line.</param>
@@ -100,32 +99,31 @@ namespace RLBotDotNet.Renderer
         {
             if (vectors.Length < 2)
             {
-                throw new ArgumentException("DrawPolyLine2D: Vectors array must contain atleast 2 vectors!");
+                throw new ArgumentException("DrawPolyLine2D: vectors array must contain at least 2 vectors!");
             }
 
             var colorOffset = color.ToOffsetColor(Builder);
 
-            for (int i = 0; i < vectors.Length-1; i++)
+            for (int i = 0; i < vectors.Length - 1; i++)
             {
                 RenderMessage.StartRenderMessage(Builder);
                 RenderMessage.AddRenderType(Builder, RenderType.DrawLine2D);
                 RenderMessage.AddColor(Builder, colorOffset);
                 RenderMessage.AddStart(Builder, vectors[i].ToOffsetVector(Builder));
-                RenderMessage.AddEnd(Builder, vectors[i+1].ToOffsetVector(Builder));
+                RenderMessage.AddEnd(Builder, vectors[i + 1].ToOffsetVector(Builder));
                 var finalOffset = RenderMessage.EndRenderMessage(Builder);
                 _renderMessageOffsets.Add(finalOffset);
             }
         }
 
         /// <summary>
-        /// Draws a line between two 3D coordinates.
+        /// Draws a line between two points in world space.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="start">The start point of the line.</param>
         /// <param name="end">The end point of the line.</param>
         public void DrawLine3D(Color color, Vector3 start, Vector3 end)
         {
-
             var colorOffset = color.ToOffsetColor(Builder);
 
             RenderMessage.StartRenderMessage(Builder);
@@ -139,7 +137,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a polyline between 3D coordinates.
+        /// Draws a line joined by several points in world space.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="vectors">The vectors of the line.</param>
@@ -147,7 +145,7 @@ namespace RLBotDotNet.Renderer
         {
             if (vectors.Length < 2)
             {
-                throw new ArgumentException("DrawPolyLine3D: Vectors array must contain atleast 2 vectors!");
+                throw new ArgumentException("DrawPolyLine3D: vectors array must contain at least 2 vectors!");
             }
 
             var colorOffset = color.ToOffsetColor(Builder);
@@ -165,7 +163,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a line between two 3D coordinates.
+        /// Draws a line between two points in world space.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="start">The start point of the line.</param>
@@ -176,7 +174,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a polyline between 3D coordinates.
+        /// Draws a line joined by several points in screen space.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="vectors">The vectors of the line.</param>
@@ -187,18 +185,18 @@ namespace RLBotDotNet.Renderer
             {
                 outVectors[i] = new Vector3(vectors[i].X, vectors[i].Y, vectors[i].Z);
             }
+
             DrawPolyLine3D(color, outVectors);
         }
 
         /// <summary>
-        /// Draws a 2D line which starts at screen coordinates and ends at a 3D coordinate.
+        /// Draws a 2D line which starts at a screen coordinate and ends at a world coordinate.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="start">The start point of the line.</param>
         /// <param name="end">The end point of the line.</param>
         public void DrawLine2D3D(Color color, Vector2 start, Vector3 end)
         {
-
             var colorOffset = color.ToOffsetColor(Builder);
 
             RenderMessage.StartRenderMessage(Builder);
@@ -212,7 +210,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a 2D line which starts at screen coordinates and ends at a 3D coordinate.
+        /// Draws a 2D line which starts at a screen coordinate and ends at a 3D coordinate.
         /// </summary>
         /// <param name="color">The color of the line.</param>
         /// <param name="start">The start point of the line.</param>
@@ -223,7 +221,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// This draws a 2D rectangle in screen coordinates.
+        /// Draws a 2D rectangle in screen space.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
         /// <param name="upperLeft">The upper left corner of the rectangle.</param>
@@ -232,7 +230,6 @@ namespace RLBotDotNet.Renderer
         /// <param name="filled">Flag indicating whether the rectangle should be filled in</param>
         public void DrawRectangle2D(Color color, Vector2 upperLeft, int width, int height, bool filled)
         {
-
             var colorOffset = color.ToOffsetColor(Builder);
 
             RenderMessage.StartRenderMessage(Builder);
@@ -246,9 +243,9 @@ namespace RLBotDotNet.Renderer
 
             _renderMessageOffsets.Add(finalOffset);
         }
-        
+
         /// <summary>
-        /// This draws a 2D rectangle at a 3D-tracked position.
+        /// Draws a 2D rectangle at a 3D-tracked position in world space.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
         /// <param name="upperLeft">The upper left corner of the rectangle.</param>
@@ -261,7 +258,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// This draws a 2D rectangle at a 3D-tracked position.
+        /// Draws a 2D rectangle at a 3D-tracked position in world space.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
         /// <param name="upperLeft">The upper left corner of the rectangle.</param>
@@ -274,7 +271,8 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// This draws a 2D rectangle at a 3D-tracked position.
+        /// Draws a 2D rectangle at a 3D-tracked position in world space.<br/>
+        /// The given <see cref="position"/> is center of the rectangle.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
         /// <param name="position">The center of the rectangle.</param>
@@ -287,7 +285,8 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// This draws a 2D rectangle at a 3D-tracked position.
+        /// Draws a 2D rectangle at a 3D-tracked position in world space.<br/>
+        /// The given <see cref="position"/> is center of the rectangle.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
         /// <param name="position">The center of the rectangle.</param>
@@ -299,23 +298,8 @@ namespace RLBotDotNet.Renderer
             DrawCenteredRectangle3D(color, new Vector3(position.X, position.Y, position.Z), width, height, filled);
         }
 
-        private void DrawRect3D(Color color, Vector3 position, int width, int height, bool filled, bool centered)
-        {
-            var colorOffset = color.ToOffsetColor(Builder);
-            RenderMessage.StartRenderMessage(Builder);
-            RenderMessage.AddRenderType(Builder, centered ? RenderType.DrawCenteredRect3D : RenderType.DrawRect3D);
-            RenderMessage.AddColor(Builder, colorOffset);
-            RenderMessage.AddStart(Builder, position.ToOffsetVector(Builder));
-            RenderMessage.AddScaleX(Builder, width);
-            RenderMessage.AddScaleY(Builder, height);
-            RenderMessage.AddIsFilled(Builder, filled);
-            var finalOffset = RenderMessage.EndRenderMessage(Builder);
-
-            _renderMessageOffsets.Add(finalOffset);
-        }
-        
         /// <summary>
-        /// Draws a string in screen coordinates.
+        /// Draws text in screen space.
         /// </summary>
         /// <param name="text">The text to draw.</param>
         /// <param name="color">The color of the string.</param>
@@ -324,7 +308,6 @@ namespace RLBotDotNet.Renderer
         /// <param name="scaleY">The multiplier for the height of the text</param>
         public void DrawString2D(String text, Color color, Vector2 upperLeft, int scaleX, int scaleY)
         {
-
             var colorOffset = color.ToOffsetColor(Builder);
             var textOffset = Builder.CreateString(text);
 
@@ -339,9 +322,9 @@ namespace RLBotDotNet.Renderer
 
             _renderMessageOffsets.Add(finalOffset);
         }
-        
+
         /// <summary>
-        /// Draws a string in 2D, but the upper-left corner is at a 3D-tracked point.
+        /// Draws text in 2D, but the upper-left corner is at a 3D-tracked position in world space.
         /// </summary>
         /// <param name="text">The text to draw.</param>
         /// <param name="color">The color of the string.</param>
@@ -350,7 +333,6 @@ namespace RLBotDotNet.Renderer
         /// <param name="scaleY">The multiplier for the height of the text</param>
         public void DrawString3D(String text, Color color, Vector3 upperLeft, int scaleX, int scaleY)
         {
-
             var colorOffset = color.ToOffsetColor(Builder);
             var textOffset = Builder.CreateString(text);
 
@@ -367,7 +349,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Draws a string in 2D, but the upper-left corner is at a 3D-tracked point.
+        /// Draws text in 2D, but the upper-left corner is at a 3D-tracked position in world space.
         /// </summary>
         /// <param name="text">The text to draw.</param>
         /// <param name="color">The color of the string.</param>
@@ -378,9 +360,24 @@ namespace RLBotDotNet.Renderer
         {
             DrawString3D(text, color, new Vector3(upperLeft.X, upperLeft.Y, upperLeft.Z), scaleX, scaleY);
         }
+        
+        private void DrawRect3D(Color color, Vector3 position, int width, int height, bool filled, bool centered)
+        {
+            var colorOffset = color.ToOffsetColor(Builder);
+            RenderMessage.StartRenderMessage(Builder);
+            RenderMessage.AddRenderType(Builder, centered ? RenderType.DrawCenteredRect3D : RenderType.DrawRect3D);
+            RenderMessage.AddColor(Builder, colorOffset);
+            RenderMessage.AddStart(Builder, position.ToOffsetVector(Builder));
+            RenderMessage.AddScaleX(Builder, width);
+            RenderMessage.AddScaleY(Builder, height);
+            RenderMessage.AddIsFilled(Builder, filled);
+            var finalOffset = RenderMessage.EndRenderMessage(Builder);
+
+            _renderMessageOffsets.Add(finalOffset);
+        }
 
         /// <summary>
-        /// Sends the render packet to the RL Bot interface.
+        /// Sends the render packet to the RLBot interface.
         /// </summary>
         /// <param name="packet">The packet to send.</param>
         protected void SendPacket(RenderPacket packet)
@@ -394,7 +391,6 @@ namespace RLBotDotNet.Renderer
         /// <returns>Returns the completed render packet.</returns>
         protected RenderPacket DoFinishPacket()
         {
-
             var offsets = _renderMessageOffsets.ToArray();
             var messagesOffset = RenderGroup.CreateRenderMessagesVector(Builder, offsets);
             var renderGroupOffset = RenderGroup.CreateRenderGroup(Builder, messagesOffset, _index);

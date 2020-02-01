@@ -11,6 +11,7 @@ namespace RLBotDotNet.GameState
         private DesiredVector3 angularVelocity;
 
         #region Getters/Setters
+
         public DesiredVector3 Location
         {
             get
@@ -62,9 +63,11 @@ namespace RLBotDotNet.GameState
 
             set => angularVelocity = value;
         }
+
         #endregion
 
-        public PhysicsState(DesiredVector3 location = null, DesiredVector3 velocity = null, DesiredRotator rotation = null, DesiredVector3 angularVelocity = null)
+        public PhysicsState(DesiredVector3 location = null, DesiredVector3 velocity = null, DesiredRotator rotation = null,
+            DesiredVector3 angularVelocity = null)
         {
             Location = location;
             Velocity = velocity;

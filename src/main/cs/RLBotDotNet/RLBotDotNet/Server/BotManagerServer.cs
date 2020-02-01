@@ -6,8 +6,8 @@ using System.Text;
 namespace RLBotDotNet.Server
 {
     /// <summary>
-    /// A class used for running a server to get bot data from Python clients.
-    /// <para>E.g. Will receive "add MyBot 1 3 ", which means "Add a bot called MyBot to team 1 with index 3".</para>
+    /// Used for running a server to get bot data from Python clients.<br/>
+    /// E.g. Will receive "add MyBot 1 3 ", which means "Add a bot called MyBot to team 1 with index 3".
     /// </summary>
     public class BotManagerServer
     {
@@ -19,7 +19,7 @@ namespace RLBotDotNet.Server
         /// </summary>
         protected virtual void OnBotReceived(string message)
         {
-            if (message != "" || message != null)
+            if (!string.IsNullOrEmpty(message))
                 BotReceivedEvent?.Invoke(message);
         }
 
@@ -29,28 +29,31 @@ namespace RLBotDotNet.Server
         /// <param name="port">The port to run the server on.</param>
         public void Start(int port)
         {
-            if (listener == null)
+            if (listener != null)
             {
-                listener = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
-                listener.Start();
+                Console.WriteLine("Cannot start the server as it is already running!");
+                return;
+            }
 
-                Console.WriteLine($"Listening for clients on 127.0.0.1 on port {port}...");
+            listener = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
+            listener.Start();
 
-                while (true)
-                {
-                    TcpClient client = listener.AcceptTcpClient();
-                    NetworkStream stream = client.GetStream();
-                    byte[] buffer = new byte[client.ReceiveBufferSize];
-                    int bytes = stream.Read(buffer, 0, client.ReceiveBufferSize);
+            Console.WriteLine($"Listening for clients on 127.0.0.1 on port {port}...");
 
-                    string receivedString = Encoding.ASCII.GetString(buffer, 0, bytes);
-                    OnBotReceived(receivedString);
+            while (true)
+            {
+                TcpClient client = listener.AcceptTcpClient();
+                NetworkStream stream = client.GetStream();
+                byte[] buffer = new byte[client.ReceiveBufferSize];
+                int bytes = stream.Read(buffer, 0, client.ReceiveBufferSize);
 
-                    // TODO: Do some verification to know that the data was sent correctly.
-                    // E.g. Echo check
+                string receivedString = Encoding.ASCII.GetString(buffer, 0, bytes);
+                OnBotReceived(receivedString);
 
-                    client.Close();
-                }
+                // TODO: Do some verification to know that the data was sent correctly.
+                // E.g. Echo check
+
+                client.Close();
             }
         }
 
@@ -59,11 +62,14 @@ namespace RLBotDotNet.Server
         /// </summary>
         public void Stop()
         {
-            if (listener != null)
+            if (listener == null)
             {
-                listener.Stop();
-                listener = null;
+                Console.WriteLine("Cannot stop the server as it is not running!");
+                return;
             }
+
+            listener.Stop();
+            listener = null;
         }
     }
 }

@@ -177,7 +177,6 @@ namespace RLBotDotNet
         /// Gets all messages that have been sent since the last call to this method.
         /// </summary>
         /// <returns>List of new messages.</returns>
-        /// messages.Messages(0).Value.QuickChatSelection
         /// <example>
         /// Sample code to print all messages:
         /// <code>

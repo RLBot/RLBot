@@ -1,24 +1,27 @@
 <?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>RLBot.Framework</id>
-    <version>$version$</version>
-    <title>RLBot Framework</title>
-    <authors>Tangil Jahangir, Tyler Arehart, alion02, Whok, kipje13, ccman32</authors>
-    <owners>rlbotofficial</owners>
-    <licenseUrl>https://opensource.org/licenses/mit-license.php</licenseUrl>
-    <projectUrl>https://github.com/RLBot/RLBot</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/RLBot/RLBot/master/images/RLBot_logo.png</iconUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Framework for writing Rocket League bots in .NET languages.</description>
-    <releaseNotes>
-      Better documentation for user-side methods.
-    </releaseNotes>
-    <copyright>Copyright 2020</copyright>
-    <tags>rocket-league</tags>
-  </metadata>
-  <files>
-    <file src="bin\Release\*.pdb" target="lib\net461\" />
-    <file src="FlatBuffers.dll" target="lib\net461\" />
-  </files>
+<package>
+    <metadata>
+        <id>RLBot.Framework</id>
+        <version>$version$</version>
+        <title>RLBot Framework</title>
+        <authors>Tangil Jahangir, Tyler Arehart, alion02, Whok, kipje13, ccman32</authors>
+        <owners>rlbotofficial</owners>
+        <licenseUrl>https://opensource.org/licenses/mit-license.php</licenseUrl>
+        <projectUrl>https://github.com/RLBot/RLBot</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/RLBot/RLBot/master/images/RLBot_logo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Framework for writing Rocket League bots in .NET languages.</description>
+        <releaseNotes>
+            - Improved documentation for user-side methods
+            - Fixed handling empty message from Python clients
+            - Added Paused and EndMatch options for GameInfoState
+            - Now warns when starting and stopping BotManagerServer is not possible
+        </releaseNotes>
+        <copyright>Copyright 2020</copyright>
+        <tags>rocket-league</tags>
+    </metadata>
+    <files>
+        <file src="bin\Release\*.pdb" target="lib\net461\"/>
+        <file src="FlatBuffers.dll" target="lib\net461\"/>
+    </files>
 </package>

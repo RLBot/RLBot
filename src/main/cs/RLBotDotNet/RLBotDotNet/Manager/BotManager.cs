@@ -52,11 +52,11 @@ namespace RLBotDotNet
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
             if (botProcesses.Any(b => b.bot.index == index))
                 return;
-            
+
             AutoResetEvent botRunEvent = new AutoResetEvent(false);
 
             // Create a bot instance, run it in a separate thread, and add it to botProcesses.
-            T bot = (T)Activator.CreateInstance(typeof(T), name, team, index);
+            T bot = (T) Activator.CreateInstance(typeof(T), name, team, index);
             Thread thread = new Thread(() => RunBot(bot, botRunEvent));
             thread.Start();
 
@@ -120,7 +120,7 @@ namespace RLBotDotNet
         private void MainBotLoop()
         {
             if (frequency > 0)
-            { 
+            {
                 // Retrieve packets at a fixed frequency.
 
                 TimeSpan timerResolution = TimerResolutionInterop.CurrentResolution;
@@ -148,7 +148,7 @@ namespace RLBotDotNet
                 }
             }
             else
-            {   
+            {
                 // Dynamically retrieve new packets.
                 while (true)
                 {
@@ -183,6 +183,7 @@ namespace RLBotDotNet
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
             }
+
             Console.WriteLine($"Stopped bot: name={bot.name}, team={bot.team}, index={bot.index}");
         }
 
@@ -217,7 +218,7 @@ namespace RLBotDotNet
         {
             try
             {
-                string[] split = message.Split(new char[] { '\n' }, 5);
+                string[] split = message.Split(new char[] {'\n'}, 5);
 
                 if (split.Length < 2)
                     throw new Exception("Server received too few command arguments from client");
@@ -265,7 +266,7 @@ namespace RLBotDotNet
                 string dllName;
                 if (Environment.Is64BitProcess)
                     dllName = "RLBot_Core_Interface.dll";
-                else 
+                else
                     dllName = "RLBot_Core_Interface_32.dll";
 
                 Directory.CreateDirectory("dll");

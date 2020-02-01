@@ -11,9 +11,7 @@ namespace RLBotDotNet.Renderer
         /// Constructs a new instance of NamedRenderer using the render name as the index.
         /// </summary>
         /// <param name="renderName">The name to use as the render index.</param>
-        public NamedRenderer(string renderName) : base(renderName.GetHashCode())
-        {
-        }
+        public NamedRenderer(string renderName) : base(renderName.GetHashCode()) { }
 
         /// <summary>
         /// Starts the render packet.
