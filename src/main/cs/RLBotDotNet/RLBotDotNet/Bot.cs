@@ -1,4 +1,4 @@
-﻿using rlbot.flat;
+using rlbot.flat;
 using RLBotDotNet.Utils;
 using System;
 using RLBotDotNet.Renderer;
@@ -32,7 +32,6 @@ namespace RLBotDotNet
         private bool resetChatTime;
         private int chatCounter;
         private int lastMessageId = -1;
-        private Renderer.Renderer _renderer;
 
         /// <summary>
         /// Creates a bot instance. To be used by the BotManager.
@@ -52,15 +51,14 @@ namespace RLBotDotNet
         public abstract Controller GetOutput(GameTickPacket gameTickPacket);
 
         /// <summary>
-        /// Gets the renderer.
+        /// Can be used to draw onto the screen.
         /// </summary>
-        protected Renderer.Renderer Renderer => _renderer;
+        public Renderer.Renderer Renderer { get; internal set; }
 
-        internal void SetRenderer(Renderer.Renderer renderBuilder)
-        {
-            _renderer = renderBuilder;
-        }
-
+        /// <summary>
+        /// Gets information about the game that does not change, such as boost pad and goal locations.
+        /// </summary>
+        /// <exception cref="FlatbuffersPacketException">Throws when the game has not started yet.</exception>
         protected FieldInfo GetFieldInfo()
         {
             try
@@ -71,35 +69,54 @@ namespace RLBotDotNet
             {
                 throw new FlatbuffersPacketException("The game did not send any information. " +
                     "This could mean that the match has not started yet. " +
-                    "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
+                    "This happens when you run the bot before (or as soon as) RLBot.exe gets started " +
                     "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
         }
 
+        /// <summary>
+        /// Gets a <see cref="BallPrediction"/> object containing the simulated path of the ball for the next 6 seconds.
+        /// Each slice of the prediction advances by 1/60 of a second.
+        /// </summary>
         protected BallPrediction GetBallPrediction()
         {
             return RLBotInterface.GetBallPredictionData();
         }
 
+        /// <summary>
+        /// Warning: This method has been deprecated.
+        /// </summary>
+        [ObsoleteAttribute("The RigidBodyTick has been deprecated. " +
+                           "GetOutput gives all raw physics engine values, so there is no need to use GetRigidBodyTick.")]
         protected RigidBodyTick GetRigidBodyTick()
         {
             return RLBotInterface.GetRigidBodyTick();
         }
 
+        /// <summary>
+        /// Gets the configuration (possibly from RLBot.cfg) for the current match being played.
+        /// </summary>
         protected MatchSettings GetMatchSettings()
         {
             return RLBotInterface.GetMatchSettingsData();
         }
 
+        /// <summary>
+        /// Passes the agent's quick chats to the other bots.
+        /// </summary>
+        /// <param name="teamOnly">
+        /// If true, only bots on the agent's team will be able to see the quick chat.<br/>
+        /// If false, the quick chat sent is global and every bot will be able to see it.
+        /// </param>
+        /// <param name="quickChat">The quick chat that should be sent</param>
+        /// <remarks>
+        /// The agent is limited to 5 quick chats in a 2 second period starting from the first chat.
+        /// This means you can spread your chats out to be even within that 2 second period.
+        /// You could spam them in a short duration but they will be then throttled.
+        /// </remarks>
+        /// <exception cref="FlatbuffersPacketException">Throws when the game has not started yet.</exception>
         protected void SendQuickChatFromAgent(bool teamOnly, QuickChatSelection quickChat)
         {
-            /*
-                Passes the agents quick chats to the other bots.
-                This does perform limiting.
-                You are limited to 5 quick chats in a 2 second period starting from the first chat.
-                This means you can spread your chats out to be even within that 2 second period.
-                You could spam them in the first little bit but then will be throttled.
-           */
             try
             {
                 TimeSpan timeSinceLastChat = DateTime.Now - lastChatTime;
@@ -129,13 +146,13 @@ namespace RLBotDotNet
             {
                 throw new FlatbuffersPacketException("The game did not send any information. " +
                                                      "This could mean that the match has not started yet. " +
-                                                     "This happens when you run the bot before (or as soon as) the RLBot DLL is injected " +
+                                                     "This happens when you run the bot before (or as soon as) RLBot.exe gets started " +
                                                      "and the game has not started the match yet. This usually happens on the map loading screen.");
             }
         }
 
         /// <summary>
-        /// Gets all messages that have been send since the last call to this method.
+        /// Gets all messages that have been sent since the last call to this method.
         /// </summary>
         /// <returns>List of new messages.</returns>
         public QuickChatMessages ReceiveQuickChat()
@@ -143,17 +160,15 @@ namespace RLBotDotNet
             QuickChatMessages messages = RLBotInterface.ReceiveQuickChat(index, team, lastMessageId);
 
             if (messages.MessagesLength > 0)
-            {
                 lastMessageId = messages.Messages(messages.MessagesLength - 1).Value.MessageIndex;
-            }
 
             return messages;
         }
 
         /// <summary>
-        /// Allows the bot to set the games' state just like in training mode.
+        /// Allows the bot to set the game's state just like in training mode.
         /// </summary>
-        /// <param name="gameState"></param>
+        /// <param name="gameState">The game state that should be set.</param>
         protected void SetGameState(GameState.GameState gameState)
         {
             if (gameState == null)

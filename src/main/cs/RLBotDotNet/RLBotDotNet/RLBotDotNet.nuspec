@@ -12,9 +12,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Framework for writing Rocket League bots in .NET languages.</description>
     <releaseNotes>
-      Allow bots to fetch packets whenever a new one appears.
+      Better documentation for user-side methods.
     </releaseNotes>
-    <copyright>Copyright 2019</copyright>
+    <copyright>Copyright 2020</copyright>
     <tags>rocket-league</tags>
   </metadata>
   <files>

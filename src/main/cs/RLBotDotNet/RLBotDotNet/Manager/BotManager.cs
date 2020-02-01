@@ -30,15 +30,15 @@ namespace RLBotDotNet
         public BotManager() : this(60) { }
 
         /// <summary>
-        /// Construct a new instance of BotManager.
+        /// Constructs a new instance of BotManager.
         /// </summary>
-        /// <param name="frequency">The frequency that the bot updates at: [1, 120] or 0 to update at each new packet.</param>
+        /// <param name="frequency">The frequency that the bot updates at: [1, 120]. Set to 0 to update at each new packet.</param>
         public BotManager(int frequency)
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
 
             if (frequency > 120 || frequency < 0)
-                throw new ArgumentOutOfRangeException("frequency");
+                throw new ArgumentOutOfRangeException(nameof(frequency));
 
             this.frequency = frequency;
         }
@@ -46,7 +46,6 @@ namespace RLBotDotNet
         /// <summary>
         /// Adds a bot to the <see cref="botProcesses"/> list if the index is not there already.
         /// </summary>
-        /// <param name="bot"></param>
         private void RegisterBot(string name, int team, int index)
         {
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
@@ -75,11 +74,10 @@ namespace RLBotDotNet
         /// Calls the given bot's <see cref="Bot.GetOutput(GameTickPacket)"/> method and
         /// updates its input through the interface DLL.
         /// </summary>
-        /// <param name="bot"></param>
         private void RunBot(Bot bot, AutoResetEvent botRunEvent)
         {
-            var renderer = GetRendererForBot(bot);
-            bot.SetRenderer(renderer);
+            BotLoopRenderer renderer = GetRendererForBot(bot);
+            bot.Renderer = renderer;
 
             Console.WriteLine("Waiting for the RLBot Interface to initialize...");
 
@@ -150,7 +148,7 @@ namespace RLBotDotNet
             }
             else
             {   
-                // Dynamicly retrieve new packets.
+                // Dynamically retrieve new packets.
                 while (true)
                 {
                     RLBotInterface.WaitForFreshPacket(100, 0);
@@ -253,9 +251,9 @@ namespace RLBotDotNet
         }
 
         /// <summary>
-        /// Places the interface DLLs from the given directory into
+        /// Places the interface DLLs from the given directory into the bot's own DLL directory.
         /// </summary>
-        /// <param name="dllDirectory"></param>
+        /// <param name="dllDirectory">The directory to get the DLLs from</param>
         private void PlaceInterfaceDlls(string dllDirectory)
         {
             if (Directory.Exists(dllDirectory))
