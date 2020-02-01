@@ -22,7 +22,7 @@ namespace RLBotDotNet.Renderer
         }
 
         /// <summary>
-        /// Finishes the render packet and sends it if its different from the last packet.
+        /// Finishes the render packet and sends it if it's different from the last packet.
         /// </summary>
         public void FinishAndSendIfDifferent()
         {

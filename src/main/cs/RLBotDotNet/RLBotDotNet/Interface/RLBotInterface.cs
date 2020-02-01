@@ -15,6 +15,7 @@ namespace RLBotDotNet.Utils
         public const string InterfaceDllPath = "dll/RLBot_Core_Interface.dll";
 
         #region DllImports
+
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         public extern static bool IsInitialized();
@@ -54,6 +55,7 @@ namespace RLBotDotNet.Utils
 
         [DllImport(InterfaceDllPath, CallingConvention = CallingConvention.Cdecl)]
         public extern static ByteBufferStruct GetMatchSettings();
+
         #endregion
 
         /// <summary>
@@ -169,7 +171,7 @@ namespace RLBotDotNet.Utils
             int status = UpdatePlayerInputFlatbuffer(bufferBytes, bufferBytes.Length);
 
             if (status > 0)
-                throw NewRLBotCoreException((RLBotCoreStatus)status);
+                throw NewRLBotCoreException((RLBotCoreStatus) status);
         }
 
 
@@ -194,7 +196,7 @@ namespace RLBotDotNet.Utils
             int status = SendQuickChat(bufferBytes, bufferBytes.Length);
 
             if (status > 0)
-                throw NewRLBotCoreException((RLBotCoreStatus)status);
+                throw NewRLBotCoreException((RLBotCoreStatus) status);
         }
 
         /// <summary>
@@ -214,7 +216,7 @@ namespace RLBotDotNet.Utils
             Marshal.Copy(byteBuffer.ptr, bufferBytes, 0, byteBuffer.size);
             Free(byteBuffer.ptr);
 
-            return QuickChatMessages.GetRootAsQuickChatMessages(new ByteBuffer(bufferBytes)); ;
+            return QuickChatMessages.GetRootAsQuickChatMessages(new ByteBuffer(bufferBytes));
         }
 
         /// <summary>
@@ -227,7 +229,7 @@ namespace RLBotDotNet.Utils
             int status = SetGameState(data, data.Length);
 
             if (status > 0)
-                throw NewRLBotCoreException((RLBotCoreStatus)status);
+                throw NewRLBotCoreException((RLBotCoreStatus) status);
         }
 
         /// <summary>
@@ -240,7 +242,7 @@ namespace RLBotDotNet.Utils
             int status = RenderGroup(bytes, bytes.Length);
 
             if (status > 0)
-                throw NewRLBotCoreException((RLBotCoreStatus)status);
+                throw NewRLBotCoreException((RLBotCoreStatus) status);
         }
 
         /// <summary>

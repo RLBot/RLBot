@@ -6,7 +6,7 @@ using System.Linq;
 namespace RLBotDotNet.Renderer
 {
     /// <summary>
-    /// Packet for render messages that get sent through the RL Bot interface.
+    /// Packet for render messages that get sent through the RLBot interface.
     /// </summary>
     public class RenderPacket
     {

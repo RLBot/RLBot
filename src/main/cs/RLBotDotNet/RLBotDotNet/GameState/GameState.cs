@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using rlbot.flat;
 using FlatBuffers;
 
@@ -8,7 +7,6 @@ namespace RLBotDotNet.GameState
 {
     public class GameState
     {
-        
         private Dictionary<int, CarState> carStates = new Dictionary<int, CarState>();
         private BallState ballState;
         private GameInfoState gameInfoState;
