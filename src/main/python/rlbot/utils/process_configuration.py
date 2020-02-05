@@ -89,21 +89,32 @@ def extract_all_pids(agent_metadata_map):
 def is_process_running(program, scriptname, required_args: Set[str]):
     if not optional_packages_installed:
         return True, None
+    # Find processes which contain the program or script name.
+    matching_processes = []
     for process in psutil.process_iter():
         try:
             p = process.name()
             if program in p or scriptname in p:
-                try:
-                    args = process.cmdline()[1:]
-                    for required_arg in required_args:
-                        matching_args = [arg for arg in args if re.match(required_arg, arg, flags=re.IGNORECASE) is not None]
-                        if len(matching_args) == 0:
-                            raise WrongProcessArgs(f"{program} is not running with {required_arg}!")
-                except psutil.AccessDenied:
-                    print(f"Access denied when trying to look at cmdline of {process}!")
-                return True, process
+                matching_processes.append(process)
         except psutil.NoSuchProcess:
             continue
+    # If matching processes were found, check for correct arguments.
+    if len(matching_processes) != 0:
+        for process in matching_processes:
+            try:
+                args = process.cmdline()[1:]
+                for required_arg in required_args:
+                    matching_args = [arg for arg in args if re.match(required_arg, arg, flags=re.IGNORECASE) is not None]
+                    # Skip this process because it does not have a matching required argument.
+                    if len(matching_args) == 0:
+                        continue
+            except psutil.AccessDenied:
+                print(f"Access denied when trying to look at cmdline of {process}!")
+            # If this process has not been skipped, it matches all arguments.
+            return True, process
+        # If we didn't return yet it means all matching programs were skipped.
+        raise WrongProcessArgs(f"{program} is not running with {required_arg}!")
+    # No matching processes.
     return False, None
 
 
