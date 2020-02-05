@@ -96,7 +96,7 @@ def is_process_running(program, scriptname, required_args: Set[str]):
                 try:
                     args = process.cmdline()[1:]
                     for required_arg in required_args:
-                        matching_args = [arg for arg in args if re.match(required_arg, arg) is not None]
+                        matching_args = [arg for arg in args if re.match(required_arg, arg, flags=re.IGNORECASE) is not None]
                         if len(matching_args) == 0:
                             raise WrongProcessArgs(f"{program} is not running with {required_arg}!")
                 except psutil.AccessDenied:
