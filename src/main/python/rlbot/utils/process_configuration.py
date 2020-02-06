@@ -1,5 +1,5 @@
 import re
-from typing import Set
+from typing import Set, Tuple, Union
 import platform
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 
@@ -86,7 +86,7 @@ def extract_all_pids(agent_metadata_map):
     return pids
 
 
-def is_process_running(program, scriptname, required_args: Set[str]):
+def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bool, Union[psutil.Process, None]]:
     if not optional_packages_installed:
         return True, None
     # Find processes which contain the program or script name.
@@ -107,13 +107,14 @@ def is_process_running(program, scriptname, required_args: Set[str]):
                     matching_args = [arg for arg in args if re.match(required_arg, arg, flags=re.IGNORECASE) is not None]
                     # Skip this process because it does not have a matching required argument.
                     if len(matching_args) == 0:
-                        continue
+                        break
+                else:
+                    # If this process has not been skipped, it matches all arguments.
+                    return True, process
             except psutil.AccessDenied:
                 print(f"Access denied when trying to look at cmdline of {process}!")
-            # If this process has not been skipped, it matches all arguments.
-            return True, process
         # If we didn't return yet it means all matching programs were skipped.
-        raise WrongProcessArgs(f"{program} is not running with {required_arg}!")
+        raise WrongProcessArgs(f"{program} is not running with required arguments: {required_args}!")
     # No matching processes.
     return False, None
 
