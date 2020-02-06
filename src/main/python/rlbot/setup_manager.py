@@ -122,36 +122,49 @@ class SetupManager:
         self.early_start_seconds = 0
         self.num_metadata_received = 0
 
-    def connect_to_game(self):
+    def is_rocket_league_running(self, port) -> bool:
         """
-        Ensures the game is running and connects to it by initializing self.game_interface.
+        Returns whether Rocket League is running with the right port.
         """
 
+        try:
+            is_rocket_league_running, proc = process_configuration.is_process_running(
+                ROCKET_LEAGUE_PROCESS_INFO.PROGRAM,
+                ROCKET_LEAGUE_PROCESS_INFO.PROGRAM_NAME,
+                ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS)
+
+            if proc is not None:
+                # Check for correct port.
+                rocket_league_port = self._read_port_from_rocket_league_args(proc.cmdline())
+                if rocket_league_port is not None and rocket_league_port != port:
+                    raise Exception(f"Rocket League is already running with port {rocket_league_port} but we wanted "
+                                    f"{port}! Please close Rocket League and let us start it for you instead!")
+        except WrongProcessArgs:
+            raise Exception(f"Rocket League is not running with {ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS}!\n"
+                            "Please close Rocket League and let us start it for you instead!")
+
+        return is_rocket_league_running
+
+    def connect_to_game(self):
+        """
+        Connects to the game by initializing self.game_interface.
+        """
         version.print_current_release_notes()
         port = self.ensure_rlbot_gateway_started()
+
+        # Prevent loading game interface twice.
         if self.has_started:
+            if not self.is_rocket_league_running(port):
+                raise Exception("Rocket League is not running even though we started it once.\n"
+                                "Please restart RLBot.")
             return
 
         # Currently match_config is None when launching from RLBotGUI.
         if self.match_config is not None and self.match_config.networking_role == 'remote_rlbot_client':
             self.logger.info("Will not start Rocket League because this is configured as a client!")
-        else:
-            try:
-                is_rocket_league_running, proc = process_configuration.is_process_running(
-                    ROCKET_LEAGUE_PROCESS_INFO.PROGRAM,
-                    ROCKET_LEAGUE_PROCESS_INFO.PROGRAM_NAME,
-                    ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS)
-
-                if proc is not None:
-                    rocket_league_port = self._read_port_from_rocket_league_args(proc.cmdline())
-                    if rocket_league_port is not None and rocket_league_port != port:
-                        raise Exception(f"Rocket League is already running with port {rocket_league_port} but we wanted "
-                                        f"{port}! Please close Rocket League and let us start it for you instead!")
-            except WrongProcessArgs:
-                raise Exception(f"Rocket League is not running with {ROCKET_LEAGUE_PROCESS_INFO.REQUIRED_ARGS}! "
-                                f"Please close Rocket League and let us start it for you instead!")
-            if not is_rocket_league_running:
-                self.launch_rocket_league(port=port)
+        # Launch the game if it is not running.
+        elif not self.is_rocket_league_running(port):
+            self.launch_rocket_league(port=port)
 
         try:
             self.game_interface.load_interface()
