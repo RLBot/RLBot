@@ -462,7 +462,7 @@ ASALocalRun/
 src/main/cs/RLBotControllerSample/CopyFilesFromSrc.bat
 
 # VSCode IDE files.
-src/main/cpp/RLBotInterface/.vscode/
+**/.vscode/
 
 # CMake generated project files
 build64/
