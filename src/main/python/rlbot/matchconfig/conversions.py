@@ -1,9 +1,17 @@
 import json
+import random
 from pathlib import Path
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig, LoadoutPaintConfig
 from rlbot.matchconfig.match_config import MatchConfig, ExtensionConfig, MutatorConfig, PlayerConfig
-from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, PARTICIPANT_TYPE_KEY, load_bot_appearance, PARTICIPANT_BOT_SKILL_KEY
+from rlbot.parsing.agent_config_parser import (
+    PARTICIPANT_CONFIGURATION_HEADER,
+    PARTICIPANT_TEAM,
+    PARTICIPANT_TYPE_KEY,
+    load_bot_appearance,
+    PARTICIPANT_BOT_SKILL_KEY,
+    create_looks_configurations,
+)
 from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bundles
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.incrementing_integer import IncrementingInteger
@@ -24,8 +32,9 @@ def read_match_config_from_file(match_config_path: Path) -> MatchConfig:
     return parse_match_config(config_obj, match_config_path, {}, {})
 
 
-def parse_match_config(config_parser: ConfigObject, config_location, config_bundle_overrides,
-                         looks_config_overrides) -> MatchConfig:
+def parse_match_config(
+    config_parser: ConfigObject, config_location, config_bundle_overrides, looks_config_overrides
+) -> MatchConfig:
 
     match_config = MatchConfig()
     match_config.mutators = MutatorConfig()
@@ -46,9 +55,17 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
     for i in range(num_players):
 
         config_bundle = config_bundles[i]
+        bot_type = config_parser.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, i)
 
         if i not in looks_config_overrides:
-            looks_config_object = config_bundle.get_looks_config()
+            if bot_type == "psyonix":
+                # choose a random preset for psyonix bots
+                preset_directory = Path(__file__).parent / "psyonix_presets"
+                looks_path = random.choice(list(preset_directory.glob("*.cfg")))
+                looks_config_object = create_looks_configurations().parse_file(looks_path)
+                config_bundle.name = looks_path.name.split("_")[1].title()
+            else:
+                looks_config_object = config_bundle.get_looks_config()
         else:
             looks_config_object = looks_config_overrides[i]
 
@@ -57,7 +74,7 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
         match_config.player_configs.append(player_config)
 
     extension_path = config_parser.get(RLBOT_CONFIGURATION_HEADER, EXTENSION_PATH_KEY)
-    if extension_path and extension_path != 'None':  # The string 'None' ends up in people's config a lot.
+    if extension_path and extension_path != "None":  # The string 'None' ends up in people's config a lot.
         match_config.extension_config = ExtensionConfig()
         match_config.extension_config.python_file_path = extension_path
 
@@ -75,16 +92,16 @@ def get_team(config, index):
 
 
 def get_bot_options(bot_type):
-    if bot_type == 'human':
+    if bot_type == "human":
         is_bot = False
         is_rlbot = False
-    elif bot_type == 'rlbot':
+    elif bot_type == "rlbot":
         is_bot = True
         is_rlbot = True
-    elif bot_type == 'psyonix':
+    elif bot_type == "psyonix":
         is_bot = True
         is_rlbot = False
-    elif bot_type == 'party_member_bot':
+    elif bot_type == "party_member_bot":
         # this is a bot running under a human
 
         is_rlbot = True
@@ -94,9 +111,14 @@ def get_bot_options(bot_type):
 
     return is_bot, is_rlbot
 
-def _load_bot_config(index, config_bundle: BotConfigBundle,
-                    looks_config_object: ConfigObject, overall_config: ConfigObject,
-                    human_index_tracker: IncrementingInteger) -> PlayerConfig:
+
+def _load_bot_config(
+    index,
+    config_bundle: BotConfigBundle,
+    looks_config_object: ConfigObject,
+    overall_config: ConfigObject,
+    human_index_tracker: IncrementingInteger,
+) -> PlayerConfig:
     """
     Loads the config data of a single bot
     :param index: This is the bot index (where it appears in game_cars)
@@ -118,7 +140,8 @@ def _load_bot_config(index, config_bundle: BotConfigBundle,
     bot_type = overall_config.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, index)
     bot_configuration.bot, bot_configuration.rlbot_controlled = get_bot_options(bot_type)
     bot_configuration.bot_skill = overall_config.getfloat(
-        PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index)
+        PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_BOT_SKILL_KEY, index
+    )
 
     if not bot_configuration.bot:
         bot_configuration.human_index = human_index_tracker.increment()
@@ -135,15 +158,16 @@ def _load_bot_config(index, config_bundle: BotConfigBundle,
 # ====== MatchConfig -> JSON ======
 # The JSON conversion serializes and deserializes MatchConfig in its entirety,
 # including player config which is usually specified in different files.
-
 known_types = {
-    MatchConfig: '__MatchConfig__',
-    MutatorConfig: '__MutatorConfig__',
-    ExtensionConfig: '__ExtensionConfig__',
-    PlayerConfig: '__PlayerConfig__',
-    LoadoutConfig: '__LoadoutConfig__',
-    LoadoutPaintConfig: '__LoadoutPaintConfig__',
+    MatchConfig: "__MatchConfig__",
+    MutatorConfig: "__MutatorConfig__",
+    ExtensionConfig: "__ExtensionConfig__",
+    PlayerConfig: "__PlayerConfig__",
+    LoadoutConfig: "__LoadoutConfig__",
+    LoadoutPaintConfig: "__LoadoutPaintConfig__",
 }
+
+
 class ConfigJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         for cls, tag in known_types.items():
@@ -155,8 +179,8 @@ class ConfigJsonEncoder(json.JSONEncoder):
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
 
-# ====== JSON -> MatchConfig ======
 
+# ====== JSON -> MatchConfig ======
 def as_match_config(json_obj) -> MatchConfig:
     for cls, tag in known_types.items():
         if not json_obj.get(tag, False):
