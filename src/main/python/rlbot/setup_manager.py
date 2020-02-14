@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import List, Optional, Dict
 from urllib.parse import ParseResult as URL
 
-import psutil
 from rlbot.utils.structures import game_data_struct
 
 from rlbot import gateway_util
@@ -25,6 +24,7 @@ from rlbot.botmanager.helper_process_manager import HelperProcessManager
 from rlbot.gateway_util import LaunchOptions, NetworkingRole
 from rlbot.matchconfig.conversions import parse_match_config
 from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.matchconfig.psyonix_config import set_random_psyonix_bot_preset
 from rlbot.matchcomms.server import launch_matchcomms_server
 from rlbot.parsing.agent_config_parser import load_bot_appearance
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle, BotConfigBundle
@@ -36,6 +36,7 @@ from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.matchcomms.server import MatchcommsServerThread
 
 if platform.system() == 'Windows':
     import msvcrt
@@ -242,6 +243,10 @@ class SetupManager:
         self.names = [bot.name for bot in match_config.player_configs]
         self.teams = [bot.team for bot in match_config.player_configs]
 
+        for player in match_config.player_configs:
+            if player.bot and not player.rlbot_controlled:
+                set_random_psyonix_bot_preset(player)
+
         bundles = [bot_config_overrides[index] if index in bot_config_overrides else
                    get_bot_config_bundle(bot.config_path) if bot.config_path else None
                    for index, bot in enumerate(match_config.player_configs)]
@@ -385,7 +390,6 @@ class SetupManager:
                         bot_manager_spawn_id = spawn_id
                 if participant_index is None:
                     raise Exception("Unable to determine the bot index!")
-
 
             if participant_index not in self.bot_processes:
                 reload_request = mp.Event()

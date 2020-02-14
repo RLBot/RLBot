@@ -55,17 +55,9 @@ def parse_match_config(
     for i in range(num_players):
 
         config_bundle = config_bundles[i]
-        bot_type = config_parser.get(PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TYPE_KEY, i)
 
         if i not in looks_config_overrides:
-            if bot_type == "psyonix":
-                # choose a random preset for psyonix bots
-                preset_directory = Path(__file__).parent / "psyonix_presets"
-                looks_path = random.choice(list(preset_directory.glob("*.cfg")))
-                looks_config_object = create_looks_configurations().parse_file(looks_path)
-                config_bundle.name = looks_path.name.split("_")[1].title()
-            else:
-                looks_config_object = config_bundle.get_looks_config()
+            looks_config_object = config_bundle.get_looks_config()
         else:
             looks_config_object = looks_config_overrides[i]
 

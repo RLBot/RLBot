@@ -84,19 +84,19 @@ def create_looks_configurations() -> ConfigObject:
 
 def create_loadout() -> ConfigHeader:
     header = ConfigHeader()
-    header.add_value('team_color_id', int, default=60, description='Primary Color selection')
+    header.add_value('team_color_id', int, default=0, description='Primary Color selection')
     header.add_value('custom_color_id', int, default=0, description='Secondary Color selection')
-    header.add_value('car_id', int, default=23, description='Car type (Octane, Merc, etc)')
+    header.add_value('car_id', int, default=0, description='Car type (Octane, Merc, etc)')
     header.add_value('decal_id', int, default=0, description='Type of decal')
-    header.add_value('wheels_id', int, default=1565, description='Wheel selection')
-    header.add_value('boost_id', int, default=35, description='Boost selection')
+    header.add_value('wheels_id', int, default=0, description='Wheel selection')
+    header.add_value('boost_id', int, default=0, description='Boost selection')
     header.add_value('antenna_id', int, default=0, description='Antenna Selection')
     header.add_value('hat_id', int, default=0, description='Hat Selection')
-    header.add_value('paint_finish_id', int, default=1681, description='Paint Type (for first color)')
-    header.add_value('custom_finish_id', int, default=1681, description='Paint Type (for secondary color)')
+    header.add_value('paint_finish_id', int, default=0, description='Paint Type (for first color)')
+    header.add_value('custom_finish_id', int, default=0, description='Paint Type (for secondary color)')
     header.add_value('engine_audio_id', int, default=0, description='Engine Audio Selection')
-    header.add_value('trails_id', int, default=3220, description='Car trail Selection')
-    header.add_value('goal_explosion_id', int, default=3018, description='Goal Explosion Selection')
+    header.add_value('trails_id', int, default=0, description='Car trail Selection')
+    header.add_value('goal_explosion_id', int, default=0, description='Goal Explosion Selection')
     header.add_value('primary_color_lookup', str, default=None,
                      description='Finds the closest primary color swatch based on the provided RGB value '
                                  'like [34, 255, 60]')
@@ -136,8 +136,10 @@ def parse_bot_loadout(player_configuration, bot_config, loadout_header):
     player_configuration.engine_audio_id = bot_config.getint(loadout_header, 'engine_audio_id')
     player_configuration.trails_id = bot_config.getint(loadout_header, 'trails_id')
     player_configuration.goal_explosion_id = bot_config.getint(loadout_header, 'goal_explosion_id')
-    player_configuration.primary_color_lookup = parse_color_string(bot_config.get(loadout_header, 'primary_color_lookup'))
-    player_configuration.secondary_color_lookup = parse_color_string(bot_config.get(loadout_header, 'secondary_color_lookup'))
+    player_configuration.primary_color_lookup = parse_color_string(
+        bot_config.get(loadout_header, 'primary_color_lookup'))
+    player_configuration.secondary_color_lookup = parse_color_string(
+        bot_config.get(loadout_header, 'secondary_color_lookup'))
 
 
 def parse_color_string(color_lookup_string):
