@@ -40,7 +40,10 @@ setuptools.setup(
             '**/*.png',
             '**/*.md',
             'dll/**/*',
-            'dll/*'
+            'dll/*',
+            'utils/structures/*.pyi',
+            'py.typed',
+            'matchconfig/psyonix_presets/*.cfg'
         ]
     },
 )

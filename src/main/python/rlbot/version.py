@@ -4,15 +4,26 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.35.2'
+__version__ = '1.36.1'
 
 release_notes = {
-    '1.35.2': """
+    '1.36.1': """
+    Proper appearances for Psyonix bots thanks to Marvin, with an assist from r0bbi3!
+    
+    Also:
+    - Improved error messages. - Will
+    - Fixing bug when trying to spawn tons of cars. - tare
+    """,
+    '1.35.8': """
     - Adding the Forbidden Temple stadium and a few others.
     - Adding a few custom quick chats.
     - Better support for loading levels that have no goals. - Skyborg
     - Reducing the frequency of python hot reload checks. - Marvin
+    - Performance improvement related to logger. - Marvin
+    - C# documentation improvements. - Redox
     - Providing a way to get autocomplete on the game tick packet.
+    - Trying again to fix inconsistencies with has_wheel_contact.
+    - Fixed bug that led to WrongProcessArgs error. - Will
     """,
     '1.34.5': """
     Mac support is here! https://github.com/RLBot/RLBot/wiki/Operating-System-Support

@@ -11,7 +11,7 @@ from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionP
 from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.messages.flat.QuickChatMessages import QuickChatMessages
 from rlbot.utils.file_util import get_python_root
-from rlbot.utils.game_state_util import GameState
+from rlbot.utils.game_state_util import GameState, CarState, Physics, Vector3
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.rlbot_exception import get_exception_from_error_code, EmptyDllResponse
 from rlbot.utils.structures import game_data_struct
@@ -225,11 +225,6 @@ class GameInterface:
                            "If you're not sure, close Rocket League and let us open it for you next time!")
 
     def wait_until_valid_packet(self):
-        num_players = self.start_match_configuration.num_players
-        if num_players > 10:
-            self.logger.info(f"Will not wait for all players to spawn in because there isn't room for {num_players} anyway.")
-            return
-
         self.logger.info('Waiting for valid packet...')
         for i in range(0, 60):
             packet = game_data_struct.GameTickPacket()
@@ -250,6 +245,15 @@ class GameInterface:
                 if len(spawn_ids) == 0:
                     self.logger.info('Packets are looking good, all spawn ids accounted for!')
                     return
+                elif i > 4:
+                    car_states = {}
+                    for k in range(0, self.start_match_configuration.num_players):
+                        player_info = packet.game_cars[k]
+                        if player_info.spawn_id > 0:
+                            car_states[k] = CarState(physics=Physics(velocity=Vector3(z=500)))
+                    if len(car_states) > 0:
+                        self.logger.info("Scooting bots out of the way to allow more to spawn!")
+                        self.set_game_state(GameState(cars=car_states))
 
             time.sleep(0.5)
         self.logger.info('Gave up waiting for valid packet :(')

@@ -1,5 +1,7 @@
 import math
+from dataclasses import dataclass
 from random import random
+from typing import List
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleControllerState
 from rlbot.messages.flat.RumbleOption import RumbleOption
@@ -9,6 +11,55 @@ from rlbot.utils.game_state_util import Rotator
 from rlbot.utils.structures.game_data_struct import GameTickPacket, DropshotTileState
 from rlbot.utils.structures.quick_chats import QuickChats
 
+
+class Step:
+    def __init__(self, duration: float, controls: SimpleControllerState):
+        self.duration = duration
+        self.controls = controls
+        self.start_time: float = None
+        self.done: bool = False
+
+    def tick(self, packet: GameTickPacket) -> SimpleControllerState:
+        if self.start_time is None:
+            self.start_time = packet.game_info.seconds_elapsed
+
+        elapsed_time = packet.game_info.seconds_elapsed - self.start_time
+        if elapsed_time > self.duration:
+            self.done = True
+
+        return self.controls
+
+class Sequence:
+    def __init__(self, steps: List[Step]):
+        self.steps = steps
+        self.index = 0
+        self.done = False
+
+    def tick(self, packet: GameTickPacket):
+        while True:
+            if self.index >= len(self.steps):
+                self.done = True
+                return SimpleControllerState()
+            step = self.steps[self.index]
+            if step.done:
+                self.index += 1
+            else:
+                return step.tick(packet)
+
+class StateListener:
+    def __init__(self, index):
+        self.index = index
+        self.contact_state = False
+        self.jumped_state = False
+
+    def tick(self, packet: GameTickPacket):
+        car = packet.game_cars[self.index]
+        if self.contact_state != car.has_wheel_contact:
+            print(f'has_wheel_contact: {car.has_wheel_contact}')
+            self.contact_state = car.has_wheel_contact
+        if self.jumped_state != car.jumped:
+            print(f'jumped: {car.jumped}')
+            self.jumped_state = car.jumped
 
 class Atba(BaseAgent):
     flip_turning = False
@@ -20,8 +71,22 @@ class Atba(BaseAgent):
     test_physics_tick = False
     cleared = False
 
+    def __init__(self, name, team, index):
+        super().__init__(name, team, index)
+        self.state_listener = StateListener(index)
+        self.sequence: Sequence = None
+
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         controller_state = SimpleControllerState()
+
+        self.state_listener.tick(game_tick_packet)
+        if self.sequence is None or self.sequence.done:
+            self.sequence = Sequence(steps=[
+                Step(0.3, SimpleControllerState(jump=True)),
+                Step(0.05, SimpleControllerState()),
+                Step(0.6, SimpleControllerState(jump=True)),
+                Step(2, SimpleControllerState())
+            ])
 
         if not game_tick_packet.game_info.is_round_active:
             return controller_state
@@ -29,8 +94,8 @@ class Atba(BaseAgent):
         ball_location = Vector2(game_tick_packet.game_ball.physics.location.x,
                                 game_tick_packet.game_ball.physics.location.y)
 
-        game_tick_packet.game_ball.physics
         my_car = game_tick_packet.game_cars[self.index]
+        # print(f'wheel contact: {my_car.jumped}')
         car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
@@ -69,7 +134,7 @@ class Atba(BaseAgent):
             self.do_physics_tick_test(game_tick_packet)
 
         # Not making this configurable because it's easier to just modify the code
-        # self.render_packet(game_tick_packet)
+        self.render_packet(game_tick_packet)
 
         if random() > .997:
             game_state = GameState(console_commands=["Stat FPS"])
@@ -79,9 +144,7 @@ class Atba(BaseAgent):
             game_map = self.get_match_settings().MutatorSettings().RumbleOption()
             self.logger.info(f'Is Spike Rush? {game_map == RumbleOption.Spike_Rush}')
 
-        controller_state.throttle = 1.0
-        controller_state.steer = turn
-        controller_state.use_item = random() > .99
+        controller_state = self.sequence.tick(game_tick_packet)
 
         return controller_state
 

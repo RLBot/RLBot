@@ -383,7 +383,6 @@ class SetupManager:
                 self.logger.info(f'Player in slot {i} was sent with spawn id {spawn_id}, will search in the packet.')
                 for n in range(0, packet.num_cars):
                     packet_spawn_id = packet.game_cars[n].spawn_id
-                    self.logger.info(f'Packet index {n} has spawn id {packet_spawn_id}')
                     if spawn_id == packet_spawn_id:
                         self.logger.info(f'Looks good, considering participant index to be {n}')
                         participant_index = n
