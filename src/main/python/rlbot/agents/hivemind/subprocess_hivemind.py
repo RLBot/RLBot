@@ -17,7 +17,7 @@ class SubprocessHivemind(BotHelperProcess):
     # hivemind - main process controlling the drones.
     # drone - a bot under the hivemind's control.
 
-    # Relative path to the executable.
+    # Path to the executable.
     exec_path = None
 
     def __init__(self, agent_metadata_queue, quit_event, options):

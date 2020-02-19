@@ -4,7 +4,7 @@ from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 
 class DroneAgent(BaseIndependentAgent):
-    # Relative path to the hivemind helperprocess python file.
+    # Path to the hivemind helperprocess python file.
     hive_path = None
     # Bots with the same key will be part of the same hivemind.
     hive_key = None
