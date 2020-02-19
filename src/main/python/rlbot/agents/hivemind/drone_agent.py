@@ -35,4 +35,4 @@ class DroneAgent(BaseIndependentAgent):
 
             return HelperProcessRequest(self.hive_path, key, options=options)
 
-        raise FileNotFoundError('Could not find file: {self.hive_path}')
+        raise FileNotFoundError(f'Could not find file: {self.hive_path}')
