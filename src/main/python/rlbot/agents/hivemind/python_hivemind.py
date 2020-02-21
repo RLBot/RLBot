@@ -8,6 +8,7 @@ from rlbot.botmanager.bot_helper_process import BotHelperProcess
 from rlbot.messages.flat import MatchSettings
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
+from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
 from rlbot.utils.structures.bot_input_struct import PlayerInput
 from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
@@ -78,7 +79,7 @@ class PythonHivemind(BotHelperProcess):
         self._field_info = FieldInfoPacket()
         self.game_interface.update_field_info_packet(self._field_info)
         # Wrapper for renderer.
-        self.renderer = self.game_interface.renderer
+        self.renderer: RenderingManager = self.game_interface.renderer
 
         # Create packet object.
         packet = GameTickPacket()
