@@ -26,5 +26,5 @@ using System.Runtime.InteropServices;
 //      Major Version
 //      Minor Version
 //      Patch Number
-[assembly: AssemblyVersion("1.12.1")]
-[assembly: AssemblyFileVersion("1.12.1")]
+[assembly: AssemblyVersion("1.12.2")]
+[assembly: AssemblyFileVersion("1.12.2")]
