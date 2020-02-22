@@ -36,6 +36,7 @@ from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.utils.config_parser import mergeTASystemSettings, cleanUpTASystemSettings
 from rlbot.matchcomms.server import MatchcommsServerThread
 
 if platform.system() == 'Windows':
@@ -165,6 +166,7 @@ class SetupManager:
             self.logger.info("Will not start Rocket League because this is configured as a client!")
         # Launch the game if it is not running.
         elif not self.is_rocket_league_running(port):
+            mergeTASystemSettings()
             self.launch_rocket_league(port=port)
 
         try:
@@ -425,6 +427,8 @@ class SetupManager:
         time.sleep(2)  # Wait a moment. If we look too soon, we might see a valid packet from previous game.
         self.game_interface.wait_until_valid_packet()
         self.logger.info("Match has started")
+        
+        cleanUpTASystemSettings()
 
     def infinite_loop(self):
         instructions = "Press 'r' to reload all agents, or 'q' to exit"
