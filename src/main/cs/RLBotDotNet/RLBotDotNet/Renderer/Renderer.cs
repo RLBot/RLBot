@@ -261,7 +261,7 @@ namespace RLBotDotNet.Renderer
         /// Draws a 2D rectangle at a 3D-tracked position in world space.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
-        /// <param name="upperLeft">The upper left corner of the rectangle.</param>
+        /// <param name="position">The upper left corner of the rectangle.</param>
         /// <param name="width">The width in pixels.</param>
         /// <param name="height">The height in pixels</param>
         /// <param name="filled">Flag indicating whether the rectangle should be filled in</param>
@@ -272,7 +272,7 @@ namespace RLBotDotNet.Renderer
 
         /// <summary>
         /// Draws a 2D rectangle at a 3D-tracked position in world space.<br/>
-        /// The given <see cref="position"/> is center of the rectangle.
+        /// The given position is center of the rectangle.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
         /// <param name="position">The center of the rectangle.</param>
@@ -286,7 +286,7 @@ namespace RLBotDotNet.Renderer
 
         /// <summary>
         /// Draws a 2D rectangle at a 3D-tracked position in world space.<br/>
-        /// The given <see cref="position"/> is center of the rectangle.
+        /// The given position is center of the rectangle.
         /// </summary>
         /// <param name="color">The color of the rectangle.</param>
         /// <param name="position">The center of the rectangle.</param>
