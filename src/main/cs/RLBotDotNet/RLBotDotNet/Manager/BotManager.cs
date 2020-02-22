@@ -115,7 +115,7 @@ namespace RLBotDotNet
         }
 
         /// <summary>
-        /// The main bot manager loop. This will continuously run the bots by setting <see cref="botRunEvent"/>.
+        /// The main bot manager loop. This will continuously run the bots by setting <see cref="BotProcess.botRunEvent"/>.
         /// </summary>
         private void MainBotLoop()
         {
