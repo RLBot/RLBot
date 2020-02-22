@@ -67,7 +67,7 @@ class SubprocessHivemind(BotHelperProcess):
                 rlbot.__version__,
                 '--rlbot-dll-directory',
                 get_dll_directory(),
-                '--drone-indices'
+                '--drone-indices',
                 ','.join([str(index) for index in self.drone_indices])
             ]
         )
