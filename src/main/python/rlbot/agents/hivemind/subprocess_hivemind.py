@@ -59,7 +59,7 @@ class SubprocessHivemind(BotHelperProcess):
 
         # Starts the process.
         # The drone indices are all the numbers after --drone-indices.
-        # example.exe --rlbot-verson 1.35.5 --rlbot-dll-directory some/directory/dll/ --drone-indices 0,1,2,3,4,5
+        # example.exe --rlbot-version 1.35.5 --rlbot-dll-directory some/directory/dll/ --drone-indices 0,1,2,3,4,5
         process = Popen(
             [
                 self.exec_path,
