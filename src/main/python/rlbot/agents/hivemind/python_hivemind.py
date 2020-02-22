@@ -21,6 +21,9 @@ class PythonHivemind(BotHelperProcess):
     # hivemind - main process controlling the drones.
     # drone - a bot under the hivemind's control.
 
+    # Path to the executable. NOT USED BY PYTHON HIVEMINDS!
+    exec_path = None
+
     def __init__(self, agent_metadata_queue, quit_event, options):
         super().__init__(agent_metadata_queue, quit_event, options)
 
@@ -29,11 +32,9 @@ class PythonHivemind(BotHelperProcess):
         self.logger = get_logger(options['name'])
 
         # Give a warning if exec_path was given.
-        if 'exec_path' in options:
-            self.logger.warning(
-                """An exec_path was given, but this is a PythonHivemind, and so it is ignored.
-                Try subclassing SubprocessHivemind if you want to use an executable."""
-            )
+        if self.exec_path is not None:
+            self.logger.warning("An exec_path was given, but this is a PythonHivemind, and so it is ignored.")
+            self.logger.warning("  Try subclassing SubprocessHivemind if you want to use an executable.")
 
         # The game interface is how you get access to things
         # like ball prediction, the game tick packet, or rendering.
@@ -83,25 +84,26 @@ class PythonHivemind(BotHelperProcess):
 
         # Create packet object.
         packet = GameTickPacket()
-        self.game_interface.update_live_data_packet(packet)
+        # Uses one of the drone indices as a key.
+        key = next(iter(self.drone_indices))
+        self.game_interface.fresh_live_data_packet(packet, 20, key)
 
         # Initialization step for your hivemind.
         self.initialize_hive(packet)
 
         while True:
-            previous_packet_time = packet.game_info.seconds_elapsed
-
             # Updating the packet.
-            self.game_interface.update_live_data_packet(packet)
-
-            # Checking if packet is old. If yes, sleep and skip running the code.
-            if previous_packet_time == packet.game_info.seconds_elapsed:
-                time.sleep(0.003)
-                continue
+            self.game_interface.fresh_live_data_packet(packet, 20, key)
 
             # Get outputs from hivemind for each bot.
             # Outputs are expected to be a Dict[int, PlayerInput]
             outputs = self.get_outputs(packet)
+
+            if outputs is None:
+                self.logger.error("No outputs were returned.")
+                self.logger.error("  Try putting `return {i: PlayerInput() for i in self.drone_indices}`")
+                self.logger.error("  in `get_outputs()` to troubleshoot.")
+                continue
 
             if len(outputs) < len(self.drone_indices):
                 self.logger.error("Not enough outputs were given.")

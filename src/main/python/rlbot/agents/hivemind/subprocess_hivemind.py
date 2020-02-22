@@ -1,5 +1,3 @@
-# from multiprocessing import Event
-# from signal import SIGTERM
 from subprocess import Popen
 
 import queue
@@ -61,7 +59,7 @@ class SubprocessHivemind(BotHelperProcess):
 
         # Starts the process.
         # The drone indices are all the numbers after --drone-indices.
-        # example.exe --rlbot-verson 1.35.5 --rlbot-dll-directory some/directory/dll/ --drone-indices 0 1 2 3 4
+        # example.exe --rlbot-verson 1.35.5 --rlbot-dll-directory some/directory/dll/ --drone-indices 0,1,2,3,4,5
         process = Popen(
             [
                 self.exec_path,
@@ -70,13 +68,6 @@ class SubprocessHivemind(BotHelperProcess):
                 '--rlbot-dll-directory',
                 get_dll_directory(),
                 '--drone-indices'
-            ] + [
-                str(index) for index in self.drone_indices
+                ','.join([str(index) for index in self.drone_indices])
             ]
         )
-
-        # Block until we are asked to terminate, and then do so.
-        # terminate_request_event.wait()
-        # process.send_signal(SIGTERM)
-        # process.wait()
-
