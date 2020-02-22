@@ -11,8 +11,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional, Dict
 from urllib.parse import ParseResult as URL
-import configparser
-import atexit
 
 from rlbot.utils.structures import game_data_struct
 
@@ -38,6 +36,7 @@ from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.utils.config_parser import mergeTASystemSettings, cleanUpTASystemSettings
 from rlbot.matchcomms.server import MatchcommsServerThread
 
 if platform.system() == 'Windows':
@@ -46,8 +45,6 @@ if platform.system() == 'Windows':
 # By default, look for rlbot.cfg in the current working directory.
 DEFAULT_RLBOT_CONFIG_LOCATION = os.path.realpath('./rlbot.cfg')
 RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
-
-TAGAME_CONFIG_LOCATION = os.path.expanduser("~/Documents/My Games/Rocket League/TAGame/Config")
 
 
 class ROCKET_LEAGUE_PROCESS_INFO:
@@ -169,7 +166,7 @@ class SetupManager:
             self.logger.info("Will not start Rocket League because this is configured as a client!")
         # Launch the game if it is not running.
         elif not self.is_rocket_league_running(port):
-            self.mergeTASystemSettings()
+            mergeTASystemSettings()
             self.launch_rocket_league(port=port)
 
         try:
@@ -431,7 +428,7 @@ class SetupManager:
         self.game_interface.wait_until_valid_packet()
         self.logger.info("Match has started")
         
-        self.cleanUpTASystemSettings()
+        cleanUpTASystemSettings()
 
     def infinite_loop(self):
         instructions = "Press 'r' to reload all agents, or 'q' to exit"
@@ -581,53 +578,6 @@ class SetupManager:
         if self.matchcomms_server:
             self.matchcomms_server.close()
             self.matchcomms_server = None
-
-    def mergeTASystemSettings(self):
-        """
-        Backs up TASystemSettings.ini and creates a new merged TASystemSettings.ini based on TASystemSettings.RLBot.ini.
-        Does nothing if no TASystemSettings.RLBot.ini is found.
-        """
-        TASystemSettings_path = os.path.join(TAGAME_CONFIG_LOCATION, "TASystemSettings.ini")
-        TASystemSettings_user_path = os.path.join(TAGAME_CONFIG_LOCATION, "TASystemSettings.user.ini")
-        TASystemSettings_RLBot_path = os.path.join(TAGAME_CONFIG_LOCATION, "TASystemSettings.RLBot.ini")
-
-        # only mess with TASystemSettings if TASystemSettings.RLBot.ini exists
-        if not os.path.exists(TASystemSettings_RLBot_path):
-            return
-        # don't mess with TASystemSettings if it has already been messed with.
-        if os.path.exists(TASystemSettings_user_path):
-            return
-
-        print("Merging TASystemSettings.")
-
-        atexit.register(self.cleanUpTASystemSettings)
-
-        os.rename(TASystemSettings_path, TASystemSettings_user_path)
-
-        config = configparser.ConfigParser()
-        config.read(TASystemSettings_user_path)
-        config.read(TASystemSettings_RLBot_path)
-        with open(TASystemSettings_path, 'w') as configfile:
-            config.write(configfile)
-
-
-    def cleanUpTASystemSettings(self):
-        """
-        Reverses the effects of mergeTASystemSettings.
-        """
-        TASystemSettings_path = os.path.join(TAGAME_CONFIG_LOCATION, "TASystemSettings.ini")
-        TASystemSettings_user_path = os.path.join(TAGAME_CONFIG_LOCATION, "TASystemSettings.user.ini")
-
-        if not os.path.exists(TASystemSettings_user_path):
-            return
-
-        print("Reverting TASystemSettings.")
-        if os.path.exists(TASystemSettings_path):
-            os.remove(TASystemSettings_path)
-
-        os.rename(TASystemSettings_user_path, TASystemSettings_path)
-
-        atexit.unregister(self.cleanUpTASystemSettings)
 
 
 def try_get_steam_executable_path() -> Optional[Path]:
