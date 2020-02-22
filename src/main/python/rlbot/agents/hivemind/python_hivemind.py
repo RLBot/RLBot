@@ -91,7 +91,7 @@ class PythonHivemind(BotHelperProcess):
         # Initialization step for your hivemind.
         self.initialize_hive(packet)
 
-        while True:
+        while not self.quit_event.is_set():
             # Updating the packet.
             self.game_interface.fresh_live_data_packet(packet, 20, key)
 

@@ -1,3 +1,4 @@
+from signal import SIGTERM
 from subprocess import Popen
 
 import queue
@@ -71,3 +72,8 @@ class SubprocessHivemind(BotHelperProcess):
                 ','.join([str(index) for index in self.drone_indices])
             ]
         )
+
+        # Wait until we get a quit_event, and then terminate the process.
+        self.quit_event.wait()
+        process.send_signal(SIGTERM)
+        process.wait()
