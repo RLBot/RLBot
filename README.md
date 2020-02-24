@@ -5,7 +5,7 @@
 ***If you just want to make a bot, you don't need to be here. Instead, start with one of these:***
  - Python - https://github.com/RLBot/RLBotPythonExample
  - Java - https://github.com/RLBot/RLBotJavaExample
- - .NET (C#, VB.NET, F# and other CLI languages) - https://github.com/RLBot/RLBotCSharpExample
+ - C# (and other .NET languages) - https://github.com/RLBot/RLBotCSharpExample
  - Scratch - https://github.com/RLBot/RLBotScratchInterface
  - Rust - https://crates.io/crates/rlbot
 
@@ -24,6 +24,9 @@ We expect we'll be able to open-source everything eventually, and then this repo
 </p>
 
 [<img src="https://img.shields.io/pypi/v/rlbot.svg">](https://pypi.org/project/rlbot/)
+[<img src="https://img.shields.io/bintray/v/rlbotofficial/RLBotMaven/rlbot-framework">](https://bintray.com/rlbotofficial/RLBotMaven/rlbot-framework)
+[<img src="https://img.shields.io/nuget/v/RLBot.Framework">](https://www.nuget.org/packages/RLBot.Framework/)
+[<img src="https://img.shields.io/crates/v/rlbot">](https://crates.io/crates/rlbot)
 [<img src="https://img.shields.io/discord/348658686962696195.svg?colorB=7581dc&logo=discord&logoColor=white">](https://discord.gg/zbaAKPt)
 
 
