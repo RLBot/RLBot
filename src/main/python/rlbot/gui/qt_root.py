@@ -754,8 +754,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
         self.mode_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MODE))
         self.map_type_combobox.setCurrentText(self.overall_config.get(MATCH_CONFIGURATION_HEADER, GAME_MAP))
         self.skip_replays_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS))
-        self.instant_start_checkbox.setChecked(
-            self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START))
+        self.instant_start_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START))
+        self.enable_lockstep_checkbox.setChecked(self.overall_config.getboolean(MATCH_CONFIGURATION_HEADER, ENABLE_LOCKSTEP))
 
     def match_settings_edit_event(self, value):
         """
@@ -773,6 +773,8 @@ class RLBotQTGui(QMainWindow, Ui_MainWindow):
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, SKIP_REPLAYS, value)
         elif sender is self.instant_start_checkbox:
             self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, INSTANT_START, value)
+        elif sender is self.enable_lockstep_checkbox:
+            self.overall_config.set_value(MATCH_CONFIGURATION_HEADER, ENABLE_LOCKSTEP, value)
         elif sender is self.match_length_combobox:
             self.overall_config.set_value(MUTATOR_CONFIGURATION_HEADER, MUTATOR_MATCH_LENGTH, value)
         elif sender is self.boost_type_combobox:

@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'qt_gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.6
+# Created by: PyQt5 UI code generator 5.14.0
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -376,6 +378,10 @@ class Ui_MainWindow(object):
         self.label_12.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_12.setObjectName("label_12")
         self.gridLayout_2.addWidget(self.label_12, 1, 0, 1, 1)
+        self.label_13 = QtWidgets.QLabel(self.match_settings_groupbox)
+        self.label_13.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_13.setObjectName("label_13")
+        self.gridLayout_2.addWidget(self.label_13, 0, 3, 1, 1)
         self.skip_replays_checkbox = QtWidgets.QCheckBox(self.match_settings_groupbox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -396,6 +402,18 @@ class Ui_MainWindow(object):
         self.instant_start_checkbox.setSizePolicy(sizePolicy)
         self.instant_start_checkbox.setObjectName("instant_start_checkbox")
         self.gridLayout_2.addWidget(self.instant_start_checkbox, 1, 4, 1, 1)
+        self.label_141 = QtWidgets.QLabel(self.match_settings_groupbox)
+        self.label_141.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_141.setObjectName("label_141")
+        self.gridLayout_2.addWidget(self.label_141, 2, 3, 1, 1)
+        self.enable_lockstep_checkbox = QtWidgets.QCheckBox(self.match_settings_groupbox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.enable_lockstep_checkbox.sizePolicy().hasHeightForWidth())
+        self.enable_lockstep_checkbox.setSizePolicy(sizePolicy)
+        self.enable_lockstep_checkbox.setObjectName("enable_lockstep_checkbox")
+        self.gridLayout_2.addWidget(self.enable_lockstep_checkbox, 2, 4, 1, 1)
         self.line_6 = QtWidgets.QFrame(self.match_settings_groupbox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -405,7 +423,7 @@ class Ui_MainWindow(object):
         self.line_6.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_6.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_6.setObjectName("line_6")
-        self.gridLayout_2.addWidget(self.line_6, 0, 2, 2, 1)
+        self.gridLayout_2.addWidget(self.line_6, 0, 2, 3, 1)
         self.line_7 = QtWidgets.QFrame(self.match_settings_groupbox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -415,7 +433,7 @@ class Ui_MainWindow(object):
         self.line_7.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_7.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_7.setObjectName("line_7")
-        self.gridLayout_2.addWidget(self.line_7, 0, 5, 2, 1)
+        self.gridLayout_2.addWidget(self.line_7, 0, 5, 3, 1)
         self.frame_7 = QtWidgets.QFrame(self.match_settings_groupbox)
         self.frame_7.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_7.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -425,11 +443,7 @@ class Ui_MainWindow(object):
         self.edit_mutators_pushbutton = QtWidgets.QPushButton(self.frame_7)
         self.edit_mutators_pushbutton.setObjectName("edit_mutators_pushbutton")
         self.horizontalLayout_11.addWidget(self.edit_mutators_pushbutton)
-        self.gridLayout_2.addWidget(self.frame_7, 0, 6, 2, 1)
-        self.label_13 = QtWidgets.QLabel(self.match_settings_groupbox)
-        self.label_13.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_13.setObjectName("label_13")
-        self.gridLayout_2.addWidget(self.label_13, 0, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.frame_7, 0, 6, 3, 1)
         self.gridLayout_2.setColumnStretch(1, 2)
         self.gridLayout_2.setColumnStretch(2, 1)
         self.gridLayout_2.setColumnStretch(4, 2)
@@ -503,9 +517,9 @@ class Ui_MainWindow(object):
         self.match_settings_groupbox.setTitle(_translate("MainWindow", "Match Settings"))
         self.label_11.setText(_translate("MainWindow", "Mode:"))
         self.label_12.setText(_translate("MainWindow", "Map:"))
+        self.label_13.setText(_translate("MainWindow", "Skip Goal Replays:"))
         self.label_14.setText(_translate("MainWindow", "Instant Start:"))
+        self.label_141.setText(_translate("MainWindow", "Enable Lockstep:"))
         self.edit_mutators_pushbutton.setText(_translate("MainWindow", "Edit Mutators"))
-        self.label_13.setText(_translate("MainWindow", "Disable Goal & Match Replays:"))
         self.kill_bots_pushbutton.setText(_translate("MainWindow", "Kill Bots"))
         self.run_button.setText(_translate("MainWindow", "RUN"))
-
