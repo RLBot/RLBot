@@ -130,7 +130,7 @@ class Result:
 
 
 def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], seed: int,
-                  reload_agent=True) -> Iterator[Result]:
+                  reload_agent: bool = True) -> Iterator[Result]:
     """
     It is recommended to use setup_manager_context() to generate your setup_manager.
     """
