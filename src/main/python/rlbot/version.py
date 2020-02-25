@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.36.1'
+__version__ = '1.36.2'
 
 release_notes = {
-    '1.36.1': """
+    '1.36.2': """
     Proper appearances for Psyonix bots thanks to Marvin, with an assist from r0bbi3!
     
     Also:
@@ -24,6 +24,7 @@ release_notes = {
     - Providing a way to get autocomplete on the game tick packet.
     - Trying again to fix inconsistencies with has_wheel_contact.
     - Fixed bug that led to WrongProcessArgs error. - Will
+    - Adding a flag to control agent reloads for training. - Marvin
     """,
     '1.34.5': """
     Mac support is here! https://github.com/RLBot/RLBot/wiki/Operating-System-Support
