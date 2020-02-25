@@ -129,7 +129,8 @@ class Result:
         self.grade = grade
 
 
-def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], seed: int) -> Iterator[Result]:
+def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], seed: int,
+                  reload_agent: bool = True) -> Iterator[Result]:
     """
     It is recommended to use setup_manager_context() to generate your setup_manager.
     """
@@ -152,8 +153,9 @@ def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], se
                     update_row('bots', ren.renderman.white)
                     _wait_until_bots_ready(setup_manager, new_match_config)
 
-                update_row('reload', ren.renderman.white)
-                setup_manager.reload_all_agents(quiet=True)
+                if reload_agent:
+                    update_row('reload', ren.renderman.white)
+                    setup_manager.reload_all_agents(quiet=True)
 
                 # Briefing
                 update_row('brief', ren.renderman.white)
