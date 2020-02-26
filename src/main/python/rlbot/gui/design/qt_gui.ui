@@ -794,6 +794,16 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Skip Goal Replays:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="4">
         <widget class="QCheckBox" name="skip_replays_checkbox">
          <property name="sizePolicy">
@@ -824,7 +834,27 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="2" rowspan="2">
+       <item row="2" column="3">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Enable Lockstep:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4">
+        <widget class="QCheckBox" name="enable_lockstep_checkbox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2" rowspan="3">
         <widget class="Line" name="line_6">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -837,7 +867,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="5" rowspan="2">
+       <item row="0" column="5" rowspan="3">
         <widget class="Line" name="line_7">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -850,7 +880,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="6" rowspan="2">
+       <item row="0" column="6" rowspan="3">
         <widget class="QFrame" name="frame_7">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -867,16 +897,6 @@
            </widget>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Skip Replays:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
         </widget>
        </item>
       </layout>
