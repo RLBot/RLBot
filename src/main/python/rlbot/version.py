@@ -4,15 +4,19 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.36.2'
+__version__ = '1.36.3'
 
 release_notes = {
-    '1.36.2': """
+    '1.36.3': """
     Proper appearances for Psyonix bots thanks to Marvin, with an assist from r0bbi3!
-    
+
     Also:
     - Improved error messages. - Will
     - Fixing bug when trying to spawn tons of cars. - tare
+    - Starting on hivemind support classes. Stay tuned! - Will
+    - Improving C# documentation. - Redox
+    - Feature for loading RLBot-specific game settings (e.g. framerate cap). - L0laapk3
+    - Fixed game_tick_packet.game_info.is_match_ended always false - Skyborg
     """,
     '1.35.8': """
     - Adding the Forbidden Temple stadium and a few others.
@@ -28,7 +32,7 @@ release_notes = {
     """,
     '1.34.5': """
     Mac support is here! https://github.com/RLBot/RLBot/wiki/Operating-System-Support
-    
+
     Also:
     - Improving Remote RLBot so that multiple client computers can connect from behind
       the same IP address.
@@ -40,19 +44,19 @@ release_notes = {
     '1.33.1': """
     Remote TCP functionality, primarily for classroom use.
     See https://github.com/RLBot/RLBot/wiki/Remote-RLBot for details!
-    
+
     Minor updates:
      - Fixing a bug that makes RLBot stutter unpredictably.
     """,
     '1.32.1': """
     - You can specify your car's primary and secondary color swatches by the nearest
       RGB value instead of looking up the color id's on our wiki. You're still constrained
-      to the normal color choices, don't get too excited! 
+      to the normal color choices, don't get too excited!
       See https://github.com/RLBot/RLBot/wiki/Bot-Customization#colors for details.
     - The lockstep feature should be more reliable now.
     """,
     '1.31.1': """
-    Hitbox offsets are now available in the GameTickPacket. 
+    Hitbox offsets are now available in the GameTickPacket.
     This should make it possible to use hitboxes without hardcoding any values.
 
     - Fixes hitboxes issues after RL update.
@@ -60,7 +64,7 @@ release_notes = {
     '1.30.2': """
     Kipje13 has a major speedup for rendering in python! You'll get the benefits
     automatically, but ask him for the details if you're curious.
-    
+
     Also delivering fresher packets to python bots, for improved latency and
     consistency. This may affect bot behavior slightly, check your kickoffs!
     """,
@@ -72,7 +76,7 @@ release_notes = {
     """,
     '1.28.3': """
     Linux Support!
-    
+
     Kipje13 has really done it, you can run RLBot in Linux now :D
     - Tested in Ubuntu 18.04 with basic python bots, it works great.
     - All the latest features like lockstep are present.
@@ -81,25 +85,25 @@ release_notes = {
       open source area of RLBot, so drop by #framework-dev if you want to contribute!
 
     More info at https://github.com/RLBot/RLBot/wiki/Operating-System-Support
-    
+
     Additional fixes:
     - Open RL using Popen on Linux - cominixo
     - Fixed bug in Scratch manager and switched it to use structs.
     - Ability to save scratch bots over the websocket.
     """,
     '1.27.1': """
-    Introducing lockstep mode--if you set enable_lockstep = True in rlbot.cfg, the 
+    Introducing lockstep mode--if you set enable_lockstep = True in rlbot.cfg, the
     framework will wait for outputs from all bots before advancing to the next frame.
-    
+
     This feature brought to you by Redox!
-    
+
     Other features:
     - No longer trying to configure Rocket League with .ini files, which was error-prone.
     """,
     '1.26.4': """
     Adding the ability to execute arbitrary console commands in Rocket League.
     See https://github.com/RLBot/RLBot/wiki/Console-Commands for details!
-    
+
     Other features:
     - Adding a built-in version of the Scratch bot manager so we can push updates.
     - Adding an early-start system you can opt into if your bot is very slow to start.
