@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.36.3'
+__version__ = '1.36.4'
 
 release_notes = {
-    '1.36.3': """
+    '1.36.4': """
     Proper appearances for Psyonix bots thanks to Marvin, with an assist from r0bbi3!
 
     Also:
@@ -17,6 +17,7 @@ release_notes = {
     - Improving C# documentation. - Redox
     - Feature for loading RLBot-specific game settings (e.g. framerate cap). - L0laapk3
     - Fixed game_tick_packet.game_info.is_match_ended always false - Skyborg
+    - Fixed human spawning. - tare
     """,
     '1.35.8': """
     - Adding the Forbidden Temple stadium and a few others.
