@@ -1,3 +1,5 @@
+from time import sleep
+
 from rlbot.agents.base_agent import BaseAgent
 from rlbot.botmanager.bot_manager import BotManager
 from rlbot.utils.logging_utils import get_logger
@@ -63,9 +65,17 @@ class BotManagerStruct(BotManager):
         return self.game_tick_packet.game_info.seconds_elapsed
 
     def pull_data_from_game(self):
-        # Set a timeout of 30 milliseconds. It's slightly less than the number of milliseconds (33.33)
-        # caused by MAX_AGENT_CALL_PERIOD defined in bot_manager.py
-        self.game_interface.fresh_live_data_packet(self.game_tick_packet, 30, self.index)
+        if self.match_config.enable_lockstep:
+            # If we're using lockstep then fresh_live_data_packet is no good because when
+            # lockstep freezes the game, we won't get a fresh packet and it'll wait the full timeout.
+            # Instead do a clunky sleep here to limit the framerate. Not worried about precision because
+            # lockstep will probably never be used in a competitive scenario.
+            sleep(1 / self.maximum_tick_rate_preference)
+            self.game_interface.update_live_data_packet(self.game_tick_packet)
+        else:
+            # Set a timeout of 30 milliseconds. It's slightly less than the number of milliseconds (33.33)
+            # caused by MAX_AGENT_CALL_PERIOD defined in bot_manager.py
+            self.game_interface.fresh_live_data_packet(self.game_tick_packet, 30, self.index)
 
     def get_ball_prediction_struct(self):
         return self.game_interface.update_ball_prediction(self.ball_prediction)

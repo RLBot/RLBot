@@ -141,8 +141,9 @@ class Atba(BaseAgent):
             self.set_game_state(game_state)
 
         if random() > .99:
-            game_map = self.get_match_settings().MutatorSettings().RumbleOption()
-            self.logger.info(f'Is Spike Rush? {game_map == RumbleOption.Spike_Rush}')
+            mutator_settings = self.get_match_settings().MutatorSettings()
+            if mutator_settings is not None:
+                self.logger.info(f'Is Spike Rush? {mutator_settings.RumbleOption() == RumbleOption.Spike_Rush}')
 
         controller_state = self.sequence.tick(game_tick_packet)
 
@@ -185,6 +186,7 @@ class Atba(BaseAgent):
         self.render_value_3d(player.physics.location, 5, "double_jumped", player.double_jumped)
         self.render_value_3d(player.physics.location, 6, "team", player.team)
         self.render_value_3d(player.physics.location, 7, "boost", player.boost)
+        self.render_value_3d(player.physics.location, 8, "score", player.score_info.score)
 
     def render_value_3d(self, vec, index, label, value):
 

@@ -189,7 +189,7 @@ class BotManager:
                 # Run the Agent only if the game_info has updated.
                 tick_game_time = self.get_game_time()
                 now = datetime.now()
-                should_call_while_paused = now - last_call_real_time >= MAX_AGENT_CALL_PERIOD
+                should_call_while_paused = now - last_call_real_time >= MAX_AGENT_CALL_PERIOD or self.match_config.enable_lockstep
 
                 if frame_urgency < 1 / self.maximum_tick_rate_preference:
                     # Urgency increases every frame, but don't let it build up a large backlog
