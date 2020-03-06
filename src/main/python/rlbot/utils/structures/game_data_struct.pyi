@@ -168,7 +168,7 @@ class GameTickPacket:
     game_info: GameInfo
     # dropshot_tiles: List[TileInfo]  Hiding this for now because we don't support dropshot at the moment
     # num_tiles: int  Hiding this for now because we don't support dropshot at the moment
-    teams: TeamInfo
+    teams: List[TeamInfo]
     num_teams: int
 
 
