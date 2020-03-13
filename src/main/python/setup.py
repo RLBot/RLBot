@@ -11,7 +11,7 @@ setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
     install_requires=[
-        'psutil==5.5.0',
+        'psutil==5.6.6',
         'inputs',
         'PyQt5',
         'py4j',
