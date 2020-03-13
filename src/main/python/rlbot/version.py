@@ -4,9 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.36.8'
+__version__ = '1.37.2'
 
 release_notes = {
+    '1.37.2': """
+    - Better on screen performance measurement for RLBot (hit home key).
+    - Bots can now draw when the game is paused, and still move after goal explosions.
+    """,
     '1.36.8': """
     Proper appearances for Psyonix bots thanks to Marvin, with an assist from r0bbi3!
 

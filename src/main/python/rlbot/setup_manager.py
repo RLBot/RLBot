@@ -427,7 +427,7 @@ class SetupManager:
         time.sleep(2)  # Wait a moment. If we look too soon, we might see a valid packet from previous game.
         self.game_interface.wait_until_valid_packet()
         self.logger.info("Match has started")
-        
+
         cleanUpTASystemSettings()
 
     def infinite_loop(self):
