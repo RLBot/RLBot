@@ -28,7 +28,6 @@ def javaDllDir = 'build/dll'
 dependencies {
     compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
-    compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'  // Allows the java bot manager to accept commands from python.
     compile 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
 
     // This is handy for running the test without needing to supply jna.library.path.
@@ -39,9 +38,7 @@ dependencies {
 }
 
 project.setGroup('org.rlbot.commons')
-project.setVersion('1.11.0')
-
-def pythonRoot = './src/main/python/'
+project.setVersion('2.0.0')
 
 sourceSets {
     main {
@@ -52,45 +49,20 @@ sourceSets {
     }
 }
 
-// After flatbuffers are generated, copy the generated file to its home in the python folder.
-task copyFlatbuffersPython(type: Copy) {
-    dependsOn 'generateFlatbuffersPython'
-    from fileTree('src/generated/python/flatbuffers/rlbot')
-    into pythonRoot + 'rlbot/messages'
-}
-
 def flatbufDir = "./src/main/flatbuffers/"
 
 task generateFlatbuffersJava(type: Exec) {
     commandLine flatbufDir + "flatc.exe", "--java", "-o", "./src/generated/java/flatbuffers", flatbufDir + "rlbot.fbs"
 }
 
-task generateFlatbuffersPython(type: Exec) {
-    commandLine flatbufDir + "flatc.exe", "--python", "-o", "./src/generated/python/flatbuffers", flatbufDir + "rlbot.fbs"
-}
-
-task generateFlatbuffersCpp(type: Exec) {
-    commandLine flatbufDir + "flatc.exe", "--cpp", "-o", "./src/generated/cpp/flatbuffers", flatbufDir + "rlbot.fbs"
-}
-
 // You can use the clean task to remove build output.
 clean {
     // In addition to the normal clean behavior, also remove the generated flatbuffer file(s).
-    delete pythonRoot + 'rlbot/messages/flat'
-    delete 'src/generated'
+    delete 'src/generated/java'
 }
 
 // Establish some task dependencies so that some tasks always run before others.
 compileJava.dependsOn generateFlatbuffersJava
-
-task pythonSetup {
-    dependsOn 'copyFlatbuffersPython'
-    dependsOn 'pipInstallRequirements'
-}
-
-task cppSetup {
-    dependsOn 'generateFlatbuffersCpp'
-}
 
 task createJavaDllFolder {
     mkdir javaDllDir
@@ -105,51 +77,6 @@ task javaSetup {
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
-}
-
-// Parses a .gitignore file and attempts to build a list of file paths that can be used by gradle.
-def gitignoreToList(File f) {
-    def ignores = []
-    f.eachLine { line ->
-        //ignore comments and empty lines
-        if (!line.startsWith('#') && !line.isEmpty()) {
-            ignores.add(line)
-        }
-    }
-    return ignores
-}
-
-def pythonDistStaging = './build/python-dist/'
-
-// Creates a folder with the right structure for publishing to the python package index (PyPI).
-// https://packaging.python.org/tutorials/packaging-projects/
-task pythonPackageIndexFolder(type: Sync, dependsOn: copyFlatbuffersPython) {
-    from(fileTree(pythonRoot))   // Grab all the files in the src/main/python folder and add them to the package folder
-    from 'LICENSE.txt'   // Also grab the license
-    exclude gitignoreToList(file('.gitignore'))  // Avoid putting any git-ignored files in the zip
-    exclude '**/__pycache__'   // Explicitly exclude __pycache__ folders because the gitignoreToList trick doesn't cover this
-    into(pythonDistStaging)
-}
-
-// Use pip, which is the python package manager, to install all requirements listed in requirements.txt.
-// Python and pip must already be installed for this to work.
-task pipInstallRequirements(type: Exec, dependsOn: pythonPackageIndexFolder) {
-    workingDir pythonDistStaging
-    commandLine "pip", "install", "-r", "requirements.txt"
-}
-
-// Publishes to the python package index.
-// Depends on bintrayUpload because we use bintray for hosting the zip file.
-task publishToTestPyPI(type: Exec, dependsOn: pythonPackageIndexFolder) {
-    workingDir pythonDistStaging
-    commandLine "python", "setup.py", "sdist", "upload", "-r", "pypitest"
-}
-
-// Publishes to the python package index.
-// Depends on bintrayUpload because we use bintray for hosting the zip file.
-task publishToPyPI(type: Exec, dependsOn: pythonPackageIndexFolder) {
-    workingDir pythonDistStaging
-    commandLine "python", "setup.py", "sdist", "upload"
 }
 
 // This is associated with the maven-publish plugin. It's needed for bintrayUpload to work properly.

@@ -1,7 +1,6 @@
 package rlbot;
 
 import rlbot.manager.BotManager;
-import rlbot.pyinterop.DefaultPythonInterface;
 import rlbot.pyinterop.SocketServer;
 
 public class SamplePythonInterface extends SocketServer {
