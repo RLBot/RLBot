@@ -40,7 +40,7 @@ class BotConfigBundle:
     def get_absolute_path(self, header, key):
         path = self.base_agent_config.get(header, key)
         if path is None:
-            raise configparser.NoSectionError(f"Could not find {header}: {key} in the provided configuration!")
+            return None
         if os.path.isabs(path):
             return path
         if self.config_directory is None:
