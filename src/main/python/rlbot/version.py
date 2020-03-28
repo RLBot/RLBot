@@ -4,9 +4,20 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.37.2'
+__version__ = '1.38.1'
 
 release_notes = {
+    '1.38.1': """
+    Ball prediction is now computed at 120Hz instead of 60Hz!
+    
+    Note that the data will still only have 60 slices in a second, but the positions will be more
+    accurate because of the extra precision behind the scenes. For example, bounces off the goal post
+    should be much more reliable now.
+    
+    Also:
+    - Fixed a bug where lockstep could prevent cars from spawning, and freeze forever.
+    - Fixed a bug where lockstep freezes forever if Psyonix bots are in the game.
+    """,
     '1.37.2': """
     - Better on screen performance measurement for RLBot (hit home key).
     - Bots can now draw when the game is paused, and still move after goal explosions.
