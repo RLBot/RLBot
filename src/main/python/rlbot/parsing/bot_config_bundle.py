@@ -1,11 +1,15 @@
 import configparser
 import os
+from pathlib import Path
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, \
-    PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY
+    PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY
+from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
+from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
-    PARTICIPANT_CONFIG_KEY
+    PARTICIPANT_CONFIG_KEY, load_bot_appearance
 from rlbot.parsing.custom_config import ConfigObject
+from rlbot.utils.class_importer import import_class_with_base
 from rlbot.utils.logging_utils import get_logger
 
 logger = get_logger('rlbot')
@@ -22,6 +26,7 @@ class BotConfigBundle:
         self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
         self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
         self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+        self.loadout_generator_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOADOUT_GENERATOR_FILE_KEY)
         self.supports_early_start = self.base_agent_config.get(BOT_CONFIG_MODULE_HEADER, SUPPORTS_EARLY_START_KEY)
 
     def get_logo_file(self):
@@ -50,6 +55,23 @@ class BotConfigBundle:
         :return:
         """
         return create_looks_configurations().parse_file(self.looks_path)
+
+    def generate_loadout_config(self, player_index: int, team: int) -> LoadoutConfig:
+        if self.loadout_generator_file:
+            try:
+                generator_wrapper = import_class_with_base(self.loadout_generator_file, BaseLoadoutGenerator)
+                generator_class = generator_wrapper.get_loaded_class()
+                generator = generator_class(Path(self.config_directory))
+                loadout_config = generator.generate_loadout(player_index, team)
+                if loadout_config and isinstance(loadout_config, LoadoutConfig):
+                    return loadout_config
+                else:
+                    logger.warn(f"Generated loadout is invalid, will fall back to file. Loadout was: {loadout_config}")
+            except Exception as e:
+                logger.warn(f"Failed to generate loadout config, will fall back to file. Error was: {e}")
+
+        config_object = self.get_looks_config()
+        return load_bot_appearance(config_object, team)
 
 
 def get_bot_config_bundle(bot_config_path) -> BotConfigBundle:

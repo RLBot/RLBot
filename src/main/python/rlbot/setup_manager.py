@@ -261,8 +261,7 @@ class SetupManager:
         for index, bot in enumerate(match_config.player_configs):
             self.bot_bundles.append(bundles[index])
             if bot.loadout_config is None and bundles[index]:
-                looks_config = bundles[index].get_looks_config()
-                bot.loadout_config = load_bot_appearance(looks_config, bot.team)
+                bot.loadout_config = bundles[index].generate_loadout_config(index, bot.team)
 
         if match_config.extension_config is not None and match_config.extension_config.python_file_path is not None:
             self.load_extension(match_config.extension_config.python_file_path)

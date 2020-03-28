@@ -47,9 +47,8 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
 
         config_bundle = config_bundles[i]
 
-        if i not in looks_config_overrides:
-            looks_config_object = config_bundle.get_looks_config()
-        else:
+        looks_config_object = None
+        if i in looks_config_overrides:
             looks_config_object = looks_config_overrides[i]
 
         player_config = _load_bot_config(i, config_bundle, looks_config_object, config_parser, human_index_tracker)
@@ -127,7 +126,11 @@ def _load_bot_config(index, config_bundle: BotConfigBundle,
     # Setting up the bots name
     bot_configuration.name = config_bundle.name
 
-    loadout_config = load_bot_appearance(looks_config_object, team_num)
+    if looks_config_object:
+        loadout_config = load_bot_appearance(looks_config_object, team_num)
+    else:
+        loadout_config = config_bundle.generate_loadout_config(index, team_num)
+
     bot_configuration.loadout_config = loadout_config
 
     return bot_configuration

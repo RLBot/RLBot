@@ -18,6 +18,7 @@ BOT_CONFIG_MODULE_HEADER = 'Locations'
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 BOT_CONFIG_DETAILS_HEADER = 'Details'
 PYTHON_FILE_KEY = 'python_file'
+LOADOUT_GENERATOR_FILE_KEY = 'loadout_generator'
 LOGO_FILE_KEY = 'logo_file'
 LOOKS_CONFIG_KEY = 'looks_config'
 BOT_NAME_KEY = "name"
@@ -293,6 +294,8 @@ class BaseAgent:
         location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
         location_config.add_value(LOOKS_CONFIG_KEY, str,
                                   description='Path to loadout config from runner')
+        location_config.add_value(LOADOUT_GENERATOR_FILE_KEY, str,
+                                  description="A file that provide dynamic bot loadouts (optional).")
         location_config.add_value(PYTHON_FILE_KEY, str,
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
         location_config.add_value(BOT_NAME_KEY, str, default='nameless',
