@@ -94,6 +94,13 @@ public class BotManager {
 
         long lastCallRealTime = System.currentTimeMillis();
         float lastTickGameTime = 0;
+        boolean usingLockstep = false;
+
+        try {
+            usingLockstep = RLBotDll.getMatchSettings().enableLockstep();
+        } catch (final RLBotInterfaceException e) {
+            e.printStackTrace();
+        }
 
         try {
             latestPacket = RLBotDll.getFlatbufferPacket();
@@ -111,7 +118,11 @@ public class BotManager {
             final int refreshRate = this.refreshRate.get();
             try {
                 // Retrieve latest packet
-                latestPacket = RLBotDll.getFlatbufferPacket();
+                if (usingLockstep) {
+                    latestPacket = RLBotDll.getCurrentFlatbufferPacket();
+                } else {
+                    latestPacket = RLBotDll.getFlatbufferPacket();
+                }
 
                 // Run the bot only if gameInfo has updated
                 final float tickGameTime = latestPacket.gameInfo().secondsElapsed();
@@ -122,7 +133,7 @@ public class BotManager {
                 frameUrgency += tickGameTime - lastTickGameTime;
                 frameUrgency = clamp(frameUrgency, -1f / refreshRate, 1f / refreshRate);
 
-                if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0){
+                if((tickGameTime != lastTickGameTime || shouldCallWhilePaused) && frameUrgency >= 0 || usingLockstep){
                     lastCallRealTime = now;
                     // Urgency decreases when a tick is processed.
                     frameUrgency -= 1f / refreshRate;
@@ -132,7 +143,15 @@ public class BotManager {
                 }
 
                 lastTickGameTime = tickGameTime;
-            }catch (IOException e) {
+
+                if (usingLockstep) {
+                    try {
+                        Thread.sleep(1000 / refreshRate);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

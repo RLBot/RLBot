@@ -38,7 +38,7 @@ dependencies {
 }
 
 project.setGroup('org.rlbot.commons')
-project.setVersion('2.0.0')
+project.setVersion('2.0.1')
 
 sourceSets {
     main {

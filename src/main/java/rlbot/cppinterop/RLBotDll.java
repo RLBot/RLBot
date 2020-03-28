@@ -127,6 +127,8 @@ public class RLBotDll {
 
     /**
      * Retrieves up-to-date game information like the positions of the ball and cars, among many other things.
+     * This will block until a fresh packet is available, to ensure bots have very recent data about the state of
+     * the game. If no fresh data comes, it will give up after 18 milliseconds and return what currently exists.
      */
     public static GameTickPacket getFlatbufferPacket() throws RLBotInterfaceException {
         try {
@@ -137,6 +139,26 @@ public class RLBotDll {
             // I'm not making it exactly 16 because that would not allow for freshness in cases
             // where Rocket League or the API are tuned to 60Hz (which is the default).
             final ByteBufferStruct struct = FreshLiveDataPacketFlatbuffer(18, 0);
+            if (struct.size < 4) {
+                throw new RLBotInterfaceException("Flatbuffer packet is too small, match is probably not running!");
+            }
+            final byte[] protoBytes = struct.ptr.getByteArray(0, struct.size);
+            Free(struct.ptr);
+            return GameTickPacket.getRootAsGameTickPacket(ByteBuffer.wrap(protoBytes));
+        } catch (final UnsatisfiedLinkError error) {
+            throw new RLBotInterfaceException("Could not find interface dll! Did initialize get called?", error);
+        } catch (final Error error) {
+            throw new RLBotInterfaceException(error);
+        }
+    }
+
+    /**
+     * Retrieves up-to-date game information like the positions of the ball and cars, among many other things.
+     * Does NOT block waiting for fresh data, just returns whatever data is currently available.
+     */
+    public static GameTickPacket getCurrentFlatbufferPacket() throws RLBotInterfaceException {
+        try {
+            final ByteBufferStruct struct = UpdateLiveDataPacketFlatbuffer();
             if (struct.size < 4) {
                 throw new RLBotInterfaceException("Flatbuffer packet is too small, match is probably not running!");
             }
