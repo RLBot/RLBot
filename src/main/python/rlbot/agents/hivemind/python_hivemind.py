@@ -2,6 +2,7 @@ from typing import Dict
 
 import queue
 import time
+import traceback
 
 from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.botmanager.bot_helper_process import BotHelperProcess
@@ -92,33 +93,37 @@ class PythonHivemind(BotHelperProcess):
         self.initialize_hive(packet)
         
         while not self.quit_event.is_set():
+            try:
+                # Updating the packet.
+                self.game_interface.fresh_live_data_packet(packet, 20, key)
 
-            # Updating the packet.
-            self.game_interface.fresh_live_data_packet(packet, 20, key)
+                # Get outputs from hivemind for each bot.
+                # Outputs are expected to be a Dict[int, PlayerInput]
+                outputs = self.get_outputs(packet)
 
-            # Get outputs from hivemind for each bot.
-            # Outputs are expected to be a Dict[int, PlayerInput]
-            outputs = self.get_outputs(packet)
-
-            if outputs is None:
-                self.logger.error("No outputs were returned.")
-                self.logger.error("  Try putting `return {i: PlayerInput() for i in self.drone_indices}`")
-                self.logger.error("  in `get_outputs()` to troubleshoot.")
-                continue
-
-            if len(outputs) < len(self.drone_indices):
-                self.logger.error("Not enough outputs were given.")
-
-            elif len(outputs) > len(self.drone_indices):
-                self.logger.error("Too many outputs were given.")
-
-            # Send the drone inputs to the drones.
-            for index in outputs:
-                if index not in self.drone_indices:
-                    self.logger.error("Tried to send output to bot index not in drone_indices.")
+                if outputs is None:
+                    self.logger.error("No outputs were returned.")
+                    self.logger.error("  Try putting `return {i: PlayerInput() for i in self.drone_indices}`")
+                    self.logger.error("  in `get_outputs()` to troubleshoot.")
                     continue
-                output = outputs[index]
-                self.game_interface.update_player_input(output, index)
+
+                if len(outputs) < len(self.drone_indices):
+                    self.logger.error("Not enough outputs were given.")
+
+                elif len(outputs) > len(self.drone_indices):
+                    self.logger.error("Too many outputs were given.")
+
+                # Send the drone inputs to the drones.
+                for index in outputs:
+                    if index not in self.drone_indices:
+                        self.logger.error("Tried to send output to bot index not in drone_indices.")
+                        continue
+                    output = outputs[index]
+                    self.game_interface.update_player_input(output, index)
+
+            except Exception:
+                traceback.print_exc()
+
 
     # Override these methods:
 
