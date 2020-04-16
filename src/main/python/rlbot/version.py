@@ -4,13 +4,17 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.39.0'
+__version__ = '1.39.2'
 
 release_notes = {
-    '1.39.0': """
+    '1.39.2': """
     You can now generate a fresh loadout for your bot every match using a python script!
     Try setting different colors based on your player index, or a randomized hat.
     Learn how at https://github.com/RLBot/RLBot/wiki/Bot-Customization#loadout-generator
+
+    Also:
+    - Fixing color swatch translation. - Darxeal and tarehart
+    - Catching errors in hive bots. - Will
     """,
     '1.38.1': """
     Ball prediction is now computed at 120Hz instead of 60Hz!
