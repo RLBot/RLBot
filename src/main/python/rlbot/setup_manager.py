@@ -554,6 +554,12 @@ class SetupManager:
     def run_agent(terminate_event, callback_event, reload_request, bundle: BotConfigBundle, name, team, index,
                   python_file, agent_telemetry_queue, match_config: MatchConfig, matchcomms_root: URL, spawn_id: str):
 
+        # Set the working directory to one level above the bot cfg file.
+        # This mimics the behavior you get when executing run.py in one of the
+        # example bot repositories, so bots will be more likely to 'just work'
+        # even if the developer is careless about file paths.
+        os.chdir(Path(bundle.config_directory).parent)
+        
         agent_class_wrapper = import_agent(python_file)
         config_file = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
         config_file.parse_file(bundle.config_obj, config_directory=bundle.config_directory)

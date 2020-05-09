@@ -11,6 +11,7 @@ release_notes = {
     Adding more flags for starting matches: enableRendering, enableStateSetting, autoSaveReplay. Also:
     - Mac and Linux users can now use 'q' and 'r' commands to quit or reload bots. - naturecodevoid
     - Update gravity+gamespeed variables in gametickpacket when changed by statesetting. - Kipje13
+    - Set the current working directory of bots to their folder.
     """,
     '1.40.1': """
     Support for Heatseeker game mode, including ball prediction thanks to Recruit_main and GodGamer!
