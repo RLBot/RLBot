@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * This class is a BotManager for the hiveminds.
@@ -81,6 +80,32 @@ public class HivemindManager extends BaseBotManager {
         if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) allIndexes.addAll(hivemindProcesses[0].getDroneIndexes());
         if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) allIndexes.addAll(hivemindProcesses[1].getDroneIndexes());
         return allIndexes;
+    }
+
+    /**
+     * Returns a set of every blue bot index that is currently registered and running in this java process.
+     * Will not include indices from humans, bots in other languages, or bots in other java processes.
+     *
+     * This may be useful for driving a basic status display.
+     */
+    public Set<Integer> getRunningBotIndicesForBlue() {
+        if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) {
+            return hivemindProcesses[0].getDroneIndexes();
+        }
+        return new HashSet<>();
+    }
+
+    /**
+     * Returns a set of every orange bot index that is currently registered and running in this java process.
+     * Will not include indices from humans, bots in other languages, or bots in other java processes.
+     *
+     * This may be useful for driving a basic status display.
+     */
+    public Set<Integer> getRunningBotIndicesForOrange() {
+        if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) {
+            return hivemindProcesses[1].getDroneIndexes();
+        }
+        return new HashSet<>();
     }
 
     @Override
