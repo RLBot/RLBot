@@ -18,17 +18,18 @@ import java.util.function.Supplier;
  * This class keeps track of all the bots, runs the main logic loops, and retrieves the
  * game data on behalf of the bots.
  */
-public class BotManager {
+public class BotManager implements IBotManager {
 
-    private final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
+    protected final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
 
-    private boolean keepRunning;
+    protected boolean keepRunning;
 
-    private final Object dinnerBell = new Object();
-    private GameTickPacket latestPacket;
-    private AtomicInteger refreshRate = new AtomicInteger(60);
+    protected final Object dinnerBell = new Object();
+    protected GameTickPacket latestPacket;
+    protected AtomicInteger refreshRate = new AtomicInteger(60);
 
-    public void ensureBotRegistered(final int index, final Supplier<Bot> botSupplier) {
+    @Override
+    public void ensureBotRegistered(final int index, final int team, final Supplier<Bot> botSupplier) {
         if (botProcesses.containsKey(index)) {
             return;
         }
@@ -68,6 +69,7 @@ public class BotManager {
         }
     }
 
+    @Override
     public void ensureStarted() {
         if (keepRunning) {
             return; // Already started
@@ -84,6 +86,7 @@ public class BotManager {
      *
      * This may be useful for driving a basic status display.
      */
+    @Override
     public Set<Integer> getRunningBotIndices() {
         return botProcesses.keySet();
     }
@@ -157,11 +160,13 @@ public class BotManager {
         }
     }
 
+    @Override
     public void shutDown() {
         keepRunning = false;
         botProcesses.clear();
     }
 
+    @Override
     public void retireBot(int index) {
         BotProcess process = botProcesses.get(index);
         if (process != null) {
@@ -174,7 +179,8 @@ public class BotManager {
     /**
      * Sets the maximum amount of packets your bot will receive per second
      */
-    public void setRefreshRate(int refreshRate){
+    @Override
+    public void setRefreshRate(int refreshRate) {
         // Cap the refresh between 30hz and 120hz
         this.refreshRate.set(clamp(refreshRate, 30, 120));
     }

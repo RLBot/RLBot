@@ -92,7 +92,7 @@ public abstract class SocketServer implements PythonInterface {
     }
 
     protected void ensureBotRegistered(final int index, final String botType, final int team) {
-        botManager.ensureBotRegistered(index, () -> initBot(index, botType, team));
+        botManager.ensureBotRegistered(index, team, () -> initBot(index, botType, team));
     }
 
     protected void retireBot(final int index) {
