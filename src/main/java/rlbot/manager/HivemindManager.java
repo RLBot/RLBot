@@ -17,20 +17,22 @@ import java.util.function.Supplier;
 public class HivemindManager extends BaseBotManager {
 
     private final HivemindProcess[] hivemindProcesses = new HivemindProcess[2];
+    private final Function<Integer, Hivemind> hivemindSupplier;
 
     public HivemindManager(Function<Integer, Hivemind> hivemindSupplier) {
-        // Setup two hivemind processes. One for each team
-        for (int i = 0; i < 2; i++) {
-            final int team = i;
+        this.hivemindSupplier = hivemindSupplier;
+    }
+
+    public void ensureBotRegistered(int index, int team) {
+        if (hivemindProcesses[team] == null || !hivemindProcesses[team].runFlag.get()) {
+            // Start a new instance of the hivemind
             Hivemind hivemind = hivemindSupplier.apply(team);
             final AtomicBoolean runFlag = new AtomicBoolean(true);
             Thread hiveTread = new Thread(() -> doHiveLoop(hivemind, team, runFlag));
             hiveTread.start();
-            hivemindProcesses[i] = new HivemindProcess(hiveTread, runFlag);
+            hivemindProcesses[team] = new HivemindProcess(hiveTread, runFlag);
         }
-    }
 
-    public void ensureBotRegistered(int index, int team) {
         hivemindProcesses[team].registerDrone(index);
     }
 
@@ -75,18 +77,16 @@ public class HivemindManager extends BaseBotManager {
 
     @Override
     public Set<Integer> getRunningBotIndices() {
-        Set<Integer> blueIndexes = hivemindProcesses[0].getDroneIndexes();
-        Set<Integer> orangeIndexes = hivemindProcesses[1].getDroneIndexes();
-
-        HashSet<Integer> allIndexes = new HashSet<>(blueIndexes);
-        allIndexes.addAll(orangeIndexes);
+        HashSet<Integer> allIndexes = new HashSet<>();
+        if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) allIndexes.addAll(hivemindProcesses[0].getDroneIndexes());
+        if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) allIndexes.addAll(hivemindProcesses[1].getDroneIndexes());
         return allIndexes;
     }
 
     @Override
     public void retireBot(int index) {
-        hivemindProcesses[0].retireDrone(index);
-        hivemindProcesses[1].retireDrone(index);
+        if (hivemindProcesses[0] != null) hivemindProcesses[0].retireDrone(index);
+        if (hivemindProcesses[1] != null) hivemindProcesses[1].retireDrone(index);
     }
 
     public void retireHivemind(int team) {

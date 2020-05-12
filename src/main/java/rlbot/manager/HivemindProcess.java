@@ -7,8 +7,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HivemindProcess {
 
+    public AtomicBoolean runFlag;
+
     private final HashSet<Integer> droneIndexes = new HashSet<>();
-    private AtomicBoolean runFlag;
     private Thread thread;
 
     public HivemindProcess(Thread thread, final AtomicBoolean runFlag) {
@@ -22,6 +23,10 @@ public class HivemindProcess {
 
     public void stop() {
         runFlag.set(false);
+    }
+
+    public void ensureStarted() {
+        runFlag.set(true);
     }
 
     public void registerDrone(int index) {
