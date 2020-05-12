@@ -8,23 +8,23 @@ import java.util.Set;
 public interface Hivemind {
 
     /**
-     * <p>Hivemind logic goes here. Returns a mapping from drone indexes to ControllerStates based on the information
-     * given in the GameTickPacket. Only return ControllerStates for the indexes included in the droneIndexes
+     * <p>Hivemind logic goes here. Returns a mapping from drone indices to ControllerStates based on the information
+     * given in the GameTickPacket. Only return ControllerStates for the indices included in the droneIndices
      * argument.</p>
      *
-     * <p>droneIndexes might change during the game if drones join or leave. Therefore you should make sure to check
-     * whether the indexes you control are changed. For instance do:</p>
+     * <p>droneIndices might change during the game if drones join or leave. Therefore you should make sure to check
+     * whether the indices you control are changed. For instance do:</p>
      * <pre>
      * {@code
-     * if (oldIndexes.equals(droneIndexes)) {
+     * if (oldIndices.equals(droneIndices)) {
      *     // Hive changed
      * }
-     * oldIndexes = droneIndexes;
+     * oldIndices = droneIndices;
      * }
      * </pre>
-     * where oldIndexes are a field in your hivemind.
+     * where oldIndices are a field in your hivemind.
      */
-    Map<Integer, ControllerState> processInput(Set<Integer> droneIndexes, GameTickPacket request);
+    Map<Integer, ControllerState> processInput(Set<Integer> droneIndices, GameTickPacket request);
 
     /**
      * Shuts down the hive and close any resources it's using.

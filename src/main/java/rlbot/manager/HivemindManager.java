@@ -46,17 +46,17 @@ public class HivemindManager extends BaseBotManager {
                 }
                 if (latestPacket != null) {
 
-                    Set<Integer> droneIndexes = hivemindProcesses[team].getDroneIndexes();
-                    if (droneIndexes.isEmpty()) continue;
-                    Map<Integer, ControllerState> hivemindOutput = hivemind.processInput(droneIndexes, latestPacket);
+                    Set<Integer> droneIndices = hivemindProcesses[team].getDroneIndices();
+                    if (droneIndices.isEmpty()) continue;
+                    Map<Integer, ControllerState> hivemindOutput = hivemind.processInput(droneIndices, latestPacket);
 
-                    if (droneIndexes.size() > hivemindOutput.size())
+                    if (droneIndices.size() > hivemindOutput.size())
                         System.out.println("Not enough outputs were given.");
-                    else if (droneIndexes.size() < hivemindOutput.size())
+                    else if (droneIndices.size() < hivemindOutput.size())
                         System.out.println("Too many inputs were given.");
 
                     for (Integer index : hivemindOutput.keySet()) {
-                        if (!droneIndexes.contains(index)) {
+                        if (!droneIndices.contains(index)) {
                             System.out.println("Tried to send output for a bot index (" + index + ") that is not part of the hivemind");
                             continue;
                         }
@@ -76,10 +76,10 @@ public class HivemindManager extends BaseBotManager {
 
     @Override
     public Set<Integer> getRunningBotIndices() {
-        HashSet<Integer> allIndexes = new HashSet<>();
-        if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) allIndexes.addAll(hivemindProcesses[0].getDroneIndexes());
-        if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) allIndexes.addAll(hivemindProcesses[1].getDroneIndexes());
-        return allIndexes;
+        HashSet<Integer> allIndices = new HashSet<>();
+        if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) allIndices.addAll(hivemindProcesses[0].getDroneIndices());
+        if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) allIndices.addAll(hivemindProcesses[1].getDroneIndices());
+        return allIndices;
     }
 
     /**
@@ -90,7 +90,7 @@ public class HivemindManager extends BaseBotManager {
      */
     public Set<Integer> getRunningBotIndicesForBlue() {
         if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) {
-            return hivemindProcesses[0].getDroneIndexes();
+            return hivemindProcesses[0].getDroneIndices();
         }
         return new HashSet<>();
     }
@@ -103,7 +103,7 @@ public class HivemindManager extends BaseBotManager {
      */
     public Set<Integer> getRunningBotIndicesForOrange() {
         if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) {
-            return hivemindProcesses[1].getDroneIndexes();
+            return hivemindProcesses[1].getDroneIndices();
         }
         return new HashSet<>();
     }

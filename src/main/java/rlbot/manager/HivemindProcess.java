@@ -9,7 +9,7 @@ public class HivemindProcess {
 
     public AtomicBoolean runFlag;
 
-    private final HashSet<Integer> droneIndexes = new HashSet<>();
+    private final HashSet<Integer> droneIndices = new HashSet<>();
     private Thread thread;
 
     public HivemindProcess(Thread thread, final AtomicBoolean runFlag) {
@@ -31,19 +31,19 @@ public class HivemindProcess {
 
     public void registerDrone(int index) {
         synchronized (this) {
-            droneIndexes.add(index);
+            droneIndices.add(index);
         }
     }
 
     public void retireDrone(int index) {
         synchronized (this) {
-            droneIndexes.remove(index);
+            droneIndices.remove(index);
         }
     }
 
-    public Set<Integer> getDroneIndexes() {
+    public Set<Integer> getDroneIndices() {
         synchronized (this) {
-            return new HashSet<>(droneIndexes);
+            return new HashSet<>(droneIndices);
         }
     }
 }
