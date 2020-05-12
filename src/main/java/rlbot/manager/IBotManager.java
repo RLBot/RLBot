@@ -1,13 +1,8 @@
 package rlbot.manager;
 
-import rlbot.Bot;
-
 import java.util.Set;
-import java.util.function.Supplier;
 
 public interface IBotManager {
-
-    void ensureBotRegistered(final int index, final int team, final Supplier<Bot> botSupplier);
 
     void ensureStarted();
 

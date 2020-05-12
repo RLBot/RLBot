@@ -3,7 +3,7 @@ package rlbot.pyinterop;
 import rlbot.Bot;
 import rlbot.manager.HivemindManager;
 
-public abstract class HiveSocketServer extends SocketServer {
+public abstract class HiveSocketServer extends BaseSocketServer {
 
     private final HivemindManager hivemindManager;
 
@@ -15,10 +15,5 @@ public abstract class HiveSocketServer extends SocketServer {
     @Override
     protected void ensureBotRegistered(int index, String botType, int team) {
         hivemindManager.ensureBotRegistered(index, team);
-    }
-
-    @Override
-    protected Bot initBot(int index, String botType, int team) {
-        return null;
     }
 }

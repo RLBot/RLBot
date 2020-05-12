@@ -7,11 +7,10 @@ import rlbot.cppinterop.RLBotDll;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class HivemindManager extends BotManager {
+public class HivemindManager extends BaseBotManager {
 
     private final HivemindProcess[] hivemindProcesses = new HivemindProcess[2];
 
@@ -43,6 +42,7 @@ public class HivemindManager extends BotManager {
                 if (latestPacket != null) {
 
                     Set<Integer> droneIndexes = hivemindProcesses[team].getDroneIndexes();
+                    if (droneIndexes.isEmpty()) continue;
                     Map<Integer, ControllerState> hivemindOutput = hivemind.processInput(droneIndexes, latestPacket);
 
                     if (droneIndexes.size() > hivemindOutput.size())
@@ -69,6 +69,7 @@ public class HivemindManager extends BotManager {
         }
     }
 
+    @Override
     public Set<Integer> getRunningBotIndices() {
         Set<Integer> blueIndexes = hivemindProcesses[0].getDroneIndexes();
         Set<Integer> orangeIndexes = hivemindProcesses[1].getDroneIndexes();
@@ -78,6 +79,7 @@ public class HivemindManager extends BotManager {
         return allIndexes;
     }
 
+    @Override
     public void retireBot(int index) {
         hivemindProcesses[0].retireDrone(index);
         hivemindProcesses[1].retireDrone(index);
