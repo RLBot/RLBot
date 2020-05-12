@@ -16,8 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
- * This class keeps track of all the bots, runs the main logic loops, and retrieves the
- * game data on behalf of the bots.
+ * This class is a BotManager for single bots.
  */
 public class BotManager extends BaseBotManager {
 

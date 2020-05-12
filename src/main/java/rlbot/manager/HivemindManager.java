@@ -10,6 +10,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+/**
+ * This class is a BotManager for the hiveminds.
+ */
 public class HivemindManager extends BaseBotManager {
 
     private final HivemindProcess[] hivemindProcesses = new HivemindProcess[2];

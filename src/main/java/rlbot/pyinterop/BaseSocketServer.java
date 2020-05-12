@@ -1,8 +1,6 @@
 package rlbot.pyinterop;
 
-import rlbot.Bot;
 import rlbot.cppinterop.RLBotDll;
-import rlbot.manager.BotManager;
 import rlbot.manager.IBotManager;
 
 import java.io.IOException;

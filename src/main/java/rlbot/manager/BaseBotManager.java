@@ -7,6 +7,10 @@ import rlbot.flat.GameTickPacket;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This class keeps track of all the bots, runs the main logic loops, and retrieves the
+ * game data on behalf of the bots.
+ */
 abstract public class BaseBotManager implements IBotManager {
 
     private final AtomicInteger refreshRate = new AtomicInteger(60);
