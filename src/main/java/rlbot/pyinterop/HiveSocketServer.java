@@ -2,7 +2,7 @@ package rlbot.pyinterop;
 
 import rlbot.manager.HivemindManager;
 
-public abstract class HiveSocketServer extends BaseSocketServer {
+public class HiveSocketServer extends BaseSocketServer {
 
     private final HivemindManager hivemindManager;
 

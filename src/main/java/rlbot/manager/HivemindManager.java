@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -17,11 +18,11 @@ public class HivemindManager extends BaseBotManager {
 
     private final HivemindProcess[] hivemindProcesses = new HivemindProcess[2];
 
-    public HivemindManager(Supplier<Hivemind> hivemindSupplier) {
+    public HivemindManager(Function<Integer, Hivemind> hivemindSupplier) {
         // Setup two hivemind processes. One for each team
         for (int i = 0; i < 2; i++) {
             final int team = i;
-            Hivemind hivemind = hivemindSupplier.get();
+            Hivemind hivemind = hivemindSupplier.apply(team);
             final AtomicBoolean runFlag = new AtomicBoolean(true);
             Thread hiveTread = new Thread(() -> doHiveLoop(hivemind, team, runFlag));
             hiveTread.start();
