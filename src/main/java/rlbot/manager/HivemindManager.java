@@ -11,10 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 /**
- * This class is a BotManager for the hiveminds.
+ * This class is a BotManager for hiveminds. It runs the main logic loops and retrieves GameTickPackets for
+ * the hiveminds.
  */
 public class HivemindManager extends BaseBotManager {
 
+    // There are only every two hiveminds of this bot, once for each team
     private final HivemindProcess[] hivemindProcesses = new HivemindProcess[2];
     private final Function<Integer, Hivemind> hivemindSupplier;
 
@@ -23,7 +25,7 @@ public class HivemindManager extends BaseBotManager {
     }
 
     public void ensureBotRegistered(int index, int team) {
-        if (hivemindProcesses[team] == null || !hivemindProcesses[team].runFlag.get()) {
+        if (hivemindProcesses[team] == null || !hivemindProcesses[team].isRunning()) {
             // Start a new instance of the hivemind
             Hivemind hivemind = hivemindSupplier.apply(team);
             final AtomicBoolean runFlag = new AtomicBoolean(true);
@@ -77,8 +79,8 @@ public class HivemindManager extends BaseBotManager {
     @Override
     public Set<Integer> getRunningBotIndices() {
         HashSet<Integer> allIndices = new HashSet<>();
-        if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) allIndices.addAll(hivemindProcesses[0].getDroneIndices());
-        if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) allIndices.addAll(hivemindProcesses[1].getDroneIndices());
+        if (hivemindProcesses[0] != null && hivemindProcesses[0].isRunning()) allIndices.addAll(hivemindProcesses[0].getDroneIndices());
+        if (hivemindProcesses[1] != null && hivemindProcesses[1].isRunning()) allIndices.addAll(hivemindProcesses[1].getDroneIndices());
         return allIndices;
     }
 
@@ -89,7 +91,7 @@ public class HivemindManager extends BaseBotManager {
      * This may be useful for driving a basic status display.
      */
     public Set<Integer> getRunningBotIndicesForBlue() {
-        if (hivemindProcesses[0] != null && hivemindProcesses[0].runFlag.get()) {
+        if (hivemindProcesses[0] != null && hivemindProcesses[0].isRunning()) {
             return hivemindProcesses[0].getDroneIndices();
         }
         return new HashSet<>();
@@ -102,7 +104,7 @@ public class HivemindManager extends BaseBotManager {
      * This may be useful for driving a basic status display.
      */
     public Set<Integer> getRunningBotIndicesForOrange() {
-        if (hivemindProcesses[1] != null && hivemindProcesses[1].runFlag.get()) {
+        if (hivemindProcesses[1] != null && hivemindProcesses[1].isRunning()) {
             return hivemindProcesses[1].getDroneIndices();
         }
         return new HashSet<>();

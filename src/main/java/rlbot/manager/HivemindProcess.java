@@ -5,12 +5,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * This class contains information about a hivemind process and the indices that the hivemind controls.
+ */
 public class HivemindProcess {
 
-    public AtomicBoolean runFlag;
+    private final AtomicBoolean runFlag;
 
     private final HashSet<Integer> droneIndices = new HashSet<>();
-    private Thread thread;
+    private final Thread thread;
 
     public HivemindProcess(Thread thread, final AtomicBoolean runFlag) {
         this.thread = thread;
@@ -25,8 +28,8 @@ public class HivemindProcess {
         runFlag.set(false);
     }
 
-    public void ensureStarted() {
-        runFlag.set(true);
+    public boolean isRunning() {
+        return runFlag.get();
     }
 
     public void registerDrone(int index) {

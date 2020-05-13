@@ -1,8 +1,6 @@
 package rlbot;
 
 import rlbot.manager.BotManager;
-import rlbot.manager.HivemindManager;
-import rlbot.pyinterop.HiveSocketServer;
 import rlbot.pyinterop.SocketServer;
 
 /**

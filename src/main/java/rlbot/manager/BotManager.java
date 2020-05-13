@@ -16,11 +16,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
- * This class is a BotManager for single bots.
+ * This class is a default BotManager for bots. It runs the main logic loops, and retrieves the
+ *  game data on behalf of the bots.
  */
 public class BotManager extends BaseBotManager {
 
-    protected final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
+    private final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
 
     public void ensureBotRegistered(final int index, final int team, final Supplier<Bot> botSupplier) {
         if (botProcesses.containsKey(index)) {
