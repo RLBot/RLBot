@@ -17,10 +17,18 @@ import java.util.function.Function;
  */
 public class HivemindManager extends BaseBotManager {
 
+    private final static String BLUE_POSTFIX = " [blue]";
+    private final static String ORANGE_POSTFIX = " [orange]";
+
+    // Each hivemind is associated with a hive key. The postfixes "[blue]" or "[orange]" is used
+    // to differentiate between teams
     private final Map<String, HivemindProcess> hivemindProcesses = new ConcurrentHashMap<>();
     private final Map<Integer, HivemindProcess> hivemindProcessOfDrone = new ConcurrentHashMap<>();
     private final HivemindCreator hivemindCreator;
 
+    /**
+     * Create a HivemindManager, that only administrates one hivemind per team. Their hive key will be "Default".
+     */
     public HivemindManager(Function<Integer, Hivemind> hivemindSupplier) {
         hivemindCreator = new HivemindCreator() {
             @Override
@@ -30,11 +38,16 @@ public class HivemindManager extends BaseBotManager {
 
             @Override
             public String assignHiveKey(int index, int team, String botName) {
+                // No HivemindCreator provided, so the key will just be "Default"
                 return "Default";
             }
         };
     }
 
+    /**
+     * Create a HivemindManager able to manage multiple hiveminds. Each hivemind is associated with a hive key,
+     * which is assigned to newly registered bots by the given HivemindCreator.
+     */
     public HivemindManager(HivemindCreator hivemindCreator) {
         this.hivemindCreator = hivemindCreator;
     }
@@ -47,7 +60,7 @@ public class HivemindManager extends BaseBotManager {
         }
 
         String hiveKey = hivemindCreator.assignHiveKey(index, team, botName);
-        String coloredHiveKey = hiveKey + (team == 0 ? " [blue]" : " [orange]");
+        String coloredHiveKey = hiveKey + (team == 0 ? BLUE_POSTFIX : ORANGE_POSTFIX);
 
         HivemindProcess hivemindProcess = hivemindProcesses.computeIfAbsent(coloredHiveKey, (nhk) -> {
             // Start a new instance of the hivemind
@@ -113,7 +126,7 @@ public class HivemindManager extends BaseBotManager {
      * This may be useful for driving a basic status display.
      */
     public Set<Integer> getRunningBotIndices(int team, String hiveKey) {
-        String coloredHiveKey = hiveKey + (team == 0 ? " [blue]" : " [orange]");
+        String coloredHiveKey = hiveKey + (team == 0 ? BLUE_POSTFIX : ORANGE_POSTFIX);
         HivemindProcess hivemindProcess = hivemindProcesses.get(coloredHiveKey);
         if (hivemindProcess == null) return new HashSet<>();
         return hivemindProcess.getDroneIndices();
