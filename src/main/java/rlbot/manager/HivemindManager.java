@@ -16,7 +16,7 @@ import java.util.function.Function;
  */
 public class HivemindManager extends BaseBotManager {
 
-    // There are only ever two hiveminds of this bot, once for each team
+    // There are only ever two hiveminds of this bot, one for each team.
     private final HivemindProcess[] hivemindProcesses = new HivemindProcess[2];
     private final Function<Integer, Hivemind> hivemindSupplier;
 
