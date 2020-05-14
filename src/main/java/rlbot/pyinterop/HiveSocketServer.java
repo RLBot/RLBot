@@ -13,6 +13,6 @@ public class HiveSocketServer extends BaseSocketServer {
 
     @Override
     protected void ensureBotRegistered(int index, String botType, int team) {
-        hivemindManager.ensureBotRegistered(index, team);
+        hivemindManager.ensureBotRegistered(index, team, botType);
     }
 }
