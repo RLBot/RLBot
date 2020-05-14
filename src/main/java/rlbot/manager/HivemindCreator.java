@@ -3,7 +3,7 @@ package rlbot.manager;
 import rlbot.Hivemind;
 
 /**
- * This interface is used by the HivemindManager when multiple hiveminds per team is desired.
+ * This interface is used by the HivemindManager when multiple hiveminds per team are desired.
  */
 public interface HivemindCreator {
 
