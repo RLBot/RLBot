@@ -20,7 +20,7 @@ public class HivemindManager extends BaseBotManager {
     private final static String BLUE_POSTFIX = " [blue]";
     private final static String ORANGE_POSTFIX = " [orange]";
 
-    // Each hivemind is associated with a hive key. The postfixes "[blue]" or "[orange]" is used
+    // Each hivemind is associated with a hive key. The postfixes "[blue]" or "[orange]" are used
     // to differentiate between teams
     private final Map<String, HivemindProcess> hivemindProcesses = new ConcurrentHashMap<>();
     private final Map<Integer, HivemindProcess> hivemindProcessOfDrone = new ConcurrentHashMap<>();
