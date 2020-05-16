@@ -14,10 +14,12 @@ public class HivemindProcess {
 
     private final HashSet<Integer> droneIndices = new HashSet<>();
     private final Thread thread;
+    private final String hiveKey;
 
-    public HivemindProcess(Thread thread, final AtomicBoolean runFlag) {
+    public HivemindProcess(Thread thread, final AtomicBoolean runFlag, String hiveKey) {
         this.thread = thread;
         this.runFlag = runFlag;
+        this.hiveKey = hiveKey;
     }
 
     public Thread getThread() {
@@ -30,6 +32,10 @@ public class HivemindProcess {
 
     public boolean isRunning() {
         return runFlag.get();
+    }
+
+    public String getHiveKey() {
+        return hiveKey;
     }
 
     public void registerDrone(int index) {
