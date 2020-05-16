@@ -446,6 +446,35 @@ class SetupManager:
                     # Print instructions again if a alphabet character was pressed but no command was found
                     elif command.isalpha():
                         self.logger.info(instructions)
+            else:
+                try:
+                    # https://python-forum.io/Thread-msvcrt-getkey-for-linux
+                    import termios, sys
+                    TERMIOS = termios
+
+                    fd = sys.stdin.fileno()
+                    old = termios.tcgetattr(fd)
+                    new = termios.tcgetattr(fd)
+                    new[3] = new[3] & ~TERMIOS.ICANON & ~TERMIOS.ECHO
+                    new[6][TERMIOS.VMIN] = 1
+                    new[6][TERMIOS.VTIME] = 0
+                    termios.tcsetattr(fd, TERMIOS.TCSANOW, new)
+                    command = None
+                    try:
+                        command = os.read(fd, 1)
+                    finally:
+                        termios.tcsetattr(fd, TERMIOS.TCSAFLUSH, old)
+                    command = command.decode("utf-8")
+                    if command.lower() == 'r':  # r: reload
+                        self.reload_all_agents()
+                    elif command.lower() == 'q' or command == '\u001b':  # q or ESC: quit
+                        self.shut_down()
+                        break
+                    # Print instructions again if a alphabet character was pressed but no command was found
+                    elif command.isalpha():
+                        self.logger.info(instructions)
+                except:
+                    pass
 
             self.try_recieve_agent_metadata()
 
