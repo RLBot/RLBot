@@ -514,6 +514,9 @@ namespace FlatbufferTranslator {
 		matchSettings->skipReplays = flatMatch->skipReplays();
 		matchSettings->existingMatchBehavior = static_cast<ExistingMatchBehavior>(flatMatch->existingMatchBehavior());
 		matchSettings->enableLockstep = flatMatch->enableLockstep();
+		matchSettings->enableRendering = flatMatch->enableRendering();
+		matchSettings->enableStateSetting = flatMatch->enableStateSetting();
+		matchSettings->autoSaveReplay = flatMatch->autoSaveReplay();
 
 		fillMutatorsStruct(flatMatch->mutatorSettings(), &matchSettings->mutatorSettings);
 	}

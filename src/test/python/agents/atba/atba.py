@@ -80,13 +80,13 @@ class Atba(BaseAgent):
         controller_state = SimpleControllerState()
 
         self.state_listener.tick(game_tick_packet)
-        if self.sequence is None or self.sequence.done:
-            self.sequence = Sequence(steps=[
-                Step(0.3, SimpleControllerState(jump=True)),
-                Step(0.05, SimpleControllerState()),
-                Step(0.6, SimpleControllerState(jump=True)),
-                Step(2, SimpleControllerState())
-            ])
+        # if self.sequence is None or self.sequence.done:
+        #     self.sequence = Sequence(steps=[
+        #         Step(0.3, SimpleControllerState(jump=True)),
+        #         Step(0.05, SimpleControllerState()),
+        #         Step(0.6, SimpleControllerState(jump=True)),
+        #         Step(2, SimpleControllerState())
+        #     ])
 
         if not game_tick_packet.game_info.is_round_active:
             return controller_state
@@ -145,7 +145,9 @@ class Atba(BaseAgent):
             if mutator_settings is not None:
                 self.logger.info(f'Is Spike Rush? {mutator_settings.RumbleOption() == RumbleOption.Spike_Rush}')
 
-        controller_state = self.sequence.tick(game_tick_packet)
+        # controller_state = self.sequence.tick(game_tick_packet)
+        controller_state.steer = turn
+        controller_state.throttle = 1
 
         return controller_state
 
