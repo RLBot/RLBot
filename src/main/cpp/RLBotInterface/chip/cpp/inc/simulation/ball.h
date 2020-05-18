@@ -8,10 +8,12 @@
 
 class Ball {
  public:
-  vec3 x;
-  vec3 v;
-  vec3 w;
+  vec3 position;
+  vec3 velocity;
+  vec3 angular_velocity;
   float time;
+
+  vec3 heatseeker_target;
 
   float dropshot_damage;
   float dropshot_absorbed;
@@ -37,11 +39,19 @@ class Ball {
   static float collision_radius;
   static float I; // moment of inertia
   static vec3 gravity;
+  static bool heatseeker_mode;
+  static vec3 orange_goal;
+  static vec3 blue_goal;
 
   Ball();
 
   sphere hitbox();
   void step(float dt);
   std::string to_json();
+
+private:
+	
+	void perform_collision(ray collision, float dt);
+	void step_heatseeker(float dt);
 
 };

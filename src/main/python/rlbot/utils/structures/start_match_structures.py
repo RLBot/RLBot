@@ -79,4 +79,7 @@ class MatchSettings(ctypes.Structure):
                 ("mutator_settings", MutatorSettings),
                 ("existing_match_behavior", ctypes.c_uint),
                 ("enable_lockstep", ctypes.c_bool),
+                ("enable_rendering", ctypes.c_bool),
+                ("enable_state_setting", ctypes.c_bool),
+                ("auto_save_replay", ctypes.c_bool),
                 ]

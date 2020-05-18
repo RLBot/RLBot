@@ -146,6 +146,9 @@ class MatchConfig:
         self.enable_lockstep: bool = None
         self.networking_role: str = None
         self.network_address: str = None
+        self.enable_rendering: bool = None
+        self.enable_state_setting: bool = None
+        self.auto_save_replay: bool = None
 
     @property
     def num_players(self):
@@ -164,6 +167,9 @@ class MatchConfig:
         match_settings.instant_start = self.instant_start
         match_settings.existing_match_behavior = index_or_zero(existing_match_behavior_types, self.existing_match_behavior)
         match_settings.enable_lockstep = self.enable_lockstep
+        match_settings.enable_rendering = self.enable_rendering
+        match_settings.enable_state_setting = self.enable_state_setting
+        match_settings.auto_save_replay = self.auto_save_replay
 
         self.mutators.write(match_settings.mutator_settings)
 

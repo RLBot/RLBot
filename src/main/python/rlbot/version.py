@@ -4,9 +4,17 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.39.2'
+__version__ = '1.41.0'
 
 release_notes = {
+    '1.41.0': """
+    Adding more flags for starting matches: enableRendering, enableStateSetting, autoSaveReplay. Also:
+    - Mac and Linux users can now use 'q' and 'r' commands to quit or reload bots. - naturecodevoid
+    - Update gravity+gamespeed variables in gametickpacket when changed by statesetting. - Kipje13
+    """,
+    '1.40.1': """
+    Support for Heatseeker game mode, including ball prediction thanks to Recruit_main and GodGamer!
+    """,
     '1.39.2': """
     You can now generate a fresh loadout for your bot every match using a python script!
     Try setting different colors based on your player index, or a randomized hat.

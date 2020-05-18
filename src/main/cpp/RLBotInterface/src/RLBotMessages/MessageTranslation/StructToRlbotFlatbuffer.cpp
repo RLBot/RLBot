@@ -461,7 +461,10 @@ namespace StructToRLBotFlatbuffer
 			matchSettings.instantStart,
 			buildMutatorSettings(builder, matchSettings.mutatorSettings),
 			static_cast<rlbot::flat::ExistingMatchBehavior>(matchSettings.existingMatchBehavior),
-			matchSettings.enableLockstep);
+			matchSettings.enableLockstep,
+			matchSettings.enableRendering,
+			matchSettings.enableStateSetting,
+			matchSettings.autoSaveReplay);
 
 		builder->Finish(matchSettingsFlat);
 

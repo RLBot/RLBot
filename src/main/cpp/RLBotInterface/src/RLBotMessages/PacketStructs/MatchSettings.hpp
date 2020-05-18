@@ -45,7 +45,8 @@ enum GameMode
 	Hoops,
 	Dropshot,
 	Hockey,
-	Rumble
+	Rumble,
+	Heatseeker,
 };
 
 enum GameMap
@@ -264,6 +265,9 @@ struct MatchSettings
 	MutatorSettings			mutatorSettings;
 	ExistingMatchBehavior	existingMatchBehavior;
 	bool					enableLockstep;
+	bool					enableRendering;
+	bool					enableStateSetting;
+	bool					autoSaveReplay;
 };
 
 #endif

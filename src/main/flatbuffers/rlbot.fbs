@@ -585,7 +585,8 @@ enum GameMode : byte {
   Hoops,
   Dropshot,
   Hockey,
-  Rumble
+  Rumble,
+  Heatseeker
 }
 
 enum GameMap : byte {
@@ -789,6 +790,9 @@ table MatchSettings {
   mutatorSettings: MutatorSettings;
   existingMatchBehavior: ExistingMatchBehavior;
   enableLockstep: bool;
+  enableRendering: bool;
+  enableStateSetting: bool;
+  autoSaveReplay: bool;
 }
 
 table QuickChatMessages {

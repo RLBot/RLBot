@@ -29,6 +29,9 @@ SKIP_REPLAYS = 'skip_replays'
 INSTANT_START = 'start_without_countdown'
 EXISTING_MATCH_BEHAVIOR = 'existing_match_behavior'
 ENABLE_LOCKSTEP = 'enable_lockstep'
+ENABLE_RENDERING = 'enable_rendering'
+ENABLE_STATE_SETTING = 'enable_state_setting'
+AUTO_SAVE_REPLAY = 'auto_save_replay'
 
 logger = get_logger('config_parser')
 
@@ -38,6 +41,7 @@ game_mode_types = [
     "Dropshot",
     "Hockey",
     "Rumble",
+    "Heatseeker",
 ]
 
 map_types = [
@@ -214,7 +218,7 @@ def add_match_settings_header(config_object):
                            description='Number of bots/players which will be spawned.  We support up to max 64.')
     match_header.add_value(GAME_MODE, str, default="Soccer",
                            description="""What game mode the game should load.
-                           Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble" """)
+                           Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker" """)
     match_header.add_value(GAME_MAP, str, default="DFHStadium",
                            description="""Which map the game should load into. Too many to list.""")
     match_header.add_value(SKIP_REPLAYS, bool, default=False,
@@ -225,6 +229,12 @@ def add_match_settings_header(config_object):
                            description="""What should we do if you click run while a match is already in progress?""")
     match_header.add_value(ENABLE_LOCKSTEP, bool, default=False,
                            description="""If True, the framework will wait for outputs from all bots before advancing to the next frame.""")
+    match_header.add_value(ENABLE_RENDERING, bool, default=True,
+                           description="""If True, bots will be able to draw lines and text in the game.""")
+    match_header.add_value(ENABLE_STATE_SETTING, bool, default=True,
+                           description="""If True, bots will be able to teleport cars and the ball etc.""")
+    match_header.add_value(AUTO_SAVE_REPLAY, bool, default=False,
+                           description="""If True, you will be prompted to save a replay at the end of the match.""")
 
 
 def add_mutator_header(config_object):
@@ -320,5 +330,8 @@ def parse_match_settings(match_settings, config: ConfigObject):
     match_settings.instant_start = config.getboolean(MATCH_CONFIGURATION_HEADER, INSTANT_START)
     match_settings.existing_match_behavior = config.get(MATCH_CONFIGURATION_HEADER, EXISTING_MATCH_BEHAVIOR)
     match_settings.enable_lockstep = config.getboolean(MATCH_CONFIGURATION_HEADER, ENABLE_LOCKSTEP)
+    match_settings.enable_rendering = config.getboolean(MATCH_CONFIGURATION_HEADER, ENABLE_RENDERING)
+    match_settings.enable_state_setting = config.getboolean(MATCH_CONFIGURATION_HEADER, ENABLE_STATE_SETTING)
+    match_settings.auto_save_replay = config.getboolean(MATCH_CONFIGURATION_HEADER, AUTO_SAVE_REPLAY)
 
     parse_mutator_settings(match_settings.mutators, config)
