@@ -1,10 +1,12 @@
 from enum import Enum
-from queue import Queue, Empty  # TODO(python 3.7+): use SimpleQueue
+from queue import Empty  # TODO(python 3.7+): use SimpleQueue
 from threading import Thread
 from urllib.parse import ParseResult as URL, urlunparse
 import asyncio
 import json
 import traceback
+
+from rlbot.utils.queue import Queue
 
 import websockets
 from websockets.client import WebSocketClientProtocol

@@ -1,7 +1,7 @@
 from contextlib import contextmanager, closing
 from dataclasses import dataclass, field
 from enum import Enum
-from queue import Queue, Empty  # TODO(python 3.7+): use SimpleQueue
+from queue import Empty  # TODO(python 3.7+): use SimpleQueue
 from threading import Thread
 from typing import Iterator, Dict, Any, Tuple, Set
 from urllib.parse import ParseResult as URL
@@ -10,6 +10,8 @@ import json
 import socket
 import time
 from logging import Logger
+
+from rlbot.utils.queue import Queue
 
 from websockets.server import WebSocketServerProtocol, WebSocketServer
 from websockets.exceptions import ConnectionClosed

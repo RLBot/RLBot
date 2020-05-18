@@ -14,6 +14,9 @@ from urllib.parse import ParseResult as URL
 
 from rlbot.utils.structures import game_data_struct
 
+from rlbot.utils.queue import Queue as _queue
+mp.Queue = _queue
+
 from rlbot import gateway_util
 from rlbot import version
 from rlbot.base_extension import BaseExtension

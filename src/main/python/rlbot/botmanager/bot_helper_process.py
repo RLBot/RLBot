@@ -1,4 +1,5 @@
-from multiprocessing import Event, Queue
+from multiprocessing import Event
+from rlbot.utils.queue import Queue
 
 
 class BotHelperProcess:

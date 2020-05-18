@@ -7,6 +7,8 @@ from rlbot.utils.class_importer import import_class_with_base
 
 from rlbot.botmanager.bot_helper_process import BotHelperProcess
 
+from rlbot.utils.queue import Queue as _queue
+mp.Queue = _queue
 
 class HelperProcessManager:
     """
