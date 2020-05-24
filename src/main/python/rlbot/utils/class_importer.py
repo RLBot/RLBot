@@ -65,7 +65,6 @@ def load_external_class(python_file, base_class):
 def load_external_module(python_file):
     """
     Returns the loaded module.
-    All of its newly added dependencies are removed from sys.path after load.
     """
 
     # There's a special case where python_file may be pointing at the base agent definition here in the framework.
@@ -79,18 +78,11 @@ def load_external_module(python_file):
 
     dir_name = os.path.dirname(python_file)
     module_name = os.path.splitext(os.path.basename(python_file))[0]
-    keys_before = set(sys.modules.keys())
 
     # Temporarily modify the sys.path while we load the module so that the module can use import statements naturally
     sys.path.insert(0, dir_name)
     loaded_module = importlib.import_module(module_name)
-
-    # Clean up the changes to sys.path and sys.modules to avoid collisions with other external classes and to
-    # prepare for the next reload.
-    added = set(sys.modules.keys()).difference(keys_before)
     del sys.path[0]
-    for key in added:
-        del sys.modules[key]
 
     return loaded_module
 
