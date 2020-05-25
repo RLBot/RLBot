@@ -1,6 +1,7 @@
 from typing import Optional
 from urllib.parse import ParseResult as URL
 
+from rlbot.agents.rlbot_runnable import RLBotRunnable, LOCATIONS_HEADER, DETAILS_HEADER
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.matchcomms.client import MatchcommsClient
 from rlbot.messages.flat import MatchSettings
@@ -14,9 +15,9 @@ from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
 from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
-BOT_CONFIG_MODULE_HEADER = 'Locations'
+BOT_CONFIG_MODULE_HEADER = LOCATIONS_HEADER
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
-BOT_CONFIG_DETAILS_HEADER = 'Details'
+BOT_CONFIG_DETAILS_HEADER = DETAILS_HEADER
 PYTHON_FILE_KEY = 'python_file'
 LOADOUT_GENERATOR_FILE_KEY = 'loadout_generator'
 LOGO_FILE_KEY = 'logo_file'
@@ -64,10 +65,7 @@ class SimpleControllerState:
         self.use_item = use_item
 
 
-class BaseAgent:
-    # the name of the bot fixed for any duplicates that may occur
-    name = None
-
+class BaseAgent(RLBotRunnable):
     # 'team' is an integer: 0 towards positive goal, 1 towards negative goal.
     # 0 is blue team, 1 is orange team
     team = None
@@ -85,17 +83,10 @@ class BaseAgent:
     matchcomms_root: URL = None
 
     def __init__(self, name, team, index):
-        self.name = name
+        super().__init__(name)
         self.team = team
         self.index = index
         self.logger = get_logger(f'bot{index}')
-
-    def init_match_config(self, match_config: 'MatchConfig'):
-        """
-        Override this method if you would like to be informed of what config was used to start the match.
-        Useful for knowing what map you're on, mutators, etc.
-        """
-        pass
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
@@ -170,13 +161,6 @@ class BaseAgent:
         """
         pass
 
-    def initialize_agent(self):
-        """
-        Called for all heaver initialization that needs to happen.
-        The config is fully loaded at this point
-        """
-        pass
-
     def get_extra_pids(self):
         """
         Gets the list of process ids that should be marked as high priority.
@@ -184,24 +168,12 @@ class BaseAgent:
         """
         return []
 
-    def retire(self):
-        """Called after the game ends"""
-        pass
-
     def get_helper_process_request(self) -> HelperProcessRequest:
         """
         If your bot needs a helper process which can be shared, e.g. with other bots of the same type,
         you may override this to return a HelperProcessRequest.
         """
         return None
-
-    @staticmethod
-    def create_agent_configurations(config: ConfigObject):
-        """
-        If your bot needs to add custom configurations, you may override this and use the `config` object.
-        :param config: A ConfigObject instance.
-        """
-        pass
 
     def convert_output_to_v4(self, controller_input):
         """Converts a v3 output to a v4 controller state"""
@@ -290,29 +262,18 @@ class BaseAgent:
         It also calls `create_agent_configurations` that can be used by BaseAgent subclasses for custom configs.
         :return: Returns an instance of a ConfigObject object.
         """
-        config = ConfigObject()
-        location_config = config.add_header_name(BOT_CONFIG_MODULE_HEADER)
+
+        config = super().base_create_agent_configurations()
+        location_config = config.get_header(LOCATIONS_HEADER)
+
+        location_config.add_value(PYTHON_FILE_KEY, str,
+                                  description="Bot's python file.\nOnly need this if RLBot controlled")
         location_config.add_value(LOOKS_CONFIG_KEY, str,
                                   description='Path to loadout config from runner')
         location_config.add_value(LOADOUT_GENERATOR_FILE_KEY, str,
                                   description="A file that provide dynamic bot loadouts (optional).")
-        location_config.add_value(PYTHON_FILE_KEY, str,
-                                  description="Bot's python file.\nOnly need this if RLBot controlled")
-        location_config.add_value(BOT_NAME_KEY, str, default='nameless',
-                                  description='The name that will be displayed in game')
-        location_config.add_value(LOGO_FILE_KEY, str,
-                                  description="Location of an image file to use as your bot's logo")
-        location_config.add_value(SUPPORTS_EARLY_START_KEY, bool,
-                                  description="True if this bot can be started before the Rocket League match begins.")
         location_config.add_value(MAXIMUM_TICK_RATE_PREFERENCE_KEY, int, default=60,
                                   description="The maximum number of ticks per second that your bot wishes to receive.")
-
-        details_config = config.add_header_name(BOT_CONFIG_DETAILS_HEADER)
-        details_config.add_value('developer', str, description="Name of the bot's creator/developer")
-        details_config.add_value('description', str, description="Short description of the bot")
-        details_config.add_value('fun_fact', str, description="Fun fact about the bot")
-        details_config.add_value('github', str, description="Link to github repository")
-        details_config.add_value('language', str, description="Programming language")
 
         cls.create_agent_configurations(config)
 

@@ -1,5 +1,7 @@
 import multiprocessing as mp
 import os
+import sys
+
 import psutil
 import platform
 import queue
@@ -9,7 +11,7 @@ import webbrowser
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Set
 from urllib.parse import ParseResult as URL
 
 from rlbot.utils.structures import game_data_struct
@@ -27,7 +29,7 @@ from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.matchconfig.psyonix_config import set_random_psyonix_bot_preset
 from rlbot.matchcomms.server import launch_matchcomms_server
 from rlbot.parsing.agent_config_parser import load_bot_appearance
-from rlbot.parsing.bot_config_bundle import get_bot_config_bundle, BotConfigBundle
+from rlbot.parsing.bot_config_bundle import get_bot_config_bundle, BotConfigBundle, get_script_config_bundle
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.utils import process_configuration
@@ -109,6 +111,7 @@ class SetupManager:
     agent_metadata_queue = None
     extension = None
     bot_processes: Dict[int, mp.Process] = {}
+    script_processes: Dict[int, subprocess.Popen] = {}
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -406,6 +409,20 @@ class SetupManager:
                 num_started += 1
 
         self.logger.debug(f"Successfully started {num_started} bot processes")
+
+        scripts_started = 0
+        for script_config in self.match_config.script_configs:
+            script_config_bundle = get_script_config_bundle(script_config.config_path)
+            if early_starters_only and not script_config_bundle.supports_early_start:
+                continue
+            process = subprocess.Popen([sys.executable, script_config_bundle.script_file],
+                                       shell=True, cwd=Path(script_config_bundle.config_directory).parent)
+            self.logger.info(f"Started script with pid {process.pid} using {process.args}")
+            self.script_processes[process.pid] = process
+            scripts_started += 1
+
+        self.logger.debug(f"Successfully started {scripts_started} scripts")
+
         return num_started
 
     def launch_quick_chat_manager(self):
@@ -529,9 +546,12 @@ class SetupManager:
                 break
 
         self.kill_bot_processes()
+        self.kill_agent_process_ids(set(self.script_processes.keys()))
 
         if kill_all_pids:
-            self.kill_agent_process_ids()
+            # The original meaning of the kill_all_pids flag only applied to bots, not scripts,
+            # so we are doing that separately.
+            self.kill_agent_process_ids(process_configuration.extract_all_pids(self.agent_metadata_map))
 
         self.kill_matchcomms_server()
 
@@ -559,7 +579,7 @@ class SetupManager:
         # example bot repositories, so bots will be more likely to 'just work'
         # even if the developer is careless about file paths.
         os.chdir(Path(bundle.config_directory).parent)
-        
+
         agent_class_wrapper = import_agent(python_file)
         config_file = agent_class_wrapper.get_loaded_class().base_create_agent_configurations()
         config_file.parse_file(bundle.config_obj, config_directory=bundle.config_directory)
@@ -585,8 +605,7 @@ class SetupManager:
         self.bot_processes.clear()
         self.num_metadata_received = 0
 
-    def kill_agent_process_ids(self):
-        pids = process_configuration.extract_all_pids(self.agent_metadata_map)
+    def kill_agent_process_ids(self, pids: Set[int]):
         for pid in pids:
             try:
                 parent = psutil.Process(pid)

@@ -1,13 +1,16 @@
 import configparser
+import itertools
 import os
 from pathlib import Path
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, \
     PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY
 from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
+from rlbot.agents.base_script import SCRIPT_FILE_KEY, BaseScript
+from rlbot.agents.rlbot_runnable import RLBotRunnable
 from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
-    PARTICIPANT_CONFIG_KEY, load_bot_appearance
+    PARTICIPANT_CONFIG_KEY, load_bot_appearance, SCRIPT_CONFIGURATION_HEADER, SCRIPT_CONFIG_KEY
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.class_importer import import_class_with_base
 from rlbot.utils.logging_utils import get_logger
@@ -15,18 +18,15 @@ from rlbot.utils.logging_utils import get_logger
 logger = get_logger('rlbot')
 
 
-class BotConfigBundle:
+class RunnableConfigBundle:
     def __init__(self, config_directory, config_obj: ConfigObject, config_file_name: str = None):
         self.config_directory = config_directory
         self.config_file_name = config_file_name
         self.config_path = os.path.join(self.config_directory, self.config_file_name)
         self.config_obj = config_obj
-        self.base_agent_config = BaseAgent.base_create_agent_configurations()
+        self.base_agent_config = RLBotRunnable.base_create_agent_configurations()
         self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
         self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
-        self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
-        self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
-        self.loadout_generator_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOADOUT_GENERATOR_FILE_KEY)
         self.supports_early_start = self.base_agent_config.get(BOT_CONFIG_MODULE_HEADER, SUPPORTS_EARLY_START_KEY)
 
     def get_logo_file(self):
@@ -48,12 +48,24 @@ class BotConfigBundle:
         joined = os.path.join(self.config_directory, path)
         return os.path.realpath(joined)
 
+
+class BotConfigBundle(RunnableConfigBundle):
+    def __init__(self, config_directory, config_obj: ConfigObject, config_file_name: str = None):
+        super().__init__(config_directory, config_obj, config_file_name)
+        self.base_agent_config = BaseAgent.base_create_agent_configurations()
+        self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
+        self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+        self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
+        self.loadout_generator_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOADOUT_GENERATOR_FILE_KEY)
+
     def get_looks_config(self) -> ConfigObject:
         """
         Creates a looks config from the config bundle
         :param config_bundle:
         :return:
         """
+        if self.looks_path is None:
+            raise ValueError("Cannot get looks config because looks_path is None")
         return create_looks_configurations().parse_file(self.looks_path)
 
     def generate_loadout_config(self, player_index: int, team: int) -> LoadoutConfig:
@@ -74,14 +86,35 @@ class BotConfigBundle:
         return load_bot_appearance(config_object, team)
 
 
-def get_bot_config_bundle(bot_config_path) -> BotConfigBundle:
-    if not os.path.isfile(bot_config_path):
-        raise FileNotFoundError(f"Could not find bot config file {bot_config_path}!")
+class ScriptConfigBundle(RunnableConfigBundle):
+    def __init__(self, config_directory, config_obj: ConfigObject, config_file_name):
+        super().__init__(config_directory, config_obj, config_file_name)
+        self.base_agent_config = BaseScript.base_create_agent_configurations()
+        self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
+        self.script_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, SCRIPT_FILE_KEY)
+        if not self.script_file:
+            raise AttributeError(f"Script config {self.config_path} has no script file configured!")
+
+
+def get_config_obj_and_directory(config_path):
+    if not os.path.isfile(config_path):
+        raise FileNotFoundError(f"Could not find config file {config_path}!")
     raw_bot_config = configparser.RawConfigParser()
-    raw_bot_config.read(bot_config_path, encoding='utf8')
-    config_directory = os.path.dirname(os.path.realpath(bot_config_path))
+    raw_bot_config.read(config_path, encoding='utf8')
+    config_directory = os.path.dirname(os.path.realpath(config_path))
+    return raw_bot_config, config_directory
+
+
+def get_bot_config_bundle(bot_config_path) -> BotConfigBundle:
+    raw_bot_config, config_directory = get_config_obj_and_directory(bot_config_path)
     bundle = BotConfigBundle(config_directory, raw_bot_config, os.path.basename(bot_config_path))
     validate_bot_config(bundle)
+    return bundle
+
+
+def get_script_config_bundle(config_path) -> ScriptConfigBundle:
+    raw_bot_config, config_directory = get_config_obj_and_directory(config_path)
+    bundle = ScriptConfigBundle(config_directory, raw_bot_config, os.path.basename(config_path))
     return bundle
 
 
@@ -89,11 +122,10 @@ def validate_bot_config(config_bundle) -> None:
     """
     Checks the config bundle to see whether it has all required attributes.
     """
-    if not config_bundle.name:
-        bot_config = os.path.join(config_bundle.config_directory, config_bundle.config_file_name or '')
-        raise AttributeError(f"Bot config {bot_config} has no name configured!")
+    if not config_bundle.looks_path or not config_bundle.name:
+        raise AttributeError(f"Bot config {config_bundle.config_path} is missing a name or a looks_path!")
 
-    # This will raise an exception if we can't find the looks config, or if it's malformed
+    # This will raise an exception if the looks config is malformed
     config_bundle.get_looks_config()
 
 
@@ -116,5 +148,21 @@ def get_bot_config_bundles(num_participants, config: ConfigObject, config_locati
             bot_config_path = os.path.join(os.path.dirname(config_location), bot_config_relative_path)
             config_bundles.append(get_bot_config_bundle(bot_config_path))
             logger.debug("Reading raw config")
+
+    return config_bundles
+
+
+def get_script_config_bundles(match_config: ConfigObject, config_location):
+    """
+    Adds all the script config bundles found in the match config file.
+    Attempts to read indexed config keys until it hits an empty one.
+    """
+    config_bundles = []
+    for i in itertools.count():
+        script_config_relative_path = match_config.get(SCRIPT_CONFIGURATION_HEADER, SCRIPT_CONFIG_KEY, i)
+        if script_config_relative_path is None:
+            break
+        script_config_path = os.path.join(os.path.dirname(config_location), script_config_relative_path)
+        config_bundles.append(get_script_config_bundle(script_config_path))
 
     return config_bundles

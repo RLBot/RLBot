@@ -7,6 +7,8 @@ from rlbot.utils.logging_utils import get_logger
 
 PARTICIPANT_CONFIGURATION_HEADER = 'Participant Configuration'
 PARTICIPANT_CONFIG_KEY = 'participant_config'
+SCRIPT_CONFIGURATION_HEADER = 'Scripts'
+SCRIPT_CONFIG_KEY = 'script_config'
 PARTICIPANT_BOT_SKILL_KEY = 'participant_bot_skill'
 PARTICIPANT_TYPE_KEY = 'participant_type'
 PARTICIPANT_TEAM = 'participant_team'
@@ -51,6 +53,13 @@ def add_participant_header(config_object):
     participant_header.add_value(PARTICIPANT_LOADOUT_CONFIG_KEY, str, default="None",
                                  description="""A path to a loadout config file which will override the path in the agent config
                                              Use None to extract the path from the agent config""")
+
+
+def add_scripts_header(config_object):
+    participant_header = config_object.add_header_name(SCRIPT_CONFIGURATION_HEADER, is_indexed=True)
+    participant_header.add_value(SCRIPT_CONFIG_KEY, str, default=None,
+                                 description="""The location of the configuration file for your script here.
+                                             Up to 100 config files will be read!""")
 
 
 def load_bot_appearance(looks_config_object: ConfigObject, team_num: int) -> LoadoutConfig:

@@ -18,6 +18,9 @@ class Team(Enum):
     BLUE = 0
     ORANGE = 1
 
+class ScriptConfig:
+    def __init__(self, config_path):
+        self.config_path: str = config_path
 
 class PlayerConfig:
     """
@@ -149,6 +152,7 @@ class MatchConfig:
         self.enable_rendering: bool = None
         self.enable_state_setting: bool = None
         self.auto_save_replay: bool = None
+        self.script_configs: List[ScriptConfig] = []
 
     @property
     def num_players(self):

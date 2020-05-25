@@ -1,4 +1,4 @@
-from rlbot.parsing.agent_config_parser import add_participant_header
+from rlbot.parsing.agent_config_parser import add_participant_header, add_scripts_header
 from rlbot.parsing.match_settings_config_parser import add_mutator_header, add_match_settings_header
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.logging_utils import get_logger
@@ -35,5 +35,6 @@ def create_bot_config_layout():
     add_match_settings_header(config_object)
     add_mutator_header(config_object)
     add_participant_header(config_object)
+    add_scripts_header(config_object)
     return config_object
 

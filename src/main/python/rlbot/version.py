@@ -4,14 +4,21 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.41.0'
+__version__ = '1.42.0'
 
 release_notes = {
+    '1.42.0': """
+    System for running multiple scripts that do not own cars in a match.
+    
+    Also:
+    - Set the current working directory of bots to their folder.
+    - Do less manipulation of modules when loading bots to reduce weird bugs.
+    - Small improvements to hive bot. - Will
+    """,
     '1.41.0': """
     Adding more flags for starting matches: enableRendering, enableStateSetting, autoSaveReplay. Also:
     - Mac and Linux users can now use 'q' and 'r' commands to quit or reload bots. - naturecodevoid
     - Update gravity+gamespeed variables in gametickpacket when changed by statesetting. - Kipje13
-    - Set the current working directory of bots to their folder.
     """,
     '1.40.1': """
     Support for Heatseeker game mode, including ball prediction thanks to Recruit_main and GodGamer!

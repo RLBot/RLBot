@@ -2,9 +2,9 @@ import json
 from pathlib import Path
 
 from rlbot.matchconfig.loadout_config import LoadoutConfig, LoadoutPaintConfig
-from rlbot.matchconfig.match_config import MatchConfig, ExtensionConfig, MutatorConfig, PlayerConfig
+from rlbot.matchconfig.match_config import MatchConfig, ExtensionConfig, MutatorConfig, PlayerConfig, ScriptConfig
 from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_TEAM, PARTICIPANT_TYPE_KEY, load_bot_appearance, PARTICIPANT_BOT_SKILL_KEY
-from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bundles
+from rlbot.parsing.bot_config_bundle import BotConfigBundle, get_bot_config_bundles, get_script_config_bundles
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.incrementing_integer import IncrementingInteger
 from rlbot.parsing.match_settings_config_parser import get_num_players, parse_match_settings
@@ -62,6 +62,9 @@ def parse_match_config(config_parser: ConfigObject, config_location, config_bund
 
     match_config.networking_role = config_parser.get(RLBOT_CONFIGURATION_HEADER, NETWORKING_ROLE_KEY)
     match_config.network_address = config_parser.get(RLBOT_CONFIGURATION_HEADER, NETWORK_ADDRESS_KEY)
+
+    match_config.script_configs = [ScriptConfig(bundle.config_path)
+                                   for bundle in get_script_config_bundles(config_parser, config_location)]
 
     return match_config
 
