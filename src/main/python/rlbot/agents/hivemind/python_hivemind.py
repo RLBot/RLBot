@@ -80,14 +80,16 @@ class PythonHivemind(BotHelperProcess):
         self._ball_prediction = BallPrediction()
         self._field_info = FieldInfoPacket()
         self.game_interface.update_field_info_packet(self._field_info)
-        # Wrapper for renderer.
-        self.renderer: RenderingManager = self.game_interface.renderer
 
         # Create packet object.
         packet = GameTickPacket()
         # Uses one of the drone indices as a key.
-        key = next(iter(self.drone_indices))
-        self.game_interface.fresh_live_data_packet(packet, 20, key)
+        first_index = next(iter(self.drone_indices))
+        self.game_interface.fresh_live_data_packet(packet, 20, first_index)
+
+        # Get a rendering manager for the hivemind.
+        self.team = packet.game_cars[first_index].team
+        self.renderer = self.game_interface.renderer.get_rendering_manager(bot_index=first_index, bot_team=self.team)
 
         # Initialization step for your hivemind.
         self.initialize_hive(packet)
