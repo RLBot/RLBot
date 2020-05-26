@@ -97,7 +97,7 @@ class PythonHivemind(BotHelperProcess):
         while not self.quit_event.is_set():
             try:
                 # Updating the packet.
-                self.game_interface.fresh_live_data_packet(packet, 20, key)
+                self.game_interface.fresh_live_data_packet(packet, 20, first_index)
 
                 # Get outputs from hivemind for each bot.
                 # Outputs are expected to be a Dict[int, PlayerInput]
