@@ -4,6 +4,8 @@ from time import sleep
 from rlbot.agents.base_script import BaseScript
 
 
+# Extending the BaseScript class is purely optional. It's just convenient / abstracts you away from
+# some strange classes like GameInterface
 class SampleScript(BaseScript):
     def run(self):
         for i in range(10):
@@ -15,6 +17,9 @@ class SampleScript(BaseScript):
             sleep(5)
 
 
-print("Sample script starting...")
-script = SampleScript("myScript")
-script.run()
+# You can use this __name__ == '__main__' thing to ensure that the script doesn't start accidentally if you
+# merely reference its module from somewhere
+if __name__ == '__main__':
+    print("Sample script starting...")
+    script = SampleScript("myScript")
+    script.run()
