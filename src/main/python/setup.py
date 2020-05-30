@@ -18,6 +18,7 @@ setuptools.setup(
         'websockets',
         'dataclasses',  # Python 3.6 compatibility
         'webdriver_manager',  # For scratch bots
+        'requirements-parser',
     ],
     version=__version__,
     description='A framework for writing custom Rocket League bots that run offline.',

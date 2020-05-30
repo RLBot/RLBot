@@ -4,9 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.42.4'
+__version__ = '1.43.0'
 
 release_notes = {
+    '1.43.0': """
+    Bots and scripts can now specify the location of a requirements.txt file which will be analyzed
+    by the framework. 
+    """,
     '1.42.4': """
     System for running multiple scripts that do not own cars in a match.
     
