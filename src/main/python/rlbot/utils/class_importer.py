@@ -2,8 +2,18 @@ import importlib
 import inspect
 import os
 import sys
+from pathlib import Path
 
 from rlbot.agents.base_agent import BaseAgent
+from rlbot.utils.logging_utils import get_logger
+
+
+def is_file_under_path(file, path):
+    try:
+        Path(file).relative_to(path)
+        return True
+    except ValueError:
+        return False
 
 
 class ExternalClassWrapper:
@@ -18,7 +28,16 @@ class ExternalClassWrapper:
     def __init__(self, python_file, base_class):
         self.python_file = python_file
         self.base_class = base_class
+        self.logger = get_logger('class_importer')
+        self.owned_module_keys = set()
+        self._load_external_class_and_record_module_changes()
+
+    def _load_external_class_and_record_module_changes(self):
+        keys_before = set(sys.modules.keys())
         self.loaded_class, self.loaded_module = load_external_class(self.python_file, self.base_class)
+        # Compute the set of modules which were loaded recursively and had not been seen before
+        added_module_keys = set(sys.modules.keys()).difference(keys_before)
+        self.owned_module_keys = self.owned_module_keys.union(added_module_keys)
 
     def get_loaded_class(self):
         """
@@ -26,8 +45,37 @@ class ExternalClassWrapper:
         """
         return self.loaded_class
 
+    def _reload_owned_modules(self):
+        """
+        A module is eligible for reload if:
+        - It has a python file associated with it that lives under the same directory as the main python_file
+        - It's present in self.owned_module_keys, i.e. the main python file appears to have been responsible for its
+          insertion into the system module list.
+
+        We do the path check because otherwise we try to reload various low-level modules that have nothing to do with
+        the bot logic, and reloading those modules sometimes throws an exception. The owned_module_keys is less
+        critical, but it feels safer / faster than doing path checks on the entirety of sys.modules. E.g. what if you
+        have two bots in the same folder and only want to reload one of them.
+        """
+        for module_key in self.owned_module_keys:
+            if module_key in sys.modules:
+                try:
+                    mod = sys.modules[module_key]
+                    if hasattr(mod, '__file__') and mod.__file__ and is_file_under_path(mod.__file__, Path(self.python_file).parent):
+                        importlib.reload(sys.modules[module_key])
+                except Exception as e:
+                    self.logger.warning(f"Suppressed error when hot reloading {module_key}: {e}")
+
     def reload(self):
-        self.loaded_class, self.loaded_module = load_external_class(self.python_file, self.base_class)
+        dir_name = os.path.dirname(self.python_file)
+        sys.path.insert(0, dir_name)
+        # Why call this twice? Because the modules would need to be loaded from bottom-up
+        # in terms of their dependency tree in order for all changes to manifest in one attempt.
+        # That's hard, it's much easier to just repeat it.
+        self._reload_owned_modules()
+        self._reload_owned_modules()
+        del sys.path[0]
+        self._load_external_class_and_record_module_changes()
 
 
 def import_agent(python_file) -> ExternalClassWrapper:
@@ -62,6 +110,7 @@ def load_external_class(python_file, base_class):
     loaded_class = extract_class(loaded_module, base_class)
     return loaded_class, loaded_module
 
+
 def load_external_module(python_file):
     """
     Returns the loaded module.
@@ -85,6 +134,7 @@ def load_external_module(python_file):
     del sys.path[0]
 
     return loaded_module
+
 
 def extract_class(containing_module, base_class):
     valid_classes = [agent[1] for agent in inspect.getmembers(containing_module, inspect.isclass)
