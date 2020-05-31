@@ -2,12 +2,16 @@ import configparser
 import itertools
 import os
 from pathlib import Path
+from typing import List
+
+from requirements.requirement import Requirement
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, \
     PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY
 from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
 from rlbot.agents.base_script import SCRIPT_FILE_KEY, BaseScript
-from rlbot.agents.rlbot_runnable import RLBotRunnable
+from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY
+from rlbot.utils.requirements_management import get_missing_packages
 from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
     PARTICIPANT_CONFIG_KEY, load_bot_appearance, SCRIPT_CONFIGURATION_HEADER, SCRIPT_CONFIG_KEY
@@ -28,6 +32,7 @@ class RunnableConfigBundle:
         self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
         self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
         self.supports_early_start = self.base_agent_config.get(BOT_CONFIG_MODULE_HEADER, SUPPORTS_EARLY_START_KEY)
+        self.requirements_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, REQUIREMENTS_FILE_KEY)
 
     def get_logo_file(self):
         # logo.png is a convention we established during the wintertide tournament.
@@ -47,6 +52,11 @@ class RunnableConfigBundle:
             raise ValueError(f"Can't locate {path} because it's a relative path and we don't know where to look!")
         joined = os.path.join(self.config_directory, path)
         return os.path.realpath(joined)
+
+    def get_missing_python_packages(self) -> List[Requirement]:
+        if self.requirements_file:
+            return get_missing_packages(requirements_file=self.requirements_file)
+        return []
 
 
 class BotConfigBundle(RunnableConfigBundle):

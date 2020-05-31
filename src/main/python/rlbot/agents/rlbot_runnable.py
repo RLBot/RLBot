@@ -17,6 +17,7 @@ from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 LOCATIONS_HEADER = 'Locations'
 DETAILS_HEADER = 'Details'
 PYTHON_FILE_KEY = 'python_file'
+REQUIREMENTS_FILE_KEY = 'requirements_file'
 LOGO_FILE_KEY = 'logo_file'
 NAME_KEY = "name"
 SUPPORTS_EARLY_START_KEY = "supports_early_start"
@@ -91,6 +92,8 @@ class RLBotRunnable:
         location_config = config.add_header_name(LOCATIONS_HEADER)
         location_config.add_value(PYTHON_FILE_KEY, str,
                                   description="Bot's python file.\nOnly need this if RLBot controlled")
+        location_config.add_value(REQUIREMENTS_FILE_KEY, str,
+                                  description="Python requirements.txt file listing needed dependencies.")
         location_config.add_value(NAME_KEY, str, default='nameless',
                                   description='The name that will be displayed in game')
         location_config.add_value(LOGO_FILE_KEY, str,
