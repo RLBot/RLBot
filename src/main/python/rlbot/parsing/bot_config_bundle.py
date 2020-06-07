@@ -170,7 +170,7 @@ def get_script_config_bundles(match_config: ConfigObject, config_location):
     config_bundles = []
     for i in itertools.count():
         script_config_relative_path = match_config.get(SCRIPT_CONFIGURATION_HEADER, SCRIPT_CONFIG_KEY, i)
-        if script_config_relative_path is None:
+        if script_config_relative_path is None or script_config_relative_path == 'None':
             break
         script_config_path = os.path.join(os.path.dirname(config_location), script_config_relative_path)
         config_bundles.append(get_script_config_bundle(script_config_path))
