@@ -34,6 +34,9 @@ class BotManagerStruct(BotManager):
         return field_info
 
     def call_agent(self, agent: BaseAgent, agent_class):
+        # Call begin rendering on the agent's behalf. If they call begin_rendering again internally, no harm done.
+        agent.renderer.begin_rendering()
+
         controller_input = agent.get_output(self.game_tick_packet)
         if controller_input is None:
             get_logger("BotManager" + str(self.index))\
@@ -60,6 +63,10 @@ class BotManagerStruct(BotManager):
             # e.g. Stick returns itself rather than a SimpleControllerState.
             player_input.use_item = controller_input.use_item
         self.game_interface.update_player_input(player_input, self.index)
+
+        # Send the rendering at the end, to minimize any impact on latency. The agent may have already called
+        # end_rendering internally, if that's the case then this will just no-op.
+        agent.renderer.end_rendering()
 
     def get_game_time(self):
         return self.game_tick_packet.game_info.seconds_elapsed
