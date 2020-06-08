@@ -14,8 +14,7 @@ from urllib.parse import ParseResult as URL
 
 from rlbot.utils.structures import game_data_struct
 
-from rlbot.utils.queue import Queue as _queue
-mp.Queue = _queue
+from rlbot.utils.queue import Queue
 
 from rlbot import gateway_util
 from rlbot import version
@@ -178,7 +177,7 @@ class SetupManager:
             self.logger.error("Terminating rlbot gateway and raising:")
             self.rlbot_gateway_process.terminate()
             raise e
-        self.agent_metadata_queue = mp.Queue()
+        self.agent_metadata_queue = Queue()
         self.has_started = True
 
     @staticmethod
