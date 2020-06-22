@@ -4,15 +4,16 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.43.2'
+__version__ = '1.43.4'
 
 release_notes = {
-    '1.43.2': """
+    '1.43.4': """
     Bots and scripts can now specify the location of a requirements.txt file which will be analyzed
     by the framework.
     
     Also:
     - Calling begin_rendering and end_rendering on behalf of python bots so they don't need to anymore.
+    - Added wait_game_tick_packet helper to the base_script. - L0laapk3
     """,
     '1.42.4': """
     System for running multiple scripts that do not own cars in a match.

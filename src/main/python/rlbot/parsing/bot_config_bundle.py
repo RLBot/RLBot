@@ -11,7 +11,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAM
 from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
 from rlbot.agents.base_script import SCRIPT_FILE_KEY, BaseScript
 from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY
-from rlbot.utils.requirements_management import get_missing_packages
+from rlbot.utils.requirements_management import get_missing_packages, get_packages_needing_upgrade
 from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
     PARTICIPANT_CONFIG_KEY, load_bot_appearance, SCRIPT_CONFIGURATION_HEADER, SCRIPT_CONFIG_KEY
@@ -56,6 +56,11 @@ class RunnableConfigBundle:
     def get_missing_python_packages(self) -> List[Requirement]:
         if self.requirements_file:
             return get_missing_packages(requirements_file=self.requirements_file)
+        return []
+
+    def get_python_packages_needing_upgrade(self) -> List[Requirement]:
+        if self.requirements_file:
+            return get_packages_needing_upgrade(requirements_file=self.requirements_file)
         return []
 
 

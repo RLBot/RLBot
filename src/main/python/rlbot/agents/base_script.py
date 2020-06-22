@@ -29,9 +29,13 @@ class BaseScript(RLBotRunnable):
         self.renderer = self.game_interface.renderer.get_rendering_manager(bot_index=fake_index, bot_team=2)
 
     def get_game_tick_packet(self):
+        """Gets the latest game tick packet immediately, without blocking."""
         return self.game_interface.update_live_data_packet(self.game_tick_packet)
 
     def wait_game_tick_packet(self):
+        """A blocking call which waits for the next new game tick packet and returns as soon
+        as it's available. Will wait for a maximum of 30 milliseconds before giving up and returning
+        the packet the framework already has. This is suitable for low-latency update loops."""
         return self.game_interface.fresh_live_data_packet(self.game_tick_packet, 30, self.__key)
 
     def get_field_info(self):
