@@ -20,6 +20,7 @@ class BaseScript(RLBotRunnable):
     def __init__(self, name):
         super().__init__(name)
         self.logger = get_logger(name)
+        self.__key = hash("BaseScript:" + name)
         self.game_tick_packet = GameTickPacket()
         self.ball_prediction = BallPrediction()
         self.game_interface = GameInterface(self.logger)
@@ -29,6 +30,9 @@ class BaseScript(RLBotRunnable):
 
     def get_game_tick_packet(self):
         return self.game_interface.update_live_data_packet(self.game_tick_packet)
+
+    def wait_game_tick_packet(self):
+        return self.game_interface.fresh_live_data_packet(self.game_tick_packet, 30, self.__key)
 
     def get_field_info(self):
         """Gets the information about the field.
