@@ -9,6 +9,8 @@
  - Scratch - https://github.com/RLBot/RLBotScratchInterface
  - Rust - https://crates.io/crates/rlbot
 
+***If you just want to play with some bots, you can go to [RLBotGUI](https://github.com/RLBot/RLBotGUI) to easily start matches with bots***
+
 ## Framework Contributors
 
 This repository is currently incomplete to meet the legal needs of the Psyonix API. It is missing the source code behind RLBot.exe, and a few other files. If you want to make a code change that involves RLBot.exe (or the interface dll since it's closely related), you'll need some help from someone with access to the closed repo.
