@@ -249,7 +249,7 @@ class SetupManager:
         self.teams = [bot.team for bot in match_config.player_configs]
 
         for player in match_config.player_configs:
-            if player.bot and not player.rlbot_controlled:
+            if player.bot and not player.rlbot_controlled and not player.loadout_config:
                 set_random_psyonix_bot_preset(player)
 
         bundles = [bot_config_overrides[index] if index in bot_config_overrides else
