@@ -521,7 +521,7 @@ class SetupManager:
         for rr in self.bot_reload_requests:
             rr.set()
 
-    def shut_down(self, time_limit=5, kill_all_pids=False, quiet=False):
+    def shut_down(self, time_limit=5, kill_all_pids=False, quiet=False, kill_rlbot_exe=False):
         if not quiet:
             self.logger.info("Shutting Down")
 
@@ -558,6 +558,15 @@ class SetupManager:
         # The quit event can only be set once. Let's reset to our initial state
         self.quit_event = mp.Event()
         self.helper_process_manager = HelperProcessManager(self.quit_event)
+
+        # Kill RLBot.exe. This is only desirable for a complete shutdown, not for when the match simply
+        # needs to be ended for reasons stated above.
+        if kill_rlbot_exe and self.rlbot_gateway_process:
+            # self.rlbot_gateway_process actually points to shell process wrapping RLBot.exe because
+            # shell=True is used, so kill all the child processes (RLBot.exe) of the wrapper first.
+            for proc in psutil.Process(self.rlbot_gateway_process.pid).children(recursive=True):
+                proc.kill()
+            self.rlbot_gateway_process.kill()
 
         if not quiet:
             self.logger.info("Shut down complete!")
