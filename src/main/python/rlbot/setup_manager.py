@@ -34,6 +34,7 @@ from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
 from rlbot.utils import process_configuration
 from rlbot.utils.class_importer import import_class_with_base, import_agent
+from rlbot.utils.game_state_util import GameState, GameInfoState
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
@@ -430,6 +431,16 @@ class SetupManager:
         # Keeping this function around for backwards compatibility.
         pass
 
+    
+    def reset_sticky_values(self):
+        """
+        For any match settings that can persist even after the match is over,
+        we reset them here
+        """
+        reset_state = GameState(
+            game_info=GameInfoState( world_gravity_z=-650))
+        self.game_interface.set_game_state(reset_state)
+
     def start_match(self):
 
         if self.match_config.networking_role == NetworkingRole.remote_rlbot_client:
@@ -442,6 +453,7 @@ class SetupManager:
         self.game_interface.start_match()
         time.sleep(2)  # Wait a moment. If we look too soon, we might see a valid packet from previous game.
         self.game_interface.wait_until_valid_packet()
+        self.reset_sticky_values()
         self.logger.info("Match has started")
 
         cleanUpTASystemSettings()
