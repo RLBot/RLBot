@@ -26,7 +26,7 @@ struct MessageBase
 protected:
 	MessageBase(MessageType type, bool hasCallback) : Type(type), HasCallback(hasCallback)
 	{
-		static std::atomic_uint currentID = {0};
+		static std::atomic_uint currentID(0);
 		ID = currentID++;
 	}
 };
