@@ -8,7 +8,7 @@ class BaseJavaAgent(BaseIndependentAgent):
         raise NotImplementedError(
             f"Cannot run {name} because BaseJavaAgent is deprecated! "
             f"Please migrate to ExecutableWithSocketAgent! For more details see "
-            f"https://discordapp.com/channels/348658686962696195/524345498359037972/691847014404849714")
+            f"https://github.com/RLBot/RLBotJavaExample/wiki/Py4j-Deprecation")
 
     def run_independently(self, terminate_request_event):
         pass

@@ -36,7 +36,6 @@ setuptools.setup(
     package_data={
         'rlbot': [
             '**/*.json',
-            'gui/design/*.ui',
             '**/*.png',
             '**/*.md',
             'dll/**/*',
