@@ -1,26 +1,17 @@
 import setuptools
 
-__version__ = None  # This will get replaced when reading version.py
-
-exec(open('rlbot/version.py').read())
-
 with open("README.md", "r") as readme_file:
     long_description = readme_file.read()
 
 setuptools.setup(
-    name='rlbot',
+    name='rlbot_legacy_gui',
     packages=setuptools.find_packages(),
     install_requires=[
-        'psutil==5.6.6',
-        'inputs',
-        'websockets',
-        'dataclasses',  # Python 3.6 compatibility
-        'webdriver_manager',  # For scratch bots
-        'selenium',  # For scratch bots
-        'requirements-parser',
+        'rlbot',
+        'PyQt5==5.15.0',
     ],
-    version=__version__,
-    description='A framework for writing custom Rocket League bots that run offline.',
+    version='1.0.0',
+    description='An old UI for RLBot built on PyQt5. Currently deprecated in favor of RLBotGUI.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='RLBot Community',
@@ -34,15 +25,11 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
     ],
     package_data={
-        'rlbot': [
+        'rlbot_legacy_gui': [
             '**/*.json',
+            'design/*.ui',
             '**/*.png',
             '**/*.md',
-            'dll/**/*',
-            'dll/*',
-            'utils/structures/*.pyi',
-            'py.typed',
-            'matchconfig/psyonix_presets/*.cfg'
         ]
     },
 )

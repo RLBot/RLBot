@@ -40,7 +40,7 @@ if __name__ == '__main__':
                         items[slot] = [item]
                 item_lines.clear()
             item_lines.append(line)
-    with open("src/main/python/rlbot/gui/rocket_league_items.json", "w") as f:
+    with open("rlbot_legacy_gui/rocket_league_items.json", "w") as f:
         json.dump(items, f)
 
 

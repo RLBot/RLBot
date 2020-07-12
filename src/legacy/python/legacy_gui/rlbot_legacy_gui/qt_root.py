@@ -9,12 +9,12 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QCheckBox, QMessageBox
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QApplication, QWidget, QComboBox, QLineEdit, QRadioButton, QSlider
 from rlbot.agents.base_agent import BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY
-from rlbot.gui.design.qt_gui import Ui_MainWindow
-from rlbot.gui.gui_agent import GUIAgent
-from rlbot.gui.index_manager import IndexManager
-from rlbot.gui.mutator_editor import MutatorEditor
-from rlbot.gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog, index_of_config_path_in_combobox
-from rlbot.gui.presets import AgentPreset, LoadoutPreset
+from rlbot_legacy_gui.design.qt_gui import Ui_MainWindow
+from rlbot_legacy_gui.gui_agent import GUIAgent
+from rlbot_legacy_gui.index_manager import IndexManager
+from rlbot_legacy_gui.mutator_editor import MutatorEditor
+from rlbot_legacy_gui.preset_editors import CarCustomisationDialog, AgentCustomisationDialog, index_of_config_path_in_combobox
+from rlbot_legacy_gui.presets import AgentPreset, LoadoutPreset
 from rlbot.parsing.agent_config_parser import PARTICIPANT_CONFIGURATION_HEADER, PARTICIPANT_LOADOUT_CONFIG_KEY, \
     PARTICIPANT_CONFIG_KEY
 from rlbot.parsing.bot_config_bundle import BotConfigBundle
