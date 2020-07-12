@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 from rlbot.parsing.match_settings_config_parser import *
-from rlbot.gui.design.mutator_customisation import Ui_MutatorCustomiser
+from rlbot_legacy_gui.design.mutator_customisation import Ui_MutatorCustomiser
 import os
 
 

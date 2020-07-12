@@ -7,9 +7,9 @@ import pathlib
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QListWidgetItem
 
-from rlbot.gui.design.car_customisation import Ui_LoadoutPresetCustomiser
-from rlbot.gui.design.agent_customisation import Ui_AgentPresetCustomiser
-from rlbot.gui.presets import AgentPreset, LoadoutPreset
+from rlbot_legacy_gui.design.car_customisation import Ui_LoadoutPresetCustomiser
+from rlbot_legacy_gui.design.agent_customisation import Ui_AgentPresetCustomiser
+from rlbot_legacy_gui.presets import AgentPreset, LoadoutPreset
 from rlbot.utils.file_util import get_python_root
 
 
