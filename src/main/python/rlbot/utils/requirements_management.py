@@ -1,5 +1,6 @@
 import subprocess
 import sys
+from importlib import import_module
 from typing import Set, List
 
 import pkg_resources
@@ -8,8 +9,25 @@ from pkg_resources import Requirement as PkgRequirement
 from requirements.requirement import Requirement
 
 
+def is_importable(req) -> bool:
+    try:
+        import_module(req)
+        return True
+    except:
+        return False
+
+
+# These are not pip packages, but might get specified in a requirements.txt file anyway.
+# We'll recommend it because it will help the GUI detect deficiencies in the python environment
+# for running that particular bot / script.
+SPECIAL_REQUIREMENTS = ['tkinter']
+
+
+SUPPORTED_SPECIAL_REQUIREMENTS = [req for req in SPECIAL_REQUIREMENTS if is_importable(req)]
+
+
 def get_installed_packages() -> Set[str]:
-    return set([p.project_name for p in pkg_resources.working_set])
+    return set([p.project_name for p in pkg_resources.working_set] + SUPPORTED_SPECIAL_REQUIREMENTS)
 
 
 def get_missing_packages(requirements_file: str) -> List[Requirement]:

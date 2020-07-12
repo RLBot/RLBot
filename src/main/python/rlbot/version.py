@@ -4,16 +4,24 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.43.4'
+__version__ = '1.44.0'
 
 release_notes = {
-    '1.43.4': """
+    '1.44.0': """
+    Splitting the legacy GUI into a separate package to break our dependency on PyQt5.
+    If you still really need it, you can find it at https://pypi.org/project/rlbot_legacy_gui/
+    """,
+    '1.43.7': """
     Bots and scripts can now specify the location of a requirements.txt file which will be analyzed
     by the framework.
     
     Also:
     - Calling begin_rendering and end_rendering on behalf of python bots so they don't need to anymore.
     - Added wait_game_tick_packet helper to the base_script. - L0laapk3
+    - Entering 'tkinter' in a requirements.txt file will be understood.
+    - Psyonix bots can be preconfigured with a loadout. -az3
+    - Clearing car slot in game tick packet when a player leaves.
+    - Resetting gravity at the beginning of matches.
     """,
     '1.42.4': """
     System for running multiple scripts that do not own cars in a match.

@@ -173,6 +173,9 @@ class Atba(BaseAgent):
         self.render_value(5, 100, 17, "latest touch seconds", game_tick_packet.game_ball.latest_touch.time_seconds)
         self.render_value(5, 100, 18, "latest touch team", game_tick_packet.game_ball.latest_touch.team)
 
+        for i in range(game_tick_packet.num_cars):
+            self.render_value(5, 100, 20 + i, game_tick_packet.game_cars[i].name, i)
+
         for i in range(0, game_tick_packet.num_cars):
             self.render_player(game_tick_packet, i)
 
