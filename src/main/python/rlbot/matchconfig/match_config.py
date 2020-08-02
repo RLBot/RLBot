@@ -13,6 +13,9 @@ from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_type
     demolish_mutator_types, respawn_time_mutator_types, existing_match_behavior_types
 from rlbot.utils.structures.start_match_structures import MatchSettings, PlayerConfiguration, MutatorSettings
 
+# We pass messages in flatbuffer format to RLBot.exe. In flatbuffer, a signed int field
+# is 32 bit, so it has a max value of 2^31 - 1, in other words 2147483647.
+FLATBUFFER_MAX_INT = 2**31 - 1
 
 class Team(Enum):
     BLUE = 0
@@ -39,6 +42,7 @@ class PlayerConfig:
         self.team: int = None
         self.config_path: str = None  # Required only if rlbot_controlled is true
         self.loadout_config: LoadoutConfig = None
+        self.spawn_id: int = None
 
     @staticmethod  # TODO: in Python 3.7 we can remove the quotes from the return type.
     def bot_config(player_config_path: Path, team: Team) -> 'PlayerConfig':
@@ -62,13 +66,32 @@ class PlayerConfig:
         player_configuration.human_index = self.human_index or 0
         player_configuration.name = get_sanitized_bot_name(name_dict, self.name)
         player_configuration.team = self.team
-        player_configuration.spawn_id = randint(1, 65535)
+        player_configuration.spawn_id = self.spawn_id or randint(1, FLATBUFFER_MAX_INT)
 
         if self.loadout_config:
             self.loadout_config.write(player_configuration)
 
+    def has_bot_script(self) -> bool:
+        return self.rlbot_controlled
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+
+class EmptyPlayerSlot(PlayerConfig):
+    """
+    This is useful for keeping a player index empty.
+    """
+    def write(self, player_configuration: PlayerConfiguration, name_dict: dict):
+        # This is a dirty trick. With bot = False and rlbot_controlled = True, we have a "party member bot"
+        # which is not supported in RLBot.exe anymore and will just get skipped over. That's what we want.
+        player_configuration.bot = False
+        player_configuration.rlbot_controlled = True
+        player_configuration.spawn_id = -1
+        player_configuration.name = ""
+
+    def has_bot_script(self) -> bool:
+        return False
 
 
 def index_or_zero(types, value):
@@ -190,13 +213,15 @@ def get_sanitized_bot_name(dict: Dict[str, int], name: str) -> str:
     :param name: The name that is being sanitized
     :return: A sanitized version of the name
     """
-    if name not in dict:
-        new_name = name[:31]  # Make sure name does not exceed 31 characters
-        dict[name] = 1
-    else:
-        count = dict[name]
-        new_name = name[:27] + "(" + str(count + 1) + ")"  # Truncate at 27 because we can have up to '(10)' appended
-        assert new_name not in dict  # TODO: Fix collision between ["foo", "foo", "foo(1)"]
-        dict[name] = count + 1
 
-    return new_name
+    # This doesn't work someimtes in continue_and_spawn because it doesn't understand the names already in the match
+    # which may be kept if the spawn IDs match. In that case it's the caller's responsibility to figure it out upstream.
+
+    name = name[:31]
+    base_name = name
+    count = 2
+    while name in dict:
+        name = f'{base_name[:27]} ({count})'  # Truncate at 27 because we can have up to '(10)' appended
+        count += 1
+    dict[name] = 1
+    return name

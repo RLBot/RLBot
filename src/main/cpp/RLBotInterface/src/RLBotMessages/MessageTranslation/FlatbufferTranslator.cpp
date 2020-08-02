@@ -175,7 +175,6 @@ namespace FlatbufferTranslator {
 		structTeam->score = team->score();
 	}
 
-
 	void translateToStruct(ByteBuffer flatbufferData, LiveDataPacket* packet)
 	{
 		if (flatbufferData.size == 0)
@@ -183,14 +182,25 @@ namespace FlatbufferTranslator {
 			return; // Nothing to do.
 		}
 
+		static int prev_num_cars = 0;
+
 		auto flatPacket = flatbuffers::GetRoot<rlbot::flat::GameTickPacket>(flatbufferData.ptr);
 
 		auto players = flatPacket->players();
 		if (players) {
 			packet->numCars = players->size();
-			for (int i = 0; i < players->size(); i++) {
+			int i = 0;
+			for (; i < packet->numCars; i++) {
 				fillPlayerStruct(players->Get(i), &packet->gameCars[i]);
 			}
+
+			// Zero out any slots that come after numCars. hitbox.height is chosen opportunistically as a value
+			// that is non-zero if and only if there's data occupying the slot.
+			for (; i < prev_num_cars; i++) {
+				packet->gameCars[i] = PlayerInfo{ 0 };
+			}
+
+			prev_num_cars = packet->numCars;
 		}
 
 		auto boosts = flatPacket->boostPadStates();

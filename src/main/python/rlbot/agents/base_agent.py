@@ -87,6 +87,7 @@ class BaseAgent(RLBotRunnable):
         self.team = team
         self.index = index
         self.logger = get_logger(f'bot{index}')
+        self.spawn_id = -1
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         """
@@ -253,6 +254,9 @@ class BaseAgent(RLBotRunnable):
 
     def _set_renderer(self, renderer: RenderingManager):
         self.renderer = renderer
+
+    def _set_spawn_id(self, spawn_id: int):
+        self.spawn_id = spawn_id
 
     # Information about @classmethod: https://docs.python.org/3/library/functions.html#classmethod
     @classmethod

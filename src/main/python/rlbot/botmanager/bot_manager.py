@@ -89,6 +89,7 @@ class BotManager:
         self.maximum_tick_rate_preference = bot_configuration.get(BOT_CONFIG_MODULE_HEADER,
                                                                   MAXIMUM_TICK_RATE_PREFERENCE_KEY)
         self.spawn_id = spawn_id
+        self.spawn_id_seen = False
         self.counter = 0
 
     def send_quick_chat_from_agent(self, team_only, quick_chat):
@@ -113,6 +114,7 @@ class BotManager:
         """
         agent_class = self.agent_class_wrapper.get_loaded_class()
         self.agent = agent_class(self.name, self.team, self.index)
+        self.agent._set_spawn_id(self.spawn_id)
         self.agent.init_match_config(self.match_config)
 
         self.agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
@@ -207,10 +209,13 @@ class BotManager:
                 last_tick_game_time = tick_game_time
                 if self.spawn_id is not None:
                     packet_spawn_id = self.get_spawn_id()
-                    if packet_spawn_id != self.spawn_id:
-                        self.logger.warn(f"The bot's spawn id {self.spawn_id} does not match the one in the packet "
-                                         f"{packet_spawn_id}, retiring!")
-                        break
+                    if self.spawn_id_seen:
+                        if packet_spawn_id != self.spawn_id:
+                            self.logger.warn(f"The bot's spawn id {self.spawn_id} does not match the one in the packet "
+                                             f"{packet_spawn_id}, retiring!")
+                            break
+                    elif packet_spawn_id == self.spawn_id and self.game_tick_packet.game_info.is_round_active:
+                        self.spawn_id_seen = True
 
         except KeyboardInterrupt:
             self.terminate_request_event.set()

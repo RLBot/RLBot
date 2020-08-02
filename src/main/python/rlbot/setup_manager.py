@@ -28,7 +28,6 @@ from rlbot.matchconfig.conversions import parse_match_config
 from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.matchconfig.psyonix_config import set_random_psyonix_bot_preset
 from rlbot.matchcomms.server import launch_matchcomms_server
-from rlbot.parsing.agent_config_parser import load_bot_appearance
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle, BotConfigBundle, get_script_config_bundle
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.parsing.rlbot_config_parser import create_bot_config_layout
@@ -108,7 +107,7 @@ class SetupManager:
     python_files = None
     bot_bundles: List[BotConfigBundle] = None
     start_match_configuration = None
-    agent_metadata_queue = None
+    agent_metadata_queue = mp.Queue()
     extension = None
     bot_processes: Dict[int, mp.Process] = {}
     script_processes: Dict[int, subprocess.Popen] = {}
@@ -178,7 +177,6 @@ class SetupManager:
             self.logger.error("Terminating rlbot gateway and raising:")
             self.rlbot_gateway_process.terminate()
             raise e
-        self.agent_metadata_queue = mp.Queue()
         self.has_started = True
 
     @staticmethod
@@ -337,6 +335,9 @@ class SetupManager:
         Some bots can start up before the game is ready and not be bothered by missing
         or strange looking values in the game tick packet, etc. Such bots can opt in to the
         early start category and enjoy extra time to load up before the match starts.
+
+        WARNING: Early start is a bad idea if there's any risk that bots will not get their promised
+        index. This can happen with remote RLBot, etc.
         """
 
         if self.match_config.networking_role == NetworkingRole.remote_rlbot_client:
@@ -360,6 +361,7 @@ class SetupManager:
         # Start matchcomms here as it's only required for the bots.
         self.kill_matchcomms_server()
         self.matchcomms_server = launch_matchcomms_server()
+        self.bot_processes = {ind: proc for ind, proc in self.bot_processes.items() if proc.is_alive()}
 
         num_started = 0
 
@@ -369,28 +371,28 @@ class SetupManager:
         self.game_interface.update_live_data_packet(packet)
 
         # TODO: root through the packet and find discrepancies in the player index mapping.
-        for i in range(self.num_participants):
-            if not self.start_match_configuration.player_configuration[i].rlbot_controlled:
+        for i in range(min(self.num_participants, len(self.match_config.player_configs))):
+
+            player_config = self.match_config.player_configs[i]
+            if not player_config.has_bot_script():
                 continue
             if early_starters_only and not self.bot_bundles[i].supports_early_start:
                 continue
 
-            bot_manager_spawn_id = None
+            spawn_id = self.game_interface.start_match_configuration.player_configuration[i].spawn_id
 
             if early_starters_only:
-                # Don't use a spawn id stuff for the early start system. The bots will be starting up before
-                # the car spawns, and we don't want the bot manager to panic.
+                # Danger: we have low confidence in this since we're not leveraging the spawn id.
                 participant_index = i
             else:
                 participant_index = None
-                spawn_id = self.game_interface.start_match_configuration.player_configuration[i].spawn_id
+
                 self.logger.info(f'Player in slot {i} was sent with spawn id {spawn_id}, will search in the packet.')
                 for n in range(0, packet.num_cars):
                     packet_spawn_id = packet.game_cars[n].spawn_id
                     if spawn_id == packet_spawn_id:
                         self.logger.info(f'Looks good, considering participant index to be {n}')
                         participant_index = n
-                        bot_manager_spawn_id = spawn_id
                 if participant_index is None:
                     raise Exception("Unable to determine the bot index!")
 
@@ -403,9 +405,9 @@ class SetupManager:
                                      args=(self.quit_event, quit_callback, reload_request, self.bot_bundles[i],
                                            str(self.start_match_configuration.player_configuration[i].name),
                                            self.teams[i], participant_index, self.python_files[i], self.agent_metadata_queue,
-                                           self.match_config, self.matchcomms_server.root_url, bot_manager_spawn_id))
+                                           self.match_config, self.matchcomms_server.root_url, spawn_id))
                 process.start()
-                self.bot_processes[i] = process
+                self.bot_processes[participant_index] = process
                 num_started += 1
 
         self.logger.debug(f"Successfully started {num_started} bot processes")
@@ -440,7 +442,6 @@ class SetupManager:
 
         self.logger.info("Python attempting to start match.")
         self.game_interface.start_match()
-        time.sleep(2)  # Wait a moment. If we look too soon, we might see a valid packet from previous game.
         self.game_interface.wait_until_valid_packet()
         self.logger.info("Match has started")
 

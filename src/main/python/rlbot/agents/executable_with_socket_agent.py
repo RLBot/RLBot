@@ -7,6 +7,8 @@ from rlbot.agents.base_independent_agent import BaseIndependentAgent
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures import game_interface
+from rlbot.utils.structures.game_data_struct import GameTickPacket
+from rlbot.utils.structures.game_interface import GameInterface
 
 
 class ExecutableWithSocketAgent(BaseIndependentAgent):
@@ -16,10 +18,28 @@ class ExecutableWithSocketAgent(BaseIndependentAgent):
         self.logger = get_logger('ExeSocket' + str(self.index))
         self.is_retired = False
         self.executable_path = None
+        self.game_interface = GameInterface(self.logger)
+        self.game_tick_packet = GameTickPacket()
+        self.spawn_id_seen = False
 
     def run_independently(self, terminate_request_event):
+        # Send the command before loading the game interface because that takes a few seconds.
+        message = self.build_add_command()
+        self.logger.debug(f"About to send add message for {self.name}")
+        self.send_command(message)
+        self.logger.debug(f"Sent first add message for {self.name}")
+        self.game_interface.load_interface()
 
         while not terminate_request_event.is_set():
+
+            self.game_interface.update_live_data_packet(self.game_tick_packet)
+            packet_spawn_id = self.game_tick_packet.game_cars[self.index].spawn_id
+            if self.spawn_id_seen:
+                if packet_spawn_id != self.spawn_id:
+                    break  # This will cause the bot to retire.
+            elif packet_spawn_id == self.spawn_id and self.game_tick_packet.game_info.is_round_active:
+                self.spawn_id_seen = True
+
             # Continuously make sure the the bot is registered.
             # These functions can be called repeatedly without any bad effects.
             # This is useful for re-engaging the socket server if it gets restarted during development.
@@ -62,15 +82,17 @@ class ExecutableWithSocketAgent(BaseIndependentAgent):
         Gets the list of process ids that should be marked as high priority.
         :return: A list of process ids that are used by this bot in addition to the ones inside the python process.
         """
+
+        if self.is_executable_configured():
+            # The helper process will start the exe and report the PID. Nothing to do here.
+            return []
+
         while not self.is_retired:
             for proc in psutil.process_iter():
                 for conn in proc.connections():
                     if conn.laddr.port == self.get_port():
                         self.logger.debug(f'server for {self.name} appears to have pid {proc.pid}')
                         return [proc.pid]
-            if self.is_executable_configured():
-                # The helper process will start the exe and report the PID. Nothing to do here.
-                return []
             time.sleep(1)
             if self.executable_path is None:
                 self.logger.info(

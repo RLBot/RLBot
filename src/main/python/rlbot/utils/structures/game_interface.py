@@ -233,7 +233,7 @@ class GameInterface:
                 spawn_ids = set()
                 for k in range(0, self.start_match_configuration.num_players):
                     player_config = self.start_match_configuration.player_configuration[k]
-                    if player_config.rlbot_controlled:
+                    if player_config.rlbot_controlled and player_config.spawn_id > 0:
                         spawn_ids.add(player_config.spawn_id)
 
                 for n in range(0, packet.num_cars):

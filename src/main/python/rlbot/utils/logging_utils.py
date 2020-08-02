@@ -4,7 +4,7 @@ import logging
 
 DEFAULT_LOGGER = 'rlbot'
 logging_level = logging.INFO
-FORMAT = "%(levelname)s:%(name)5s[%(filename)20s:%(lineno)s - %(funcName)20s() ] %(message)s"
+FORMAT = "%(asctime)s %(levelname)s:%(name)5s[%(filename)20s:%(lineno)s - %(funcName)20s() ] %(message)s"
 
 logging.getLogger().setLevel(logging.NOTSET)
 
