@@ -252,7 +252,7 @@ class GameInterface:
 
     def wait_until_valid_packet(self):
         self.logger.info('Waiting for valid packet...')
-        for i in range(0, 120):
+        for i in range(0, 300):
             packet = game_data_struct.GameTickPacket()
             self.update_live_data_packet(packet)
             if not packet.game_info.is_match_ended:
@@ -281,7 +281,7 @@ class GameInterface:
                         self.logger.info("Scooting bots out of the way to allow more to spawn!")
                         self.set_game_state(GameState(cars=car_states))
 
-            time.sleep(0.5)
+            time.sleep(0.1)
         self.logger.info('Gave up waiting for valid packet :(')
 
     def load_interface(self, port=23234, desired_tick_rate=240, wants_ball_predictions=True, wants_quick_chat=True):

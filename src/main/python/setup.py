@@ -18,6 +18,7 @@ setuptools.setup(
         'webdriver_manager',  # For scratch bots
         'selenium',  # For scratch bots
         'requirements-parser',
+        'docopt',  # Used by standalone agents
     ],
     version=__version__,
     description='A framework for writing custom Rocket League bots that run offline.',
