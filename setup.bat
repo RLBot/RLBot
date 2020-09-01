@@ -4,7 +4,7 @@
 
 cd /D "%~dp0"
 
-python -m pip install -r requirements.txt
+py -3.7 -m pip install -r requirements.txt
 
 .\src\main\flatbuffers\flatc.exe --python -o .\src\generated\python .\src\main\flatbuffers\rlbot.fbs
 xcopy /s /Y .\src\generated\python\rlbot .\src\main\python\rlbot\messages\

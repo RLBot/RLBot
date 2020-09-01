@@ -1,17 +1,7 @@
-from typing import Optional
-from urllib.parse import ParseResult as URL
-
-from rlbot.botmanager.helper_process_request import HelperProcessRequest
-from rlbot.matchcomms.client import MatchcommsClient
 from rlbot.messages.flat import MatchSettings
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState
-from rlbot.utils.logging_utils import get_logger
-from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.structures.ball_prediction_struct import BallPrediction
-from rlbot.utils.structures.game_data_struct import GameTickPacket, FieldInfoPacket
-from rlbot.utils.structures.legacy_data_v3 import convert_to_legacy_v3
-from rlbot.utils.structures.quick_chats import QuickChats
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 LOCATIONS_HEADER = 'Locations'
@@ -21,6 +11,7 @@ REQUIREMENTS_FILE_KEY = 'requirements_file'
 LOGO_FILE_KEY = 'logo_file'
 NAME_KEY = "name"
 SUPPORTS_EARLY_START_KEY = "supports_early_start"
+REQUIRES_TKINTER = "requires_tkinter"
 
 
 class RLBotRunnable:
@@ -100,6 +91,8 @@ class RLBotRunnable:
                                   description="Location of an image file to use as your bot's logo")
         location_config.add_value(SUPPORTS_EARLY_START_KEY, bool,
                                   description="True if this bot can be started before the Rocket League match begins.")
+        location_config.add_value(REQUIRES_TKINTER, bool,
+                                  description="True if the tkinter library is needed.")
 
         details_config = config.add_header_name(DETAILS_HEADER)
         details_config.add_value('developer', str, description="Name of the bot's creator/developer")

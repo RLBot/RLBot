@@ -30,9 +30,11 @@ def get_installed_packages() -> Set[str]:
     return set([p.project_name for p in pkg_resources.working_set] + SUPPORTED_SPECIAL_REQUIREMENTS)
 
 
-def get_missing_packages(requirements_file: str) -> List[Requirement]:
-    with open(requirements_file, 'r') as fd:
-        needed = [r for r in requirements.parse(fd) if r.specifier]
+def get_missing_packages(requirements_file: str = None, special_reqs: List[str] = []) -> List[Requirement]:
+    needed = [Requirement.parse_line(sr) for sr in special_reqs]
+    if requirements_file is not None:
+        with open(requirements_file, 'r') as fd:
+            needed += [r for r in requirements.parse(fd) if r.specifier]
 
     installed = get_installed_packages()
     needed = [r for r in needed if pkg_resources.safe_name(r.name) not in installed]

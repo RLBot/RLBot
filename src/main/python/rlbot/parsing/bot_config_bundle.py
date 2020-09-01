@@ -10,7 +10,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAM
     PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY
 from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
 from rlbot.agents.base_script import SCRIPT_FILE_KEY, BaseScript
-from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY
+from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY, REQUIRES_TKINTER
 from rlbot.utils.requirements_management import get_missing_packages, get_packages_needing_upgrade
 from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
@@ -54,9 +54,10 @@ class RunnableConfigBundle:
         return os.path.realpath(joined)
 
     def get_missing_python_packages(self) -> List[Requirement]:
-        if self.requirements_file:
-            return get_missing_packages(requirements_file=self.requirements_file)
-        return []
+        special_reqs = []
+        if self.base_agent_config.getboolean(BOT_CONFIG_MODULE_HEADER, REQUIRES_TKINTER):
+            special_reqs.append('tkinter')
+        return get_missing_packages(requirements_file=self.requirements_file, special_reqs=special_reqs)
 
     def get_python_packages_needing_upgrade(self) -> List[Requirement]:
         if self.requirements_file:
