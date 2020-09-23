@@ -209,7 +209,8 @@ class SetupManager:
         
         epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
         if epic_exe_path is not None:
-            pass  # do the exe stuff here
+            exe_and_args = [epic_exe_path] + ideal_args
+            _ = subprocess.Popen(exe_and_args)
             return
 
         self.logger.warning('Using fall-back launch method.')
