@@ -680,7 +680,7 @@ def locate_epic_games_launcher_rocket_league_binary():
         # Loop through the files ending in *.item in app_data_path/Manifests
         # Parse them as JSON and locate the one where MandatoryAppFolderName is 'rocketleague'
         # Extract the binary location and return it.
-        possible_files = tuple(f for f in os.listdir(app_data_path) if os.path.isfile(join(app_data_path, f)))
+        possible_files = tuple(f for f in os.listdir(app_data_path) if os.path.isfile(os.path.join(app_data_path, f)))
 
         for file in possible_files:
             with open(os.path.join(app_data_path, file), 'r') as f:
@@ -702,8 +702,6 @@ def locate_epic_games_launcher_rocket_league_binary():
             # the path, or the key, might not exist
             # in this case, we'll just skip over it
             continue
-
-        print(path)
 
         binary_data = search_for_manifest_file(path)
 
