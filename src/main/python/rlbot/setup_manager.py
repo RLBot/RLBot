@@ -194,7 +194,13 @@ class SetupManager:
         Launches Rocket League but does not connect to it.
         """
         ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
-        self.logger.info(f'Launching Rocket League with args: {ideal_args}')
+
+        epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
+        if epic_exe_path is not None:
+            exe_and_args = [epic_exe_path] + ideal_args
+            self.logger.info(f'Launching Rocket League with: {exe_and_args}')
+            _ = subprocess.Popen(exe_and_args)
+            return
 
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
@@ -204,16 +210,11 @@ class SetupManager:
                 '-applaunch',
                 str(ROCKET_LEAGUE_PROCESS_INFO.GAMEID),
             ] + ideal_args
+            self.logger.info(f'Launching Rocket League with: {exe_and_args}')
             _ = subprocess.Popen(exe_and_args)  # This is deliberately an orphan process.
             return
-        
-        epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
-        if epic_exe_path is not None:
-            exe_and_args = [epic_exe_path] + ideal_args
-            _ = subprocess.Popen(exe_and_args)
-            return
 
-        self.logger.warning('Using fall-back launch method.')
+        self.logger.warning(f'Using fall-back launch method, with args {ideal_args}')
         self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! "
                          'https://gfycat.com/AngryQuickFinnishspitz')
         args_string = '%20'.join(ideal_args)
@@ -685,7 +686,7 @@ def locate_epic_games_launcher_rocket_league_binary():
         for file in possible_files:
             with open(os.path.join(app_data_path, file), 'r') as f:
                 data = json.load(f)
-            
+
             try:
                 if data['MandatoryAppFolderName'] == 'rocketleague':
                     return data;
@@ -712,9 +713,9 @@ def locate_epic_games_launcher_rocket_league_binary():
     if binary_path is None:
         # Nothing found in registry? Try C:\ProgramData\Epic\EpicGamesLauncher
         # Or consider using %programdata%
-        path = join(os.getenv("programdata"), "Epic\\EpicGamesLauncher\\Data\\Manifests")
+        path = os.path.join(os.getenv("programdata"), "Epic\\EpicGamesLauncher\\Data\\Manifests")
 
-        if exists(path):
+        if os.path.exists(path):
             binary_data = search_for_manifest_file(path)
 
             if binary_data is not None:

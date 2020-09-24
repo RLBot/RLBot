@@ -4,9 +4,16 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.44.6'
+__version__ = '1.46.2'
 
 release_notes = {
+    '1.46.2': """
+    Support for locating and launching Rocket League when installed via Epic Games Store,
+    thanks to VirxEC. Welcome to all the new people joining with Free to Play!
+    """,
+    '1.45.0': """
+    Fix to support Rocket League patch v1.79.
+    """,
     '1.44.6': """
     Splitting the legacy GUI into a separate package to break our dependency on PyQt5.
     If you still really need it, you can find it at https://pypi.org/project/rlbot_legacy_gui/
