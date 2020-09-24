@@ -195,13 +195,16 @@ class SetupManager:
         """
         ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
 
-        # Try launch via Epic Games
-        epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
-        if epic_exe_path is not None:
-            self.logger.info(f'Launching Rocket League via Epic Games with args: {ideal_args}')
-            exe_and_args = [str(epic_exe_path)] + ideal_args
-            _ = subprocess.Popen(exe_and_args)
-            return
+        try:
+            # Try launch via Epic Games
+            epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
+            if epic_exe_path is not None:
+                self.logger.info(f'Launching Rocket League via Epic Games with args: {ideal_args}')
+                exe_and_args = [str(epic_exe_path)] + ideal_args
+                _ = subprocess.Popen(exe_and_args)
+                return
+        except:
+            self.logger.debug('Unable to launch via Epic.')
       
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
@@ -212,6 +215,7 @@ class SetupManager:
                 '-applaunch',
                 str(ROCKET_LEAGUE_PROCESS_INFO.GAMEID),
             ] + ideal_args
+            self.logger.info(f'Launching Rocket League with: {exe_and_args}')
             _ = subprocess.Popen(exe_and_args)  # This is deliberately an orphan process.
             return
 
