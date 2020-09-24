@@ -196,21 +196,24 @@ class SetupManager:
         ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
         self.logger.info(f'Launching Rocket League with args: {ideal_args}')
 
+        # Try launch via Epic Games
+        epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
+        if epic_exe_path is not None:
+            self.logger.info("Lauching via Epic Games")
+            exe_and_args = [epic_exe_path] + ideal_args
+            _ = subprocess.Popen(exe_and_args)
+            return
+      
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
         if steam_exe_path:  # Note: This Python 3.8 feature would be useful here https://www.python.org/dev/peps/pep-0572/#abstract
+            self.logger.info("Launching via Steam")
             exe_and_args = [
                 str(steam_exe_path),
                 '-applaunch',
                 str(ROCKET_LEAGUE_PROCESS_INFO.GAMEID),
             ] + ideal_args
             _ = subprocess.Popen(exe_and_args)  # This is deliberately an orphan process.
-            return
-        
-        epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
-        if epic_exe_path is not None:
-            exe_and_args = [epic_exe_path] + ideal_args
-            _ = subprocess.Popen(exe_and_args)
             return
 
         self.logger.warning('Using fall-back launch method.')
@@ -663,8 +666,8 @@ def locate_epic_games_launcher_rocket_league_binary():
     # Make sure we're on windows, this will go poorly otherwise
     try:
         import winreg
-    except ImportError as e:
-        return None  # TODO: Linux support.
+    except ImportError:
+        return
 
     # List taken from https://docs.unrealengine.com/en-US/GettingStarted/Installation/MultipleLauncherInstalls/index.html
     possible_registry_locations = (
@@ -674,30 +677,24 @@ def locate_epic_games_launcher_rocket_league_binary():
         (winreg.HKEY_CURRENT_USER, 'SOFTWARE\\WOW6432Node\\Epic Games\\EpicGamesLauncher')
     )
 
-    binary_path = None
-
-    def search_for_manifest_file(app_data_path):
+    def search_for_manifest_file(app_data_path: Path):
         # Loop through the files ending in *.item in app_data_path/Manifests
         # Parse them as JSON and locate the one where MandatoryAppFolderName is 'rocketleague'
         # Extract the binary location and return it.
-        possible_files = tuple(f for f in os.listdir(app_data_path) if os.path.isfile(os.path.join(app_data_path, f)))
-
-        for file in possible_files:
-            with open(os.path.join(app_data_path, file), 'r') as f:
-                data = json.load(f)
+        for file in app_data_path.glob("*.item"):
+            with open(app_data_path / file, 'r') as f:
+                try:
+                    data = json.load(f)
+                except Exception:
+                    continue
             
-            try:
-                if data['MandatoryAppFolderName'] == 'rocketleague':
-                    return data;
-            except Exception:
-                continue
-
-        return None
+            if data.get('MandatoryAppFolderName') == 'rocketleague':
+                return data
 
     for possible_location in possible_registry_locations:
         try:
             # get the path to the launcher's game data stuff
-            path = os.path.join(winreg.QueryValueEx(winreg.OpenKey(possible_location[0], possible_location[1]), "AppDataPath")[0], 'Manifests')
+            path = Path(winreg.QueryValueEx(winreg.OpenKey(possible_location[0], possible_location[1]), "AppDataPath")[0]) / 'Manifests'
         except Exception:
             # the path, or the key, might not exist
             # in this case, we'll just skip over it
@@ -706,20 +703,15 @@ def locate_epic_games_launcher_rocket_league_binary():
         binary_data = search_for_manifest_file(path)
 
         if binary_data is not None:
-            binary_path = os.path.join(binary_data['InstallLocation'], binary_data['LaunchExecutable'])
-            break
+            return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
 
     if binary_path is None:
         # Nothing found in registry? Try C:\ProgramData\Epic\EpicGamesLauncher
         # Or consider using %programdata%
-        path = join(os.getenv("programdata"), "Epic\\EpicGamesLauncher\\Data\\Manifests")
+        path = Path(os.getenv("programdata")) / "Epic" / "EpicGamesLauncher" / "Data" / "Manifests"
 
-        if exists(path):
+        if os.path.isdir(path):
             binary_data = search_for_manifest_file(path)
 
             if binary_data is not None:
-                binary_path = os.path.join(binary_data['InstallLocation'], binary_data['LaunchExecutable'])
-
-    # Return the path to the binary if we could find it
-    # If we couldn't find the binary, return None
-    return binary_path
+                return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
