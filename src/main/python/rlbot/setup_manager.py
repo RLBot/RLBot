@@ -194,20 +194,19 @@ class SetupManager:
         Launches Rocket League but does not connect to it.
         """
         ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
-        self.logger.info(f'Launching Rocket League with args: {ideal_args}')
 
         # Try launch via Epic Games
         epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
         if epic_exe_path is not None:
-            self.logger.info("Lauching via Epic Games")
-            exe_and_args = [epic_exe_path] + ideal_args
+            self.logger.info(f'Launching Rocket League via Epic Games with args: {ideal_args}')
+            exe_and_args = [str(epic_exe_path)] + ideal_args
             _ = subprocess.Popen(exe_and_args)
             return
       
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
         if steam_exe_path:  # Note: This Python 3.8 feature would be useful here https://www.python.org/dev/peps/pep-0572/#abstract
-            self.logger.info("Launching via Steam")
+            self.logger.info(f'Launching Rocket League via Steam with args: {ideal_args}')
             exe_and_args = [
                 str(steam_exe_path),
                 '-applaunch',
@@ -216,9 +215,8 @@ class SetupManager:
             _ = subprocess.Popen(exe_and_args)  # This is deliberately an orphan process.
             return
 
-        self.logger.warning('Using fall-back launch method.')
-        self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! "
-                         'https://gfycat.com/AngryQuickFinnishspitz')
+        self.logger.warning(f'Launching Rocket League using Steam-only fall-back launch method with args: {ideal_args}')
+        self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! https://gfycat.com/AngryQuickFinnishspitz")
         args_string = '%20'.join(ideal_args)
 
         # Try launch via terminal (Linux)
@@ -230,18 +228,13 @@ class SetupManager:
 
             try:
                 _ = subprocess.Popen(linux_args)
-
             except OSError:
-                self.logger.warning(
-                    'Could not find Steam executable, using browser to open instead.')
-            else:
-                return
+                self.logger.warning('Could not find Steam executable, using browser to open instead.')
 
         try:
             webbrowser.open(f'steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO.GAMEID}//{args_string}')
         except webbrowser.Error:
-            self.logger.warning(
-                'Unable to launch Rocket League. Please launch Rocket League manually using the -rlbot option to continue.')
+            self.logger.warning('Unable to launch Rocket League. Please launch Rocket League manually using the -rlbot option to continue.')
 
     def load_match_config(self, match_config: MatchConfig, bot_config_overrides={}):
         """
@@ -651,15 +644,15 @@ def try_get_steam_executable_path() -> Optional[Path]:
     try:
         from winreg import OpenKey, HKEY_CURRENT_USER, ConnectRegistry, QueryValueEx, REG_SZ
     except ImportError as e:
-        return None  # TODO: Linux support.
+        return  # TODO: Linux support.
 
     try:
         key = OpenKey(ConnectRegistry(None, HKEY_CURRENT_USER), r'Software\Valve\Steam')
         val, val_type = QueryValueEx(key, 'SteamExe')
     except FileNotFoundError:
-        return None
+        return
     if val_type != REG_SZ:
-        return None
+        return
     return Path(val)
 
 def locate_epic_games_launcher_rocket_league_binary():
@@ -705,13 +698,12 @@ def locate_epic_games_launcher_rocket_league_binary():
         if binary_data is not None:
             return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
 
-    if binary_path is None:
-        # Nothing found in registry? Try C:\ProgramData\Epic\EpicGamesLauncher
-        # Or consider using %programdata%
-        path = Path(os.getenv("programdata")) / "Epic" / "EpicGamesLauncher" / "Data" / "Manifests"
+    # Nothing found in registry? Try C:\ProgramData\Epic\EpicGamesLauncher
+    # Or consider using %programdata%
+    path = Path(os.getenv("programdata")) / "Epic" / "EpicGamesLauncher" / "Data" / "Manifests"
 
-        if os.path.isdir(path):
-            binary_data = search_for_manifest_file(path)
+    if os.path.isdir(path):
+        binary_data = search_for_manifest_file(path)
 
-            if binary_data is not None:
-                return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
+        if binary_data is not None:
+            return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
