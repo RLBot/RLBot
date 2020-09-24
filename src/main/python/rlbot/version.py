@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.46.2'
+__version__ = '1.46.3'
 
 release_notes = {
-    '1.46.2': """
+    '1.46.3': """
     Support for locating and launching Rocket League when installed via Epic Games Store,
     thanks to VirxEC. Welcome to all the new people joining with Free to Play!
     """,

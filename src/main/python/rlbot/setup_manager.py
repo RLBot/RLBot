@@ -195,12 +195,15 @@ class SetupManager:
         """
         ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
 
-        epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
-        if epic_exe_path is not None:
-            exe_and_args = [epic_exe_path] + ideal_args
-            self.logger.info(f'Launching Rocket League with: {exe_and_args}')
-            _ = subprocess.Popen(exe_and_args)
-            return
+        try:
+            epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
+            if epic_exe_path is not None:
+                exe_and_args = [epic_exe_path] + ideal_args
+                self.logger.info(f'Launching Rocket League with: {exe_and_args}')
+                _ = subprocess.Popen(exe_and_args)
+                return
+        except:
+            self.logger.debug('Unable to launch via Epic.')
 
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
@@ -689,7 +692,7 @@ def locate_epic_games_launcher_rocket_league_binary():
 
             try:
                 if data['MandatoryAppFolderName'] == 'rocketleague':
-                    return data;
+                    return data
             except Exception:
                 continue
 
