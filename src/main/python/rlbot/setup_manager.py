@@ -201,8 +201,11 @@ class SetupManager:
             if epic_exe_path is not None:
                 exe_and_args = [str(epic_exe_path)] + ideal_args
                 self.logger.info(f'Launching Rocket League with: {exe_and_args}')
-                _ = subprocess.Popen(exe_and_args)
-                return
+                try:
+                    _ = subprocess.Popen(exe_and_args)
+                    return
+                except Exception as e:
+                    self.logger.info(f'Unable to launch via Epic due to: {e}')
         except:
             self.logger.debug('Unable to launch via Epic.')
 
