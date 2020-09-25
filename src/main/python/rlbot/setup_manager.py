@@ -199,17 +199,16 @@ class SetupManager:
             # Try launch via Epic Games
             epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
             if epic_exe_path is not None:
-                self.logger.info(f'Launching Rocket League via Epic Games with args: {ideal_args}')
                 exe_and_args = [str(epic_exe_path)] + ideal_args
+                self.logger.info(f'Launching Rocket League with: {exe_and_args}')
                 _ = subprocess.Popen(exe_and_args)
                 return
         except:
             self.logger.debug('Unable to launch via Epic.')
-      
+
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
         if steam_exe_path:  # Note: This Python 3.8 feature would be useful here https://www.python.org/dev/peps/pep-0572/#abstract
-            self.logger.info(f'Launching Rocket League via Steam with args: {ideal_args}')
             exe_and_args = [
                 str(steam_exe_path),
                 '-applaunch',
@@ -220,7 +219,8 @@ class SetupManager:
             return
 
         self.logger.warning(f'Launching Rocket League using Steam-only fall-back launch method with args: {ideal_args}')
-        self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! https://gfycat.com/AngryQuickFinnishspitz")
+        self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! "
+                         'https://gfycat.com/AngryQuickFinnishspitz')
         args_string = '%20'.join(ideal_args)
 
         # Try launch via terminal (Linux)
@@ -238,7 +238,8 @@ class SetupManager:
         try:
             webbrowser.open(f'steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO.GAMEID}//{args_string}')
         except webbrowser.Error:
-            self.logger.warning('Unable to launch Rocket League. Please launch Rocket League manually using the -rlbot option to continue.')
+            self.logger.warning(
+                'Unable to launch Rocket League. Please launch Rocket League manually using the -rlbot option to continue.')
 
     def load_match_config(self, match_config: MatchConfig, bot_config_overrides={}):
         """
@@ -659,7 +660,8 @@ def try_get_steam_executable_path() -> Optional[Path]:
         return
     return Path(val)
 
-def locate_epic_games_launcher_rocket_league_binary():
+
+def locate_epic_games_launcher_rocket_league_binary() -> Optional[Path]:
     # Make sure we're on windows, this will go poorly otherwise
     try:
         import winreg
@@ -674,7 +676,7 @@ def locate_epic_games_launcher_rocket_league_binary():
         (winreg.HKEY_CURRENT_USER, 'SOFTWARE\\WOW6432Node\\Epic Games\\EpicGamesLauncher')
     )
 
-    def search_for_manifest_file(app_data_path: Path):
+    def search_for_manifest_file(app_data_path: Path) -> Optional[Path]:
         # Loop through the files ending in *.item in app_data_path/Manifests
         # Parse them as JSON and locate the one where MandatoryAppFolderName is 'rocketleague'
         # Extract the binary location and return it.
@@ -684,7 +686,7 @@ def locate_epic_games_launcher_rocket_league_binary():
                     data = json.load(f)
                 except Exception:
                     continue
-            
+
             if data.get('MandatoryAppFolderName') == 'rocketleague':
                 return data
 
