@@ -2,6 +2,7 @@ import multiprocessing as mp
 import os
 import sys
 import json
+from dataclasses import dataclass
 
 import psutil
 import platform
@@ -15,6 +16,7 @@ from pathlib import Path
 from typing import List, Optional, Dict, Set
 from urllib.parse import ParseResult as URL
 
+from rlbot.gamelaunch.epic_launch import launch_with_epic_login_trick, launch_with_epic_simple
 from rlbot.utils.structures import game_data_struct
 
 from rlbot import gateway_util
@@ -61,6 +63,17 @@ class ROCKET_LEAGUE_PROCESS_INFO:
     def get_ideal_args(port):
         return [arg.replace(ROCKET_LEAGUE_PROCESS_INFO.PORT_PLACEHOLDER, str(port))
                 for arg in ROCKET_LEAGUE_PROCESS_INFO.IDEAL_ARGS]
+
+@dataclass
+class RocketLeagueLauncherPreference:
+    STEAM = 'steam'
+    EPIC = 'epic'
+    preferred_launcher: str
+    use_login_tricks: bool
+
+
+# By default, we will attempt Epic with no login tricks, then fall back to Steam.
+DEFAULT_LAUNCHER_PREFERENCE = RocketLeagueLauncherPreference(RocketLeagueLauncherPreference.EPIC, False)
 
 
 @contextmanager
@@ -150,7 +163,7 @@ class SetupManager:
 
         return is_rocket_league_running
 
-    def connect_to_game(self):
+    def connect_to_game(self, launcher_preference: RocketLeagueLauncherPreference = DEFAULT_LAUNCHER_PREFERENCE):
         """
         Connects to the game by initializing self.game_interface.
         """
@@ -170,7 +183,7 @@ class SetupManager:
         # Launch the game if it is not running.
         elif not self.is_rocket_league_running(port):
             mergeTASystemSettings()
-            self.launch_rocket_league(port=port)
+            self.launch_rocket_league(port=port, launcher_preference=launcher_preference)
 
         try:
             self.game_interface.load_interface()
@@ -189,25 +202,21 @@ class SetupManager:
                 return int(rocket_league_port)
         return None
 
-    def launch_rocket_league(self, port):
+    def launch_rocket_league(self, port, launcher_preference: RocketLeagueLauncherPreference = DEFAULT_LAUNCHER_PREFERENCE):
         """
         Launches Rocket League but does not connect to it.
         """
         ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
 
-        try:
-            # Try launch via Epic Games
-            epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
-            if epic_exe_path is not None:
-                exe_and_args = [str(epic_exe_path)] + ideal_args
-                self.logger.info(f'Launching Rocket League with: {exe_and_args}')
-                try:
-                    _ = subprocess.Popen(exe_and_args)
+        if launcher_preference.preferred_launcher == RocketLeagueLauncherPreference.EPIC:
+            if launcher_preference.use_login_tricks:
+                if launch_with_epic_login_trick(ideal_args):
                     return
-                except Exception as e:
-                    self.logger.info(f'Unable to launch via Epic due to: {e}')
-        except:
-            self.logger.debug('Unable to launch via Epic.')
+                else:
+                    self.logger.info("Epic login trick seems to have failed, falling back to simple Epic launch.")
+            # Fall back to simple if the tricks failed or we opted out of tricks.
+            if launch_with_epic_simple(ideal_args):
+                return
 
         # Try launch via Steam.
         steam_exe_path = try_get_steam_executable_path()
@@ -664,55 +673,3 @@ def try_get_steam_executable_path() -> Optional[Path]:
     return Path(val)
 
 
-def locate_epic_games_launcher_rocket_league_binary() -> Optional[Path]:
-    # Make sure we're on windows, this will go poorly otherwise
-    try:
-        import winreg
-    except ImportError:
-        return
-
-    # List taken from https://docs.unrealengine.com/en-US/GettingStarted/Installation/MultipleLauncherInstalls/index.html
-    possible_registry_locations = (
-        (winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Epic Games\\EpicGamesLauncher'),
-        (winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\Epic Games\\EpicGamesLauncher'),
-        (winreg.HKEY_CURRENT_USER, 'SOFTWARE\\Epic Games\\EpicGamesLauncher'),
-        (winreg.HKEY_CURRENT_USER, 'SOFTWARE\\WOW6432Node\\Epic Games\\EpicGamesLauncher')
-    )
-
-    def search_for_manifest_file(app_data_path: Path) -> Optional[Path]:
-        # Loop through the files ending in *.item in app_data_path/Manifests
-        # Parse them as JSON and locate the one where MandatoryAppFolderName is 'rocketleague'
-        # Extract the binary location and return it.
-        for file in app_data_path.glob("*.item"):
-            with open(app_data_path / file, 'r') as f:
-                try:
-                    data = json.load(f)
-                except Exception:
-                    continue
-
-            if data.get('MandatoryAppFolderName') == 'rocketleague':
-                return data
-
-    for possible_location in possible_registry_locations:
-        try:
-            # get the path to the launcher's game data stuff
-            path = Path(winreg.QueryValueEx(winreg.OpenKey(possible_location[0], possible_location[1]), "AppDataPath")[0]) / 'Manifests'
-        except Exception:
-            # the path, or the key, might not exist
-            # in this case, we'll just skip over it
-            continue
-
-        binary_data = search_for_manifest_file(path)
-
-        if binary_data is not None:
-            return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
-
-    # Nothing found in registry? Try C:\ProgramData\Epic\EpicGamesLauncher
-    # Or consider using %programdata%
-    path = Path(os.getenv("programdata")) / "Epic" / "EpicGamesLauncher" / "Data" / "Manifests"
-
-    if os.path.isdir(path):
-        binary_data = search_for_manifest_file(path)
-
-        if binary_data is not None:
-            return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
