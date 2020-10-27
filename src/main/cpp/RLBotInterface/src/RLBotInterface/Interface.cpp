@@ -10,6 +10,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#include <timeapi.h>
 #endif
 
 #include <cerrno>
@@ -17,6 +18,9 @@
 
 namespace Interface
 {
+	static int TARGET_SLEEP_RESOLUTION_MILLISECONDS = 1;
+	UINT actualSleepResolution;
+
 	std::atomic_bool bInitialized(false);
 
 	extern "C" bool RLBOT_CORE_API IsInitialized()
@@ -31,6 +35,22 @@ namespace Interface
 		DEBUG_LOG("RLBot Core Interface\n");
 		DEBUG_LOG("====================================================================\n");
 		DEBUG_LOG("Initializing...\n");
+
+		// Sets the minimum time period to 1 millisecond so that sleep is more accurate.
+		// https://docs.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod
+		// https://docs.microsoft.com/en-us/windows/win32/multimedia/obtaining-and-setting-timer-resolution
+		TIMECAPS tc;
+
+		if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) == TIMERR_NOERROR)
+		{
+			actualSleepResolution = min(max(tc.wPeriodMin, TARGET_SLEEP_RESOLUTION_MILLISECONDS), tc.wPeriodMax);
+		}
+		else
+		{
+			actualSleepResolution = 1;
+		}
+
+		timeBeginPeriod(actualSleepResolution);
 
 		if (!MutexUtilities::WaitForRLBotExe())
 			return EINTR;
@@ -70,6 +90,12 @@ namespace Interface
 
 	void Uninitialize()
 	{
+		#ifdef _WIN32
+		// The timeEndPeriod function clears a previously set minimum timer resolution.
+		// https://docs.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timeendperiod
+		timeEndPeriod(actualSleepResolution);
+		#endif
+
 		GameFunctions::Uninitialize_GamePacket();
 		GameFunctions::Uninitialize_PlayerInfo();
 	}

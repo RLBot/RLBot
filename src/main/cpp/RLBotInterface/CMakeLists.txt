@@ -52,7 +52,7 @@ if (UNIX)
     endif (APPLE)
     set_target_properties(RLBotInterface PROPERTIES COMPILE_FLAGS -fPIC)
 else (UNIX)
-    target_link_libraries(RLBotInterface RLBotMessages ${Boost_LIBRARIES})
+    target_link_libraries(RLBotInterface RLBotMessages ${Boost_LIBRARIES} winmm.lib)
 endif (UNIX)
 
 target_compile_features(RLBotInterface PRIVATE cxx_std_17)
