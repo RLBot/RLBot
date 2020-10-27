@@ -130,6 +130,11 @@ namespace GameFunctions
 		return pFrameCountReader->fetchByte();
 	}
 
+	// On windows it is probably not possible to sleep for only 500 microseconds, and it seems like
+	// we are effectively being rounded up to the minimum resolution here:
+	// https://docs.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod
+	// We have set the minimum resolution to 1ms on DLL init to minimize this problem.
+	// Keeping this at 500 microseconds anyway for the sake of Linux.
 	static const int sleep_microseconds = 500;
 
 	void waitForFrame(int timeoutMillis, int key)

@@ -1,3 +1,3 @@
 call prepare-python-distribution.bat
 cd build/python-dist
-python setup.py sdist upload -r pypitest
+py setup.py sdist upload -r pypitest
