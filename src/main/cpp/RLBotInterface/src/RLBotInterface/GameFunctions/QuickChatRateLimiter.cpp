@@ -1,7 +1,6 @@
 #include "QuickChatRateLimiter.hpp"
 #include <chrono>
 #include <rlbot_generated.h>
-#include <BoostUtilities/BoostUtilities.hpp>
 
 namespace QuickChat
 {

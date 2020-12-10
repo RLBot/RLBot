@@ -1,26 +1,15 @@
 #include "RenderFunctions.hpp"
-#include <BoostUtilities/BoostConstants.hpp>
-#include <BoostUtilities/BoostUtilities.hpp>
+#include "RLBotSockets/bot_client.hpp"
 
 namespace RenderFunctions
 {
-	BoostUtilities::QueueSender* pRenderGroupQueue = nullptr;
 
-	void Initialize()
+	extern "C" RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int size)
 	{
-		pRenderGroupQueue = new BoostUtilities::QueueSender(BoostConstants::RenderingFlatQueueName);
+		std::string render_message((char *)renderGroup, size);
+		BotClientStatic::botClientInstance()->write(render_message, TcpClient::DataType::rlbot_render_group);
+		return RLBotCoreStatus::Success;
 	}
-
-	extern "C" RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int protoSize)
-	{
-		if (!pRenderGroupQueue)
-		{
-			return RLBotCoreStatus::NotInitialized;
-		}
-		return pRenderGroupQueue->sendMessage(renderGroup, protoSize);
-	}
-
-
 
 	extern "C" Renderer* Renderer_Constructor(int groupid)
 	{

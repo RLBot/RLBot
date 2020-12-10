@@ -144,6 +144,10 @@ class GameInterface:
         func.argtypes = [ctypes.c_int, ctypes.c_int]
         func.restype = ByteBuffer
 
+        func = self.game.StartTcpCommunication
+        func.argtypes = [ctypes.c_int]
+        func.restype = ctypes.c_int
+
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
 
@@ -171,6 +175,7 @@ class GameInterface:
 
     def start_match(self):
         self.wait_until_loaded()
+        self.wait_until_ready_to_communicate()
         # self.game_input_packet.bStartMatch = True
         rlbot_status = self.game.StartMatch(self.start_match_configuration)
 
@@ -224,6 +229,20 @@ class GameInterface:
         raise TimeoutError("RLBot took too long to initialize! Was Rocket League started with the -rlbot flag? "
                            "If you're not sure, close Rocket League and let us open it for you next time!")
 
+    def wait_until_ready_to_communicate(self):
+        for i in range(0, 120):
+            self.game.IsReadyForCommunication.restype = ctypes.c_bool
+            is_loaded = self.game.IsReadyForCommunication()
+            if is_loaded:
+                self.logger.info('DLL is ready for comms!')
+                return
+            else:
+                self.logger.debug('Waiting until DLL is ready to communicate...')
+                time.sleep(1)
+        raise TimeoutError("RLBot took too long to initialize! Was Rocket League started with the -rlbot flag? "
+                           "If you're not sure, close Rocket League and let us open it for you next time!")
+
+
     def wait_until_valid_packet(self):
         self.logger.info('Waiting for valid packet...')
         for i in range(0, 60):
@@ -258,12 +277,16 @@ class GameInterface:
             time.sleep(0.5)
         self.logger.info('Gave up waiting for valid packet :(')
 
-    def load_interface(self):
+    def load_interface(self, port=23234):
         self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)
         self.callback_func = self.game_status_callback_type(wrap_callback(self.game_status))
         self.game = ctypes.CDLL(self.dll_path)
-        time.sleep(1)
+        time.sleep(0.2)
+        self.logger.info("About to set up function types")
         self.setup_function_types()
+        self.logger.info("About to call StartTcp")
+        self.game.StartTcpCommunication(port)
+        self.wait_until_ready_to_communicate()
 
     def create_status_callback(self, callback=None):
         """

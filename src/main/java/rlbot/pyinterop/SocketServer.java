@@ -12,10 +12,9 @@ public abstract class SocketServer extends BaseSocketServer {
         this.botManager = botManager;
     }
 
-    @Override
-    protected void ensureBotRegistered(int index, String botType, int team) {
+    protected void ensureBotRegistered(final int index, final String botType, final int team) {
         botManager.ensureBotRegistered(index, team, () -> initBot(index, botType, team));
     }
 
-    protected abstract Bot initBot(int index, String botType, int team);
+    protected abstract Bot initBot(final int index, final String botType, final int team);
 }

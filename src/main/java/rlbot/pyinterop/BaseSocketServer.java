@@ -31,8 +31,11 @@ public abstract class BaseSocketServer implements PythonInterface {
                     int bytes = clientSocket.getInputStream().read(buffer);
                     String request = new String(buffer, 0, bytes);
                     Command command = parseCommand(request);
-                    if (command.action == Command.Action.ADD) {
+                    if (command.action == Command.Action.ADD_DLL_BOT) {
                         ensureStarted(command.dllDirectory);
+                        ensureBotRegistered(command.index, command.name, command.team);
+                    } else if (command.action == Command.Action.ADD_SOCKET_BOT) {
+                        ensureSocketStarted(command.socketHost, command.socketPort);
                         ensureBotRegistered(command.index, command.name, command.team);
                     } else if (command.action == Command.Action.REMOVE) {
                         retireBot(command.index);
@@ -44,7 +47,7 @@ public abstract class BaseSocketServer implements PythonInterface {
         }
     }
 
-    private static Command parseCommand(final String socketCommand) {
+    protected Command parseCommand(final String socketCommand) {
         String[] split = socketCommand.split("\n");
 
         if (split.length < 2) {
@@ -54,11 +57,19 @@ public abstract class BaseSocketServer implements PythonInterface {
         Command command = new Command();
 
         if ("add".equals(split[0])) {
-            command.action = Command.Action.ADD;
+            command.action = Command.Action.ADD_DLL_BOT;
             command.name = split[1];
             command.team = Integer.parseInt(split[2]);
             command.index = Integer.parseInt(split[3]);
             command.dllDirectory = split[4];
+        }
+        else if ("addsocket".equals(split[0])) {
+            command.action = Command.Action.ADD_SOCKET_BOT;
+            command.name = split[1];
+            command.team = Integer.parseInt(split[2]);
+            command.index = Integer.parseInt(split[3]);
+            command.socketHost = split[4];
+            command.socketPort = Integer.parseInt(split[5]);
         }
         else if ("remove".equals(split[0])) {
             command.action = Command.Action.REMOVE;
@@ -77,6 +88,11 @@ public abstract class BaseSocketServer implements PythonInterface {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    protected void ensureSocketStarted(final String socketHost, final int socketPort) {
+        botManager.setSocketInfo(socketHost, socketPort);
+        botManager.ensureStarted();
     }
 
     protected void shutdown() {

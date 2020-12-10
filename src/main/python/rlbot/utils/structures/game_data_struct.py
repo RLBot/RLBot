@@ -144,7 +144,10 @@ class GameInfo(Struct):
                 ("is_match_ended", ctypes.c_bool),
                 ("world_gravity_z", ctypes.c_float),
                 # Game speed multiplier, 1.0 is regular game speed.
-                ("game_speed", ctypes.c_float)]
+                ("game_speed", ctypes.c_float),
+                # Number of physics frames which have elapsed in the game.
+                # May increase by more than one across consecutive packets.
+                ("frame_num", ctypes.c_int)]
 
 
 # On the c++ side this struct has a long at the beginning for locking.

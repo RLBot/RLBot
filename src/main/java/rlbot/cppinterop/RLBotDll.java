@@ -196,6 +196,14 @@ public class RLBotDll {
      */
     public static void setPlayerInputFlatbuffer(ControllerState controllerState, int index) {
 
+        FlatBufferBuilder builder = controllerStateToFlatbuffer(controllerState, index);
+
+        final byte[] protoBytes = builder.sizedByteArray();
+        final Memory memory = getMemory(protoBytes);
+        UpdatePlayerInputFlatbuffer(memory, protoBytes.length);
+    }
+
+    public static FlatBufferBuilder controllerStateToFlatbuffer(final ControllerState controllerState, final int playerIndex) {
         FlatBufferBuilder builder = new FlatBufferBuilder(50);
 
         rlbot.flat.ControllerState.startControllerState(builder);
@@ -215,14 +223,11 @@ public class RLBotDll {
 
         int playerInputOffset = rlbot.flat.PlayerInput.createPlayerInput(
                 builder,
-                index,
+                playerIndex,
                 controllerStateOffset);
 
         builder.finish(playerInputOffset);
-
-        final byte[] protoBytes = builder.sizedByteArray();
-        final Memory memory = getMemory(protoBytes);
-        UpdatePlayerInputFlatbuffer(memory, protoBytes.length);
+        return builder;
     }
 
     /**

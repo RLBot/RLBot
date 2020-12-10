@@ -156,6 +156,7 @@ class GameInfo:
     is_match_ended: bool
     world_gravity_z: bool
     game_speed: float
+    frame_num: int
 
 
 @dataclass

@@ -3,6 +3,7 @@ project(RLBot LANGUAGES CXX)
 
 # find boost
 add_definitions(-DBOOST_ALL_NO_LIB)
+add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
@@ -14,8 +15,6 @@ find_package(Boost COMPONENTS date_time system REQUIRED)
 set(rlbot_generated ${CMAKE_CURRENT_SOURCE_DIR}/../../../generated/cpp/flatbuffers)
 set(flatbuffers ${CMAKE_CURRENT_SOURCE_DIR}/lib/flatbuffers/include)
 
-# Include directory for chips ball prediction
-set(rlu_include ${CMAKE_CURRENT_SOURCE_DIR}/chip/cpp/inc)
 
 # ---- RLBotMessage ----
 file(GLOB_RECURSE rlbotmessages_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/*.?pp)
@@ -58,17 +57,22 @@ endif (UNIX)
 target_compile_features(RLBotInterface PRIVATE cxx_std_17)
 
 # ---- RLBot ----
-file(GLOB_RECURSE rlbot_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/*.?pp)
-file(GLOB_RECURSE rlu_sources  ${CMAKE_CURRENT_SOURCE_DIR}/chip/cpp/*.cc)
+file(GLOB_RECURSE rlbot_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/*.c* ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/*.h*)
 
-add_executable(RLBot ${rlbot_sources} ${rlu_sources})
+add_executable(RLBot ${rlbot_sources})
 target_include_directories(RLBot PRIVATE
     src/RLBot
     src/RLBotMessages
     ${rlbot_generated}
     ${flatbuffers}
-    ${Boost_INCLUDE_DIRS}
-    ${rlu_include})
+    ${Boost_INCLUDE_DIRS})
+
+foreach(_source IN ITEMS ${rlbot_sources})
+    get_filename_component(_source_path "${_source}" PATH)
+    string(REPLACE "${CMAKE_SOURCE_DIR}" "" _group_path "${_source_path}")
+    string(REPLACE "/" "\\" _group_path "${_group_path}")
+    source_group("${_group_path}" FILES "${_source}")
+endforeach()
 
 if (UNIX)
     if (APPLE)

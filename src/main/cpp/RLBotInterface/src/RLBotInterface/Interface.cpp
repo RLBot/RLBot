@@ -1,12 +1,14 @@
 #include "Interface.hpp"
 
 #include <atomic>
+#include <algorithm>
 #include <Messages.hpp>
 #include "GameFunctions/BallPrediction.hpp"
 #include "GameFunctions/GamePacket.hpp"
 #include "GameFunctions/GameFunctions.hpp"
 #include "GameFunctions/PlayerInfo.hpp"
 #include "RenderFunctions/RenderFunctions.hpp"
+#include "RLBotSockets/bot_client.hpp"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -14,11 +16,10 @@
 #endif
 
 #include <cerrno>
-#include <thread>
 
 namespace Interface
 {
-	static int TARGET_SLEEP_RESOLUTION_MILLISECONDS = 1;
+	static UINT TARGET_SLEEP_RESOLUTION_MILLISECONDS = 1;
 	UINT actualSleepResolution;
 
 	std::atomic_bool bInitialized(false);
@@ -26,6 +27,12 @@ namespace Interface
 	extern "C" bool RLBOT_CORE_API IsInitialized()
 	{
 		return bInitialized.load();
+	}
+
+	extern "C" bool RLBOT_CORE_API IsReadyForCommunication()
+	{
+		auto bot_client = BotClientStatic::botClientInstance();
+		return bot_client != nullptr && bot_client->is_connected;
 	}
 
 	#ifdef _WIN32
@@ -43,7 +50,7 @@ namespace Interface
 
 		if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) == TIMERR_NOERROR)
 		{
-			actualSleepResolution = min(max(tc.wPeriodMin, TARGET_SLEEP_RESOLUTION_MILLISECONDS), tc.wPeriodMax);
+			actualSleepResolution = std::min(std::max(tc.wPeriodMin, TARGET_SLEEP_RESOLUTION_MILLISECONDS), tc.wPeriodMax);
 		}
 		else
 		{
@@ -52,17 +59,7 @@ namespace Interface
 
 		timeBeginPeriod(actualSleepResolution);
 
-		if (!MutexUtilities::WaitForRLBotExe())
-			return EINTR;
-
-		GameFunctions::Initialize_GamePacket();
-		GameFunctions::Initialize_GameFunctions();
-		GameFunctions::Initialize_PlayerInfo();
-		RenderFunctions::Initialize();
-		
 		bInitialized = true;
-		DEBUG_LOG("RLBot Core Interface has been successfully initialized!\n");
-
 		return 0;
 	}
 	#endif
@@ -73,17 +70,7 @@ namespace Interface
 		//DEBUG_LOG("====================================================================\n");
 		//DEBUG_LOG("RLBot Core Interface\n");
 		//DEBUG_LOG("====================================================================\n");
-		//DEBUG_LOG("Initializing...\n");
-
-		MutexUtilities::WaitForRLBotExe();
-
-		GameFunctions::Initialize_GamePacket();
-		GameFunctions::Initialize_GameFunctions();
-		GameFunctions::Initialize_PlayerInfo();
-		RenderFunctions::Initialize();
-		
 		bInitialized = true;
-		//DEBUG_LOG("RLBot Core Interface has been successfully initialized!\n");
 	}
 	#endif
 
@@ -95,9 +82,6 @@ namespace Interface
 		// https://docs.microsoft.com/en-us/windows/win32/api/timeapi/nf-timeapi-timeendperiod
 		timeEndPeriod(actualSleepResolution);
 		#endif
-
-		GameFunctions::Uninitialize_GamePacket();
-		GameFunctions::Uninitialize_PlayerInfo();
 	}
 }
 
@@ -120,13 +104,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID)
 #endif
 
 #if defined(__linux__) || defined(__APPLE__)
-__attribute__((constructor)) void init(void) 
-{ 
+__attribute__((constructor)) void init(void)
+{
 	Interface::Initialize();
 }
 
-__attribute__((destructor))  void fini(void) 
-{ 
+__attribute__((destructor))  void fini(void)
+{
 	Interface::Uninitialize();
 }
 #endif

@@ -190,6 +190,10 @@ table GameInfo {
   worldGravityZ:float;
   /// Game speed multiplier, 1.0 is regular game speed.
   gameSpeed:float;
+  /// Tracks the number of physics frames the game has computed.
+  /// May increase by more than one across consecutive packets.
+  /// Data type will roll over after 207 days at 120Hz.
+  frameNum: int;
 }
 
 table TeamInfo {

@@ -6,24 +6,15 @@
 #include <boost/interprocess/sync/sharable_lock.hpp>
 
 #include "GameFunctions.hpp"
-#include <BoostUtilities/BoostConstants.hpp>
-#include <BoostUtilities/BoostUtilities.hpp>
 #include <MessageTranslation/FlatbufferTranslator.hpp>
 #include <MessageTranslation/StructToRLBotFlatbuffer.hpp>
 
 #include <chrono>
 #include <thread>
+#include "RLBotSockets/bot_client.hpp"
 
 namespace GameFunctions
 {
-	BoostUtilities::QueueSender* pGameStateQueue = nullptr;
-	BoostUtilities::QueueSender* pMatchControlQueue = nullptr;
-
-	void Initialize_GameFunctions()
-	{
-		pGameStateQueue = new BoostUtilities::QueueSender(BoostConstants::GameStateFlatQueueName);
-		pMatchControlQueue = new BoostUtilities::QueueSender(BoostConstants::MatchControlQueueName);
-	}
 
 	extern "C" void RLBOT_CORE_API Free(void* ptr)
 	{
@@ -32,11 +23,9 @@ namespace GameFunctions
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API SetGameState(void* gameStateData, int size)
 	{
-		if (!pGameStateQueue)
-		{
-			return RLBotCoreStatus::NotInitialized;
-		}
-		return pGameStateQueue->sendMessage(gameStateData, size);
+		std::string game_state_message((char *)gameStateData, size);
+		BotClientStatic::botClientInstance()->write(game_state_message, TcpClient::DataType::rlbot_state_setting);
+		return RLBotCoreStatus::Success;
 	}
 
 	// Start match
@@ -104,8 +93,10 @@ namespace GameFunctions
 
 		flatbuffers::FlatBufferBuilder builder;
 		StructToRLBotFlatbuffer::BuildStartMatchMessage(&builder, matchSettings);
+		std::string start_match_string((char *) builder.GetBufferPointer(), builder.GetSize());
+		BotClientStatic::botClientInstance()->write(start_match_string, TcpClient::DataType::rlbot_match_settings);
 
-		return pMatchControlQueue->sendMessage(builder.GetBufferPointer(), builder.GetSize());
+		return RLBotCoreStatus::Success;
 	}
 
 	extern "C" RLBotCoreStatus RLBOT_CORE_API StartMatchFlatbuffer(void* startMatchSettings, int size)
@@ -119,5 +110,23 @@ namespace GameFunctions
 		FlatbufferTranslator::translateToMatchSettingsStruct(buf, &matchSettings);
 
 		return StartMatch(matchSettings);
+	}
+
+	inline boost::asio::ip::address localhost = boost::asio::ip::address::from_string("127.0.0.1");
+	boost::asio::io_context ioc;
+	std::atomic_bool tcpConnected(false);
+
+	void run_ioc(int port) {
+		ioc.run();
+	}
+
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartTcpCommunication(int port) {
+		DEBUG_LOG("Beginning StartTcp.\n");
+		BotClientStatic::initBotClient(port, &ioc);
+		std::thread io_thread(run_ioc, port);
+		io_thread.detach();
+		tcpConnected = true;
+		DEBUG_LOG("Returning from StartTcp.\n");
+		return RLBotCoreStatus::Success;
 	}
 }

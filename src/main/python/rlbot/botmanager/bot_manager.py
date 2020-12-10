@@ -14,6 +14,7 @@ from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.rlbot_exception import EmptyDllResponse
 from rlbot.utils.structures.bot_input_struct import PlayerInput
+from rlbot.utils.structures.game_data_struct import FieldInfoPacket
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.quick_chats import send_quick_chat_flat
@@ -165,12 +166,21 @@ class BotManager:
         self.load_agent()
         self.retire_agent(old_agent)  # We do this after load_agent as load_agent might fail.
 
+    def wait_for_full_data(self):
+        for i in range(10):
+            match_settings = self.get_match_settings()
+            if match_settings is not None and self.get_field_info().num_goals > 0:
+                return
+            time.sleep(0.1)
+        self.logger.error("WARNING: failed to get full match data before starting bot!")
+
     def run(self):
         """
         Loads interface for RLBot, prepares environment and agent, and calls the update for the agent.
         """
         self.logger.debug('initializing agent')
         self.game_interface.load_interface()
+        self.wait_for_full_data()
 
         self.prepare_for_run()
 
@@ -302,8 +312,10 @@ class BotManager:
             self.file_iterator = None
         return self.scan_last
 
-    def get_field_info(self):
-        return self.game_interface.get_field_info()
+    def get_field_info(self) -> FieldInfoPacket:
+        field_info = FieldInfoPacket()
+        self.game_interface.update_field_info_packet(field_info)
+        return field_info
 
     def get_rigid_body_tick(self):
         """Get the most recent state of the physics engine."""

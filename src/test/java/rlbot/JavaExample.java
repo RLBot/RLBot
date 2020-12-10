@@ -1,6 +1,7 @@
 package rlbot;
 
 import rlbot.manager.BotManager;
+import rlbot.manager.BotManagerSocket;
 import rlbot.pyinterop.SocketServer;
 
 /**
@@ -14,10 +15,11 @@ public class JavaExample {
             throw new IllegalArgumentException("You must pass in a port as an argument!");
         }
 
-        BotManager flatBotManager = new BotManager();
+        int pythonInteropPort = Integer.parseInt(args[0]); // 24008 currently set in python
+        BotManager flatBotManager = new BotManagerSocket();
         flatBotManager.setRefreshRate(120);
-        int port = Integer.parseInt(args[0]);
-        SocketServer server = new SamplePythonInterface(port, flatBotManager);
+
+        SocketServer server = new SamplePythonInterface(pythonInteropPort, flatBotManager);
         server.start();
     }
 }

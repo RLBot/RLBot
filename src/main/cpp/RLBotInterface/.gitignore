@@ -61,4 +61,5 @@ CMakeCache.txt
 CMakeFiles
 Makefile
 RLBot
+!RLBot/
 cmake_install.cmake

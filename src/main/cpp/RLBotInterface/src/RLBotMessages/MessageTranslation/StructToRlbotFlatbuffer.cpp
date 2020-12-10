@@ -35,7 +35,8 @@ namespace StructToRLBotFlatbuffer
 			gameInfo.kickoffPause,
 			gameInfo.matchEnded,
 			gameInfo.worldGravityZ,
-			gameInfo.gameSpeed);
+			gameInfo.gameSpeed,
+			gameInfo.frameNum);
 	}
 
 	rlbot::flat::Vector3 createVector3(PyStruct::Vector3 structVec)

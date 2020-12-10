@@ -22,4 +22,6 @@ public interface IBotManager {
      * Sets the maximum amount of packets your bot will receive per second
      */
     void setRefreshRate(int refreshRate);
+
+    void setSocketInfo(String socketHost, int socketPort);
 }

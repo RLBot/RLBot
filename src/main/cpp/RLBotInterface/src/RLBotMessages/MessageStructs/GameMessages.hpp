@@ -1,14 +1,7 @@
 #ifndef GAMEMESSAGES_HPP
 #define GAMEMESSAGES_HPP
 
-#include "Message.hpp"
-
 #include "../PacketStructs/PacketStructs.hpp"
-
-struct StartMatchMessage : public Message<StartMatchMessageType, true>
-{
-	MatchSettings		matchSettings;
-};
 
 enum QuickChatPreset
 {
@@ -76,13 +69,6 @@ enum QuickChatPreset
 	Custom_Toxic_MafiaPlays,
 	Custom_Exclamation_Yeet,
 	MaxQuickChatPresets
-};
-
-struct SendChatMessage : public Message<SendChatMessageType, true>
-{
-	QuickChatPreset		quickChatPreset;
-	int					playerIndex;
-	bool				bTeam;
 };
 
 #endif

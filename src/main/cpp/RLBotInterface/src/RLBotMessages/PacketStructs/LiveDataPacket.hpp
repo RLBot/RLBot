@@ -161,6 +161,7 @@ struct GameInfo
 	bool					matchEnded;
 	float					worldGravityZ;
 	float					gameSpeed;
+	int						frameNum;
 };
 
 struct LiveDataPacket

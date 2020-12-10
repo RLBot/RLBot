@@ -4,7 +4,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-
 namespace FlatbufferTranslator {
 
 	void fillStructName(std::string str, wchar_t structStr[])
@@ -166,6 +165,7 @@ namespace FlatbufferTranslator {
 		structGameInfo->unlimitedTime = gameInfo->isUnlimitedTime();
 		structGameInfo->worldGravityZ = gameInfo->worldGravityZ();
 		structGameInfo->gameSpeed = gameInfo->gameSpeed();
+		structGameInfo->frameNum = gameInfo->frameNum();
 	}
 
 
@@ -256,11 +256,33 @@ namespace FlatbufferTranslator {
 
 		auto slices = flatPacket->slices();
 		if (slices) {
-			packet->numSlices = slices->size();
-			for (int i = 0; i < slices->size(); i++) {
+			packet->numSlices = std::min(CONST_MAXSLICES, (int)slices->size());
+			for (int i = 0; i < packet->numSlices; i++) {
 				fillSliceStruct(slices->Get(i), &packet->slice[i]);
 			}
 		}
+	}
+
+	std::deque<Slice> translateToBallSliceVector(ByteBuffer flatbufferData)
+	{
+		std::deque<Slice> slice_list;
+		
+		if (flatbufferData.size == 0)
+		{
+			return slice_list;
+		}
+
+		auto flatPacket = flatbuffers::GetRoot<rlbot::flat::BallPrediction>(flatbufferData.ptr);
+
+		auto slices = flatPacket->slices();
+		if (slices) {
+			for (int i = 0; i < slices->size(); i++) {
+				Slice s;
+				fillSliceStruct(slices->Get(i), &s);
+				slice_list.push_back(s);
+			}
+		}
+		return slice_list;
 	}
 
 	void fillBoostPadStruct(const rlbot::flat::BoostPad* boostPad, BoostPad* structBoostPad)

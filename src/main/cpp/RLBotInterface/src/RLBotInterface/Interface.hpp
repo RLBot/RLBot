@@ -14,6 +14,7 @@ extern "C"
 	namespace Interface
 	{
 		DLL_EXPORT bool RLBOT_CORE_API IsInitialized();
+		DLL_EXPORT bool RLBOT_CORE_API IsReadyForCommunication();
 	}
 
 #ifdef __cplusplus

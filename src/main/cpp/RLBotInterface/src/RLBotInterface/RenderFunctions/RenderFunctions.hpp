@@ -13,8 +13,6 @@ extern "C"
 
 	namespace RenderFunctions
 	{
-		void Initialize();
-
 		DLL_EXPORT RLBotCoreStatus RLBOT_CORE_API RenderGroup(void* renderGroup, int protoSize);
 
 		/*

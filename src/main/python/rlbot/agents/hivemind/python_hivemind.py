@@ -45,6 +45,8 @@ class PythonHivemind(BotHelperProcess):
         # which requested this hivemind with the same key.
         self.drone_indices = set()
 
+        self._field_info = FieldInfoPacket()
+
     def try_receive_agent_metadata(self):
         """Adds all drones with the correct key to our set of running indices."""
         while not self.metadata_queue.empty():
@@ -62,6 +64,13 @@ class PythonHivemind(BotHelperProcess):
         # Loads game interface.
         self.game_interface.load_interface()
 
+        # Wait for legitimate field info
+        while True:
+            self.game_interface.update_field_info_packet(self._field_info)
+            if self._field_info.num_goals > 0:
+                break
+            time.sleep(0.2)
+
         # Collect drone indices that requested a helper process with our key.
         self.logger.info("Collecting drones; give me a moment.")
         self.try_receive_agent_metadata()
@@ -72,14 +81,12 @@ class PythonHivemind(BotHelperProcess):
 
     def __game_loop(self):
         """
-        The bot hivemind will stay in this loop for the whole game. 
+        The bot hivemind will stay in this loop for the whole game.
         This is where the initialize_hive and get_outputs functions are called.
         """
 
         # Creating ball prediction and field info objects to later update in wrapper methods.
         self._ball_prediction = BallPrediction()
-        self._field_info = FieldInfoPacket()
-        self.game_interface.update_field_info_packet(self._field_info)
 
         # Create packet object.
         packet = GameTickPacket()
@@ -93,7 +100,7 @@ class PythonHivemind(BotHelperProcess):
 
         # Initialization step for your hivemind.
         self.initialize_hive(packet)
-        
+
         while not self.quit_event.is_set():
             try:
                 # Updating the packet.

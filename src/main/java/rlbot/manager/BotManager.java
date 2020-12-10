@@ -3,16 +3,11 @@ package rlbot.manager;
 import rlbot.Bot;
 import rlbot.ControllerState;
 import rlbot.cppinterop.RLBotDll;
-import rlbot.cppinterop.RLBotInterfaceException;
-import rlbot.flat.GameTickPacket;
-import rlbot.pyinterop.BaseSocketServer;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
@@ -21,7 +16,7 @@ import java.util.function.Supplier;
  */
 public class BotManager extends BaseBotManager {
 
-    private final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
+    protected final Map<Integer, BotProcess> botProcesses = new ConcurrentHashMap<>();
 
     public void ensureBotRegistered(final int index, final int team, final Supplier<Bot> botSupplier) {
         if (botProcesses.containsKey(index)) {
@@ -50,7 +45,7 @@ public class BotManager extends BaseBotManager {
                 if (latestPacket != null) {
                     renderer.startPacket();
                     ControllerState controllerState = bot.processInput(latestPacket);
-                    RLBotDll.setPlayerInputFlatbuffer(controllerState, index);
+                    sendControllerState(controllerState, index);
                     renderer.finishAndSendIfDifferent();
                 }
             }
@@ -61,6 +56,10 @@ public class BotManager extends BaseBotManager {
             retireBot(index); // Unregister this bot internally.
             bot.retire(); // Tell the bot to clean up its resources.
         }
+    }
+
+    protected void sendControllerState(final ControllerState controllerState, final int playerIndex) {
+        RLBotDll.setPlayerInputFlatbuffer(controllerState, playerIndex);
     }
 
     /**
@@ -87,6 +86,14 @@ public class BotManager extends BaseBotManager {
             process.stop();
             botProcesses.remove(index);
         }
-        RLBotDll.setPlayerInputFlatbuffer(new EmptyControls(), index);
+        sendEmptyControls(index);
+    }
+
+    protected void sendEmptyControls(int index) {
+        sendControllerState(new EmptyControls(), index);
+    }
+
+    public void setSocketInfo(String socketHost, int socketPort) {
+
     }
 }

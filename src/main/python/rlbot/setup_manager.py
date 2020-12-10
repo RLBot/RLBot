@@ -22,7 +22,6 @@ from rlbot.utils.structures import game_data_struct
 from rlbot import gateway_util
 from rlbot import version
 from rlbot.base_extension import BaseExtension
-from rlbot.botmanager.bot_manager_flatbuffer import BotManagerFlatbuffer
 from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
@@ -186,6 +185,7 @@ class SetupManager:
             self.launch_rocket_league(port=port, launcher_preference=launcher_preference)
 
         try:
+            self.logger.info("Loading interface...")
             self.game_interface.load_interface()
         except Exception as e:
             self.logger.error("Terminating rlbot gateway and raising:")
@@ -607,10 +607,6 @@ class SetupManager:
             bm = BotManagerIndependent(terminate_event, callback_event, reload_request, config_file, name, team, index,
                                        agent_class_wrapper, agent_telemetry_queue, match_config, matchcomms_root,
                                        spawn_id)
-        elif hasattr(agent_class_wrapper.get_loaded_class(), "get_output_flatbuffer"):
-            bm = BotManagerFlatbuffer(terminate_event, callback_event, reload_request, config_file, name, team, index,
-                                      agent_class_wrapper, agent_telemetry_queue, match_config, matchcomms_root,
-                                      spawn_id)
         else:
             bm = BotManagerStruct(terminate_event, callback_event, reload_request, config_file, name, team, index,
                                   agent_class_wrapper, agent_telemetry_queue, match_config, matchcomms_root, spawn_id)

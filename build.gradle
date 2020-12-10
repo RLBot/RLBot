@@ -29,6 +29,7 @@ dependencies {
     compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
     compile 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
+//    compile group: 'javax.websocket', name: 'javax.websocket-api', version: '1.1' // Used for RLBot sockets communication instead of dll
 
     // This is handy for running the test without needing to supply jna.library.path.
     testRuntime files(javaDllDir)

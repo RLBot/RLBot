@@ -145,6 +145,11 @@ public class HivemindManager extends BaseBotManager {
         }
     }
 
+    @Override
+    public void setSocketInfo(String socketHost, int socketPort) {
+        // TODO: implement
+    }
+
     /**
      * Stop the hivemind process with the given coloredHiveKey (with team postfix) and unregister the drones indices.
      */

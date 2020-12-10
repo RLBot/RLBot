@@ -75,6 +75,7 @@ class Atba(BaseAgent):
         super().__init__(name, team, index)
         self.state_listener = StateListener(index)
         self.sequence: Sequence = None
+        self.prev_seconds_elapsed = 0
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         controller_state = SimpleControllerState()
@@ -111,7 +112,7 @@ class Atba(BaseAgent):
         if self.flip_turning:
             turn *= -1.0
 
-        if self.test_quickchat:
+        if self.test_quickchat or True:
             if turn == -1.0 and random() > .99:
                 self.send_quick_chat(QuickChats.CHAT_EVERYONE, QuickChats.Custom_Excuses_Rigged)
 
@@ -136,18 +137,27 @@ class Atba(BaseAgent):
         # Not making this configurable because it's easier to just modify the code
         self.render_packet(game_tick_packet)
 
-        if random() > .997:
-            game_state = GameState(console_commands=["Stat FPS"])
-            self.set_game_state(game_state)
+        # if random() > .997:
+        #     game_state = GameState(console_commands=["Stat FPS"])
+        #     self.set_game_state(game_state)
 
-        if random() > .99:
-            mutator_settings = self.get_match_settings().MutatorSettings()
-            if mutator_settings is not None:
-                self.logger.info(f'Is Spike Rush? {mutator_settings.RumbleOption() == RumbleOption.Spike_Rush}')
+        # if random() > .99:
+        #     mutator_settings = self.get_match_settings().MutatorSettings()
+        #     if mutator_settings is not None:
+        #         self.logger.info(f'Is Spike Rush? {mutator_settings.RumbleOption() == RumbleOption.Spike_Rush}')
 
         # controller_state = self.sequence.tick(game_tick_packet)
         controller_state.steer = turn
         controller_state.throttle = 1
+
+        controller_state.use_item = int(game_tick_packet.game_info.seconds_elapsed) % 10 == 0 and \
+                                    self.prev_seconds_elapsed % 10 != 0 and self.index == 0
+        self.prev_seconds_elapsed = int(game_tick_packet.game_info.seconds_elapsed)
+
+        # self.logger.info(f'idx {self.index} prev {self.prev_seconds_remaining} curr {game_tick_packet.game_info.game_time_remaining}')
+
+        if controller_state.use_item:
+            self.logger.info("Use item.")
 
         return controller_state
 

@@ -28,11 +28,6 @@ class BotManagerStruct(BotManager):
         # Set up shared memory for rigid body tick
         self.rigid_body_tick = RigidBodyTick()
 
-    def get_field_info(self) -> gd.FieldInfoPacket:
-        field_info = gd.FieldInfoPacket()
-        self.game_interface.update_field_info_packet(field_info)
-        return field_info
-
     def call_agent(self, agent: BaseAgent, agent_class):
         # Call begin rendering on the agent's behalf. If they call begin_rendering again internally, no harm done.
         agent.renderer.begin_rendering()
