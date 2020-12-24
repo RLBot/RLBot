@@ -56,12 +56,12 @@ class ROCKET_LEAGUE_PROCESS_INFO:
     PROGRAM = 'RocketLeague.exe'
     REQUIRED_ARGS = {r'-rlbot', r'RLBot_ControllerURL=127.0.0.1:[0-9]+'}
     PORT_PLACEHOLDER = '%PORT%'
-    IDEAL_ARGS = ['-rlbot', f'RLBot_ControllerURL=127.0.0.1:{PORT_PLACEHOLDER}', '-nomovie']
 
     @staticmethod
     def get_ideal_args(port):
-        return [arg.replace(ROCKET_LEAGUE_PROCESS_INFO.PORT_PLACEHOLDER, str(port))
-                for arg in ROCKET_LEAGUE_PROCESS_INFO.IDEAL_ARGS]
+        # We could also specify tick rate with RLBot_PacketSendRate=120, but we need to take care not to
+        # override people's TARLBot.ini settings which may be intentionally different.
+        return ['-rlbot', f'RLBot_ControllerURL=127.0.0.1:{port}', '-nomovie']
 
 @dataclass
 class RocketLeagueLauncherPreference:
@@ -186,7 +186,10 @@ class SetupManager:
 
         try:
             self.logger.info("Loading interface...")
-            self.game_interface.load_interface()
+            # We're not going to use this game_interface for much, just sending start match messages and inspecting
+            # the packet to see if the appropriate cars have been spawned.
+            self.game_interface.load_interface(
+                port=23234, desired_tick_rate=30, wants_ball_predictions=False, wants_quick_chat=False)
         except Exception as e:
             self.logger.error("Terminating rlbot gateway and raising:")
             self.rlbot_gateway_process.terminate()
@@ -244,10 +247,12 @@ class SetupManager:
 
             try:
                 _ = subprocess.Popen(linux_args)
+                return
             except OSError:
-                self.logger.warning('Could not find Steam executable, using browser to open instead.')
+                self.logger.warning('Could not launch Steam executable on Linux.')
 
         try:
+            self.logger.info("Launching rocket league via steam browser URL as a last resort...")
             webbrowser.open(f'steam://rungameid/{ROCKET_LEAGUE_PROCESS_INFO.GAMEID}//{args_string}')
         except webbrowser.Error:
             self.logger.warning(

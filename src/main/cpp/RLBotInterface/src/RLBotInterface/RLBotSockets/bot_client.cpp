@@ -2,10 +2,14 @@
 #include "GameFunctions/GameFunctions.hpp"
 #include "GameFunctions/PlayerInfo.hpp"
 #include "GameFunctions/BallPrediction.hpp"
+#include <flatbuffers/flatbuffers.h>
+#include <rlbot_generated.h>
 
 #include <cmath>
 #include <iostream>
 #include <DebugHelper.hpp>
+#include <thread>
+#include <chrono>
 
 inline boost::asio::ip::address localhost = boost::asio::ip::address::from_string("127.0.0.1");
 
@@ -17,15 +21,19 @@ namespace BotClientStatic {
 		return bot_client;
 	}
 
-	void initBotClient(int port, boost::asio::io_context* ioc) {
-		bot_client = new BotClient(*ioc, port);
+	void initBotClient(int port, boost::asio::io_context* ioc, int desiredTickRate, bool wantsBallPredictions, bool wantsQuickChat) {
+		bot_client = new BotClient(*ioc, port, desiredTickRate, wantsBallPredictions, wantsQuickChat);
 	}
 }
 
-BotClient::BotClient(boost::asio::io_context & ioc, int port) :
+BotClient::BotClient(boost::asio::io_context & ioc, int port, int desiredTickRate, bool wantsBallPredictions, bool wantsQuickChat) :
 	endpoint(localhost, port),
 	socket(ioc), 
-	is_connected(false) {
+	is_connected(false),
+	desired_tick_rate(desiredTickRate),
+    wants_ball_predictions(wantsBallPredictions),
+	wants_quick_chat(wantsQuickChat)
+{
 
 	connect();
 }
@@ -33,15 +41,30 @@ BotClient::BotClient(boost::asio::io_context & ioc, int port) :
 void BotClient::connect() {
   socket.async_connect(endpoint, [this](boost::system::error_code error){
 	  if (error) {
-		  DEBUG_LOG("DLL client failed to connect, retrying...\n");
+		  DEBUG_LOG("Retrying after client connect error: %s \n", error.message().c_str());
+		  socket.close();
+		  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		  connect();
 	  }
 	  else {
-		  DEBUG_LOG("DLL client connected!\n");
+		  printf("DLL client connected!\n");
 		  is_connected = true;
 		  socket.set_option(boost::asio::ip::tcp::no_delay(true));
 		  socket.set_option(boost::asio::socket_base::send_buffer_size(524288));
 		  socket.set_option(boost::asio::socket_base::receive_buffer_size(524288));
+
+		  printf("Sending ready message...\n");
+		  flatbuffers::FlatBufferBuilder builder;
+		  rlbot::flat::ReadyMessageBuilder readyMessageBuilder(builder);
+		  readyMessageBuilder.add_desiredTickRate(desired_tick_rate);
+		  readyMessageBuilder.add_wantsBallPredictions(wants_ball_predictions);
+		  readyMessageBuilder.add_wantsQuickChat(wants_quick_chat);
+		  builder.Finish(readyMessageBuilder.Finish());
+
+		  std::string ready_message_string((char *)builder.GetBufferPointer(), builder.GetSize());
+		  BotClientStatic::botClientInstance()->write(ready_message_string, TcpClient::DataType::rlbot_ready_message);
+
+		  printf("Starting response loop...\n");
 		  respond_loop();
 	  }
   });
@@ -83,13 +106,18 @@ void BotClient::respond_loop() {
 	boost::asio::async_read(socket, read_buffer, boost::asio::transfer_exactly(2),
 		[&, this](boost::system::error_code read_error, std::size_t bytes_transferred) {
 
+		if (read_error) {
+			printf("Error reading message size: %s\n", read_error.message().c_str());
+			return;
+		}
+
 		message_type = (TcpClient::DataType) TcpClient::readShort(read_buffer);
 
 		boost::system::error_code size_error;
 		boost::asio::streambuf size_buffer(2);
 		boost::asio::read(socket, size_buffer, boost::asio::transfer_exactly(2), size_error);
 		if (size_error) {
-			printf("error reading message size: %s\n", size_error.message().c_str());
+			printf("Error reading message size: %s\n", size_error.message().c_str());
 			return;
 		}
 

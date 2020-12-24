@@ -19,6 +19,7 @@ namespace TcpClient {
 		rlbot_render_group, // In flatbuffer format
 		rlbot_quick_chat, // In flatbuffer format
 		ball_prediction, // In flatbuffer format
+		rlbot_ready_message, // Flatbuffer
 	};
 
 	struct TypedRLBotData {

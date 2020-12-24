@@ -8,6 +8,8 @@
 #include "GameFunctions.hpp"
 #include <MessageTranslation/FlatbufferTranslator.hpp>
 #include <MessageTranslation/StructToRLBotFlatbuffer.hpp>
+#include <flatbuffers/flatbuffers.h>
+#include <rlbot_generated.h>
 
 #include <chrono>
 #include <thread>
@@ -114,18 +116,17 @@ namespace GameFunctions
 
 	inline boost::asio::ip::address localhost = boost::asio::ip::address::from_string("127.0.0.1");
 	boost::asio::io_context ioc;
-	std::atomic_bool tcpConnected(false);
 
 	void run_ioc(int port) {
 		ioc.run();
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API StartTcpCommunication(int port) {
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartTcpCommunication(int port, int desiredTickRate, bool wantsBallPredictions, bool wantsQuickChat) {
 		DEBUG_LOG("Beginning StartTcp.\n");
-		BotClientStatic::initBotClient(port, &ioc);
+		BotClientStatic::initBotClient(port, &ioc, desiredTickRate, wantsBallPredictions, wantsQuickChat);
 		std::thread io_thread(run_ioc, port);
 		io_thread.detach();
-		tcpConnected = true;
+
 		DEBUG_LOG("Returning from StartTcp.\n");
 		return RLBotCoreStatus::Success;
 	}

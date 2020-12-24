@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.48.2'
+__version__ = '1.48.4'
 
 release_notes = {
-    '1.48.2': """
+    '1.48.4': """
     Using TCP sockets instead of shared memory for transport between RLBot.exe and RLBot_Core_Interface.dll.
     """,
     '1.47.0': """

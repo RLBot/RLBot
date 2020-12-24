@@ -3,10 +3,12 @@
 
 #include "GamePacket.hpp"
 #include "GameFunctions/GameFunctions.hpp"
+#include "RLBotSockets/bot_client.hpp"
 #include <MessageTranslation/FlatbufferTranslator.hpp>
 #include <MessageTranslation/StructToRLBotFlatbuffer.hpp>
 #include <MutexUtilities/SafeFlatbufferHolder.hpp>
 #include <map>
+#include <math.h>
 
 namespace GameFunctions
 {
@@ -52,7 +54,7 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{
-		if (!GameFunctions::tcpConnected.load()) {
+		if (!BotClientStatic::botClientInstance()) {
 			// This is here for backwards compatibility. Ideally, people should be calling StartTcpCommunication directly on the dll.
 			// However, there are many bots written in Java, C#, etc that are already compiled and which don't do that.
 			// We're doing this check here to create binary compatibility with those bots, because they ALL
@@ -61,7 +63,7 @@ namespace GameFunctions
 			// The port here is the default RLBot.exe port (23233 as defined in python) plus 1 (matching the computation in Main.cpp).
 			// This could easily go badly, so bots are highly encouraged to not rely on this compatibility shim.
 			printf("WARNING: Your bot should be calling StartTcpCommunication on the DLL but it's not! Please update to the latest library version, or it might break sometimes.\n");
-			GameFunctions::StartTcpCommunication(23234);
+			GameFunctions::StartTcpCommunication(23234, 240, true, true);
 		}
 
 		return game_tick_packet_flatbuffer_tcp.copyOut();

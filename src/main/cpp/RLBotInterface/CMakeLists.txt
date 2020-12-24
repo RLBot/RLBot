@@ -76,12 +76,15 @@ endforeach()
 
 if (UNIX)
     if (APPLE)
+        add_custom_command(TARGET RLBotMessages
+                           PRE_BUILD
+                           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/generate-flatbuffers-mac.sh )
         target_link_libraries(RLBot RLBotMessages ${Boost_DATETIME_LIBRARY} ${Boost_SYSTEM_LIBRARY} pthread)
     else (APPLE)
         add_custom_command(TARGET RLBotMessages
                            PRE_BUILD
                            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/generate-flatbuffers.sh )
-        target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES} pthread rt)
+        target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} pthread rt)
     endif (APPLE)
     set_target_properties(RLBotInterface PROPERTIES COMPILE_FLAGS -fPIC)
 
@@ -99,27 +102,3 @@ if (WIN32)
                        PRE_BUILD
                        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}\\src\\RLBotMessages\\generate-flatbuffers.bat )
 endif()
-
-# ---- InterfaceTester ----
-file(GLOB_RECURSE interfacetester_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/InterfaceTester/*.?pp)
-
-add_executable(InterfaceTester ${interfacetester_sources})
-target_include_directories(InterfaceTester PRIVATE
-    src/InterfaceTester
-    src/RLBotInterface
-    src/RLBotMessages
-    ${rlbot_generated}
-    ${flatbuffers})
-
-if (UNIX)
-    if (APPLE)
-        target_link_libraries(InterfaceTester RLBotInterface pthread)
-    else (APPLE)
-        target_link_libraries(InterfaceTester RLBotInterface pthread rt)
-    endif (APPLE)
-    set_target_properties(RLBotInterface PROPERTIES COMPILE_FLAGS -fPIC)
-else (UNIX)
-    target_link_libraries(InterfaceTester RLBotInterface)
-endif (UNIX)
-
-target_compile_features(InterfaceTester PRIVATE cxx_std_17)

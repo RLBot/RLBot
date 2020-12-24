@@ -19,8 +19,8 @@
 
 namespace Interface
 {
-	static UINT TARGET_SLEEP_RESOLUTION_MILLISECONDS = 1;
-	UINT actualSleepResolution;
+	static unsigned int TARGET_SLEEP_RESOLUTION_MILLISECONDS = 1;
+	unsigned int actualSleepResolution;
 
 	std::atomic_bool bInitialized(false);
 

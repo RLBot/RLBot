@@ -144,9 +144,12 @@ class GameInterface:
         func.argtypes = [ctypes.c_int, ctypes.c_int]
         func.restype = ByteBuffer
 
-        func = self.game.StartTcpCommunication
-        func.argtypes = [ctypes.c_int]
-        func.restype = ctypes.c_int
+        if hasattr(self.game, 'StartTcpCommunication'):
+            # Currently, sockets are only working on Windows and Mac, not linux.
+            # Linux has older binaries which do not include this function.
+            func = self.game.StartTcpCommunication
+            func.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_bool, ctypes.c_bool]
+            func.restype = ctypes.c_int
 
         self.renderer.setup_function_types(self.game)
         self.logger.debug('game interface functions are setup')
@@ -215,7 +218,10 @@ class GameInterface:
 
     def game_status(self, id, rlbot_status, level=DEBUG):
         if rlbot_status != RLBotCoreStatus.Success and rlbot_status != RLBotCoreStatus.BufferOverfilled:
-            self.logger.log(level, "bad status %s", RLBotCoreStatus.status_list[rlbot_status])
+            if 0 <= rlbot_status < len(RLBotCoreStatus.status_list):
+                self.logger.log(level, "bad status %s", RLBotCoreStatus.status_list[rlbot_status])
+            else:
+                self.logger.log(level, f"bad status {rlbot_status}")
 
     def wait_until_loaded(self):
         for i in range(0, 120):
@@ -230,22 +236,23 @@ class GameInterface:
                            "If you're not sure, close Rocket League and let us open it for you next time!")
 
     def wait_until_ready_to_communicate(self):
-        for i in range(0, 120):
-            self.game.IsReadyForCommunication.restype = ctypes.c_bool
-            is_loaded = self.game.IsReadyForCommunication()
-            if is_loaded:
-                self.logger.info('DLL is ready for comms!')
-                return
-            else:
-                self.logger.debug('Waiting until DLL is ready to communicate...')
-                time.sleep(1)
-        raise TimeoutError("RLBot took too long to initialize! Was Rocket League started with the -rlbot flag? "
-                           "If you're not sure, close Rocket League and let us open it for you next time!")
+        if hasattr(self.game, 'IsReadyForCommunication'):
+            for i in range(0, 120):
+                self.game.IsReadyForCommunication.restype = ctypes.c_bool
+                is_loaded = self.game.IsReadyForCommunication()
+                if is_loaded:
+                    self.logger.info('DLL is ready for comms!')
+                    return
+                else:
+                    self.logger.debug('Waiting until DLL is ready to communicate...')
+                    time.sleep(1)
+            raise TimeoutError("RLBot took too long to initialize! Was Rocket League started with the -rlbot flag? "
+                            "If you're not sure, close Rocket League and let us open it for you next time!")
 
 
     def wait_until_valid_packet(self):
         self.logger.info('Waiting for valid packet...')
-        for i in range(0, 60):
+        for i in range(0, 120):
             packet = game_data_struct.GameTickPacket()
             self.update_live_data_packet(packet)
             if not packet.game_info.is_match_ended:
@@ -277,16 +284,18 @@ class GameInterface:
             time.sleep(0.5)
         self.logger.info('Gave up waiting for valid packet :(')
 
-    def load_interface(self, port=23234):
+    def load_interface(self, port=23234, desired_tick_rate=240, wants_ball_predictions=True, wants_quick_chat=True):
         self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)
         self.callback_func = self.game_status_callback_type(wrap_callback(self.game_status))
         self.game = ctypes.CDLL(self.dll_path)
         time.sleep(0.2)
-        self.logger.info("About to set up function types")
         self.setup_function_types()
-        self.logger.info("About to call StartTcp")
-        self.game.StartTcpCommunication(port)
-        self.wait_until_ready_to_communicate()
+        if hasattr(self.game, 'StartTcpCommunication'):
+            # Currently, sockets are only working on Windows and Mac, not linux.
+            # Linux has older binaries which do not include this function.
+            self.logger.info("About to call StartTcp")
+            self.game.StartTcpCommunication(port, desired_tick_rate, wants_ball_predictions, wants_quick_chat)
+            self.wait_until_ready_to_communicate()
 
     def create_status_callback(self, callback=None):
         """

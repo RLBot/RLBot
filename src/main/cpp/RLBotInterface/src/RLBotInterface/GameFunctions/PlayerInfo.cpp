@@ -161,9 +161,7 @@ namespace GameFunctions
 		flatbuffers::FlatBufferBuilder builder;
 		FlatbufferTranslator::inputStructToFlatbuffer(&builder, playerInput, playerIndex);
 		RLBotCoreStatus status = UpdatePlayerInputFlatbuffer(builder.GetBufferPointer(), builder.GetSize());
-
-		if (status != RLBotCoreStatus::Success)
-			return status;
+		return status;
 	}
 
 	// FLAT

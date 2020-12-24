@@ -11,7 +11,7 @@ setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
     install_requires=[
-        'psutil==5.6.6',
+        'psutil==5.8.0',
         'inputs',
         'websockets',
         'dataclasses',  # Python 3.6 compatibility

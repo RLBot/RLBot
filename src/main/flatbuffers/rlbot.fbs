@@ -802,3 +802,15 @@ table MatchSettings {
 table QuickChatMessages {
   messages: [QuickChat];
 }
+
+/// Sent when connecting to RLBot to indicate what type of messages are desired.
+/// This could be sent by a bot, or a bot manager governing several bots, an
+/// overlay, or any other utility that connects to the RLBot process.
+table ReadyMessage {
+  desiredTickRate: int;
+  wantsBallPredictions: bool;
+  wantsQuickChat: bool;
+  wantsStatEvents: bool;
+  wantsSpectateEvents: bool;
+  wantsPlayerInputEvents: bool;
+}
