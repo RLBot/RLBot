@@ -5,7 +5,7 @@ using FlatBuffers;
 using rlbot.flat;
 using RLBotDotNet.Common;
 using RLBotDotNet.Utils;
-using Color = System.Windows.Media.Color;
+using Color = System.Drawing.Color;
 using Vector3 = System.Numerics.Vector3;
 
 namespace RLBotDotNet.Renderer
