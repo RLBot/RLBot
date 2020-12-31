@@ -26,8 +26,7 @@ class StandaloneBot(BaseAgent):
         run_bot(MyCoolBot)
 
 
-    And also you would need your config file to have standalone_bot_python_file = ./MyCoolBot.py
-    rather than a value for python_file.
+    And also you would need your config file to have supports_standalone = True
 
     """
 

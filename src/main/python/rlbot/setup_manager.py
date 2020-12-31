@@ -440,10 +440,10 @@ class SetupManager:
             if participant_index not in self.bot_processes:
                 bundle = get_bot_config_bundle(player_config.config_path)
                 name = str(self.start_match_configuration.player_configuration[i].name)
-                if bundle.standalone_bot_python_file:
+                if bundle.supports_standalone:
                     process = subprocess.Popen([
                         sys.executable,
-                        bundle.standalone_bot_python_file,
+                        bundle.python_file,
                         '--config-file', player_config.config_path,
                         '--name', name,
                         '--team', str(self.teams[i]),
