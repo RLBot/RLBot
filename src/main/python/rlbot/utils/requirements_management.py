@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import warnings
 from importlib import import_module
 from typing import Set, List
 
@@ -33,7 +34,8 @@ def get_installed_packages() -> Set[str]:
 def get_missing_packages(requirements_file: str = None, special_reqs: List[str] = []) -> List[Requirement]:
     needed = [Requirement.parse_line(sr) for sr in special_reqs]
     if requirements_file is not None:
-        with open(requirements_file, 'r') as fd:
+        with open(requirements_file, 'r') as fd, warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             needed += [r for r in requirements.parse(fd) if r.specifier]
 
     installed = get_installed_packages()
@@ -46,7 +48,8 @@ def install_requirements_file(requirements_file):
 
 
 def get_packages_needing_upgrade(requirements_file: str) -> List[Requirement]:
-    with open(requirements_file, 'r') as fd:
+    with open(requirements_file, 'r') as fd, warnings.catch_warnings():
+        warnings.simplefilter("ignore")
         needed = [r for r in requirements.parse(fd) if r.specifier]
 
     pkg_resource_map = {p.project_name: p for p in pkg_resources.working_set}

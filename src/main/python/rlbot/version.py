@@ -4,11 +4,18 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.48.4'
+__version__ = '1.49.0'
 
 release_notes = {
-    '1.48.4': """
+    '1.49.0': """
+    Defaulting the packet send rate to 240 ticks per second, without requiring any .ini file changes.
+    See https://github.com/RLBot/RLBot/wiki/Tick-Rate
+    """,
+    '1.48.6': """
     Using TCP sockets instead of shared memory for transport between RLBot.exe and RLBot_Core_Interface.dll.
+    
+    Also:
+    - Showing ticks per second coming from Rocket League in the performance display.
     """,
     '1.47.0': """
     Trying to fix a bug where low time resolution on Windows causes bots to receive data

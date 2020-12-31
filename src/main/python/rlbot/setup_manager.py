@@ -55,13 +55,12 @@ class ROCKET_LEAGUE_PROCESS_INFO:
     PROGRAM_NAME = 'RocketLeague.exe'
     PROGRAM = 'RocketLeague.exe'
     REQUIRED_ARGS = {r'-rlbot', r'RLBot_ControllerURL=127.0.0.1:[0-9]+'}
-    PORT_PLACEHOLDER = '%PORT%'
 
     @staticmethod
     def get_ideal_args(port):
-        # We could also specify tick rate with RLBot_PacketSendRate=120, but we need to take care not to
-        # override people's TARLBot.ini settings which may be intentionally different.
-        return ['-rlbot', f'RLBot_ControllerURL=127.0.0.1:{port}', '-nomovie']
+        # We are specifying RLBot_PacketSendRate=240, which will override people's TARLBot.ini settings.
+        # We believe there is no downside to 240. See https://github.com/RLBot/RLBot/wiki/Tick-Rate
+        return ['-rlbot', f'RLBot_ControllerURL=127.0.0.1:{port}', 'RLBot_PacketSendRate=240', '-nomovie']
 
 @dataclass
 class RocketLeagueLauncherPreference:

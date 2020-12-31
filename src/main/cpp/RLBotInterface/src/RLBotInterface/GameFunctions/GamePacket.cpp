@@ -15,6 +15,23 @@ namespace GameFunctions
 
 	static std::map<int, char> frame_counts;
 
+	ByteBuffer blockUntilFlatbufferAvailable(SafeFlatbufferHolder* flatbuffer_holder, std::string data_description)
+	{
+		if (!flatbuffer_holder->hasData())
+		{
+			for (int i = 0; i < 10; i++) {
+				printf("Waiting for %s to arrive...\n", data_description.c_str());
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				if (flatbuffer_holder->hasData()) {
+					printf("%s has now arrived!\n", data_description.c_str());
+					return flatbuffer_holder->copyOut();
+				}
+			}
+			printf("WARNING: Never got %s from the socket, giving out garbage data!\n", data_description.c_str());
+		}
+		return flatbuffer_holder->copyOut();
+	}
+
 	//////////////
 	// FIELD INFO
 	//////////////
@@ -27,7 +44,7 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateFieldInfoFlatbuffer()
 	{
-		return field_info_packet_flatbuffer_tcp.copyOut();
+		return blockUntilFlatbufferAvailable(&field_info_packet_flatbuffer_tcp, "field info");
 	}
 
 	// Ctypes
@@ -155,7 +172,7 @@ namespace GameFunctions
 
 	extern "C" DLL_EXPORT ByteBuffer RLBOT_CORE_API GetMatchSettings()
 	{
-		return match_settings_flatbuffer_tcp.copyOut();
+		return blockUntilFlatbufferAvailable(&match_settings_flatbuffer_tcp, "match settings");
 	}
 
 	///////////////

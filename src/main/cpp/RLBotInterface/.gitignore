@@ -63,3 +63,5 @@ Makefile
 RLBot
 !RLBot/
 cmake_install.cmake
+*.cbp
+*.exp
