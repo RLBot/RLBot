@@ -62,6 +62,7 @@ class TestSpawner:
         match_config.existing_match_behavior = 'Continue And Spawn'
         match_config.mutators = MutatorConfig()
         match_config.enable_state_setting = True
+        match_config.enable_rendering = True
         return match_config
 
     def spawn_bot(self):

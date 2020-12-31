@@ -27,6 +27,7 @@ from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
+from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.gateway_util import LaunchOptions, NetworkingRole
 from rlbot.matchconfig.conversions import parse_match_config
 from rlbot.matchconfig.match_config import MatchConfig, PlayerConfig
@@ -145,7 +146,7 @@ class SetupManager:
         self.helper_process_manager = HelperProcessManager(self.quit_event)
         self.bot_quit_callbacks = []
         self.bot_reload_requests = []
-        self.agent_metadata_map = {}
+        self.agent_metadata_map: Dict[int, AgentMetadata] = {}
         self.match_config: MatchConfig = None
         self.rlbot_gateway_process = None
         self.matchcomms_server: MatchcommsServerThread = None
@@ -438,17 +439,21 @@ class SetupManager:
 
             if participant_index not in self.bot_processes:
                 bundle = get_bot_config_bundle(player_config.config_path)
+                name = str(self.start_match_configuration.player_configuration[i].name)
                 if bundle.standalone_bot_python_file:
                     process = subprocess.Popen([
                         sys.executable,
                         bundle.standalone_bot_python_file,
                         '--config-file', player_config.config_path,
-                        '--name', str(self.start_match_configuration.player_configuration[i].name),
+                        '--name', name,
                         '--team', str(self.teams[i]),
                         '--player-index', str(participant_index),
                         '--spawn-id', str(spawn_id)
                     ], shell=True, cwd=Path(bundle.config_directory).parent)
                     self.bot_processes[participant_index] = BotProcessInfo(process=None, subprocess=process, player_config=player_config)
+
+                    # Insert immediately into the agent metadata map because the standalone process has no way to communicate it back out
+                    self.agent_metadata_map[participant_index] = AgentMetadata(participant_index, name, self.teams[i], {process.pid})
                 else:
                     reload_request = mp.Event()
                     quit_callback = mp.Event()
@@ -456,7 +461,7 @@ class SetupManager:
                     self.bot_quit_callbacks.append(quit_callback)
                     process = mp.Process(target=SetupManager.run_agent,
                                          args=(self.quit_event, quit_callback, reload_request, self.bot_bundles[i],
-                                               str(self.start_match_configuration.player_configuration[i].name),
+                                               name,
                                                self.teams[i], participant_index, self.python_files[i], self.agent_metadata_queue,
                                                match_config, self.matchcomms_server.root_url, spawn_id))
                     process.start()
@@ -464,6 +469,8 @@ class SetupManager:
                 num_started += 1
 
         self.logger.info(f"Successfully started {num_started} bot processes")
+
+        process_configuration.configure_processes(self.agent_metadata_map, self.logger)
 
         scripts_started = 0
         for script_config in match_config.script_configs:
@@ -560,7 +567,7 @@ class SetupManager:
         num_recieved = 0
         while True:  # will exit on queue.Empty
             try:
-                single_agent_metadata = self.agent_metadata_queue.get(timeout=0.1)
+                single_agent_metadata: AgentMetadata = self.agent_metadata_queue.get(timeout=0.1)
                 num_recieved += 1
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata

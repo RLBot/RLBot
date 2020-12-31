@@ -1,7 +1,8 @@
 import re
-from typing import Set, Tuple, Union, List
+from typing import Set, Tuple, Union, List, Dict
 import platform
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
+from rlbot.botmanager.agent_metadata import AgentMetadata
 
 optional_packages_installed = False
 try:
@@ -11,7 +12,7 @@ except ImportError:
     pass
 
 
-def configure_processes(agent_metadata_map, logger):
+def configure_processes(agent_metadata_map: Dict[int, AgentMetadata], logger):
     """
     This will update the priority and CPU affinity of the processes owned by bots to try to achieve fairness and
     good performance.

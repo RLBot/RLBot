@@ -56,9 +56,9 @@ def run_bot(agent_class: Type[StandaloneBot]):
         # This process must not have been created by the RLBot framework, so this is probably
         # a developer doing some testing who did not pass all the params. Take it upon ourselves
         # to fire up the game if necessary.
-        print(f'###############################################################################')
-        print(f'Spawn id and player index are absent, so we will insert this bot into the game!')
-        print(f'###############################################################################')
+        print(f'############################################################################################')
+        print(f'Args are missing, so we will assume this is a dev workflow and insert the bot into the game!')
+        print(f'############################################################################################')
         test_spawner = TestSpawner(Path(python_file), config, bundle)
         test_spawner.spawn_bot()
         spawn_id = test_spawner.spawn_id
@@ -69,6 +69,8 @@ def run_bot(agent_class: Type[StandaloneBot]):
 
     agent_class_wrapper = ExternalClassWrapper(python_file, StandaloneBot)
 
+    # Pass in dummy objects for mp.Event, mp.Queue. We will not support that
+    # functionality for standalone bots; it's generally unused anyway.
     bot_manger = BotManagerStruct(terminate_request_event=mp.Event(),
                                   termination_complete_event=mp.Event(),
                                   reload_request_event=mp.Event(),
