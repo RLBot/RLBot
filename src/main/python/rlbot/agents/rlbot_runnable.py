@@ -1,8 +1,4 @@
-from rlbot.messages.flat import MatchSettings
 from rlbot.parsing.custom_config import ConfigObject
-from rlbot.utils.game_state_util import GameState
-from rlbot.utils.structures.ball_prediction_struct import BallPrediction
-from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 
 LOCATIONS_HEADER = 'Locations'
 DETAILS_HEADER = 'Details'
@@ -26,24 +22,6 @@ class RLBotRunnable:
         Useful for knowing what map you're on, mutators, etc.
         """
         pass
-
-    def get_field_info(self):
-        raise NotImplementedError
-
-    def get_rigid_body_tick(self) -> RigidBodyTick:
-        """Get the most recent state of the physics engine."""
-        return self.__get_rigid_body_tick_func()
-
-    def set_game_state(self, game_state: GameState):
-        raise NotImplementedError
-
-    def get_ball_prediction_struct(self) -> BallPrediction:
-        raise NotImplementedError
-
-    def get_match_settings(self) -> MatchSettings:
-        """Gets the current match settings in flatbuffer format. Useful for determining map, game mode,
-        mutator settings, etc."""
-        raise NotImplementedError
 
     def initialize_agent(self):
         """

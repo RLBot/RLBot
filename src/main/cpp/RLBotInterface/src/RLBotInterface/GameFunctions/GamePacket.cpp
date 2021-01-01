@@ -8,7 +8,7 @@
 #include <MessageTranslation/StructToRLBotFlatbuffer.hpp>
 #include <MutexUtilities/SafeFlatbufferHolder.hpp>
 #include <map>
-#include <math.h>
+#include "Logging/Log.h"
 
 namespace GameFunctions
 {
@@ -20,17 +20,31 @@ namespace GameFunctions
 		if (!flatbuffer_holder->hasData())
 		{
 			for (int i = 0; i < 10; i++) {
-				printf("Waiting for %s to arrive...\n", data_description.c_str());
+                RLBotLog::log_loud("Waiting for %s to arrive...\n", data_description.c_str());
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				if (flatbuffer_holder->hasData()) {
-					printf("%s has now arrived!\n", data_description.c_str());
+                    RLBotLog::log_loud("%s has now arrived!\n", data_description.c_str());
 					return flatbuffer_holder->copyOut();
 				}
 			}
-			printf("WARNING: Never got %s from the socket, giving out garbage data!\n", data_description.c_str());
+            RLBotLog::log_loud("WARNING: Never got %s from the socket, giving out garbage data!\n", data_description.c_str());
 		}
 		return flatbuffer_holder->copyOut();
 	}
+
+    void EnsureTcpCommunication() {
+        if (!BotClientStatic::botClientInstance()) {
+            // This is here for backwards compatibility. Ideally, people should be calling StartTcpCommunication directly on the dll.
+            // However, there are many bots written in Java, C#, etc that are already compiled and which don't do that.
+            // We're doing this check here to create binary compatibility with those bots, because they ALL
+            // call UpdateLiveDataPacketFlatbuffer, either directly or indirectly.
+            // We can't start TCP communication on DLL load because it spawns a thread and that's not allowed.
+            // The port here is the default RLBot.exe port (23233 as defined in python) plus 1 (matching the computation in Main.cpp).
+            // This could easily go badly, so bots are highly encouraged to not rely on this compatibility shim.
+            RLBotLog::log_loud("WARNING: Your bot should be calling StartTcpCommunication on the DLL but it's not! Please update to the latest library version, or it might break sometimes.\n");
+            GameFunctions::StartTcpCommunication(23234, true, true, false);
+        }
+    }
 
 	//////////////
 	// FIELD INFO
@@ -39,6 +53,7 @@ namespace GameFunctions
 	static SafeFlatbufferHolder field_info_packet_flatbuffer_tcp;
 
 	void setFieldInfoPacketFlatbuffer(std::string flatbuffer_content) {
+	    EnsureTcpCommunication();
 		field_info_packet_flatbuffer_tcp.set(flatbuffer_content);
 	}
 
@@ -71,18 +86,7 @@ namespace GameFunctions
 
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{
-		if (!BotClientStatic::botClientInstance()) {
-			// This is here for backwards compatibility. Ideally, people should be calling StartTcpCommunication directly on the dll.
-			// However, there are many bots written in Java, C#, etc that are already compiled and which don't do that.
-			// We're doing this check here to create binary compatibility with those bots, because they ALL
-			// call UpdateLiveDataPacketFlatbuffer, either directly or indirectly.
-			// We can't start TCP communication on DLL load because it spawns a thread and that's not allowed.
-			// The port here is the default RLBot.exe port (23233 as defined in python) plus 1 (matching the computation in Main.cpp).
-			// This could easily go badly, so bots are highly encouraged to not rely on this compatibility shim.
-			printf("WARNING: Your bot should be calling StartTcpCommunication on the DLL but it's not! Please update to the latest library version, or it might break sometimes.\n");
-			GameFunctions::StartTcpCommunication(23234, 240, true, true);
-		}
-
+		EnsureTcpCommunication();
 		return game_tick_packet_flatbuffer_tcp.copyOut();
 	}
 
@@ -172,6 +176,7 @@ namespace GameFunctions
 
 	extern "C" DLL_EXPORT ByteBuffer RLBOT_CORE_API GetMatchSettings()
 	{
+	    EnsureTcpCommunication();
 		return blockUntilFlatbufferAvailable(&match_settings_flatbuffer_tcp, "match settings");
 	}
 
