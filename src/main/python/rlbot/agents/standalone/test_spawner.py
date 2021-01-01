@@ -1,12 +1,11 @@
 import hashlib
 from pathlib import Path
 
-from rlbot.setup_manager import SetupManager
-
-from rlbot.matchconfig.match_config import PlayerConfig, MatchConfig, MutatorConfig, FLATBUFFER_MAX_INT
-
+from rlbot import gateway_util
 from rlbot.agents.standalone.standalone_bot_config import StandaloneBotConfig
+from rlbot.matchconfig.match_config import PlayerConfig, MatchConfig, MutatorConfig, FLATBUFFER_MAX_INT
 from rlbot.parsing.bot_config_bundle import BotConfigBundle
+from rlbot.setup_manager import SetupManager
 
 
 class TestSpawner:
@@ -74,6 +73,15 @@ class TestSpawner:
 
         if self.setup_manager is None:
             self.setup_manager = SetupManager()
+
+            rlbot_gateway_process, _ = gateway_util.find_existing_process()
+            if rlbot_gateway_process is None:
+                # RLBot.exe is not running yet, we should use the Restart behavior.
+                # That avoids a situation where dead cars start piling up when
+                # RLBot.exe gets killed and re-launched over and over and lacks context
+                # to clean up previous cars.
+                match_config.existing_match_behavior = 'Restart'
+
             self.setup_manager.connect_to_game()
 
         self.setup_manager.load_match_config(match_config)
