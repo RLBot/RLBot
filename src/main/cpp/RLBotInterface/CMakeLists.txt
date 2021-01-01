@@ -33,7 +33,7 @@ if (UNIX)
 endif (UNIX)
 
 # ---- RLBotInterface ----
-file(GLOB_RECURSE rlbotinterface_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotInterface/*.?pp)
+file(GLOB_RECURSE rlbotinterface_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotInterface/*)
 
 add_library(RLBotInterface SHARED ${rlbotinterface_sources})
 target_include_directories(RLBotInterface PRIVATE

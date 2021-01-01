@@ -4,9 +4,15 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.49.0'
+__version__ = '1.50.0'
 
 release_notes = {
+    '1.50.0': """
+    Changing the format of the ready message.
+    
+    Also:
+    - Fixing some bugs related to match settings.
+    """,
     '1.49.0': """
     Defaulting the packet send rate to 240 ticks per second, without requiring any .ini file changes.
     See https://github.com/RLBot/RLBot/wiki/Tick-Rate

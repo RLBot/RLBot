@@ -9,10 +9,12 @@
 #include "GameFunctions/PlayerInfo.hpp"
 #include "RenderFunctions/RenderFunctions.hpp"
 #include "RLBotSockets/bot_client.hpp"
+#include "Logging/Log.h"
 
 #ifdef _WIN32
 #include <Windows.h>
 #include <timeapi.h>
+#include <libloaderapi.h>
 #endif
 
 #include <cerrno>
@@ -60,6 +62,16 @@ namespace Interface
 		timeBeginPeriod(actualSleepResolution);
 
 		bInitialized = true;
+
+		char filename_buffer[200];
+		GetModuleFileNameA(nullptr, filename_buffer, 200);
+
+		int pid = GetCurrentProcessId();
+
+		char dll_name[250];
+		sprintf(dll_name, "%i - %s", pid, filename_buffer);
+		RLBotLog::set_prefix(std::string(dll_name));
+
 		return 0;
 	}
 	#endif

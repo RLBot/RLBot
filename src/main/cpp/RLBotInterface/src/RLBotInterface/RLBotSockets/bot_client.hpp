@@ -12,7 +12,7 @@
 
 struct BotClient {
 
-  BotClient(boost::asio::io_context & io, int port, int desiredTickRate, bool wantsBallPredictions, bool wantsQuickChat);
+  BotClient(boost::asio::io_context & io, int port, bool wantsBallPredictions, bool wantsQuickChat, bool wantsGameMessages);
 
   void connect();
 
@@ -29,9 +29,9 @@ struct BotClient {
   uint16_t message_size;
   TcpClient::DataType message_type;
   bool is_connected;
-  int desired_tick_rate;
   bool wants_ball_predictions;
   bool wants_quick_chat;
+  bool wants_game_messages;
 
   std::array < char, 65536 > message;
 
@@ -39,5 +39,5 @@ struct BotClient {
 
 namespace BotClientStatic {
 	BotClient* botClientInstance();
-	void initBotClient(int port, boost::asio::io_context* ioc, int desiredTickRate, bool wantsBallPredictions, bool wantsQuickChat);
+	void initBotClient(int port, boost::asio::io_context* ioc, bool wantsBallPredictions, bool wantsQuickChat, bool wantsGameMessages);
 }

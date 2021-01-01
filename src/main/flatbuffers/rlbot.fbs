@@ -807,10 +807,72 @@ table QuickChatMessages {
 /// This could be sent by a bot, or a bot manager governing several bots, an
 /// overlay, or any other utility that connects to the RLBot process.
 table ReadyMessage {
-  desiredTickRate: int;
+  // If this is set, RLBot will send BallPrediction data back to the client when available.
   wantsBallPredictions: bool;
+  // If this is set, RLBot will send QuickChatMessages to the client when available.
   wantsQuickChat: bool;
-  wantsStatEvents: bool;
-  wantsSpectateEvents: bool;
-  wantsPlayerInputEvents: bool;
+  // If this is set, RLBot will send MessagePacket data back to the client when available.
+  wantsGameMessages: bool;
+}
+
+/// Notification that a player triggers some in-game event, such as:
+///		Win, Loss, TimePlayed;
+///		Shot, Assist, Center, Clear, PoolShot;
+///		Goal, AerialGoal, BicycleGoal, BulletGoal, BackwardsGoal, LongGoal, OvertimeGoal, TurtleGoal;
+///		AerialHit, BicycleHit, BulletHit, /*BackwardsHit,*/ JuggleHit, FirstTouch, BallHit;
+///		Save, EpicSave, FreezeSave;
+///		HatTrick, Savior, Playmaker, MVP;
+///		FastestGoal, SlowestGoal, FurthestGoal, OwnGoal;
+///		MostBallTouches, FewestBallTouches, MostBoostPickups, FewestBoostPickups, BoostPickups;
+///		CarTouches, Demolition, Demolish;
+///		LowFive, HighFive;
+table PlayerStatEvent
+{
+	/// index of the player associated with the event
+    playerIndex:int;
+
+	/// Event type
+	statType:string;
+}
+
+/// Notification when the local player is spectating another player.
+table PlayerSpectate
+{
+	/// index of the player that is being spectated. Will be -1 if not spectating anyone.
+	playerIndex:int;
+}
+
+/// Rocket League is notifying us that some player has moved their controller. This is an *output*
+table PlayerInputChange
+{
+	playerIndex: int;
+	controllerState: ControllerState;
+
+    // These are provided by Rocket League, and I'm passing them through. Theoretically they could be
+    // inferred by jump + pitch + roll, but nice to have clarity.
+	dodgeForward:float;
+	dodgeRight:float;
+}
+
+union GameMessage
+{
+    PlayerStatEvent,
+    PlayerSpectate,
+	PlayerInputChange
+}
+
+table GameMessageWrapper
+{
+	Message:GameMessage;
+}
+
+/// We have some very small messages that are only a few bytes but potentially sent at high frequency.
+/// Bundle them into a packet to reduce the overhead of sending data over TCP.
+table MessagePacket
+{
+	messages:[GameMessageWrapper];
+	// Corresponds with secondsElapsed in GameInfo
+    gameSeconds: float;
+    // Corresponds with the frameNum attribute in GameInfo
+    frameNum: int;
 }

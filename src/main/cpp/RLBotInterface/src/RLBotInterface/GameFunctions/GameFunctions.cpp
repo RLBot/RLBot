@@ -121,9 +121,10 @@ namespace GameFunctions
 		ioc.run();
 	}
 
-	extern "C" RLBotCoreStatus RLBOT_CORE_API StartTcpCommunication(int port, int desiredTickRate, bool wantsBallPredictions, bool wantsQuickChat) {
+	extern "C" RLBotCoreStatus RLBOT_CORE_API StartTcpCommunication(
+	        int port, bool wantsBallPredictions, bool wantsQuickChat, bool wantsGameMessages) {
 		DEBUG_LOG("Beginning StartTcp.\n");
-		BotClientStatic::initBotClient(port, &ioc, desiredTickRate, wantsBallPredictions, wantsQuickChat);
+		BotClientStatic::initBotClient(port, &ioc, wantsBallPredictions, wantsQuickChat, wantsGameMessages);
 		std::thread io_thread(run_ioc, port);
 		io_thread.detach();
 

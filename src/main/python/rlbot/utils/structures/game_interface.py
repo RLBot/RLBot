@@ -148,7 +148,7 @@ class GameInterface:
             # Currently, sockets are only working on Windows and Mac, not linux.
             # Linux has older binaries which do not include this function.
             func = self.game.StartTcpCommunication
-            func.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_bool, ctypes.c_bool]
+            func.argtypes = [ctypes.c_int, ctypes.c_bool, ctypes.c_bool, ctypes.c_bool]
             func.restype = ctypes.c_int
 
         self.renderer.setup_function_types(self.game)
@@ -284,7 +284,7 @@ class GameInterface:
             time.sleep(0.5)
         self.logger.info('Gave up waiting for valid packet :(')
 
-    def load_interface(self, port=23234, desired_tick_rate=240, wants_ball_predictions=True, wants_quick_chat=True):
+    def load_interface(self, port=23234, wants_ball_predictions=True, wants_quick_chat=True, wants_game_messages=False):
         self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)
         self.callback_func = self.game_status_callback_type(wrap_callback(self.game_status))
         self.game = ctypes.CDLL(self.dll_path)
@@ -294,7 +294,7 @@ class GameInterface:
             # Currently, sockets are only working on Windows and Mac, not linux.
             # Linux has older binaries which do not include this function.
             self.logger.info("About to call StartTcp")
-            self.game.StartTcpCommunication(port, desired_tick_rate, wants_ball_predictions, wants_quick_chat)
+            self.game.StartTcpCommunication(port, wants_ball_predictions, wants_quick_chat, wants_game_messages)
             self.wait_until_ready_to_communicate()
 
     def create_status_callback(self, callback=None):
