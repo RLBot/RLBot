@@ -23,11 +23,6 @@ class ExecutableWithSocketAgent(BaseIndependentAgent):
         self.spawn_id_seen = False
 
     def run_independently(self, terminate_request_event):
-        # Send the command before loading the game interface because that takes a few seconds.
-        message = self.build_add_command()
-        self.logger.debug(f"About to send add message for {self.name}")
-        self.send_command(message)
-        self.logger.debug(f"Sent first add message for {self.name}")
         self.game_interface.load_interface()
 
         while not terminate_request_event.is_set():
@@ -56,6 +51,7 @@ class ExecutableWithSocketAgent(BaseIndependentAgent):
 
     def retire(self):
         message = self.build_retire_command()
+        self.logger.info(f"Sending retire message for {self.name}")
         self.send_command(message)
         self.is_retired = True
 
@@ -68,11 +64,14 @@ class ExecutableWithSocketAgent(BaseIndependentAgent):
     def send_command(self, message):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(4)
             s.connect(("127.0.0.1", self.get_port()))
             s.send(bytes(message, "ASCII"))
             s.close()
+            return True
         except ConnectionRefusedError:
             self.logger.warn("Could not connect to server!")
+            return False
 
     def is_executable_configured(self):
         return self.executable_path is not None and os.path.isfile(self.executable_path)

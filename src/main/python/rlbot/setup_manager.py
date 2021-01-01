@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import List, Optional, Dict, Set
 from urllib.parse import ParseResult as URL
 
+from dataclasses import dataclass
+
 from rlbot.gamelaunch.epic_launch import launch_with_epic_login_trick, launch_with_epic_simple
 from rlbot.utils.structures import game_data_struct
 
@@ -25,9 +27,10 @@ from rlbot.base_extension import BaseExtension
 from rlbot.botmanager.bot_manager_independent import BotManagerIndependent
 from rlbot.botmanager.bot_manager_struct import BotManagerStruct
 from rlbot.botmanager.helper_process_manager import HelperProcessManager
+from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.gateway_util import LaunchOptions, NetworkingRole
 from rlbot.matchconfig.conversions import parse_match_config
-from rlbot.matchconfig.match_config import MatchConfig
+from rlbot.matchconfig.match_config import MatchConfig, PlayerConfig
 from rlbot.matchconfig.psyonix_config import set_random_psyonix_bot_preset
 from rlbot.matchcomms.server import launch_matchcomms_server
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle, BotConfigBundle, get_script_config_bundle
@@ -96,6 +99,18 @@ def setup_manager_context():
         setup_manager.shut_down(kill_all_pids=True)
 
 
+@dataclass
+class BotProcessInfo:
+    process: mp.Process
+    subprocess: subprocess.Popen
+    player_config: PlayerConfig
+
+    def is_alive(self):
+        if self.process is not None:
+            return self.process.is_alive()
+        return self.subprocess.poll() is None
+
+
 class SetupManager:
     """
     This class is responsible for pulling together all bits of the framework to
@@ -121,7 +136,7 @@ class SetupManager:
     start_match_configuration = None
     agent_metadata_queue = mp.Queue()
     extension = None
-    bot_processes: Dict[int, mp.Process] = {}
+    bot_processes: Dict[int, BotProcessInfo] = {}
     script_processes: Dict[int, subprocess.Popen] = {}
 
     def __init__(self):
@@ -131,7 +146,7 @@ class SetupManager:
         self.helper_process_manager = HelperProcessManager(self.quit_event)
         self.bot_quit_callbacks = []
         self.bot_reload_requests = []
-        self.agent_metadata_map = {}
+        self.agent_metadata_map: Dict[int, AgentMetadata] = {}
         self.match_config: MatchConfig = None
         self.rlbot_gateway_process = None
         self.matchcomms_server: MatchcommsServerThread = None
@@ -352,7 +367,7 @@ class SetupManager:
         expected_metadata_calls = sum(1 for player in self.match_config.player_configs if player.rlbot_controlled)
         return self.num_metadata_received >= expected_metadata_calls
 
-    def launch_early_start_bot_processes(self):
+    def launch_early_start_bot_processes(self, match_config: MatchConfig = None):
         """
         Some bots can start up before the game is ready and not be bothered by missing
         or strange looking values in the game tick packet, etc. Such bots can opt in to the
@@ -366,7 +381,7 @@ class SetupManager:
             return  # The bot indices are liable to change, so don't start anything yet.
 
         self.logger.debug("Launching early-start bot processes")
-        num_started = self.launch_bot_process_helper(early_starters_only=True)
+        num_started = self.launch_bot_process_helper(early_starters_only=True, match_config=match_config or self.match_config)
         self.try_recieve_agent_metadata()
         if num_started > 0 and self.early_start_seconds > 0:
             self.logger.info(f"Waiting for {self.early_start_seconds} seconds to let early-start bots load.")
@@ -375,11 +390,11 @@ class SetupManager:
                 self.try_recieve_agent_metadata()
                 time.sleep(0.1)
 
-    def launch_bot_processes(self):
+    def launch_bot_processes(self, match_config: MatchConfig = None):
         self.logger.debug("Launching bot processes")
-        self.launch_bot_process_helper(early_starters_only=False)
+        self.launch_bot_process_helper(early_starters_only=False, match_config=match_config or self.match_config)
 
-    def launch_bot_process_helper(self, early_starters_only=False):
+    def launch_bot_process_helper(self, early_starters_only=False, match_config: MatchConfig = None):
         # Start matchcomms here as it's only required for the bots.
         self.kill_matchcomms_server()
         self.matchcomms_server = launch_matchcomms_server()
@@ -393,15 +408,15 @@ class SetupManager:
         self.game_interface.update_live_data_packet(packet)
 
         # TODO: root through the packet and find discrepancies in the player index mapping.
-        for i in range(min(self.num_participants, len(self.match_config.player_configs))):
+        for i in range(min(self.num_participants, len(match_config.player_configs))):
 
-            player_config = self.match_config.player_configs[i]
+            player_config = match_config.player_configs[i]
             if not player_config.has_bot_script():
                 continue
             if early_starters_only and not self.bot_bundles[i].supports_early_start:
                 continue
 
-            spawn_id = self.game_interface.start_match_configuration.player_configuration[i].spawn_id
+            spawn_id = player_config.spawn_id
 
             if early_starters_only:
                 # Danger: we have low confidence in this since we're not leveraging the spawn id.
@@ -416,26 +431,49 @@ class SetupManager:
                         self.logger.info(f'Looks good, considering participant index to be {n}')
                         participant_index = n
                 if participant_index is None:
-                    raise Exception("Unable to determine the bot index!")
+                    for prox_index, proc_info in self.bot_processes.items():
+                        if spawn_id == proc_info.player_config.spawn_id:
+                            participant_index = prox_index
+                    if participant_index is None:
+                        raise Exception(f"Unable to determine the bot index for spawn id {spawn_id}")
 
             if participant_index not in self.bot_processes:
-                reload_request = mp.Event()
-                quit_callback = mp.Event()
-                self.bot_reload_requests.append(reload_request)
-                self.bot_quit_callbacks.append(quit_callback)
-                process = mp.Process(target=SetupManager.run_agent,
-                                     args=(self.quit_event, quit_callback, reload_request, self.bot_bundles[i],
-                                           str(self.start_match_configuration.player_configuration[i].name),
-                                           self.teams[i], participant_index, self.python_files[i], self.agent_metadata_queue,
-                                           self.match_config, self.matchcomms_server.root_url, spawn_id))
-                process.start()
-                self.bot_processes[participant_index] = process
+                bundle = get_bot_config_bundle(player_config.config_path)
+                name = str(self.start_match_configuration.player_configuration[i].name)
+                if bundle.supports_standalone:
+                    process = subprocess.Popen([
+                        sys.executable,
+                        bundle.python_file,
+                        '--config-file', player_config.config_path,
+                        '--name', name,
+                        '--team', str(self.teams[i]),
+                        '--player-index', str(participant_index),
+                        '--spawn-id', str(spawn_id)
+                    ], shell=True, cwd=Path(bundle.config_directory).parent)
+                    self.bot_processes[participant_index] = BotProcessInfo(process=None, subprocess=process, player_config=player_config)
+
+                    # Insert immediately into the agent metadata map because the standalone process has no way to communicate it back out
+                    self.agent_metadata_map[participant_index] = AgentMetadata(participant_index, name, self.teams[i], {process.pid})
+                else:
+                    reload_request = mp.Event()
+                    quit_callback = mp.Event()
+                    self.bot_reload_requests.append(reload_request)
+                    self.bot_quit_callbacks.append(quit_callback)
+                    process = mp.Process(target=SetupManager.run_agent,
+                                         args=(self.quit_event, quit_callback, reload_request, self.bot_bundles[i],
+                                               name,
+                                               self.teams[i], participant_index, self.python_files[i], self.agent_metadata_queue,
+                                               match_config, self.matchcomms_server.root_url, spawn_id))
+                    process.start()
+                    self.bot_processes[participant_index] = BotProcessInfo(process=process, subprocess=None, player_config=player_config)
                 num_started += 1
 
-        self.logger.debug(f"Successfully started {num_started} bot processes")
+        self.logger.info(f"Successfully started {num_started} bot processes")
+
+        process_configuration.configure_processes(self.agent_metadata_map, self.logger)
 
         scripts_started = 0
-        for script_config in self.match_config.script_configs:
+        for script_config in match_config.script_configs:
             script_config_bundle = get_script_config_bundle(script_config.config_path)
             if early_starters_only and not script_config_bundle.supports_early_start:
                 continue
@@ -529,7 +567,7 @@ class SetupManager:
         num_recieved = 0
         while True:  # will exit on queue.Empty
             try:
-                single_agent_metadata = self.agent_metadata_queue.get(timeout=0.1)
+                single_agent_metadata: AgentMetadata = self.agent_metadata_queue.get(timeout=0.1)
                 num_recieved += 1
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
@@ -617,10 +655,10 @@ class SetupManager:
         bm.run()
 
     def kill_bot_processes(self):
-        for process in self.bot_processes.values():
-            process.terminate()
-        for process in self.bot_processes.values():
-            process.join(timeout=1)
+        for process_info in self.bot_processes.values():
+            process_info.process.terminate()
+        for process_info in self.bot_processes.values():
+            process_info.process.join(timeout=1)
         self.bot_processes.clear()
         self.num_metadata_received = 0
 

@@ -12,6 +12,7 @@ from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_type
     ball_bounciness_mutator_types, rumble_mutator_types, boost_strength_mutator_types, gravity_mutator_types, \
     demolish_mutator_types, respawn_time_mutator_types, existing_match_behavior_types
 from rlbot.utils.structures.start_match_structures import MatchSettings, PlayerConfiguration, MutatorSettings
+from rlbot.messages.flat import MatchSettings as MatchSettingsFlat, MutatorSettings as MutatorSettingsFlat
 
 # We pass messages in flatbuffer format to RLBot.exe. In flatbuffer, a signed int field
 # is 32 bit, so it has a max value of 2^31 - 1, in other words 2147483647.
@@ -42,7 +43,7 @@ class PlayerConfig:
         self.team: int = None
         self.config_path: str = None  # Required only if rlbot_controlled is true
         self.loadout_config: LoadoutConfig = None
-        self.spawn_id: int = None
+        self.spawn_id: int = randint(1, FLATBUFFER_MAX_INT)  # Feel free to override this.
 
     @staticmethod  # TODO: in Python 3.7 we can remove the quotes from the return type.
     def bot_config(player_config_path: Path, team: Team) -> 'PlayerConfig':
@@ -66,7 +67,7 @@ class PlayerConfig:
         player_configuration.human_index = self.human_index or 0
         player_configuration.name = get_sanitized_bot_name(name_dict, self.name)
         player_configuration.team = self.team
-        player_configuration.spawn_id = self.spawn_id or randint(1, FLATBUFFER_MAX_INT)
+        player_configuration.spawn_id = self.spawn_id
 
         if self.loadout_config:
             self.loadout_config.write(player_configuration)
@@ -146,6 +147,27 @@ class MutatorConfig:
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
+    @staticmethod
+    def from_mutator_settings_flatbuffer(mutator_settings: MutatorSettingsFlat):
+        mc = MutatorConfig()
+        mc.match_length = match_length_types[mutator_settings.MatchLength()]
+        mc.max_score = max_score_types[mutator_settings.MaxScore()]
+        mc.overtime = overtime_mutator_types[mutator_settings.OvertimeOption()]
+        mc.series_length = series_length_mutator_types[mutator_settings.SeriesLengthOption()]
+        mc.game_speed = game_speed_mutator_types[mutator_settings.GameSpeedOption()]
+        mc.ball_max_speed = ball_max_speed_mutator_types[mutator_settings.BallMaxSpeedOption()]
+        mc.ball_type = ball_type_mutator_types[mutator_settings.BallTypeOption()]
+        mc.ball_weight = ball_weight_mutator_types[mutator_settings.BallWeightOption()]
+        mc.ball_size = ball_size_mutator_types[mutator_settings.BallSizeOption()]
+        mc.ball_bounciness = ball_bounciness_mutator_types[mutator_settings.BallBouncinessOption()]
+        mc.boost_amount = boost_amount_mutator_types[mutator_settings.BoostOption()]
+        mc.rumble = rumble_mutator_types[mutator_settings.RumbleOption()]
+        mc.boost_strength = boost_strength_mutator_types[mutator_settings.BoostStrengthOption()]
+        mc.gravity = gravity_mutator_types[mutator_settings.GravityOption()]
+        mc.demolish = demolish_mutator_types[mutator_settings.DemolishOption()]
+        mc.respawn_time = respawn_time_mutator_types[mutator_settings.RespawnTimeOption()]
+        return mc
+
 
 class ExtensionConfig:
     def __init__(self):
@@ -204,6 +226,15 @@ class MatchConfig:
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    @staticmethod
+    def from_match_settings_flatbuffer(match_settings: MatchSettingsFlat):
+        mc = MatchConfig()
+        mc.game_mode = game_mode_types[match_settings.GameMode()]
+        mc.game_map = map_types[match_settings.GameMap()]
+        mc.mutators = MutatorConfig.from_mutator_settings_flatbuffer(match_settings.MutatorSettings())
+        # TODO: player configs
+        return mc
 
 
 def get_sanitized_bot_name(dict: Dict[str, int], name: str) -> str:

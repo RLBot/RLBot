@@ -7,7 +7,7 @@ from typing import List
 from requirements.requirement import Requirement
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY, LOOKS_CONFIG_KEY, \
-    PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY
+    PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY, SUPPORTS_STANDALONE
 from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
 from rlbot.agents.base_script import SCRIPT_FILE_KEY, BaseScript
 from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY, REQUIRES_TKINTER
@@ -71,6 +71,7 @@ class BotConfigBundle(RunnableConfigBundle):
         self.base_agent_config = BaseAgent.base_create_agent_configurations()
         self.base_agent_config.parse_file(self.config_obj, config_directory=config_directory)
         self.python_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, PYTHON_FILE_KEY)
+        self.supports_standalone = self.base_agent_config.getboolean(BOT_CONFIG_MODULE_HEADER, SUPPORTS_STANDALONE)
         self.looks_path = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOOKS_CONFIG_KEY)
         self.loadout_generator_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, LOADOUT_GENERATOR_FILE_KEY)
 

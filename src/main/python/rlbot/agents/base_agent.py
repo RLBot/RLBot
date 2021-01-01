@@ -19,6 +19,7 @@ BOT_CONFIG_MODULE_HEADER = LOCATIONS_HEADER
 BOT_CONFIG_AGENT_HEADER = 'Bot Parameters'
 BOT_CONFIG_DETAILS_HEADER = DETAILS_HEADER
 PYTHON_FILE_KEY = 'python_file'
+SUPPORTS_STANDALONE = 'supports_standalone'
 LOADOUT_GENERATOR_FILE_KEY = 'loadout_generator'
 LOGO_FILE_KEY = 'logo_file'
 LOOKS_CONFIG_KEY = 'looks_config'
@@ -278,6 +279,8 @@ class BaseAgent(RLBotRunnable):
                                   description="A file that provide dynamic bot loadouts (optional).")
         location_config.add_value(MAXIMUM_TICK_RATE_PREFERENCE_KEY, int, default=60,
                                   description="The maximum number of ticks per second that your bot wishes to receive.")
+        location_config.add_value(SUPPORTS_STANDALONE, bool,
+                                  description="True if the bot can accept args and run as a standalone process.")
 
         cls.create_agent_configurations(config)
 

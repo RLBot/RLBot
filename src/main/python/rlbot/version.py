@@ -4,9 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.50.0'
+__version__ = '1.51.0'
 
 release_notes = {
+    '1.51.0': """
+    Adding support for standalone python bots, giving faster startup and more
+    intuitive development workflow.
+    """,
     '1.50.0': """
     Changing the format of the ready message.
     
