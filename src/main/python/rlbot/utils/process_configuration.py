@@ -1,15 +1,9 @@
 import re
+import psutil
 from typing import Set, Tuple, Union, List, Dict
 import platform
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.botmanager.agent_metadata import AgentMetadata
-
-optional_packages_installed = False
-try:
-    import psutil
-    optional_packages_installed = True
-except ImportError:
-    pass
 
 
 def configure_processes(agent_metadata_map: Dict[int, AgentMetadata], logger):
@@ -19,15 +13,6 @@ def configure_processes(agent_metadata_map: Dict[int, AgentMetadata], logger):
 
     :param agent_metadata_map: A mapping of player index to agent metadata, including a list of owned process ids.
     """
-
-    if not optional_packages_installed:
-        logger.warning("\n#### WARNING ####\n"
-                       "You are missing some optional packages which will become mandatory in the future!\n"
-                       "Please run `pip install -r requirements.txt` to enjoy optimal functionality "
-                       "and future-proof yourself!\n")
-
-    if not optional_packages_installed:
-        return
 
     team_pids_map = {}
 
@@ -69,16 +54,24 @@ def configure_processes(agent_metadata_map: Dict[int, AgentMetadata], logger):
     for pid in shared_pids:
         try:
             p = psutil.Process(pid)  # Allow the process to run at high priority
-            if platform.system() == 'Windows': # TODO only works on windows
+            if platform.system() == 'Windows':
                 p.nice(psutil.HIGH_PRIORITY_CLASS)
         except Exception as e:
             get_logger(DEFAULT_LOGGER).info(e)
 
 
-def configure_process(proc: psutil.Process, cores: List[int]):
+def configure_process(proc: psutil.Process, cores: List[int], infer_multi_team=False):
     try:
+        if infer_multi_team:
+            existing_affinity = proc.cpu_affinity()
+            if len(existing_affinity) < psutil.cpu_count():
+                # The process in question has already been pinned to a subset of the CPUs.
+                # This might be a process spanning multiple teams, so we will set affinity to
+                # the combination of existing and newly requested cores.
+                cores = sorted(set(existing_affinity + cores))
         proc.cpu_affinity(cores)
-        if platform.system() == 'Windows': # TODO only works on windows
+
+        if platform.system() == 'Windows':
             proc.nice(psutil.HIGH_PRIORITY_CLASS)  # Allow the process to run at high priority
     except Exception as e:
         get_logger(DEFAULT_LOGGER).info(e)
@@ -99,8 +92,6 @@ def extract_all_pids(agent_metadata_map):
 
 
 def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bool, Union[psutil.Process, None]]:
-    if not optional_packages_installed:
-        return True, None
     # Find processes which contain the program or script name.
     matching_processes = []
     for process in psutil.process_iter():

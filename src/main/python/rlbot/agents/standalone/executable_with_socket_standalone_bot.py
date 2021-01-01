@@ -40,19 +40,12 @@ class ExecutableWithSocketStandaloneBot(ExecutableWithSocketAgent):
         self.logger.info(f"About to send add message for {self.name}")
         return self.send_command(message)
 
-    def ensure_active_executable(self):
-        self.logger.info("Ensuring active executable...")
-        #
-        # if self.is_port_open(self.get_port()):
-        #     self.logger.info("Found port already available")
-        # elif self.find_process_using_port(self.get_port()):
-        #     self.logger.info("Found process already running")
-        # else:
+    def launch_executable(self):
+        self.logger.info("Launching executable...")
         launch = [self.executable_path, str(self.get_port())]
         proc = subprocess.Popen(launch, cwd=os.path.dirname(self.executable_path))
         process = psutil.Process(pid=proc.pid)
-        configure_process(process, get_team_cpus(self.team))
-        # TODO: handle the case where the process spans both teams; should be pinned differently
+        configure_process(process, get_team_cpus(self.team), infer_multi_team=True)
         self.logger.info("Launched executable instance")
 
 
@@ -67,6 +60,6 @@ def run_bot(agent_class: Type[ExecutableWithSocketStandaloneBot]):
     agent.spawn_id = config.spawn_id
     agent.load_config(config_obj.get_header(BOT_CONFIG_AGENT_HEADER))
     if not agent.send_add_command():
-        agent.ensure_active_executable()
+        agent.launch_executable()
     agent.run_independently(multiprocessing.Event())
     agent.retire()
