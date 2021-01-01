@@ -44,6 +44,7 @@ from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.config_parser import mergeTASystemSettings, cleanUpTASystemSettings
 from rlbot.matchcomms.server import MatchcommsServerThread
+from rlbot.utils.virtual_environment_management import EnvBuilderWithRequirements
 
 if platform.system() == 'Windows':
     import msvcrt
@@ -304,6 +305,11 @@ class SetupManager:
         if match_config.extension_config is not None and match_config.extension_config.python_file_path is not None:
             self.load_extension(match_config.extension_config.python_file_path)
 
+        for bundle in self.bot_bundles:
+            if bundle is not None and bundle.supports_virtual_environment:
+                builder = EnvBuilderWithRequirements(bundle=bundle)
+                builder.create(Path(bundle.config_directory) / 'venv')
+
         self.match_config = match_config
         self.start_match_configuration = match_config.create_match_settings()
         self.game_interface.start_match_configuration = self.start_match_configuration
@@ -441,8 +447,11 @@ class SetupManager:
                 bundle = get_bot_config_bundle(player_config.config_path)
                 name = str(self.start_match_configuration.player_configuration[i].name)
                 if bundle.supports_standalone:
+                    executable = sys.executable
+                    if bundle.supports_virtual_environment:
+                        executable = Path(bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe'
                     process = subprocess.Popen([
-                        sys.executable,
+                        executable,
                         bundle.python_file,
                         '--config-file', player_config.config_path,
                         '--name', name,
