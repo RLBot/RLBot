@@ -44,6 +44,7 @@ from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.config_parser import mergeTASystemSettings, cleanUpTASystemSettings
 from rlbot.matchcomms.server import MatchcommsServerThread
+from rlbot.utils.virtual_environment_management import EnvBuilderWithRequirements
 
 if platform.system() == 'Windows':
     import msvcrt
@@ -304,6 +305,17 @@ class SetupManager:
         if match_config.extension_config is not None and match_config.extension_config.python_file_path is not None:
             self.load_extension(match_config.extension_config.python_file_path)
 
+        for bundle in self.bot_bundles:
+            if bundle is not None and bundle.use_virtual_environment:
+                builder = EnvBuilderWithRequirements(bundle=bundle)
+                builder.create(Path(bundle.config_directory) / 'venv')
+
+        for script_config in match_config.script_configs:
+            script_config_bundle = get_script_config_bundle(script_config.config_path)
+            if script_config_bundle.use_virtual_environment:
+                builder = EnvBuilderWithRequirements(bundle=script_config_bundle)
+                builder.create(Path(script_config_bundle.config_directory) / 'venv')
+
         self.match_config = match_config
         self.start_match_configuration = match_config.create_match_settings()
         self.game_interface.start_match_configuration = self.start_match_configuration
@@ -441,15 +453,19 @@ class SetupManager:
                 bundle = get_bot_config_bundle(player_config.config_path)
                 name = str(self.start_match_configuration.player_configuration[i].name)
                 if bundle.supports_standalone:
+                    executable = sys.executable
+                    if bundle.use_virtual_environment:
+                        executable = str(Path(bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
                     process = subprocess.Popen([
-                        sys.executable,
+                        executable,
                         bundle.python_file,
-                        '--config-file', player_config.config_path,
+                        '--config-file', str(player_config.config_path),
                         '--name', name,
                         '--team', str(self.teams[i]),
                         '--player-index', str(participant_index),
-                        '--spawn-id', str(spawn_id)
-                    ], shell=True, cwd=Path(bundle.config_directory).parent)
+                        '--spawn-id', str(spawn_id),
+                        '--matchcomms-url', self.matchcomms_server.root_url.geturl()
+                    ], cwd=Path(bundle.config_directory).parent)
                     self.bot_processes[participant_index] = BotProcessInfo(process=None, subprocess=process, player_config=player_config)
 
                     # Insert immediately into the agent metadata map because the standalone process has no way to communicate it back out
@@ -477,8 +493,12 @@ class SetupManager:
             script_config_bundle = get_script_config_bundle(script_config.config_path)
             if early_starters_only and not script_config_bundle.supports_early_start:
                 continue
-            process = subprocess.Popen([sys.executable, script_config_bundle.script_file],
-                                       shell=True, cwd=Path(script_config_bundle.config_directory).parent)
+            executable = sys.executable
+            if script_config_bundle.use_virtual_environment:
+                executable = str(Path(script_config_bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
+
+            process = subprocess.Popen([executable, script_config_bundle.script_file],
+                                       cwd=Path(script_config_bundle.config_directory).parent)
             self.logger.info(f"Started script with pid {process.pid} using {process.args}")
             self.script_processes[process.pid] = process
             scripts_started += 1
@@ -656,9 +676,11 @@ class SetupManager:
 
     def kill_bot_processes(self):
         for process_info in self.bot_processes.values():
-            process_info.process.terminate()
+            proc = process_info.process or process_info.subprocess
+            proc.terminate()
         for process_info in self.bot_processes.values():
-            process_info.process.join(timeout=1)
+            if process_info.process:
+                process_info.process.join(timeout=1)
         self.bot_processes.clear()
         self.num_metadata_received = 0
 
@@ -670,12 +692,12 @@ class SetupManager:
                     self.logger.info(f"Killing {child.pid} (child of {pid})")
                     try:
                         child.kill()
-                    except psutil._exceptions.NoSuchProcess:
+                    except psutil.NoSuchProcess:
                         self.logger.info("Already dead.")
                 self.logger.info(f"Killing {pid}")
                 try:
                     parent.kill()
-                except psutil._exceptions.NoSuchProcess:
+                except psutil.NoSuchProcess:
                     self.logger.info("Already dead.")
             except psutil.NoSuchProcess:
                 self.logger.info("Can't fetch parent process, already dead.")

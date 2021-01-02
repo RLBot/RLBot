@@ -36,16 +36,16 @@ class StandaloneBot(BaseAgent):
 
 def run_bot(agent_class: Type[StandaloneBot]):
     config = StandaloneBotConfig(sys.argv)
+    python_file = inspect.getfile(agent_class)
 
     config_obj = agent_class.base_create_agent_configurations()
     bundle = None
     if config.config_file is not None:
         # If the config file was not passed, then the bot will miss out on any custom configuration,
         # tick rate preference, etc.
-        bundle = get_bot_config_bundle(config.config_file)
+        bundle = get_bot_config_bundle(Path(python_file).parent / config.config_file)
         config_obj.parse_file(bundle.config_obj, config_directory=bundle.config_directory)
 
-    python_file = inspect.getfile(agent_class)
     spawn_id = config.spawn_id
     player_index = config.player_index
     team = config.team
@@ -80,6 +80,6 @@ def run_bot(agent_class: Type[StandaloneBot]):
                                   agent_class_wrapper=agent_class_wrapper,
                                   agent_metadata_queue=mp.Queue(),
                                   match_config=None,
-                                  matchcomms_root=None,
+                                  matchcomms_root=config.matchcomms_url,
                                   spawn_id=spawn_id)
     bot_manger.run()
