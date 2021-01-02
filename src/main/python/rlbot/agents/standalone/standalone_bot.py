@@ -80,6 +80,6 @@ def run_bot(agent_class: Type[StandaloneBot]):
                                   agent_class_wrapper=agent_class_wrapper,
                                   agent_metadata_queue=mp.Queue(),
                                   match_config=None,
-                                  matchcomms_root=None,
+                                  matchcomms_root=config.matchcomms_url,
                                   spawn_id=spawn_id)
     bot_manger.run()

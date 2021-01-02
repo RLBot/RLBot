@@ -42,7 +42,7 @@ class EnvBuilderWithRequirements(EnvBuilder):
 
 
 def setup_virtual_environment(runnable: RunnableConfigBundle):
-    if not runnable.supports_virtual_environment or not runnable.requirements_file:
+    if not runnable.use_virtual_environment or not runnable.requirements_file:
         raise ValueError(f'{runnable.name} is not configured for virtual environment support!')
     builder = EnvBuilderWithRequirements(bundle=runnable)
     builder.create(Path(runnable.config_directory) / 'venv')

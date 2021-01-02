@@ -10,7 +10,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAM
     PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY, SUPPORTS_STANDALONE
 from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
 from rlbot.agents.base_script import SCRIPT_FILE_KEY, BaseScript
-from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY, REQUIRES_TKINTER, SUPPORTS_VENV_KEY
+from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY, REQUIRES_TKINTER, USE_VIRTUAL_ENVIRONMENT_KEY
 from rlbot.utils.requirements_management import get_missing_packages, get_packages_needing_upgrade
 from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
@@ -33,7 +33,7 @@ class RunnableConfigBundle:
         self.name = config_obj.get(BOT_CONFIG_MODULE_HEADER, BOT_NAME_KEY)
         self.supports_early_start = self.base_agent_config.get(BOT_CONFIG_MODULE_HEADER, SUPPORTS_EARLY_START_KEY)
         self.requirements_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, REQUIREMENTS_FILE_KEY)
-        self.supports_virtual_environment = self.base_agent_config.getboolean(BOT_CONFIG_MODULE_HEADER, SUPPORTS_VENV_KEY)
+        self.use_virtual_environment = self.base_agent_config.getboolean(BOT_CONFIG_MODULE_HEADER, USE_VIRTUAL_ENVIRONMENT_KEY)
 
     def get_logo_file(self):
         # logo.png is a convention we established during the wintertide tournament.
@@ -59,14 +59,14 @@ class RunnableConfigBundle:
         if self.base_agent_config.getboolean(BOT_CONFIG_MODULE_HEADER, REQUIRES_TKINTER):
             special_reqs.append('tkinter')
 
-        if self.supports_virtual_environment:
+        if self.use_virtual_environment:
             # Ignore the requirements file for now, because we will be installing it automatically later!
             return get_missing_packages(requirements_file=None, special_reqs=special_reqs)
         else:
             return get_missing_packages(requirements_file=self.requirements_file, special_reqs=special_reqs)
 
     def get_python_packages_needing_upgrade(self) -> List[Requirement]:
-        if self.requirements_file and not self.supports_virtual_environment:
+        if self.requirements_file and not self.use_virtual_environment:
             return get_packages_needing_upgrade(requirements_file=self.requirements_file)
         return []
 

@@ -8,7 +8,7 @@ LOGO_FILE_KEY = 'logo_file'
 NAME_KEY = "name"
 SUPPORTS_EARLY_START_KEY = "supports_early_start"
 REQUIRES_TKINTER = "requires_tkinter"
-SUPPORTS_VENV_KEY = "supports_venv"
+USE_VIRTUAL_ENVIRONMENT_KEY = "use_virtual_environment"
 
 
 class RLBotRunnable:
@@ -72,7 +72,7 @@ class RLBotRunnable:
                                   description="True if this bot can be started before the Rocket League match begins.")
         location_config.add_value(REQUIRES_TKINTER, bool,
                                   description="True if the tkinter library is needed.")
-        location_config.add_value(SUPPORTS_VENV_KEY, bool,
+        location_config.add_value(USE_VIRTUAL_ENVIRONMENT_KEY, bool,
                                   description="True if the runnable wants to run in a virtual environment.")
 
         details_config = config.add_header_name(DETAILS_HEADER)
