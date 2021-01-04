@@ -46,6 +46,15 @@ public:
 		return q.empty();
 	}
 
+    void clear()
+    {
+        std::unique_lock<std::mutex> lock(m);
+        while (!q.empty())
+        {
+            q.pop();
+        }
+    }
+
 private:
 	std::queue<T> q;
 	mutable std::mutex m;

@@ -152,6 +152,16 @@ class BaseAgent(RLBotRunnable):
         """
         Gets a client to send and recieve messages to other participants in the match (e.g. bots, trainer)
         """
+        if self.matchcomms_root is None:
+            # We had a choice here between raising the exception (fail fast) or printing a message and
+            # returning None since missing matchcomms might be harmless / unused by the bot. Failing fast
+            # is almost always the best policy, AND in the one case we've seen so far, returning None would
+            # not have saved the situation - https://github.com/VirxEC/VirxERLU/blob/master/match_comms.py
+            raise ValueError("Your bot tried to access matchcomms but matchcomms_root is None! This "
+                             "may be due to manually running a bot in standalone mode without passing the "
+                             "--matchcomms-url argument. That's a fine thing to do, and if it's safe to "
+                             "ignore matchcomms in your case then go ahead and wrap your matchcomms access "
+                             "in a try-except, or do a check first for whether matchcomms_root is None.")
         if self._matchcomms is None:
             self._matchcomms = MatchcommsClient(self.matchcomms_root)
         return self._matchcomms  # note: _matchcomms.close() is called by the bot_manager.
