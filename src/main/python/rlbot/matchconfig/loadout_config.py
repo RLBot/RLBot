@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from flatbuffers import Builder
+from rlbot.messages.flat import LoadoutPaint, PlayerLoadout, Color as FlatColor
 from rlbot.utils.structures.start_match_structures import PlayerConfiguration
 from rlbot.utils.structures.start_match_structures import Color as ColorStruct
 
@@ -49,9 +51,39 @@ class LoadoutConfig:
             player_configuration.use_rgb_lookup = True
             self.secondary_color_lookup.write(player_configuration.secondary_color_lookup)
 
+    def write_to_flatbuffer(self, builder: Builder):
+        if self.paint_config:
+            paint_offset = self.paint_config.write_to_flatbuffer(builder)
+
+        if self.primary_color_lookup:
+            primary_color_offset = self.primary_color_lookup.write_to_flatbuffer(builder)
+        if self.secondary_color_lookup:
+            secondary_color_offset = self.secondary_color_lookup.write_to_flatbuffer(builder)
+
+        PlayerLoadout.PlayerLoadoutStart(builder)
+        PlayerLoadout.PlayerLoadoutAddTeamColorId(builder, self.team_color_id)
+        PlayerLoadout.PlayerLoadoutAddCustomColorId(builder, self.custom_color_id)
+        PlayerLoadout.PlayerLoadoutAddCarId(builder, self.car_id)
+        PlayerLoadout.PlayerLoadoutAddDecalId(builder, self.decal_id)
+        PlayerLoadout.PlayerLoadoutAddWheelsId(builder, self.wheels_id)
+        PlayerLoadout.PlayerLoadoutAddBoostId(builder, self.boost_id)
+        PlayerLoadout.PlayerLoadoutAddAntennaId(builder, self.antenna_id)
+        PlayerLoadout.PlayerLoadoutAddHatId(builder, self.hat_id)
+        PlayerLoadout.PlayerLoadoutAddPaintFinishId(builder, self.paint_finish_id)
+        PlayerLoadout.PlayerLoadoutAddCustomFinishId(builder, self.custom_finish_id)
+        PlayerLoadout.PlayerLoadoutAddEngineAudioId(builder, self.engine_audio_id)
+        PlayerLoadout.PlayerLoadoutAddTrailsId(builder, self.trails_id)
+        PlayerLoadout.PlayerLoadoutAddGoalExplosionId(builder, self.goal_explosion_id)
+        if self.paint_config:
+            PlayerLoadout.PlayerLoadoutAddLoadoutPaint(builder, paint_offset)
+        if self.primary_color_lookup:
+            PlayerLoadout.PlayerLoadoutAddPrimaryColorLookup(builder, primary_color_offset)
+        if self.secondary_color_lookup:
+            PlayerLoadout.PlayerLoadoutAddSecondaryColorLookup(builder, secondary_color_offset)
+        return PlayerLoadout.PlayerLoadoutEnd(builder)
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
 
 class LoadoutPaintConfig:
     def __init__(self):
@@ -74,6 +106,20 @@ class LoadoutPaintConfig:
         player_configuration.trails_paint_id = self.trails_paint_id
         player_configuration.goal_explosion_paint_id = self.goal_explosion_paint_id
 
+    def write_to_flatbuffer(self, builder: Builder):
+        paint = self
+        LoadoutPaint.LoadoutPaintStart(builder)
+        if paint:
+            LoadoutPaint.LoadoutPaintAddCarPaintId(builder, paint.car_paint_id)
+            LoadoutPaint.LoadoutPaintAddDecalPaintId(builder, paint.decal_paint_id)
+            LoadoutPaint.LoadoutPaintAddWheelsPaintId(builder, paint.wheels_paint_id)
+            LoadoutPaint.LoadoutPaintAddBoostPaintId(builder, paint.boost_paint_id)
+            LoadoutPaint.LoadoutPaintAddAntennaPaintId(builder, paint.antenna_paint_id)
+            LoadoutPaint.LoadoutPaintAddHatPaintId(builder, paint.hat_paint_id)
+            LoadoutPaint.LoadoutPaintAddTrailsPaintId(builder, paint.trails_paint_id)
+            LoadoutPaint.LoadoutPaintAddGoalExplosionPaintId(builder, paint.goal_explosion_paint_id)
+        return LoadoutPaint.LoadoutPaintEnd(builder)
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
@@ -90,3 +136,14 @@ class Color:
         color.g = self.green
         color.b = self.blue
         color.a = self.alpha
+
+    def write_to_flatbuffer(self, builder: Builder):
+        FlatColor.ColorStart(builder)
+        FlatColor.ColorAddR(builder, self.red)
+        FlatColor.ColorAddG(builder, self.green)
+        FlatColor.ColorAddB(builder, self.blue)
+        FlatColor.ColorAddA(builder, self.alpha)
+        return FlatColor.ColorEnd(builder)
+
+
+
