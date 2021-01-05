@@ -3,7 +3,9 @@ from enum import Enum
 from random import randint
 from typing import List, Dict
 
+from flatbuffers import Builder
 from rlbot.matchconfig.loadout_config import LoadoutConfig
+from rlbot.messages.flat.PlayerClass import PlayerClass
 from rlbot.parsing.bot_config_bundle import get_bot_config_bundle
 from rlbot.parsing.agent_config_parser import load_bot_appearance
 from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_types, map_types, game_mode_types, \
@@ -12,7 +14,8 @@ from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_type
     ball_bounciness_mutator_types, rumble_mutator_types, boost_strength_mutator_types, gravity_mutator_types, \
     demolish_mutator_types, respawn_time_mutator_types, existing_match_behavior_types
 from rlbot.utils.structures.start_match_structures import MatchSettings, PlayerConfiguration, MutatorSettings
-from rlbot.messages.flat import MatchSettings as MatchSettingsFlat, MutatorSettings as MutatorSettingsFlat
+from rlbot.messages.flat import MatchSettings as MatchSettingsFlat, MutatorSettings as MutatorSettingsFlat, RLBotPlayer, \
+    PsyonixBotPlayer, HumanPlayer, PlayerConfiguration as PlayerConfigurationFlat
 
 # We pass messages in flatbuffer format to RLBot.exe. In flatbuffer, a signed int field
 # is 32 bit, so it has a max value of 2^31 - 1, in other words 2147483647.
@@ -71,6 +74,34 @@ class PlayerConfig:
 
         if self.loadout_config:
             self.loadout_config.write(player_configuration)
+
+    def write_to_flatbuffer(self, builder: Builder):
+        name = builder.CreateString(self.name)
+        loadout = self.loadout_config.write_to_flatbuffer(builder)
+
+        if self.bot:
+            if self.rlbot_controlled:
+                variety = PlayerClass.RLBotPlayer
+                RLBotPlayer.RLBotPlayerStart(builder)
+                player = RLBotPlayer.RLBotPlayerEnd(builder)
+            else:
+                variety = PlayerClass.PsyonixBotPlayer
+                PsyonixBotPlayer.PsyonixBotPlayerStart(builder)
+                PsyonixBotPlayer.PsyonixBotPlayerAddBotSkill(builder, self.bot_skill)
+                player = PsyonixBotPlayer.PsyonixBotPlayerEnd(builder)
+        else:
+            variety = PlayerClass.HumanPlayer
+            HumanPlayer.HumanPlayerStart(builder)
+            player = HumanPlayer.HumanPlayerEnd(builder)
+
+        PlayerConfigurationFlat.PlayerConfigurationStart(builder)
+        PlayerConfigurationFlat.PlayerConfigurationAddName(builder, name)
+        PlayerConfigurationFlat.PlayerConfigurationAddLoadout(builder, loadout)
+        PlayerConfigurationFlat.PlayerConfigurationAddTeam(builder, self.team)
+        PlayerConfigurationFlat.PlayerConfigurationAddVariety(builder, player)
+        PlayerConfigurationFlat.PlayerConfigurationAddVarietyType(builder, variety)
+        PlayerConfigurationFlat.PlayerConfigurationAddSpawnId(builder, self.spawn_id)
+        return PlayerConfigurationFlat.PlayerConfigurationEnd(builder)
 
     def has_bot_script(self) -> bool:
         return self.rlbot_controlled
@@ -143,6 +174,26 @@ class MutatorConfig:
         mutator_settings.gravity_option = index_or_zero(gravity_mutator_types, self.gravity)
         mutator_settings.demolish_option = index_or_zero(demolish_mutator_types, self.demolish)
         mutator_settings.respawn_time_option = index_or_zero(respawn_time_mutator_types, self.respawn_time)
+
+    def write_to_flatbuffer(self, builder: Builder):
+        MutatorSettingsFlat.MutatorSettingsStart(builder)
+        MutatorSettingsFlat.MutatorSettingsAddMatchLength(builder, index_or_zero(match_length_types, self.match_length))
+        MutatorSettingsFlat.MutatorSettingsAddMaxScore(builder, index_or_zero(max_score_types, self.max_score))
+        MutatorSettingsFlat.MutatorSettingsAddOvertimeOption(builder, index_or_zero(overtime_mutator_types, self.overtime))
+        MutatorSettingsFlat.MutatorSettingsAddSeriesLengthOption(builder, index_or_zero(series_length_mutator_types, self.series_length))
+        MutatorSettingsFlat.MutatorSettingsAddGameSpeedOption(builder, index_or_zero(game_speed_mutator_types, self.game_speed))
+        MutatorSettingsFlat.MutatorSettingsAddBallMaxSpeedOption(builder, index_or_zero(ball_max_speed_mutator_types, self.ball_max_speed))
+        MutatorSettingsFlat.MutatorSettingsAddBallTypeOption(builder, index_or_zero(ball_type_mutator_types, self.ball_type))
+        MutatorSettingsFlat.MutatorSettingsAddBallWeightOption(builder, index_or_zero(ball_weight_mutator_types, self.ball_weight))
+        MutatorSettingsFlat.MutatorSettingsAddBallSizeOption(builder, index_or_zero(ball_size_mutator_types, self.ball_size))
+        MutatorSettingsFlat.MutatorSettingsAddBallBouncinessOption(builder, index_or_zero(ball_bounciness_mutator_types, self.ball_bounciness))
+        MutatorSettingsFlat.MutatorSettingsAddBoostOption(builder, index_or_zero(boost_amount_mutator_types, self.boost_amount))
+        MutatorSettingsFlat.MutatorSettingsAddRumbleOption(builder, index_or_zero(rumble_mutator_types, self.rumble))
+        MutatorSettingsFlat.MutatorSettingsAddBoostStrengthOption(builder, index_or_zero(boost_strength_mutator_types, self.boost_strength))
+        MutatorSettingsFlat.MutatorSettingsAddGravityOption(builder, index_or_zero(gravity_mutator_types, self.gravity))
+        MutatorSettingsFlat.MutatorSettingsAddDemolishOption(builder, index_or_zero(demolish_mutator_types, self.demolish))
+        MutatorSettingsFlat.MutatorSettingsAddRespawnTimeOption(builder, index_or_zero(respawn_time_mutator_types, self.respawn_time))
+        return MutatorSettingsFlat.MutatorSettingsEnd(builder)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -223,6 +274,31 @@ class MatchConfig:
         self.mutators.write(match_settings.mutator_settings)
 
         return match_settings
+
+    def create_flatbuffer(self) -> Builder:
+        builder = Builder(1000)
+        player_config_offsets = [pc.write_to_flatbuffer(builder) for pc in self.player_configs]
+        MatchSettingsFlat.MatchSettingsStartPlayerConfigurationsVector(builder, len(player_config_offsets))
+        for i in reversed(range(0, len(player_config_offsets))):
+            builder.PrependUOffsetTRelative(player_config_offsets[i])
+        player_list_offset = builder.EndVector(len(player_config_offsets))
+        mutator_settings_offset = self.mutators.write_to_flatbuffer(builder)
+
+        MatchSettingsFlat.MatchSettingsStart(builder)
+        MatchSettingsFlat.MatchSettingsAddPlayerConfigurations(builder, player_list_offset)
+        MatchSettingsFlat.MatchSettingsAddGameMode(builder, game_mode_types.index(self.game_mode))
+        MatchSettingsFlat.MatchSettingsAddGameMap(builder, map_types.index(self.game_map))
+        MatchSettingsFlat.MatchSettingsAddSkipReplays(builder, self.skip_replays)
+        MatchSettingsFlat.MatchSettingsAddInstantStart(builder, self.instant_start)
+        MatchSettingsFlat.MatchSettingsAddMutatorSettings(builder, mutator_settings_offset)
+        MatchSettingsFlat.MatchSettingsAddExistingMatchBehavior(builder, index_or_zero(existing_match_behavior_types, self.existing_match_behavior))
+        MatchSettingsFlat.MatchSettingsAddEnableLockstep(builder, self.enable_lockstep)
+        MatchSettingsFlat.MatchSettingsAddEnableRendering(builder, self.enable_rendering)
+        MatchSettingsFlat.MatchSettingsAddEnableStateSetting(builder, self.enable_state_setting)
+        MatchSettingsFlat.MatchSettingsAddAutoSaveReplay(builder, self.auto_save_replay)
+        ms_offset = MatchSettingsFlat.MatchSettingsEnd(builder)
+        builder.Finish(ms_offset)
+        return builder
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__

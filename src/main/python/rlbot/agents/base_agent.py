@@ -1,10 +1,11 @@
 from typing import Optional
 from urllib.parse import ParseResult as URL
 
+from flatbuffers import Builder
 from rlbot.agents.rlbot_runnable import RLBotRunnable, LOCATIONS_HEADER, DETAILS_HEADER
 from rlbot.botmanager.helper_process_request import HelperProcessRequest
 from rlbot.matchcomms.client import MatchcommsClient
-from rlbot.messages.flat import MatchSettings
+from rlbot.messages.flat import MatchSettings, ControllerState, PlayerInput
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState
 from rlbot.utils.logging_utils import get_logger
@@ -64,6 +65,25 @@ class SimpleControllerState:
         self.boost = boost
         self.handbrake = handbrake
         self.use_item = use_item
+
+    def to_flatbuffer(self, player_index: int) -> Builder:
+        builder = Builder(100)
+        ControllerState.ControllerStateStart(builder)
+        ControllerState.ControllerStateAddSteer(builder, self.steer)
+        ControllerState.ControllerStateAddThrottle(builder, self.throttle)
+        ControllerState.ControllerStateAddPitch(builder, self.pitch)
+        ControllerState.ControllerStateAddYaw(builder, self.yaw)
+        ControllerState.ControllerStateAddRoll(builder, self.roll)
+        ControllerState.ControllerStateAddJump(builder, self.jump)
+        ControllerState.ControllerStateAddBoost(builder, self.boost)
+        ControllerState.ControllerStateAddHandbrake(builder, self.handbrake)
+        cs_offset = ControllerState.ControllerStateEnd(builder)
+        PlayerInput.PlayerInputStart(builder)
+        PlayerInput.PlayerInputAddPlayerIndex(builder, player_index)
+        PlayerInput.PlayerInputAddControllerState(builder, cs_offset)
+        pi_offset = PlayerInput.PlayerInputEnd(builder)
+        builder.Finish(pi_offset)
+        return builder
 
 
 class BaseAgent(RLBotRunnable):
