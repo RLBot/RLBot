@@ -1,5 +1,6 @@
 from enum import IntEnum
-from socket import socket
+from socket import socket, SHUT_RDWR
+from time import sleep
 from typing import List, Callable
 
 from flatbuffers.builder import Builder
@@ -62,6 +63,7 @@ class SocketRelay:
         self.socket = socket()
         self.is_connected = False
         self._should_continue = True
+        self.on_connect_handlers: List[Callable[[], None]] = []
         self.packet_handlers: List[Callable[[GameTickPacket], None]] = []
         self.field_info_handlers: List[Callable[[FieldInfo], None]] = []
         self.match_settings_handlers: List[Callable[[MatchSettings], None]] = []
@@ -86,10 +88,17 @@ class SocketRelay:
         self.send_flatbuffer(builder, SocketDataType.MATCH_SETTINGS)
 
     def connect_and_run(self, wants_quick_chat, wants_game_messages, wants_ball_predictions):
+        """
+        Connects to the socket and begins a loop that reads messages and calls any handlers
+        that have been registered. Connect and run are combined into a single method because
+        currently bad things happen if the buffer is allowed to fill up.
+        """
 
         self.socket.connect(('127.0.0.1', 23234))
         self.is_connected = True
         self.logger.info("Connected!")
+        for handler in self.on_connect_handlers:
+            handler()
 
         builder = Builder(50)
         ReadyMessage.ReadyMessageStart(builder)
@@ -145,6 +154,10 @@ class SocketRelay:
                             input_change.Init(msg.Message().Bytes, msg.Message().Pos)
                             for handler in self.player_input_change_handlers:
                                 handler(input_change, msg_packet.GameSeconds(), msg_packet.FrameNum())
+
+        # Sleep to give a chance for TCP communications to finish being acknowledged
+        sleep(0.5)
+        self.socket.shutdown(SHUT_RDWR)
         self.socket.close()
 
     def disconnect(self):
