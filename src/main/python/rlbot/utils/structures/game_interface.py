@@ -252,12 +252,13 @@ class GameInterface:
 
     def wait_until_valid_packet(self):
         self.logger.info('Waiting for valid packet...')
+        expected_count = self.start_match_configuration.num_players
         for i in range(0, 300):
             packet = game_data_struct.GameTickPacket()
             self.update_live_data_packet(packet)
             if not packet.game_info.is_match_ended:
                 spawn_ids = set()
-                for k in range(0, self.start_match_configuration.num_players):
+                for k in range(0, expected_count):
                     player_config = self.start_match_configuration.player_configuration[k]
                     if player_config.rlbot_controlled and player_config.spawn_id > 0:
                         spawn_ids.add(player_config.spawn_id)
@@ -268,7 +269,7 @@ class GameInterface:
                     except KeyError:
                         pass
 
-                if len(spawn_ids) == 0:
+                if len(spawn_ids) == 0 and expected_count == packet.num_cars:
                     self.logger.info('Packets are looking good, all spawn ids accounted for!')
                     return
                 elif i > 4:
