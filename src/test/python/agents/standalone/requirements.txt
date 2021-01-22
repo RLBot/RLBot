@@ -1,1 +1,2 @@
+rlbot~=1.53
 quicktracer==1.4.0
