@@ -4,12 +4,12 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.53.0'
+__version__ = '1.53.1'
 
 release_notes = {
-    '1.53.0': """
+    '1.53.1': """
     Making it possible to maintain the map list in the open source portion of RLBot,
-    and adding support for Neon_Fields.
+    and adding support for NeonFields.
     """,
     '1.52.0': """
     Adding a socket management utility in Python to help people connect directly to
