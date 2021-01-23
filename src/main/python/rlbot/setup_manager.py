@@ -318,6 +318,7 @@ class SetupManager:
 
         self.match_config = match_config
         self.start_match_configuration = match_config.create_match_settings()
+        self.game_interface.start_match_flatbuffer = match_config.create_flatbuffer()
         self.game_interface.start_match_configuration = self.start_match_configuration
 
     def load_config(self, framework_config: ConfigObject = None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION,

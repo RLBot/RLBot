@@ -6,6 +6,7 @@ import platform
 from logging import DEBUG, WARNING
 
 import flatbuffers
+from flatbuffers import Builder
 from rlbot.messages.flat.MatchSettings import MatchSettings as MatchSettingsPacket
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
@@ -57,7 +58,8 @@ def get_dll_directory():
 
 class GameInterface:
     game = None
-    start_match_configuration = None
+    start_match_configuration: MatchSettings = None
+    start_match_flatbuffer: Builder = None
     game_status_callback_type = None
     callback_func = None
     extension = None
@@ -102,6 +104,10 @@ class GameInterface:
         # start match
         func = self.game.StartMatch
         func.argtypes = [MatchSettings]
+        func.restype = ctypes.c_int
+
+        func = self.game.StartMatchFlatbuffer
+        func.argtypes = [ctypes.c_void_p, ctypes.c_int]
         func.restype = ctypes.c_int
 
         # update player input
@@ -180,7 +186,11 @@ class GameInterface:
         self.wait_until_loaded()
         self.wait_until_ready_to_communicate()
         # self.game_input_packet.bStartMatch = True
-        rlbot_status = self.game.StartMatch(self.start_match_configuration)
+        if self.start_match_flatbuffer:
+            flatbuffer_bytes = self.start_match_flatbuffer.Output()
+            rlbot_status = self.game.StartMatchFlatbuffer(bytes(flatbuffer_bytes), len(flatbuffer_bytes))
+        else:
+            rlbot_status = self.game.StartMatch(self.start_match_configuration)
 
         if rlbot_status != 0:
             exception_class = get_exception_from_error_code(rlbot_status)

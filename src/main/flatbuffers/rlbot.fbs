@@ -635,7 +635,8 @@ enum GameMap : byte {
   ForbiddenTemple,
   RivalsArena,
   Farmstead_Night,
-  SaltyShores_Night
+  SaltyShores_Night,
+  Neon_Fields
 }
 
 enum MatchLength : byte {
@@ -797,6 +798,12 @@ table MatchSettings {
   enableRendering: bool;
   enableStateSetting: bool;
   autoSaveReplay: bool;
+  /// The name of a upk file, like UtopiaStadium_P, which should be loaded.
+  /// If specified, this overrides gameMap. On Steam version of Rocket League,
+  /// this can be used to load custom map files, but on Epic version it only
+  /// works on the Psyonix maps. Still useful because maintaining the gameMap
+  /// enum as new Psyonix maps are added is annoying.
+  gameMapUpk: string;
 }
 
 table QuickChatMessages {

@@ -12,7 +12,8 @@ from rlbot.parsing.match_settings_config_parser import boost_amount_mutator_type
     match_length_types, max_score_types, overtime_mutator_types, series_length_mutator_types, game_speed_mutator_types, \
     ball_max_speed_mutator_types, ball_type_mutator_types, ball_weight_mutator_types, ball_size_mutator_types, \
     ball_bounciness_mutator_types, rumble_mutator_types, boost_strength_mutator_types, gravity_mutator_types, \
-    demolish_mutator_types, respawn_time_mutator_types, existing_match_behavior_types
+    demolish_mutator_types, respawn_time_mutator_types, existing_match_behavior_types, game_map_dict
+from rlbot.utils.logging_utils import get_logger
 from rlbot.utils.structures.start_match_structures import MatchSettings, PlayerConfiguration, MutatorSettings
 from rlbot.messages.flat import MatchSettings as MatchSettingsFlat, MutatorSettings as MutatorSettingsFlat, RLBotPlayer, \
     PsyonixBotPlayer, HumanPlayer, PlayerConfiguration as PlayerConfigurationFlat
@@ -249,6 +250,7 @@ class MatchConfig:
         self.enable_state_setting: bool = None
         self.auto_save_replay: bool = None
         self.script_configs: List[ScriptConfig] = []
+        self.logger = get_logger('match_config')
 
     @property
     def num_players(self):
@@ -284,10 +286,20 @@ class MatchConfig:
         player_list_offset = builder.EndVector(len(player_config_offsets))
         mutator_settings_offset = self.mutators.write_to_flatbuffer(builder)
 
+        if self.game_map in game_map_dict:
+            upk = game_map_dict[self.game_map]
+            map_index = map_types.index(self.game_map)
+        else:
+            self.logger.info(f"Did not recognize {self.game_map}, hoping it's new or a custom map!")
+            upk = self.game_map
+            map_index = -1
+        upk_offset = builder.CreateString(upk)
+
         MatchSettingsFlat.MatchSettingsStart(builder)
         MatchSettingsFlat.MatchSettingsAddPlayerConfigurations(builder, player_list_offset)
         MatchSettingsFlat.MatchSettingsAddGameMode(builder, game_mode_types.index(self.game_mode))
-        MatchSettingsFlat.MatchSettingsAddGameMap(builder, map_types.index(self.game_map))
+        MatchSettingsFlat.MatchSettingsAddGameMap(builder, map_index)
+        MatchSettingsFlat.MatchSettingsAddGameMapUpk(builder, upk_offset)
         MatchSettingsFlat.MatchSettingsAddSkipReplays(builder, self.skip_replays)
         MatchSettingsFlat.MatchSettingsAddInstantStart(builder, self.instant_start)
         MatchSettingsFlat.MatchSettingsAddMutatorSettings(builder, mutator_settings_offset)
