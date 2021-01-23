@@ -90,7 +90,7 @@ game_map_dict = {
     "RivalsArena": "cs_hw_p",
     "Farmstead_Night": "Farm_Night_P",
     "SaltyShores_Night": "beach_night_p",
-    "Neon_Fields": "music_p",
+    "NeonFields": "music_p",
 }
 
 map_types = list(game_map_dict.keys())

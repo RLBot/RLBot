@@ -78,9 +78,9 @@ class PlayerConfig:
 
     def write_to_flatbuffer(self, builder: Builder):
         name = builder.CreateString(self.name)
-        loadout = self.loadout_config.write_to_flatbuffer(builder)
 
         if self.bot:
+            loadout = self.loadout_config.write_to_flatbuffer(builder)
             if self.rlbot_controlled:
                 variety = PlayerClass.RLBotPlayer
                 RLBotPlayer.RLBotPlayerStart(builder)
@@ -91,6 +91,7 @@ class PlayerConfig:
                 PsyonixBotPlayer.PsyonixBotPlayerAddBotSkill(builder, self.bot_skill)
                 player = PsyonixBotPlayer.PsyonixBotPlayerEnd(builder)
         else:
+            loadout = LoadoutConfig().write_to_flatbuffer(builder)
             variety = PlayerClass.HumanPlayer
             HumanPlayer.HumanPlayerStart(builder)
             player = HumanPlayer.HumanPlayerEnd(builder)
