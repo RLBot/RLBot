@@ -57,6 +57,9 @@ endif (UNIX)
 target_compile_features(RLBotInterface PRIVATE cxx_std_17)
 
 # ---- RLBot ----
+# Ignore this whole section if the folder is missing, because that will be the case in the open source version of the repo.
+if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/") 
+
 file(GLOB_RECURSE rlbot_sources  ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/*.c* ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/*.h*)
 
 add_executable(RLBot ${rlbot_sources})
@@ -79,26 +82,36 @@ if (UNIX)
         add_custom_command(TARGET RLBotMessages
                            PRE_BUILD
                            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/generate-flatbuffers-mac.sh )
+        add_custom_command(TARGET RLBotMessages
+                           PRE_BUILD
+                           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/generate-flatbuffers-mac.sh )
         target_link_libraries(RLBot RLBotMessages ${Boost_DATETIME_LIBRARY} ${Boost_SYSTEM_LIBRARY} pthread)
     else (APPLE)
         add_custom_command(TARGET RLBotMessages
                            PRE_BUILD
                            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBotMessages/generate-flatbuffers.sh )
+        add_custom_command(TARGET RLBotMessages
+                           PRE_BUILD
+                           COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/RLBot/generate-flatbuffers.sh )
         target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} pthread rt)
     endif (APPLE)
     set_target_properties(RLBotInterface PROPERTIES COMPILE_FLAGS -fPIC)
 
 else (UNIX)
-    target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES})
-endif (UNIX)
-
-target_compile_features(RLBot PRIVATE cxx_std_17)
-
-if (WIN32)
     # Set target version to windows xp. This should in theory work as a minimum supported platform.
     target_compile_definitions(RLBot PRIVATE _WIN32_WINNT=0x501)
 
     add_custom_command(TARGET RLBotMessages
                        PRE_BUILD
                        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}\\src\\RLBotMessages\\generate-flatbuffers.bat )
+
+    add_custom_command(TARGET RLBotMessages
+                       PRE_BUILD
+                       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}\\src\\RLBot\\generate-flatbuffers.bat )
+
+    target_link_libraries(RLBot RLBotMessages ${Boost_LIBRARIES})
+endif (UNIX)
+
+target_compile_features(RLBot PRIVATE cxx_std_17)
+
 endif()

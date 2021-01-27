@@ -76,10 +76,10 @@ class PlayerConfig:
         if self.loadout_config:
             self.loadout_config.write(player_configuration)
 
-    def write_to_flatbuffer(self, builder: Builder):
-        name = builder.CreateString(self.name)
+    def write_to_flatbuffer(self, builder: Builder, name_dict: dict):
+        name = builder.CreateString(get_sanitized_bot_name(name_dict, self.name))
 
-        if self.bot:
+        if self.loadout_config:
             loadout = self.loadout_config.write_to_flatbuffer(builder)
             if self.rlbot_controlled:
                 variety = PlayerClass.RLBotPlayer
@@ -239,17 +239,17 @@ class MatchConfig:
         self.player_configs: List[PlayerConfig] = []
         self.game_mode: str = None
         self.game_map: str = None
-        self.skip_replays: bool = None
-        self.instant_start: bool = None
+        self.skip_replays: bool = False
+        self.instant_start: bool = False
         self.mutators: MutatorConfig = None
         self.extension_config: ExtensionConfig = None
         self.existing_match_behavior: str = None
-        self.enable_lockstep: bool = None
+        self.enable_lockstep: bool = False
         self.networking_role: str = None
         self.network_address: str = None
-        self.enable_rendering: bool = None
-        self.enable_state_setting: bool = None
-        self.auto_save_replay: bool = None
+        self.enable_rendering: bool = False
+        self.enable_state_setting: bool = False
+        self.auto_save_replay: bool = False
         self.script_configs: List[ScriptConfig] = []
         self.logger = get_logger('match_config')
 
@@ -280,7 +280,8 @@ class MatchConfig:
 
     def create_flatbuffer(self) -> Builder:
         builder = Builder(1000)
-        player_config_offsets = [pc.write_to_flatbuffer(builder) for pc in self.player_configs]
+        name_dict = {}
+        player_config_offsets = [pc.write_to_flatbuffer(builder, name_dict) for pc in self.player_configs]
         MatchSettingsFlat.MatchSettingsStartPlayerConfigurationsVector(builder, len(player_config_offsets))
         for i in reversed(range(0, len(player_config_offsets))):
             builder.PrependUOffsetTRelative(player_config_offsets[i])
