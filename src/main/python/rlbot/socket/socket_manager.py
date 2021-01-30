@@ -100,6 +100,19 @@ class SocketRelay:
         for handler in self.on_connect_handlers:
             handler()
 
+        builder = self.make_ready_message(wants_ball_predictions, wants_game_messages, wants_quick_chat)
+        self.send_flatbuffer(builder, SocketDataType.READY_MESSAGE)
+
+        while self._should_continue:
+            incoming_message = read_from_socket(self.socket)
+            self.handle_incoming_message(incoming_message)
+
+        # Sleep to give a chance for TCP communications to finish being acknowledged
+        sleep(0.5)
+        self.socket.shutdown(SHUT_RDWR)
+        self.socket.close()
+
+    def make_ready_message(self, wants_ball_predictions, wants_game_messages, wants_quick_chat):
         builder = Builder(50)
         ReadyMessage.ReadyMessageStart(builder)
         ReadyMessage.ReadyMessageAddWantsBallPredictions(builder, wants_ball_predictions)
@@ -107,58 +120,52 @@ class SocketRelay:
         ReadyMessage.ReadyMessageAddWantsGameMessages(builder, wants_game_messages)
         offset = ReadyMessage.ReadyMessageEnd(builder)
         builder.Finish(offset)
-        self.send_flatbuffer(builder, SocketDataType.READY_MESSAGE)
+        return builder
 
-        while self._should_continue:
-            incoming_message = read_from_socket(self.socket)
-            if incoming_message.type == SocketDataType.GAME_TICK_PACKET and len(self.packet_handlers) > 0:
-                packet = GameTickPacket.GetRootAsGameTickPacket(incoming_message.data, 0)
-                for handler in self.packet_handlers:
-                    handler(packet)
-            elif incoming_message.type == SocketDataType.FIELD_INFO and len(self.field_info_handlers) > 0:
-                field_info = FieldInfo.GetRootAsFieldInfo(incoming_message.data, 0)
-                for handler in self.field_info_handlers:
-                    handler(field_info)
-            elif incoming_message.type == SocketDataType.MATCH_SETTINGS and len(self.match_settings_handlers) > 0:
-                match_settings = MatchSettings.GetRootAsMatchSettings(incoming_message.data, 0)
-                for handler in self.match_settings_handlers:
-                    handler(match_settings)
-            elif incoming_message.type == SocketDataType.QUICK_CHAT and len(self.quick_chat_handlers) > 0:
-                quick_chat = QuickChat.GetRootAsQuickChat(incoming_message.data, 0)
-                for handler in self.quick_chat_handlers:
-                    handler(quick_chat)
-            elif incoming_message.type == SocketDataType.BALL_PREDICTION and len(self.ball_prediction_handlers) > 0:
-                ball_prediction = BallPrediction.GetRootAsBallPrediction(incoming_message.data, 0)
-                for handler in self.ball_prediction_handlers:
-                    handler(ball_prediction)
-            elif incoming_message.type == SocketDataType.MESSAGE_PACKET:
-                if len(self.player_stat_handlers) > 0 or len(self.player_input_change_handlers) > 0 or len(
-                        self.player_spectate_handlers) > 0:
-                    msg_packet = MessagePacket.GetRootAsMessagePacket(incoming_message.data, 0)
-                    for i in range(msg_packet.MessagesLength()):
-                        msg = msg_packet.Messages(i)
-                        msg_type = msg.MessageType()
-                        if msg_type == GameMessage.PlayerSpectate and len(self.player_spectate_handlers) > 0:
-                            spectate = PlayerSpectate()
-                            spectate.Init(msg.Message().Bytes, msg.Message().Pos)
-                            for handler in self.player_spectate_handlers:
-                                handler(spectate, msg_packet.GameSeconds(), msg_packet.FrameNum())
-                        elif msg_type == GameMessage.PlayerStatEvent and len(self.player_stat_handlers) > 0:
-                            stat_event = PlayerStatEvent()
-                            stat_event.Init(msg.Message().Bytes, msg.Message().Pos)
-                            for handler in self.player_stat_handlers:
-                                handler(stat_event, msg_packet.GameSeconds(), msg_packet.FrameNum())
-                        elif msg_type == GameMessage.PlayerInputChange and len(
-                                self.player_input_change_handlers) > 0:
-                            input_change = PlayerInputChange()
-                            input_change.Init(msg.Message().Bytes, msg.Message().Pos)
-                            for handler in self.player_input_change_handlers:
-                                handler(input_change, msg_packet.GameSeconds(), msg_packet.FrameNum())
-
-        # Sleep to give a chance for TCP communications to finish being acknowledged
-        sleep(0.5)
-        self.socket.shutdown(SHUT_RDWR)
-        self.socket.close()
+    def handle_incoming_message(self, incoming_message):
+        if incoming_message.type == SocketDataType.GAME_TICK_PACKET and len(self.packet_handlers) > 0:
+            packet = GameTickPacket.GetRootAsGameTickPacket(incoming_message.data, 0)
+            for handler in self.packet_handlers:
+                handler(packet)
+        elif incoming_message.type == SocketDataType.FIELD_INFO and len(self.field_info_handlers) > 0:
+            field_info = FieldInfo.GetRootAsFieldInfo(incoming_message.data, 0)
+            for handler in self.field_info_handlers:
+                handler(field_info)
+        elif incoming_message.type == SocketDataType.MATCH_SETTINGS and len(self.match_settings_handlers) > 0:
+            match_settings = MatchSettings.GetRootAsMatchSettings(incoming_message.data, 0)
+            for handler in self.match_settings_handlers:
+                handler(match_settings)
+        elif incoming_message.type == SocketDataType.QUICK_CHAT and len(self.quick_chat_handlers) > 0:
+            quick_chat = QuickChat.GetRootAsQuickChat(incoming_message.data, 0)
+            for handler in self.quick_chat_handlers:
+                handler(quick_chat)
+        elif incoming_message.type == SocketDataType.BALL_PREDICTION and len(self.ball_prediction_handlers) > 0:
+            ball_prediction = BallPrediction.GetRootAsBallPrediction(incoming_message.data, 0)
+            for handler in self.ball_prediction_handlers:
+                handler(ball_prediction)
+        elif incoming_message.type == SocketDataType.MESSAGE_PACKET:
+            if len(self.player_stat_handlers) > 0 or len(self.player_input_change_handlers) > 0 or len(
+                    self.player_spectate_handlers) > 0:
+                msg_packet = MessagePacket.GetRootAsMessagePacket(incoming_message.data, 0)
+                for i in range(msg_packet.MessagesLength()):
+                    msg = msg_packet.Messages(i)
+                    msg_type = msg.MessageType()
+                    if msg_type == GameMessage.PlayerSpectate and len(self.player_spectate_handlers) > 0:
+                        spectate = PlayerSpectate()
+                        spectate.Init(msg.Message().Bytes, msg.Message().Pos)
+                        for handler in self.player_spectate_handlers:
+                            handler(spectate, msg_packet.GameSeconds(), msg_packet.FrameNum())
+                    elif msg_type == GameMessage.PlayerStatEvent and len(self.player_stat_handlers) > 0:
+                        stat_event = PlayerStatEvent()
+                        stat_event.Init(msg.Message().Bytes, msg.Message().Pos)
+                        for handler in self.player_stat_handlers:
+                            handler(stat_event, msg_packet.GameSeconds(), msg_packet.FrameNum())
+                    elif msg_type == GameMessage.PlayerInputChange and len(
+                            self.player_input_change_handlers) > 0:
+                        input_change = PlayerInputChange()
+                        input_change.Init(msg.Message().Bytes, msg.Message().Pos)
+                        for handler in self.player_input_change_handlers:
+                            handler(input_change, msg_packet.GameSeconds(), msg_packet.FrameNum())
 
     def disconnect(self):
         self._should_continue = False
