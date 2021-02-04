@@ -16,9 +16,9 @@ class StandaloneBot(BaseAgent):
     """
     This is intended to be a base class for python bots. Your bot file would be something like this:
 
-    from rlbot.agents.bot_manager_standalone_agent import BotManagerStandaloneAgent, run_bot
+    from rlbot.agents.standalone.standalone_bot import StandaloneBot, run_bot
 
-    class MyCoolBot(BotManagerStandaloneAgent):
+    class MyCoolBot(StandaloneBot):
         def get_output(self, packet: GameTickPacket):
             ...
 
@@ -28,6 +28,8 @@ class StandaloneBot(BaseAgent):
 
     And also you would need your config file to have supports_standalone = True
 
+    See rlbot.agents.standalone.standalone_bot_config for how to use command line arguments
+    to set more options.
     """
 
     def __init__(self, name, team, index):
