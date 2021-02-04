@@ -72,7 +72,7 @@ def run_bot(agent_class: Type[StandaloneBot]):
 
     # Pass in dummy objects for mp.Event, mp.Queue. We will not support that
     # functionality for standalone bots; it's generally unused anyway.
-    bot_manger = BotManagerStruct(terminate_request_event=mp.Event(),
+    bot_manager = BotManagerStruct(terminate_request_event=mp.Event(),
                                   termination_complete_event=mp.Event(),
                                   reload_request_event=mp.Event(),
                                   bot_configuration=config_obj,
@@ -84,4 +84,4 @@ def run_bot(agent_class: Type[StandaloneBot]):
                                   match_config=None,
                                   matchcomms_root=config.matchcomms_url,
                                   spawn_id=spawn_id)
-    bot_manger.run()
+    bot_manager.run()
