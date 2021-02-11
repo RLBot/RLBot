@@ -2,6 +2,7 @@
 #include <PacketStructs/LiveDataPacket.hpp>
 #include <ErrorCodes/ErrorCodes.hpp>
 #include <time.h>
+#include <map>
 
 #define CONST_ChatReplenishMilliseconds 2000
 #define CONST_MaxChatCount 5
@@ -18,9 +19,9 @@ namespace QuickChat {
 	{
 
 	private:
-		ChatState chatStates[CONST_MaxPlayers];
+		std::map<int, ChatState> chatStates;
 	public:
-		QuickChatRateLimiter() : chatStates{0}
+		QuickChatRateLimiter()
 		{ }
 		
 		RLBotCoreStatus CanSendChat(int playerIndex);

@@ -188,7 +188,7 @@ namespace FlatbufferTranslator {
 
 		auto players = flatPacket->players();
 		if (players) {
-			packet->numCars = players->size();
+			packet->numCars = std::min(CONST_MaxPlayers, (int) players->size());
 			int i = 0;
 			for (; i < packet->numCars; i++) {
 				fillPlayerStruct(players->Get(i), &packet->gameCars[i]);
@@ -418,7 +418,7 @@ namespace FlatbufferTranslator {
 
 		auto players = physicsTick->players();
 		if (players) {
-			structTick->numPlayers = players->size();
+			structTick->numPlayers = std::min(CONST_MaxPlayers, (int) players->size());
 			for (int i = 0; i < players->size(); i++) {
 				fillPlayerPhysicsStruct(players->Get(i), &structTick->players[i]);
 			}
@@ -534,7 +534,7 @@ namespace FlatbufferTranslator {
 
 		auto flatMatch = flatbuffers::GetRoot<rlbot::flat::MatchSettings>(flatbufferData.ptr);
 
-		matchSettings->numPlayers = flatMatch->playerConfigurations()->size();
+		matchSettings->numPlayers = std::min(CONST_MaxPlayers, (int) flatMatch->playerConfigurations()->size());
 		for (int i = 0; i < matchSettings->numPlayers; i++) {
 			fillPlayerConfigurationStruct(flatMatch->playerConfigurations()->Get(i), &matchSettings->playerConfiguration[i]);
 		}

@@ -87,7 +87,7 @@ namespace GameFunctions
 	extern "C" ByteBuffer RLBOT_CORE_API UpdateLiveDataPacketFlatbuffer()
 	{
 		EnsureTcpCommunication();
-		return game_tick_packet_flatbuffer_tcp.copyOut();
+        return blockUntilFlatbufferAvailable(&game_tick_packet_flatbuffer_tcp, "game tick");
 	}
 
 	// Ctypes

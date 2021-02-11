@@ -4,9 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.54.0'
+__version__ = '1.55.0'
 
 release_notes = {
+    '1.55.0': """
+    Using sockets for match start, lifting the restrictions on max players when using flatbuffers,
+    and sending a game tick packet immediately upon socket connection to fix some bugs.
+    """,
     '1.54.0': """
     Adding a version of the socket management util that uses asyncio.
     """,

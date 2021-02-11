@@ -4,6 +4,9 @@ import sys
 import time
 import platform
 from logging import DEBUG, WARNING
+from socket import timeout
+
+from rlbot.socket.socket_manager import SocketRelay
 
 import flatbuffers
 from flatbuffers import Builder
@@ -11,8 +14,10 @@ from rlbot.messages.flat.MatchSettings import MatchSettings as MatchSettingsPack
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.messages.flat.QuickChatMessages import QuickChatMessages
+from rlbot.messages.flat.GameTickPacket import GameTickPacket as Gtp
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.game_state_util import GameState, CarState, Physics, Vector3
+from rlbot.utils.packetanalysis.valid_packet_detector import ValidPacketDetector
 from rlbot.utils.rendering.rendering_manager import RenderingManager
 from rlbot.utils.rlbot_exception import get_exception_from_error_code, EmptyDllResponse
 from rlbot.utils.structures import game_data_struct
@@ -59,6 +64,7 @@ def get_dll_directory():
 class GameInterface:
     game = None
     start_match_configuration: MatchSettings = None
+    match_config: 'MatchConfig' = None
     start_match_flatbuffer: Builder = None
     game_status_callback_type = None
     callback_func = None
@@ -183,20 +189,19 @@ class GameInterface:
         pass
 
     def start_match(self):
-        self.wait_until_loaded()
-        self.wait_until_ready_to_communicate()
-        # self.game_input_packet.bStartMatch = True
-        if self.start_match_flatbuffer:
-            flatbuffer_bytes = self.start_match_flatbuffer.Output()
-            rlbot_status = self.game.StartMatchFlatbuffer(bytes(flatbuffer_bytes), len(flatbuffer_bytes))
-        else:
-            rlbot_status = self.game.StartMatch(self.start_match_configuration)
+        socket_relay = SocketRelay()
+        match_config = self.match_config
 
-        if rlbot_status != 0:
-            exception_class = get_exception_from_error_code(rlbot_status)
-            raise exception_class()
+        def connect_handler():
+            socket_relay.send_match_config(match_config)
+            socket_relay.disconnect()
 
-        self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
+        socket_relay.on_connect_handlers.append(connect_handler)
+        try:
+            socket_relay.connect_and_run(False, False, False)
+        except timeout:
+            raise TimeoutError("Took too long to connect to RLBot.exe!")
+
 
     def update_player_input(self, player_input, index):
         rlbot_status = self.game.UpdatePlayerInput(player_input, index)
@@ -261,39 +266,8 @@ class GameInterface:
 
 
     def wait_until_valid_packet(self):
-        self.logger.info('Waiting for valid packet...')
-        expected_count = self.start_match_configuration.num_players
-        for i in range(0, 300):
-            packet = game_data_struct.GameTickPacket()
-            self.update_live_data_packet(packet)
-            if not packet.game_info.is_match_ended:
-                spawn_ids = set()
-                for k in range(0, expected_count):
-                    player_config = self.start_match_configuration.player_configuration[k]
-                    if player_config.rlbot_controlled and player_config.spawn_id > 0:
-                        spawn_ids.add(player_config.spawn_id)
-
-                for n in range(0, packet.num_cars):
-                    try:
-                        spawn_ids.remove(packet.game_cars[n].spawn_id)
-                    except KeyError:
-                        pass
-
-                if len(spawn_ids) == 0 and expected_count == packet.num_cars:
-                    self.logger.info('Packets are looking good, all spawn ids accounted for!')
-                    return
-                elif i > 4:
-                    car_states = {}
-                    for k in range(0, self.start_match_configuration.num_players):
-                        player_info = packet.game_cars[k]
-                        if player_info.spawn_id > 0:
-                            car_states[k] = CarState(physics=Physics(velocity=Vector3(z=500)))
-                    if len(car_states) > 0:
-                        self.logger.info("Scooting bots out of the way to allow more to spawn!")
-                        self.set_game_state(GameState(cars=car_states))
-
-            time.sleep(0.1)
-        self.logger.info('Gave up waiting for valid packet :(')
+        detector = ValidPacketDetector(self.match_config)
+        detector.wait_until_valid_packet()
 
     def load_interface(self, port=23234, wants_ball_predictions=True, wants_quick_chat=True, wants_game_messages=False):
         self.game_status_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint)

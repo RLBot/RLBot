@@ -1,13 +1,17 @@
 from enum import IntEnum
 from socket import socket, SHUT_RDWR
 from time import sleep
-from typing import List, Callable
+from typing import List, Callable, TYPE_CHECKING
+
+from rlbot.utils.game_state_util import GameState
 
 from flatbuffers.builder import Builder
 from rlbot.agents.base_agent import SimpleControllerState
-from rlbot.matchconfig.match_config import MatchConfig
+if TYPE_CHECKING:
+    from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.messages.flat import ReadyMessage
 from rlbot.messages.flat.BallPrediction import BallPrediction
+from rlbot.messages.flat.DesiredGameState import DesiredGameState
 from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.messages.flat.GameMessage import GameMessage
 from rlbot.messages.flat.GameTickPacket import GameTickPacket
@@ -58,7 +62,8 @@ def read_from_socket(s: socket) -> SocketMessage:
 
 
 class SocketRelay:
-    def __init__(self):
+    def __init__(self, connection_timeout:float=120):
+        self.connection_timeout = connection_timeout
         self.logger = get_logger('socket_man')
         self.socket = socket()
         self.is_connected = False
@@ -83,9 +88,18 @@ class SocketRelay:
         builder = input.to_flatbuffer(player_index)
         self.send_flatbuffer(builder, SocketDataType.PLAYER_INPUT)
 
-    def send_match_config(self, mc: MatchConfig):
+    def send_match_config(self, mc: 'MatchConfig'):
         builder = mc.create_flatbuffer()
         self.send_flatbuffer(builder, SocketDataType.MATCH_SETTINGS)
+
+    def send_game_state(self, state: GameState):
+        builder = Builder(400)
+        game_state_offset = state.convert_to_flat(builder)
+        if game_state_offset is None:
+            return  # There are no values to be set, so just skip it
+        builder.Finish(game_state_offset)
+        self.send_flatbuffer(builder, SocketDataType.DESIRED_GAME_STATE)
+        pass
 
     def connect_and_run(self, wants_quick_chat, wants_game_messages, wants_ball_predictions):
         """
@@ -93,8 +107,15 @@ class SocketRelay:
         that have been registered. Connect and run are combined into a single method because
         currently bad things happen if the buffer is allowed to fill up.
         """
+        self.socket.settimeout(self.connection_timeout)
+        for i in range(int(self.connection_timeout * 10)):
+            try:
+                self.socket.connect(('127.0.0.1', 23234))
+                break
+            except ConnectionRefusedError:
+                sleep(.1)
 
-        self.socket.connect(('127.0.0.1', 23234))
+        self.socket.settimeout(None)
         self.is_connected = True
         self.logger.info("Connected!")
         for handler in self.on_connect_handlers:

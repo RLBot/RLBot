@@ -19,6 +19,7 @@ from urllib.parse import ParseResult as URL
 from dataclasses import dataclass
 
 from rlbot.gamelaunch.epic_launch import launch_with_epic_login_trick, launch_with_epic_simple
+from rlbot.socket.socket_data_reporter import get_one_packet
 from rlbot.utils.structures import game_data_struct
 
 from rlbot import gateway_util
@@ -134,7 +135,7 @@ class SetupManager:
     teams = None
     python_files = None
     bot_bundles: List[BotConfigBundle] = None
-    start_match_configuration = None
+    match_config: MatchConfig = None
     agent_metadata_queue = mp.Queue()
     extension = None
     bot_processes: Dict[int, BotProcessInfo] = {}
@@ -199,16 +200,6 @@ class SetupManager:
             mergeTASystemSettings()
             self.launch_rocket_league(port=port, launcher_preference=launcher_preference)
 
-        try:
-            self.logger.info("Loading interface...")
-            # We're not going to use this game_interface for much, just sending start match messages and inspecting
-            # the packet to see if the appropriate cars have been spawned.
-            self.game_interface.load_interface(
-                port=23234, wants_ball_predictions=False, wants_quick_chat=False, wants_game_messages=False)
-        except Exception as e:
-            self.logger.error("Terminating rlbot gateway and raising:")
-            self.rlbot_gateway_process.terminate()
-            raise e
         self.has_started = True
 
     @staticmethod
@@ -317,9 +308,8 @@ class SetupManager:
                 builder.create(Path(script_config_bundle.config_directory) / 'venv')
 
         self.match_config = match_config
-        self.start_match_configuration = match_config.create_match_settings()
+        self.game_interface.match_config = match_config
         self.game_interface.start_match_flatbuffer = match_config.create_flatbuffer()
-        self.game_interface.start_match_configuration = self.start_match_configuration
 
     def load_config(self, framework_config: ConfigObject = None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION,
                     bot_configs=None,
@@ -417,8 +407,8 @@ class SetupManager:
 
         # Launch processes
         # TODO: this might be the right moment to fix the player indices based on a game tick packet.
-        packet = game_data_struct.GameTickPacket()
-        self.game_interface.update_live_data_packet(packet)
+        if not early_starters_only:
+            packet = get_one_packet()
 
         # TODO: root through the packet and find discrepancies in the player index mapping.
         for i in range(min(self.num_participants, len(match_config.player_configs))):
@@ -438,8 +428,8 @@ class SetupManager:
                 participant_index = None
 
                 self.logger.info(f'Player in slot {i} was sent with spawn id {spawn_id}, will search in the packet.')
-                for n in range(0, packet.num_cars):
-                    packet_spawn_id = packet.game_cars[n].spawn_id
+                for n in range(0, packet.PlayersLength()):
+                    packet_spawn_id = packet.Players(n).SpawnId()
                     if spawn_id == packet_spawn_id:
                         self.logger.info(f'Looks good, considering participant index to be {n}')
                         participant_index = n
@@ -452,7 +442,7 @@ class SetupManager:
 
             if participant_index not in self.bot_processes:
                 bundle = get_bot_config_bundle(player_config.config_path)
-                name = str(self.start_match_configuration.player_configuration[i].name)
+                name = str(self.match_config.player_configs[i].name)
                 if bundle.supports_standalone:
                     executable = sys.executable
                     if bundle.use_virtual_environment:

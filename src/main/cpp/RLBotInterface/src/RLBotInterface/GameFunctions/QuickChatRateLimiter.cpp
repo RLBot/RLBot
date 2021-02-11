@@ -23,9 +23,14 @@ namespace QuickChat
 	{
 		using namespace std::chrono;
 
-		if (playerIndex < 0 || playerIndex >= CONST_MaxPlayers) 
-		{
-			return RLBotCoreStatus::InvalidPlayerIndex;
+        if (playerIndex < 0)
+        {
+            return RLBotCoreStatus::InvalidPlayerIndex;
+        }
+
+		if (!chatStates.count(playerIndex)) {
+		    // if player index is not in the map yet
+		    chatStates[playerIndex] = { 0 };
 		}
 
 		// Fetch the chat state associated with this player index.

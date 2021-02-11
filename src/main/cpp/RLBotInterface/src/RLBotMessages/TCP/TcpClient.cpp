@@ -47,18 +47,24 @@ namespace TcpClient {
 
 		boost::asio::streambuf read_buffer;
 
-		// TODO: consider using asynchronous reads. This is susceptible to blocking forever and keeping a zombie RLBot.exe alive.
-		std::size_t bytes_transferred = boost::asio::read(*socket, read_buffer, boost::asio::transfer_exactly(2), error);
+//		SocketReaderWithTimeout socket_reader(*socket);
+//
+//		if (!socket_reader.read_data(2, timeout_millis, &read_buffer)) {
+//		    return 0;
+//		}
 
-		if (error == boost::asio::error::eof)
-			return 0; // Connection closed cleanly by peer.
-		else if (error)
-			throw boost::system::system_error(error); // Some other error.
+        // TODO: consider using asynchronous reads. This is susceptible to blocking forever and keeping a zombie RLBot.exe alive.
+        std::size_t bytes_transferred = boost::asio::read(*socket, read_buffer, boost::asio::transfer_exactly(2), error);
 
-		int message_size = readShort(read_buffer);
-		bytes_transferred = boost::asio::read(*socket, read_buffer, boost::asio::transfer_exactly(message_size), error);
+        if (error == boost::asio::error::eof)
+            return 0; // Connection closed cleanly by peer.
+        else if (error)
+            throw boost::system::system_error(error); // Some other error.
 
-		if (error == boost::asio::error::eof)
+        int message_size = readShort(read_buffer);
+        bytes_transferred = boost::asio::read(*socket, read_buffer, boost::asio::transfer_exactly(message_size), error);
+
+        if (error == boost::asio::error::eof)
 			return false; // Connection closed cleanly by peer.
 		else if (error)
 			throw boost::system::system_error(error); // Some other error.
@@ -66,24 +72,6 @@ namespace TcpClient {
 		read_buffer.sgetn(data, message_size);
 
 		return message_size;
-	}
-
-	int receiveTypeAndSizePrefixedData(char* data, DataType* data_type, tcp::socket* socket)
-	{
-		boost::system::error_code error;
-		boost::asio::streambuf read_buffer;
-
-		// TODO: consider using asynchronous reads. This is susceptible to blocking forever and keeping a zombie RLBot.exe alive.
-		boost::asio::read(*socket, read_buffer, boost::asio::transfer_exactly(2), error);
-
-		if (error == boost::asio::error::eof)
-			return 0; // Connection closed cleanly by peer.
-		else if (error)
-			throw boost::system::system_error(error); // Some other error.
-
-		*data_type = (DataType)TcpClient::readShort(read_buffer);
-
-		return TcpClient::receiveSizePrefixedData(data, socket);
 	}
 
 	void serializeShort(char(&buf)[2], short val)
@@ -103,4 +91,19 @@ namespace TcpClient {
 		}
 	}
 
+    void appendData(const TypedRLBotData& data, std::string* message)
+    {
+        char prefix[2] = { };
+
+        // Write the data type prefix
+        TcpClient::serializeShort(prefix, data.data_type);
+        message->append(std::string(prefix, 2));
+
+        // Write the size prefix
+        TcpClient::serializeShort(prefix, data.data.size());
+        message->append(std::string(prefix, 2));
+
+        // Write the actual data
+        message->append(data.data);
+    }
 }

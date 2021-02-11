@@ -31,5 +31,5 @@ namespace TcpClient {
 	void serializeShort(char(&buf)[2], short val);
 	unsigned short readShort(boost::asio::streambuf& streambuf);
 	int receiveSizePrefixedData(char* data, boost::asio::ip::tcp::socket* socket);
-	int receiveTypeAndSizePrefixedData(char* data, DataType* data_type, boost::asio::ip::tcp::socket* socket);
+    void appendData(const TypedRLBotData& data, std::string* message);
 }
