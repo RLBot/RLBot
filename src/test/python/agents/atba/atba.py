@@ -4,6 +4,7 @@ from random import random
 from typing import List
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_AGENT_HEADER, SimpleControllerState
+from rlbot.matchconfig.match_config import MatchConfig
 from rlbot.messages.flat.RumbleOption import RumbleOption
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState, BoostState, BallState, CarState, GameInfoState, Physics, Vector3
@@ -76,6 +77,9 @@ class Atba(BaseAgent):
         self.state_listener = StateListener(index)
         self.sequence: Sequence = None
         self.prev_seconds_elapsed = 0
+
+    def init_match_config(self, match_config: MatchConfig):
+        self.logger.info(match_config.player_configs[self.index].name)
 
     def get_output(self, game_tick_packet: GameTickPacket) -> SimpleControllerState:
         controller_state = SimpleControllerState()

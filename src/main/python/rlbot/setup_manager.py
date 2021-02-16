@@ -452,7 +452,7 @@ class SetupManager:
 
             if participant_index not in self.bot_processes:
                 bundle = get_bot_config_bundle(player_config.config_path)
-                name = str(self.match_config.player_configs[i].name)
+                name = str(self.match_config.player_configs[i].deduped_name)
                 if bundle.supports_standalone:
                     executable = sys.executable
                     if bundle.use_virtual_environment:

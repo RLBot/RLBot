@@ -44,6 +44,7 @@ class PlayerConfig:
         self.bot_skill: float = None
         self.human_index: int = None
         self.name: str = None
+        self.deduped_name: str = None
         self.team: int = None
         self.config_path: str = None  # Required only if rlbot_controlled is true
         self.loadout_config: LoadoutConfig = None
@@ -65,11 +66,12 @@ class PlayerConfig:
         return bot_config
 
     def write(self, player_configuration: PlayerConfiguration, name_dict: dict):
+        self.deduped_name = get_sanitized_bot_name(name_dict, self.name)
         player_configuration.bot = self.bot
         player_configuration.rlbot_controlled = self.rlbot_controlled
         player_configuration.bot_skill = self.bot_skill or 0
         player_configuration.human_index = self.human_index or 0
-        player_configuration.name = get_sanitized_bot_name(name_dict, self.name)
+        player_configuration.name = self.deduped_name
         player_configuration.team = self.team
         player_configuration.spawn_id = self.spawn_id
 
@@ -77,7 +79,8 @@ class PlayerConfig:
             self.loadout_config.write(player_configuration)
 
     def write_to_flatbuffer(self, builder: Builder, name_dict: dict):
-        name = builder.CreateString(get_sanitized_bot_name(name_dict, self.name))
+        self.deduped_name = get_sanitized_bot_name(name_dict, self.name)
+        name = builder.CreateString(self.deduped_name)
 
         if self.loadout_config:
             loadout = self.loadout_config.write_to_flatbuffer(builder)
