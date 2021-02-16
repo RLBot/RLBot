@@ -40,7 +40,9 @@ namespace BallPrediction
 				slice_list.push_back(current);
 			}
 		}
-		
+
+		delete[] packet_data.ptr;
+
 		while (slice_list.size() > CONST_MAXSLICES) {
 			slice_list.pop_back();
 		}

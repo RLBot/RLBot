@@ -200,6 +200,16 @@ class SetupManager:
             mergeTASystemSettings()
             self.launch_rocket_league(port=port, launcher_preference=launcher_preference)
 
+        try:
+            self.logger.info("Loading interface...")
+            # We're not going to use this game_interface for much, just sending start match messages and inspecting
+            # the packet to see if the appropriate cars have been spawned.
+            self.game_interface.load_interface(
+                port=23234, wants_ball_predictions=False, wants_quick_chat=False, wants_game_messages=False)
+        except Exception as e:
+            self.logger.error("Terminating rlbot gateway and raising:")
+            self.rlbot_gateway_process.terminate()
+            raise e
         self.has_started = True
 
     @staticmethod

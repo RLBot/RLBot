@@ -1,5 +1,5 @@
 from enum import IntEnum
-from socket import socket, SHUT_RDWR
+from socket import socket, SHUT_RDWR, SHUT_WR
 from time import sleep
 from typing import List, Callable, TYPE_CHECKING
 
@@ -55,6 +55,8 @@ class SocketMessage:
 
 def read_from_socket(s: socket) -> SocketMessage:
     type_int = int_from_bytes(s.recv(2))
+    if type_int == 0:
+        raise EOFError()
     data_type = SocketDataType(type_int)
     size = int_from_bytes(s.recv(2))
     data = s.recv(size)
@@ -128,9 +130,16 @@ class SocketRelay:
             incoming_message = read_from_socket(self.socket)
             self.handle_incoming_message(incoming_message)
 
-        # Sleep to give a chance for TCP communications to finish being acknowledged
-        sleep(0.5)
-        self.socket.shutdown(SHUT_RDWR)
+        self.socket.shutdown(SHUT_WR)
+
+        # Now wait for the other end to send its own shutdown signal.
+        try:
+            while True:
+                read_from_socket(self.socket)
+        except EOFError:
+            # We've succeeded with our graceful shutdown.
+            pass
+
         self.socket.close()
 
     def make_ready_message(self, wants_ball_predictions, wants_game_messages, wants_quick_chat):
