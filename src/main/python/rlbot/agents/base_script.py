@@ -36,10 +36,15 @@ class BaseScript(RLBotRunnable):
         # Get matchcomms root if provided as a command line argument.
         try:
             pos = sys.argv.index("--matchcomms-url")
-            potential_url = sys.argv[pos + 1]
-            self.matchcomms_root = urlparse(potential_url)  # Not sure what to do if this is not a valid url
+            potential_url = urlparse(sys.argv[pos + 1])
         except (ValueError, IndexError):
+            # Missing the command line argument.
             pass
+        else:
+            if potential_url.scheme == "ws" and potential_url.netloc:
+                self.matchcomms_root = potential_url
+            else:
+                raise ValueError("The matchcomms url is invalid")
 
     def get_game_tick_packet(self):
         """Gets the latest game tick packet immediately, without blocking."""
