@@ -1,6 +1,10 @@
+import sys
 import random
+from typing import Optional
+from urllib.parse import urlparse, ParseResult as URL
 
 from rlbot.agents.rlbot_runnable import RLBotRunnable, LOCATIONS_HEADER
+from rlbot.matchcomms.client import MatchcommsClient
 from rlbot.messages.flat import MatchSettings
 from rlbot.parsing.custom_config import ConfigObject
 from rlbot.utils.game_state_util import GameState
@@ -17,6 +21,8 @@ class BaseScript(RLBotRunnable):
     It is NOT required to use this when configuring a script.
     """
 
+    matchcomms_root: Optional[URL] = None
+
     def __init__(self, name):
         super().__init__(name)
         self.logger = get_logger(name)
@@ -27,6 +33,13 @@ class BaseScript(RLBotRunnable):
         self.game_interface.load_interface()
         fake_index = random.randint(100, 10000)  # a number unlikely to conflict with bots or other scripts
         self.renderer = self.game_interface.renderer.get_rendering_manager(bot_index=fake_index, bot_team=2)
+        # Get matchcomms root if provided as a command line argument.
+        try:
+            pos = sys.argv.index("--matchcomms-url")
+            potential_url = sys.argv[pos + 1]
+            self.matchcomms_root = urlparse(potential_url)  # Not sure what to do if this is not a valid url
+        except (ValueError, IndexError):
+            pass
 
     def get_game_tick_packet(self):
         """Gets the latest game tick packet immediately, without blocking."""
@@ -73,3 +86,20 @@ class BaseScript(RLBotRunnable):
         cls.create_agent_configurations(config)
 
         return config
+
+    # Same as in BaseAgent.
+    _matchcomms: Optional[MatchcommsClient] = None
+    @property
+    def matchcomms(self) -> MatchcommsClient:
+        """
+        Gets a client to send and recieve messages to other participants in the match (e.g. bots, trainer)
+        """
+        if self.matchcomms_root is None:
+            raise ValueError("Your bot tried to access matchcomms but matchcomms_root is None! This "
+                             "may be due to manually running a bot in standalone mode without passing the "
+                             "--matchcomms-url argument. That's a fine thing to do, and if it's safe to "
+                             "ignore matchcomms in your case then go ahead and wrap your matchcomms access "
+                             "in a try-except, or do a check first for whether matchcomms_root is None.")
+        if self._matchcomms is None:
+            self._matchcomms = MatchcommsClient(self.matchcomms_root)
+        return self._matchcomms

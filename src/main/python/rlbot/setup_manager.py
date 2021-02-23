@@ -498,8 +498,14 @@ class SetupManager:
             if script_config_bundle.use_virtual_environment:
                 executable = str(Path(script_config_bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
 
-            process = subprocess.Popen([executable, script_config_bundle.script_file],
-                                       cwd=Path(script_config_bundle.config_directory).parent)
+            process = subprocess.Popen(
+                [
+                    executable,
+                    script_config_bundle.script_file, 
+                    '--matchcomms-url', self.matchcomms_server.root_url.geturl()
+                ],
+                cwd=Path(script_config_bundle.config_directory).parent
+            )
             self.logger.info(f"Started script with pid {process.pid} using {process.args}")
             self.script_processes[process.pid] = process
             scripts_started += 1
