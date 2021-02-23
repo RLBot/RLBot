@@ -409,8 +409,8 @@ class SetupManager:
 
     def launch_bot_process_helper(self, early_starters_only=False, match_config: MatchConfig = None):
         # Start matchcomms here as it's only required for the bots.
-        self.kill_matchcomms_server()
-        self.matchcomms_server = launch_matchcomms_server()
+        if not self.matchcomms_server:
+            self.matchcomms_server = launch_matchcomms_server()
         self.bot_processes = {ind: proc for ind, proc in self.bot_processes.items() if proc.is_alive()}
 
         num_started = 0
