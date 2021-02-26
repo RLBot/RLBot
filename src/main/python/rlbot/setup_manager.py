@@ -409,8 +409,8 @@ class SetupManager:
 
     def launch_bot_process_helper(self, early_starters_only=False, match_config: MatchConfig = None):
         # Start matchcomms here as it's only required for the bots.
-        self.kill_matchcomms_server()
-        self.matchcomms_server = launch_matchcomms_server()
+        if not self.matchcomms_server:
+            self.matchcomms_server = launch_matchcomms_server()
         self.bot_processes = {ind: proc for ind, proc in self.bot_processes.items() if proc.is_alive()}
 
         num_started = 0
@@ -498,8 +498,14 @@ class SetupManager:
             if script_config_bundle.use_virtual_environment:
                 executable = str(Path(script_config_bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
 
-            process = subprocess.Popen([executable, script_config_bundle.script_file],
-                                       cwd=Path(script_config_bundle.config_directory).parent)
+            process = subprocess.Popen(
+                [
+                    executable,
+                    script_config_bundle.script_file, 
+                    '--matchcomms-url', self.matchcomms_server.root_url.geturl()
+                ],
+                cwd=Path(script_config_bundle.config_directory).parent
+            )
             self.logger.info(f"Started script with pid {process.pid} using {process.args}")
             self.script_processes[process.pid] = process
             scripts_started += 1
