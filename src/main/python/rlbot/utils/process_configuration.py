@@ -99,7 +99,7 @@ def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bo
             p = process.name()
             if program in p or scriptname in p:
                 matching_processes.append(process)
-        except psutil.NoSuchProcess:
+        except (psutil.NoSuchProcess, psutil.AccessDenie):
             continue
     # If matching processes were found, check for correct arguments.
     if len(matching_processes) != 0:
