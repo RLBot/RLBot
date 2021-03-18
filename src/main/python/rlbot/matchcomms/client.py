@@ -13,7 +13,10 @@ from rlbot.utils.logging_utils import get_logger
 from rlbot.matchcomms.shared import MatchcommsPaths, JSON
 
 class MatchcommsClient:
-    def __init__(self, server_root_url: URL):
+    def __init__(self, server_root_url: URL, team=None):
+        # If self.team is None, you can see all matchcomms
+        self.team = team
+
         self.incoming_broadcast = Queue()
         self.outgoing_broadcast = Queue()
 
@@ -36,8 +39,8 @@ class MatchcommsClient:
             async with websockets.connect(urlunparse(self.broadcast_url)) as websocket:
                 io_task = self.event_loop.create_task(asyncio.wait(
                     [
-                        read_into_queue(websocket, self.incoming_broadcast),
-                        send_from_queue(websocket, self.outgoing_broadcast),
+                        read_into_queue(websocket, self.incoming_broadcast, self.team),
+                        send_from_queue(websocket, self.outgoing_broadcast, self.team),
                     ],
                     return_when=asyncio.FIRST_COMPLETED
                 ))
@@ -66,15 +69,21 @@ class MatchcommsClient:
         assert not self.thread.is_alive()
 
 
-async def read_into_queue(websocket: WebSocketClientProtocol, incoming: Queue):
+async def read_into_queue(websocket: WebSocketClientProtocol, incoming: Queue, team):
     async for message in websocket:
         try:
-            incoming.put(json.loads(message))
+            decoded_message = json.loads(message)
         except json.decoder.JSONDecodeError:
             print('Failed to decode this message:', repr(message))
             traceback.print_exc()
+        # make sure we can't see the message if it is just for the other team
+        if ('team' in decoded_message and 'team_only' in decoded_message and
+                team is not None and decoded_message['team_only'] == True and
+                decoded_message['team'] != team):
+            continue
+        incoming.put(decoded_message)
 
-async def send_from_queue(websocket: WebSocketClientProtocol, outgoing: Queue):
+async def send_from_queue(websocket: WebSocketClientProtocol, outgoing: Queue, team):
     logger = get_logger('matchcomms_json_encode')
     while True:
         # TODO: use something like https://github.com/aio-libs/janus to avoid polling
@@ -82,6 +91,9 @@ async def send_from_queue(websocket: WebSocketClientProtocol, outgoing: Queue):
             await asyncio.sleep(0.01)
 
         obj = outgoing.get_nowait()
+        # if we aren't a script, add our team to the packet so that team-only matchcomms can work
+        if team is not None:
+            obj["team"] = team
         try:
             json_str = json.dumps(obj) # Serialize the object that was put on the outgoing queue
         except TypeError:

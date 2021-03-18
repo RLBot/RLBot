@@ -183,7 +183,7 @@ class BaseAgent(RLBotRunnable):
                              "ignore matchcomms in your case then go ahead and wrap your matchcomms access "
                              "in a try-except, or do a check first for whether matchcomms_root is None.")
         if self._matchcomms is None:
-            self._matchcomms = MatchcommsClient(self.matchcomms_root)
+            self._matchcomms = MatchcommsClient(self.matchcomms_root, self.team)
         return self._matchcomms  # note: _matchcomms.close() is called by the bot_manager.
 
     def load_config(self, config_object_header):
