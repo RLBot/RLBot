@@ -68,7 +68,6 @@ class MatchcommsClient:
         self.thread.join(1)
         assert not self.thread.is_alive()
 
-
 async def read_into_queue(websocket: WebSocketClientProtocol, incoming: Queue, team):
     async for message in websocket:
         try:
@@ -91,9 +90,12 @@ async def send_from_queue(websocket: WebSocketClientProtocol, outgoing: Queue, t
             await asyncio.sleep(0.01)
 
         obj = outgoing.get_nowait()
+        # Be verbose if we are overriding the team attr
+        if "team" in obj and obj["team"] != team:
+            print("Overriding the 'team' key in your match communication object!")
         # if we aren't a script, add our team to the packet so that team-only matchcomms can work
-        if team is not None:
-            obj["team"] = team
+        obj["team"] = team
+
         try:
             json_str = json.dumps(obj) # Serialize the object that was put on the outgoing queue
         except TypeError:
