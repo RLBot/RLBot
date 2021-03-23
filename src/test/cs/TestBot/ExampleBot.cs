@@ -2,7 +2,7 @@
 using RLBotDotNet;
 using RLBotDotNet.GameState;
 using rlbot.flat;
-using Color = System.Windows.Media.Color;
+using Color = System.Drawing.Color;
 
 namespace TestBot
 {
@@ -43,7 +43,7 @@ namespace TestBot
                 else
                     controller.Steer = -1;
 
-                Renderer.DrawLine3D(Color.FromRgb(255, 255, 0), ballLocation, carLocation);
+                Renderer.DrawLine3D(Color.FromArgb(255, 255, 0), ballLocation, carLocation);
 
                 // Get the ball prediction data.
                 BallPrediction prediction = GetBallPrediction();
@@ -54,7 +54,7 @@ namespace TestBot
                     Vector3 pointA = prediction.Slices(i - 10).Value.Physics.Value.Location.Value;
                     Vector3 pointB = prediction.Slices(i).Value.Physics.Value.Location.Value;
 
-                    Renderer.DrawLine3D(Color.FromRgb(255, 0, 255), pointA, pointB);
+                    Renderer.DrawLine3D(Color.FromArgb(255, 0, 255), pointA, pointB);
                 }
 
                 // Test out setting game state
