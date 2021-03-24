@@ -50,7 +50,7 @@ namespace RLBotDotNet
         private void RegisterBot(string name, int team, int index)
         {
             // Only add a bot if botProcesses doesn't contain the index given in the parameters.
-            if (botProcesses.Any(b => b.bot.index == index))
+            if (botProcesses.Any(b => b.bot.Index == index))
                 return;
 
             AutoResetEvent botRunEvent = new AutoResetEvent(false);
@@ -95,7 +95,7 @@ namespace RLBotDotNet
                     renderer.StartPacket();
                     GameTickPacket gameTickPacket = RLBotInterface.GetGameTickPacket();
                     Controller botInput = bot.GetOutput(gameTickPacket);
-                    RLBotInterface.SetBotInput(botInput, bot.index);
+                    RLBotInterface.SetBotInput(botInput, bot.Index);
                     renderer.FinishAndSendIfDifferent();
                 }
                 catch (FlatbuffersPacketException)
@@ -184,7 +184,7 @@ namespace RLBotDotNet
                 Console.WriteLine(e.StackTrace);
             }
 
-            Console.WriteLine($"Stopped bot: name={bot.name}, team={bot.team}, index={bot.index}");
+            Console.WriteLine($"Stopped bot: Name={bot.Name}, Team={bot.Team}, Index={bot.Index}");
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace RLBotDotNet
                 else if (split[0] == "remove")
                 {
                     int index = int.Parse(split[1]);
-                    BotProcess proc = botProcesses.Find(b => b.bot.index == index);
+                    BotProcess proc = botProcesses.Find(b => b.bot.Index == index);
 
                     // Only call the bot stopping/removing methods if proc references an object and not a default value.
                     // Referencing a default value happens when LINQ's Find method can't find any matches.
@@ -283,7 +283,7 @@ namespace RLBotDotNet
 
         private BotLoopRenderer GetRendererForBot(Bot bot)
         {
-            return _renderers.GetOrAdd(bot.index, new BotLoopRenderer(bot.index));
+            return _renderers.GetOrAdd(bot.Index, new BotLoopRenderer(bot.Index));
         }
     }
 }

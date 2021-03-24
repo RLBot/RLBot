@@ -18,17 +18,17 @@ namespace RLBotDotNet
         /// <summary>
         /// The name given to the bot in its configuration file.
         /// </summary>
-        public readonly string name;
+        public readonly string Name;
 
         /// <summary>
         /// The team the bot is on (0 for blue, 1 for orange).
         /// </summary>
-        public readonly int team;
+        public readonly int Team;
 
         /// <summary>
         /// The index of the bot in the match.
         /// </summary>
-        public readonly int index;
+        public readonly int Index;
 
         private DateTime lastChatTime;
         private bool resetChatTime;
@@ -40,9 +40,9 @@ namespace RLBotDotNet
         /// </summary>
         public Bot(string botName, int botTeam, int botIndex)
         {
-            name = botName;
-            team = botTeam;
-            index = botIndex;
+            Name = botName;
+            Team = botTeam;
+            Index = botIndex;
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace RLBotDotNet
 
                 if (chatCounter < MaxChatCount)
                 {
-                    RLBotInterface.SendQuickChatFlat(index, teamOnly, quickChat);
+                    RLBotInterface.SendQuickChatFlat(Index, teamOnly, quickChat);
                     chatCounter++;
                 }
                 else
@@ -190,7 +190,7 @@ namespace RLBotDotNet
         /// </example>
         public QuickChatMessages ReceiveQuickChat()
         {
-            QuickChatMessages messages = RLBotInterface.ReceiveQuickChat(index, team, lastMessageId);
+            QuickChatMessages messages = RLBotInterface.ReceiveQuickChat(Index, Team, lastMessageId);
 
             if (messages.MessagesLength > 0)
                 lastMessageId = messages.Messages(messages.MessagesLength - 1).Value.MessageIndex;
