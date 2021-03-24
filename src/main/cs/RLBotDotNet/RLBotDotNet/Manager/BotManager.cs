@@ -24,6 +24,7 @@ namespace RLBotDotNet
         private Thread serverThread;
 
         private readonly int frequency;
+        private readonly bool _crashOnError;
 
         /// <summary>
         /// Constructs a new instance of BotManager.
@@ -34,7 +35,16 @@ namespace RLBotDotNet
         /// Constructs a new instance of BotManager.
         /// </summary>
         /// <param name="frequency">The frequency that the bot updates at: [1, 120]. Set to 0 to update at each new packet.</param>
-        public BotManager(int frequency)
+        /// <param name="crashOnError">
+        /// <para>Whether the bot will crash on error or continue running.</para>
+        /// <para>If false, the BotManager will catch all exceptions made by the bot and output them to the console without
+        /// rethrowing anything. This means that the bot will continue running even after an exception is thrown.</para>
+        /// <para> If true, the BotManager will rethrow all exceptions made by the bot. This means it is up to the
+        /// botmaker to catch exceptions made by themselves.</para>
+        /// <para>Turning this flag to true can be useful for debugging with a debugger, but it is not recommended to
+        /// keep it on for tournament scenarios.</para>
+        /// </param>
+        public BotManager(int frequency, bool crashOnError = false)
         {
             _renderers = new ConcurrentDictionary<int, BotLoopRenderer>();
 
@@ -42,6 +52,7 @@ namespace RLBotDotNet
                 throw new ArgumentOutOfRangeException(nameof(frequency));
 
             this.frequency = frequency;
+            _crashOnError = crashOnError;
         }
 
         /// <summary>
@@ -102,7 +113,7 @@ namespace RLBotDotNet
                 {
                     // Ignore if the packet size is too small. No need to warn the user.
                 }
-                catch (Exception e)
+                catch (Exception e) when (!_crashOnError)
                 {
                     // Don't crash the bot and give the user the details of the exception instead.
                     Console.WriteLine(e.GetType());
