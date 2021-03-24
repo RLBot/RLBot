@@ -15,6 +15,15 @@ namespace RLBotDotNet
         private const float MaxChatRate = 2.0f;
         private const int MaxChatCount = 5;
 
+        [Obsolete("This field is obsolete. Use Name instead.", true)]
+        public readonly string name;
+
+        [Obsolete("This field is obsolete. Use Team instead.", true)]
+        public readonly int team;
+
+        [Obsolete("This field is obsolete. Use Index instead.", true)]
+        public readonly int index;
+
         /// <summary>
         /// The name given to the bot in its configuration file.
         /// </summary>
@@ -161,7 +170,8 @@ namespace RLBotDotNet
                 }
                 else
                 {
-                    Console.WriteLine($"Quick chat disabled for {(int) (MaxChatRate - timeSinceLastChat.TotalSeconds)} seconds.");
+                    Console.WriteLine(
+                        $"Quick chat disabled for {(int) (MaxChatRate - timeSinceLastChat.TotalSeconds)} seconds.");
                 }
             }
             catch (FlatbuffersPacketException)
