@@ -14,7 +14,11 @@
 
     <Description>RLBot is a framework for writing Rocket League bots in .NET languages.</Description>
     <PackageReleaseNotes>
-- Upgraded to .NET Standard 2.0, so you can now use .NET 5 with RLBot!
+      RLBot has been upgraded to .NET Standard 2.0, so you can now use .NET 5 with RLBot!
+      Please note that this release has **breaking changes**:
+      - The Renderer class uses System.Drawing.Color instead of System.Windows.Media.Color.
+      - The Bot class now has PascalCase for Name, Team, and Index. This is to keep it in line with common C# naming conventions.
+      For more information, visit the wiki: https://github.com/RLBot/RLBotCSharpExample/wiki/Upgrading-to-RLBotDotNet-2.x
     </PackageReleaseNotes>
     <Copyright>Copyright 2021</Copyright>
     <PackageTags>rocket-league;rocketleague;ai;bot</PackageTags>
