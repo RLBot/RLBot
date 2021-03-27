@@ -11,11 +11,15 @@ from rlbot.parsing.bot_config_bundle import RunnableConfigBundle
 
 class EnvBuilderWithRequirements(EnvBuilder):
 
-    def __init__(self, bundle: RunnableConfigBundle):
+    def __init__(self, bundle: RunnableConfigBundle, do_post_setup: bool=True):
         super().__init__(system_site_packages=True, clear=False, with_pip=False)
         self.bundle = bundle
+        self.do_post_setup = do_post_setup
 
     def post_setup(self, context: SimpleNamespace) -> None:
+        if not self.do_post_setup:
+            sys.stderr.write('skipping requirements check...\n')
+            return
         requirements = self.bundle.requirements_file
         if not requirements:
             raise ValueError(f'Requirements file was not specified in {self.bundle.config_path}!')
@@ -46,4 +50,3 @@ def setup_virtual_environment(runnable: RunnableConfigBundle):
         raise ValueError(f'{runnable.name} is not configured for virtual environment support!')
     builder = EnvBuilderWithRequirements(bundle=runnable)
     builder.create(Path(runnable.config_directory) / 'venv')
-

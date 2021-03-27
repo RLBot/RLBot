@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional, Dict, Set
 from urllib.parse import ParseResult as URL
+from urllib.request import urlopen
+from urllib.error import URLError
 
 from dataclasses import dataclass
 
@@ -306,15 +308,39 @@ class SetupManager:
         if match_config.extension_config is not None and match_config.extension_config.python_file_path is not None:
             self.load_extension(match_config.extension_config.python_file_path)
 
+        try:
+            urlopen("http://google.com")
+            checked_environment_requirements = set()
+            online = True
+        except URLError:
+            print("The user is offline, skipping upgrade the bot requirements")
+            online = False
+
         for bundle in self.bot_bundles:
             if bundle is not None and bundle.use_virtual_environment:
-                builder = EnvBuilderWithRequirements(bundle=bundle)
+                do_post_setup = online
+
+                if do_post_setup:
+                    if bundle.requirements_file in checked_environment_requirements:
+                        do_post_setup = False
+                    else:
+                        checked_environment_requirements.add(bundle.requirements_file)
+
+                builder = EnvBuilderWithRequirements(bundle=bundle, do_post_setup=do_post_setup)
                 builder.create(Path(bundle.config_directory) / 'venv')
 
         for script_config in match_config.script_configs:
             script_config_bundle = get_script_config_bundle(script_config.config_path)
             if script_config_bundle.use_virtual_environment:
-                builder = EnvBuilderWithRequirements(bundle=script_config_bundle)
+                do_post_setup = online
+
+                if do_post_setup:
+                    if bundle.requirements_file in checked_environment_requirements:
+                        do_post_setup = False
+                    else:
+                        checked_environment_requirements.add(bundle.requirements_file)
+                
+                builder = EnvBuilderWithRequirements(bundle=script_config_bundle, do_post_setup=do_post_setup)
                 builder.create(Path(script_config_bundle.config_directory) / 'venv')
 
         self.match_config = match_config
