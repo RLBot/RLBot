@@ -91,6 +91,7 @@ game_map_dict = {
     "Farmstead_Night": "Farm_Night_P",
     "SaltyShores_Night": "beach_night_p",
     "NeonFields": "music_p",
+    "DFHStadium_Circuit": "Stadium_Race_Day_P",
 }
 
 map_types = list(game_map_dict.keys())
