@@ -9,13 +9,9 @@ Please run setup.bat so that the Flatbuffers generated files go in the /flat fol
 RLBotDotNet is available on NuGet at https://www.nuget.org/packages/RLBot.Framework.
 
 To publish new versions there:
-1. Install the NuGet CLI: https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#nugetexe-cli.
-   - Put the exe on your PATH.
-2. Modify AssemblyInfo.cs to have an incremented version number.
-3. Modify RLBotDotNet.nuspec to update the release notes, etc.
-4. Make sure RLBotDotNet has been built with the Release configuration, on the "Any CPU" platform.
-5. Open a terminal and go to the RLBotDotNet folder (the one that contains RLBotDotNet.csproj).
-6. Run `nuget pack .\RLBotDotNet.csproj -Prop Configuration=Release`
-   - This should create a file like RLBot.Framework.0.0.1.nupkg.
-7. Go to https://www.nuget.org/packages/manage/upload and log in with our rlbotofficial account.
-8. Upload the nupkg file.
+1. Modify RLBotDotNet.csproj to have an incremented version number.
+1. Modify RLBotDotNet.csproj to update the release notes, etc.
+1. Make sure RLBotDotNet has been built with the Release configuration, on the "Any CPU" platform.
+   - This should generate `.nupkg` and `.snupkg` files.
+1. Go to https://www.nuget.org/packages/manage/upload and log in with our rlbotofficial account.
+1. Upload the `.nupkg` file, then upload the `.snupkg` file.
