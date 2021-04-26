@@ -81,6 +81,7 @@ class RLBotRunnable:
         details_config.add_value('fun_fact', str, description="Fun fact about the bot")
         details_config.add_value('github', str, description="Link to github repository")
         details_config.add_value('language', str, description="Programming language")
+        details_config.add_value('tags', str, description="Comma separated list of tags, used by RLBotGUI")
 
         cls.create_agent_configurations(config)
 
