@@ -389,7 +389,7 @@ class GameInterface:
             self.game_status(None, RLBotCoreStatus.Success)
             return BallPredictionPacket.GetRootAsBallPrediction(proto_string, 0)
 
-    def get_match_settings(self) -> MatchSettings:
+    def get_match_settings(self) -> MatchSettingsPacket:
         """
         Gets the current match settings in flatbuffer format. Useful for determining map, game mode, mutator settings,
         etc.

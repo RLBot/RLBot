@@ -6,6 +6,7 @@ from rlbot.botmanager.agent_metadata import AgentMetadata
 from rlbot.utils.class_importer import import_class_with_base
 
 from rlbot.botmanager.bot_helper_process import BotHelperProcess
+from rlbot.utils.logging_utils import get_logger
 
 
 class HelperProcessManager:
@@ -16,6 +17,7 @@ class HelperProcessManager:
     def __init__(self, quit_event: Event):
         self.quit_event = quit_event
         self.helper_process_map = {}
+        self.logger = get_logger('helper_proc')
 
     def start_or_update_helper_process(self, agent_metadata: AgentMetadata):
         """
@@ -44,6 +46,7 @@ class HelperProcessManager:
                     launch = [helper_req.executable]
                     if helper_req.exe_args is not None:
                         launch.extend(helper_req.exe_args)
+                    self.logger.info(f"Launching {launch}")
                     process = subprocess.Popen(launch, cwd=helper_req.current_working_directory)
 
                     agent_metadata.pids.add(process.pid)

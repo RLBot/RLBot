@@ -3,6 +3,8 @@ import os
 import time
 import traceback
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Tuple
 from urllib.parse import ParseResult as URL
 
 from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, MAXIMUM_TICK_RATE_PREFERENCE_KEY
@@ -108,7 +110,7 @@ class BotManager:
         if rlbot_status == RLBotCoreStatus.QuickChatRateExceeded:
             self.logger.debug('quick chat disabled')
 
-    def load_agent(self):
+    def load_agent(self) -> Tuple[BaseAgent, Path]:
         """
         Loads and initializes an agent using instance variables, registers for quick chat and sets render functions.
         :return: An instance of an agent, and the agent class file.
@@ -116,6 +118,7 @@ class BotManager:
         agent_class = self.agent_class_wrapper.get_loaded_class()
         self.agent = agent_class(self.name, self.team, self.index)
         self.agent._set_spawn_id(self.spawn_id)
+        self.agent.matchcomms_root = self.matchcomms_root
         self.agent.init_match_config(self.match_config)
 
         self.agent.load_config(self.bot_configuration.get_header("Bot Parameters"))
@@ -131,7 +134,7 @@ class BotManager:
         self.agent._register_ball_prediction_struct(self.get_ball_prediction_struct)
         self.agent._register_get_rigid_body_tick(self.get_rigid_body_tick)
         self.agent._register_match_settings_func(self.get_match_settings)
-        self.agent.matchcomms_root = self.matchcomms_root
+
 
         # Once all engine setup is done, do the agent-specific initialization, if any:
         self.agent.initialize_agent()

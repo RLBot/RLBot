@@ -590,7 +590,8 @@ enum GameMode : byte {
   Dropshot,
   Hockey,
   Rumble,
-  Heatseeker
+  Heatseeker,
+  Gridiron
 }
 
 enum GameMap : byte {

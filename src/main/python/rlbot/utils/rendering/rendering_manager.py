@@ -2,7 +2,10 @@ import ctypes
 import hashlib
 from typing import Optional, Set
 
+import flatbuffers
+from rlbot.messages.flat import Float
 from rlbot.utils.structures.game_data_struct import Vector3
+from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.struct import Struct
 from rlbot.utils.logging_utils import get_logger
 
@@ -100,7 +103,7 @@ class RenderingManager:
             self.native_finish_and_send(self.builder)
             self.native_destructor(self.builder)
         self.builder = None
-        
+
         self.render_state = False
 
     def clear_screen(self, group_id: str=DEFAULT_GROUP_ID):
@@ -146,7 +149,7 @@ class RenderingManager:
         if self.builder is None:
             get_logger("Renderer").error("Use begin_rendering before using any of the drawing functions!")
             return self
-        
+
         # TODO: would be nice to use a native function
         for i in range(len(vectors) - 1):
             self.draw_line_3d(vectors[i], vectors[i+1], color)

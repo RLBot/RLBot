@@ -79,6 +79,7 @@ class SocketRelay:
         self.player_input_change_handlers: List[Callable[[PlayerInputChange, float, int], None]] = []
         self.player_stat_handlers: List[Callable[[PlayerStatEvent, float, int], None]] = []
         self.player_spectate_handlers: List[Callable[[PlayerSpectate, float, int], None]] = []
+        self.raw_handlers: List[Callable[[SocketMessage], None]] = []
 
     def send_flatbuffer(self, builder: Builder, data_type: SocketDataType):
         flatbuffer_bytes = builder.Output()
@@ -152,7 +153,9 @@ class SocketRelay:
         builder.Finish(offset)
         return builder
 
-    def handle_incoming_message(self, incoming_message):
+    def handle_incoming_message(self, incoming_message: SocketMessage):
+        for raw_handler in self.raw_handlers:
+            raw_handler(incoming_message)
         if incoming_message.type == SocketDataType.GAME_TICK_PACKET and len(self.packet_handlers) > 0:
             packet = GameTickPacket.GetRootAsGameTickPacket(incoming_message.data, 0)
             for handler in self.packet_handlers:

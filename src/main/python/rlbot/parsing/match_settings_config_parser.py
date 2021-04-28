@@ -42,6 +42,7 @@ game_mode_types = [
     "Hockey",
     "Rumble",
     "Heatseeker",
+    "Gridiron",
 ]
 
 # This dict needs to say in its current order, because it gets turned into a list
@@ -225,7 +226,7 @@ def add_match_settings_header(config_object):
                            description='Number of bots/players which will be spawned.  We support up to max 64.')
     match_header.add_value(GAME_MODE, str, default="Soccer",
                            description="""What game mode the game should load.
-                           Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker" """)
+                           Accepted values are "Soccer", "Hoops", "Dropshot", "Hockey", "Rumble", "Heatseeker", "Gridiron" """)
     match_header.add_value(GAME_MAP, str, default="DFHStadium",
                            description="""Which map the game should load into. Too many to list.""")
     match_header.add_value(SKIP_REPLAYS, bool, default=False,

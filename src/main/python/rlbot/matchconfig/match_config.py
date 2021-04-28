@@ -84,6 +84,10 @@ class PlayerConfig:
 
         if self.loadout_config:
             loadout = self.loadout_config.write_to_flatbuffer(builder)
+        else:
+            loadout = LoadoutConfig().write_to_flatbuffer(builder)
+
+        if self.bot:
             if self.rlbot_controlled:
                 variety = PlayerClass.RLBotPlayer
                 RLBotPlayer.RLBotPlayerStart(builder)
@@ -94,7 +98,6 @@ class PlayerConfig:
                 PsyonixBotPlayer.PsyonixBotPlayerAddBotSkill(builder, self.bot_skill)
                 player = PsyonixBotPlayer.PsyonixBotPlayerEnd(builder)
         else:
-            loadout = LoadoutConfig().write_to_flatbuffer(builder)
             variety = PlayerClass.HumanPlayer
             HumanPlayer.HumanPlayerStart(builder)
             player = HumanPlayer.HumanPlayerEnd(builder)
@@ -244,7 +247,7 @@ class MatchConfig:
         self.game_map: str = None
         self.skip_replays: bool = False
         self.instant_start: bool = False
-        self.mutators: MutatorConfig = None
+        self.mutators: MutatorConfig = MutatorConfig()
         self.extension_config: ExtensionConfig = None
         self.existing_match_behavior: str = None
         self.enable_lockstep: bool = False
@@ -267,8 +270,8 @@ class MatchConfig:
         for index, player_config in enumerate(self.player_configs):
             player_config.write(match_settings.player_configuration[index], name_dict)
         match_settings.num_players = self.num_players
-        match_settings.game_mode = game_mode_types.index(self.game_mode)
-        match_settings.game_map = map_types.index(self.game_map)
+        match_settings.game_mode = index_or_zero(game_mode_types, self.game_mode)
+        match_settings.game_map = index_or_zero(map_types, self.game_map)
         match_settings.skip_replays = self.skip_replays
         match_settings.instant_start = self.instant_start
         match_settings.existing_match_behavior = index_or_zero(existing_match_behavior_types, self.existing_match_behavior)
@@ -302,7 +305,7 @@ class MatchConfig:
 
         MatchSettingsFlat.MatchSettingsStart(builder)
         MatchSettingsFlat.MatchSettingsAddPlayerConfigurations(builder, player_list_offset)
-        MatchSettingsFlat.MatchSettingsAddGameMode(builder, game_mode_types.index(self.game_mode))
+        MatchSettingsFlat.MatchSettingsAddGameMode(builder, index_or_zero(game_mode_types, self.game_mode))
         MatchSettingsFlat.MatchSettingsAddGameMap(builder, map_index)
         MatchSettingsFlat.MatchSettingsAddGameMapUpk(builder, upk_offset)
         MatchSettingsFlat.MatchSettingsAddSkipReplays(builder, self.skip_replays)

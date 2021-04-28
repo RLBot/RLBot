@@ -4,10 +4,17 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.55.6'
+__version__ = '1.58.0'
 
 release_notes = {
-    '1.55.6': """
+    '1.58.0': """
+    Bots with python virtual environments will start up much faster. - VirxEC
+    Bots can now have descriptive tags for better organization in RLBotGUI. - Darxeal
+    """,
+    '1.57.0': """
+    Scripts now have access to the matchcomms system, thanks to Will!
+    """,
+    '1.55.7': """
     Using sockets for match start, lifting the restrictions on max players when using flatbuffers,
     and sending a game tick packet immediately upon socket connection to fix some bugs.
     """,
