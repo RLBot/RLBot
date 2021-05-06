@@ -15,20 +15,29 @@ namespace RLBotDotNet
         private const float MaxChatRate = 2.0f;
         private const int MaxChatCount = 5;
 
+        [Obsolete("This field is obsolete. Use Name instead.", true)]
+        public readonly string name;
+
+        [Obsolete("This field is obsolete. Use Team instead.", true)]
+        public readonly int team;
+
+        [Obsolete("This field is obsolete. Use Index instead.", true)]
+        public readonly int index;
+
         /// <summary>
         /// The name given to the bot in its configuration file.
         /// </summary>
-        public readonly string name;
+        public readonly string Name;
 
         /// <summary>
         /// The team the bot is on (0 for blue, 1 for orange).
         /// </summary>
-        public readonly int team;
+        public readonly int Team;
 
         /// <summary>
         /// The index of the bot in the match.
         /// </summary>
-        public readonly int index;
+        public readonly int Index;
 
         private DateTime lastChatTime;
         private bool resetChatTime;
@@ -40,9 +49,9 @@ namespace RLBotDotNet
         /// </summary>
         public Bot(string botName, int botTeam, int botIndex)
         {
-            name = botName;
-            team = botTeam;
-            index = botIndex;
+            Name = botName;
+            Team = botTeam;
+            Index = botIndex;
         }
 
         /// <summary>
@@ -156,12 +165,13 @@ namespace RLBotDotNet
 
                 if (chatCounter < MaxChatCount)
                 {
-                    RLBotInterface.SendQuickChatFlat(index, teamOnly, quickChat);
+                    RLBotInterface.SendQuickChatFlat(Index, teamOnly, quickChat);
                     chatCounter++;
                 }
                 else
                 {
-                    Console.WriteLine($"Quick chat disabled for {(int) (MaxChatRate - timeSinceLastChat.TotalSeconds)} seconds.");
+                    Console.WriteLine(
+                        $"Quick chat disabled for {(int) (MaxChatRate - timeSinceLastChat.TotalSeconds)} seconds.");
                 }
             }
             catch (FlatbuffersPacketException)
@@ -190,7 +200,7 @@ namespace RLBotDotNet
         /// </example>
         public QuickChatMessages ReceiveQuickChat()
         {
-            QuickChatMessages messages = RLBotInterface.ReceiveQuickChat(index, team, lastMessageId);
+            QuickChatMessages messages = RLBotInterface.ReceiveQuickChat(Index, Team, lastMessageId);
 
             if (messages.MessagesLength > 0)
                 lastMessageId = messages.Messages(messages.MessagesLength - 1).Value.MessageIndex;

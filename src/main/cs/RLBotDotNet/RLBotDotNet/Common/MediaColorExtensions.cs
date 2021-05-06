@@ -4,7 +4,7 @@ using rlbot.flat;
 namespace RLBotDotNet.Common
 {
     /// <summary>
-    /// Extension methods for <see cref="System.Windows.Media.Color"/>.
+    /// Extension methods for <see cref="System.Drawing.Color"/>.
     /// </summary>
     public static class MediaColorExtensions
     {

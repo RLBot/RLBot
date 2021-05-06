@@ -25,8 +25,8 @@ namespace TestBot
             {
                 // Store the required data from the gameTickPacket.
                 Vector3 ballLocation = gameTickPacket.Ball.Value.Physics.Value.Location.Value;
-                Vector3 carLocation = gameTickPacket.Players(this.index).Value.Physics.Value.Location.Value;
-                Rotator carRotation = gameTickPacket.Players(this.index).Value.Physics.Value.Rotation.Value;
+                Vector3 carLocation = gameTickPacket.Players(this.Index).Value.Physics.Value.Location.Value;
+                Rotator carRotation = gameTickPacket.Players(this.Index).Value.Physics.Value.Rotation.Value;
 
                 // Calculate to get the angle from the front of the bot's car to the ball.
                 double botToTargetAngle = Math.Atan2(ballLocation.Y - carLocation.Y, ballLocation.X - carLocation.X);
@@ -67,7 +67,7 @@ namespace TestBot
                 Vector3 ballVelocity = gameTickPacket.Ball.Value.Physics.Value.Velocity.Value;
                 if (ballVelocity.X * ballVelocity.X + ballVelocity.Y * ballVelocity.Y < 100000 && carLocation.Z < 100)
                 {
-                    PhysicsState carPhysicsState = gameState.GetCarState(index).PhysicsState;
+                    PhysicsState carPhysicsState = gameState.GetCarState(Index).PhysicsState;
                     carPhysicsState.Location = new DesiredVector3(ballLocation.X - 300, ballLocation.Y, 400);
                     carPhysicsState.Velocity = new DesiredVector3(500, 0, 0);
 
