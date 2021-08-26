@@ -4,12 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.58.0'
+__version__ = '1.58.1'
 
 release_notes = {
-    '1.58.0': """
+    '1.58.1': """
     Bots with python virtual environments will start up much faster. - VirxEC
     Bots can now have descriptive tags for better organization in RLBotGUI. - Darxeal
+    Fixing bug where python launch scripts stopped working for Epic users. - tarehart
     """,
     '1.57.0': """
     Scripts now have access to the matchcomms system, thanks to Will!
