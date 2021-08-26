@@ -77,8 +77,8 @@ class RocketLeagueLauncherPreference:
     use_login_tricks: bool
 
 
-# By default, we will attempt Epic with no login tricks, then fall back to Steam.
-DEFAULT_LAUNCHER_PREFERENCE = RocketLeagueLauncherPreference(RocketLeagueLauncherPreference.EPIC, False)
+# By default, we will attempt Epic with login tricks, then fall back to Steam.
+DEFAULT_LAUNCHER_PREFERENCE = RocketLeagueLauncherPreference(RocketLeagueLauncherPreference.EPIC, True)
 
 
 @contextmanager
