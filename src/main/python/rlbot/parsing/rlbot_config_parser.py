@@ -9,6 +9,7 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 EXTENSION_PATH_KEY = 'extension_path'
 NETWORKING_ROLE_KEY = 'networking_role'
 NETWORK_ADDRESS_KEY = 'network_address'
+LAUNCHER_PREFERENCE_KEY = 'launcher_preference'
 
 logger = get_logger('rlbot')
 
@@ -22,6 +23,8 @@ def create_bot_config_layout():
                            description='Defines the behavior when connecting multiple RLBot instances over a network.')
     rlbot_header.add_value(NETWORK_ADDRESS_KEY, str, default='127.0.0.1',
                            description='The IP address to connect to if networking is desired.')
+    rlbot_header.add_value(LAUNCHER_PREFERENCE_KEY, str, default=None,
+                           description="Determines whether to launch with epic or steam.")
 
     team_header = config_object.add_header_name(TEAM_CONFIGURATION_HEADER)
     team_header.add_value("Team Blue Color", int, default=0,

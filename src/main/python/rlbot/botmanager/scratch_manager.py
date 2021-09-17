@@ -6,6 +6,8 @@ import os
 import queue
 import time
 import shutil
+from pathlib import Path
+from random import random
 from datetime import datetime, timedelta
 
 import flatbuffers
@@ -115,7 +117,8 @@ class ScratchManager(BotHelperProcess):
             players_string = ",".join(map(index_to_player_string, range(len(self.running_indices))))
 
             try:
-                driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+                driver_path = self.get_driver_path_retryable()
+                driver = webdriver.Chrome(driver_path, chrome_options=options)
                 driver.get(
                     f"http://scratch.rlbot.org?host=localhost:{str(self.port)}&players={players_string}&awaitBotFile=1")
 
@@ -124,6 +127,7 @@ class ScratchManager(BotHelperProcess):
                         EC.presence_of_element_located((By.ID, "sb3-selenium-uploader"))
                     )
                     element.send_keys(self.sb3_file)
+                    self.logger.info(f'Loaded sb3 file {self.sb3_file} into chrome window.')
 
             except SessionNotCreatedException:
                 # This can happen if the downloaded chromedriver does not match the version of Chrome that is installed.
@@ -132,8 +136,21 @@ class ScratchManager(BotHelperProcess):
                 self.logger.info(f"Could not load the Scratch file automatically! You'll need to upload it yourself "
                                  f"from {self.sb3_file}")
 
+        self.logger.info(f'Starting websocket server on port {self.port}')
         asyncio.get_event_loop().run_until_complete(websockets.serve(self.data_exchange, port=self.port))
         asyncio.get_event_loop().run_until_complete(self.game_loop())
+
+    def get_driver_path_retryable(self) -> str:
+        # Sometimes this code runs concurrently, e.g. if there are many scratch bots which are all
+        # using separate_browsers = True. In that case, ChromeDriverManager().install() can run into contention
+        # when trying to access the same zip file. Ideally we would use a proper lock here, but that would require
+        # a bit of refactoring, and I want to get this experimental fix out to one of our users quickly.
+        for _ in range(6):
+            try:
+                return ChromeDriverManager().install()
+            except:
+                time.sleep(random())
+        return None
 
     def setup_index_map(self):
         num_scratch_bots = len(self.running_indices)

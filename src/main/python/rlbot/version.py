@@ -4,13 +4,18 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.58.1'
+__version__ = '1.59.0'
 
 release_notes = {
-    '1.58.1': """
+    '1.59.0': """
+    People who use rlbot.cfg can now specify launcher_preference = steam or launcher_preference = epic.
+    See https://github.com/RLBot/RLBot/wiki/Config-File-Documentation#rlbot-configuration
+    """,
+    '1.58.2': """
     Bots with python virtual environments will start up much faster. - VirxEC
     Bots can now have descriptive tags for better organization in RLBotGUI. - Darxeal
     Fixing bug where python launch scripts stopped working for Epic users. - tarehart
+    Experimental fix for games with many scratch bots. - tarehart
     """,
     '1.57.0': """
     Scripts now have access to the matchcomms system, thanks to Will!

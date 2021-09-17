@@ -46,6 +46,7 @@ from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
 from rlbot.utils.structures.game_interface import GameInterface
 from rlbot.utils.config_parser import mergeTASystemSettings, cleanUpTASystemSettings
+from rlbot.parsing.rlbot_config_parser import LAUNCHER_PREFERENCE_KEY
 from rlbot.matchcomms.server import MatchcommsServerThread
 from rlbot.utils.virtual_environment_management import EnvBuilderWithRequirements
 
@@ -180,7 +181,7 @@ class SetupManager:
 
         return is_rocket_league_running
 
-    def connect_to_game(self, launcher_preference: RocketLeagueLauncherPreference = DEFAULT_LAUNCHER_PREFERENCE):
+    def connect_to_game(self, launcher_preference: RocketLeagueLauncherPreference = None):
         """
         Connects to the game by initializing self.game_interface.
         """
@@ -200,7 +201,8 @@ class SetupManager:
         # Launch the game if it is not running.
         elif not self.is_rocket_league_running(port):
             mergeTASystemSettings()
-            self.launch_rocket_league(port=port, launcher_preference=launcher_preference)
+            pref = launcher_preference or self.launcher_preference or DEFAULT_LAUNCHER_PREFERENCE
+            self.launch_rocket_league(port=port, launcher_preference=pref)
 
         try:
             self.logger.info("Loading interface...")
@@ -372,6 +374,11 @@ class SetupManager:
 
         match_config = parse_match_config(framework_config, config_location, bot_configs, looks_configs)
         self.load_match_config(match_config, bot_configs)
+        raw_launcher_string = framework_config.get(RLBOT_CONFIGURATION_HEADER, LAUNCHER_PREFERENCE_KEY)
+        if raw_launcher_string == RocketLeagueLauncherPreference.STEAM:
+            self.launcher_preference = RocketLeagueLauncherPreference(RocketLeagueLauncherPreference.STEAM, False)
+        else:
+            self.launcher_preference = DEFAULT_LAUNCHER_PREFERENCE
 
     def ensure_rlbot_gateway_started(self) -> int:
         """
