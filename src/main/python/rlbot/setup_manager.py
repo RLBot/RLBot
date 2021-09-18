@@ -153,6 +153,7 @@ class SetupManager:
         self.bot_reload_requests = []
         self.agent_metadata_map: Dict[int, AgentMetadata] = {}
         self.match_config: MatchConfig = None
+        self.launcher_preference = None
         self.rlbot_gateway_process = None
         self.matchcomms_server: MatchcommsServerThread = None
         self.early_start_seconds = 0
