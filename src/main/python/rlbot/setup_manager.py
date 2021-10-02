@@ -83,7 +83,7 @@ DEFAULT_LAUNCHER_PREFERENCE = RocketLeagueLauncherPreference(RocketLeagueLaunche
 
 
 @contextmanager
-def setup_manager_context():
+def setup_manager_context(launcher_preference: RocketLeagueLauncherPreference = None):
     """
     Creates a initialized context manager which shuts down at the end of the
     `with` block.
@@ -94,7 +94,7 @@ def setup_manager_context():
     ...     # ... Run match
     """
     setup_manager = SetupManager()
-    setup_manager.connect_to_game()
+    setup_manager.connect_to_game(launcher_preference)
     try:
         yield setup_manager
     except Exception as e:
