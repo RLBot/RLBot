@@ -638,7 +638,8 @@ enum GameMap : byte {
   Farmstead_Night,
   SaltyShores_Night,
   NeonFields,
-  DFHStadium_Circuit
+  DFHStadium_Circuit,
+  DeadeyeCanyon
 }
 
 enum MatchLength : byte {
