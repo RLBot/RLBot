@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -10,14 +9,15 @@ buildscript {
 }
 
 plugins {
-    id "com.jfrog.bintray" version "1.8.4"
+    id "java-library"
+    id "maven-publish"
+    id "signing"
 }
 
 apply plugin: 'java'  // This is the backbone of the gradle build process, we don't just use it for java files.
-apply plugin: 'maven-publish'  // Needed for publishing to bintray.
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 sourceCompatibility = '1.8'
@@ -26,13 +26,13 @@ targetCompatibility = '1.8'
 def javaDllDir = 'build/dll'
 
 dependencies {
-    compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
-    compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
-    compile 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
+    implementation group: 'net.java.dev.jna', name: 'jna', version: '4.5.1'  // Allows the java bot manager to communicate with dll
+    implementation group: 'net.java.dev.jna', name: 'jna-platform', version: '4.5.1'  // Allows the java bot manager to communicate with dll
+    implementation 'com.github.davidmoten:flatbuffers-java:1.9.0.1'  // Temporarily using this guy's flatbuffers package because the official one is behind.
 //    compile group: 'javax.websocket', name: 'javax.websocket-api', version: '1.1' // Used for RLBot sockets communication instead of dll
 
     // This is handy for running the test without needing to supply jna.library.path.
-    testRuntime files(javaDllDir)
+    testRuntimeOnly files(javaDllDir)
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
@@ -80,22 +80,26 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-// This is associated with the maven-publish plugin. It's needed for bintrayUpload to work properly.
-publishing {
-    publications {
-        Main(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            groupId project.getGroup()
-            artifactId 'framework'
-            version project.getVersion()
-        }
-    }
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
 }
 
-// In order to run the bintrayUpload task successfully, create a file called local.properties
-// and add a line like bintray.apikey=...
-// To get the API key, go here and log in: https://bintray.com/profile/edit/organizations
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+// This relies on having some configuration in ~/.gradle/gradle.properties file.
+//signing.keyId
+//signing.password
+//signing.secretKeyRingFile
+// https://docs.gradle.org/current/userguide/signing_plugin.html
+signing {
+    sign publishing.publications
+}
+
+// In order to run the publish task successfully, create a file called local.properties
+// and add a line like maven.password=... (ask tarehart)
 // You'll also need to increment the project.setVersion(...) number in this file to push successfully.
 Properties localProperties = new Properties()
 File propsFile = new File('local.properties')
@@ -103,18 +107,53 @@ if (propsFile.exists()) {
     localProperties.load(new FileInputStream(propsFile))
 }
 
-bintray {
-    user = 'rlbotofficial'
-    key = localProperties.getProperty("bintray.apikey")
-    publications = ['Main']
-    pkg {
-        repo = 'RLBotMaven'
-        name = 'rlbot-framework'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/RLBot/RLBot.git'
-        version {
-            name = project.getVersion()
-            released = new Date()
+// https://central.sonatype.org/publish/publish-gradle/
+// https://dev.to/madhead/no-bullshit-guide-on-publishing-your-gradle-projects-to-maven-central-3ok4
+// After publishing, you need to visit https://s01.oss.sonatype.org/ to actually release it, following
+// the instructions at https://central.sonatype.org/publish/release/
+publishing {
+    publications {
+        Main(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId project.getGroup()
+            artifactId 'framework'
+            version project.getVersion()
+            pom {
+                name = 'RLBot Java Framework'
+                description = 'Supports the creation of custom Rocket League bots.'
+                url = 'https://www.rlbot.org'
+                scm {
+                    connection = 'scm:git:git://github.com/RLBot/RLBot.git'
+                    url = 'https://github.com/RLBot/RLBot/'
+                }
+                developers {
+                    developer {
+                        id = 'tarehart'
+                        name = 'Tyler Arehart'
+                        email = 'tarehart@gmail.com'
+                    }
+                }
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            // URL specified in our onboarding ticket: https://issues.sonatype.org/browse/OSSRH-73323
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username 'rlbotofficial'
+                // Password is the one associated with this login: https://issues.sonatype.org/login.jsp (ask tarehart)
+                password localProperties.getProperty("maven.password")
+            }
         }
     }
 }

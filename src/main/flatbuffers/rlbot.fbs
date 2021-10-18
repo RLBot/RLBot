@@ -449,7 +449,7 @@ enum QuickChatSelection : byte {
   Custom_Compliments_proud = 55,
   /// You're the GC of Bots
   Custom_Compliments_GC = 56,
-  /// Are you <Insert Pro>Bot? *
+  /// Are you [Insert Pro]Bot? *
   Custom_Compliments_Pro = 57,
   /// Lag
   Custom_Excuses_Lag = 58,
@@ -829,7 +829,7 @@ table ReadyMessage {
 ///		Win, Loss, TimePlayed;
 ///		Shot, Assist, Center, Clear, PoolShot;
 ///		Goal, AerialGoal, BicycleGoal, BulletGoal, BackwardsGoal, LongGoal, OvertimeGoal, TurtleGoal;
-///		AerialHit, BicycleHit, BulletHit, /*BackwardsHit,*/ JuggleHit, FirstTouch, BallHit;
+///		AerialHit, BicycleHit, BulletHit, JuggleHit, FirstTouch, BallHit;
 ///		Save, EpicSave, FreezeSave;
 ///		HatTrick, Savior, Playmaker, MVP;
 ///		FastestGoal, SlowestGoal, FurthestGoal, OwnGoal;

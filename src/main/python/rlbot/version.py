@@ -4,10 +4,13 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.59.0'
+__version__ = '1.60.0'
 
 release_notes = {
-    '1.59.0': """
+    '1.60.0': """
+    Adding Deadeye Canyon map. - Darxeal
+    """,
+    '1.59.2': """
     People who use rlbot.cfg can now specify launcher_preference = steam or launcher_preference = epic.
     See https://github.com/RLBot/RLBot/wiki/Config-File-Documentation#rlbot-configuration
     """,

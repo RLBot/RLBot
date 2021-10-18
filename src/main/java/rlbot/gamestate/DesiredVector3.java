@@ -31,7 +31,7 @@ public class DesiredVector3 {
     }
 
     /**
-     * @returns {@code true} If x is not null.
+     * @return {@code true} If x is not null.
      */
     public boolean hasX() {
         return x != null;
@@ -47,7 +47,7 @@ public class DesiredVector3 {
     }
 
     /**
-     * @returns {@code true} If y is not null.
+     * @return {@code true} If y is not null.
      */
     public boolean hasY() {
         return y != null;
@@ -63,7 +63,7 @@ public class DesiredVector3 {
     }
 
     /**
-     * @returns {@code true} If z is not null.
+     * @return {@code true} If z is not null.
      */
     public boolean hasZ() {
         return z != null;
