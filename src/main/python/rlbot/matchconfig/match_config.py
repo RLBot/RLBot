@@ -291,7 +291,7 @@ class MatchConfig:
         MatchSettingsFlat.MatchSettingsStartPlayerConfigurationsVector(builder, len(player_config_offsets))
         for i in reversed(range(0, len(player_config_offsets))):
             builder.PrependUOffsetTRelative(player_config_offsets[i])
-        player_list_offset = builder.EndVector(len(player_config_offsets))
+        player_list_offset = builder.EndVector()
         mutator_settings_offset = self.mutators.write_to_flatbuffer(builder)
 
         if self.game_map in game_map_dict:

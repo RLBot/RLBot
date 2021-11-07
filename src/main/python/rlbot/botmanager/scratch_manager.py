@@ -201,7 +201,7 @@ class ScratchManager(BotHelperProcess):
                 for i in reversed(range(0, len(tiny_player_offsets))):
                     rlbot_index = self.get_rlbot_index(i)
                     builder.PrependUOffsetTRelative(tiny_player_offsets[rlbot_index])
-                players_offset = builder.EndVector(len(tiny_player_offsets))
+                players_offset = builder.EndVector()
 
                 ballOffset = self.copy_ball(ball, builder)
 
