@@ -219,14 +219,14 @@ class GameState:
             DesiredGameState.DesiredGameStateStartCarStatesVector(builder, len(car_offsets))
             for i in reversed(range(0, len(car_offsets))):
                 builder.PrependUOffsetTRelative(car_offsets[i])
-            car_list_offset = builder.EndVector()
+            car_list_offset = builder.EndVector(len(car_offsets))
 
         boost_list_offset = None
         if len(boost_offsets) > 0:
             DesiredGameState.DesiredGameStateStartBoostStatesVector(builder, len(boost_offsets))
             for i in reversed(range(0, len(boost_offsets))):
                 builder.PrependUOffsetTRelative(boost_offsets[i])
-            boost_list_offset = builder.EndVector()
+            boost_list_offset = builder.EndVector(len(boost_offsets))
 
         console_commands_offsets = []
         for cmd in self.console_commands:
@@ -240,7 +240,7 @@ class GameState:
             DesiredGameState.DesiredGameStateStartConsoleCommandsVector(builder, len(console_commands_offsets))
             for i in reversed(range(0, len(console_commands_offsets))):
                 builder.PrependUOffsetTRelative(console_commands_offsets[i])
-            console_command_list_offset = builder.EndVector()
+            console_command_list_offset = builder.EndVector(len(console_commands_offsets))
 
         DesiredGameState.DesiredGameStateStart(builder)
         if ball_offset is not None:
