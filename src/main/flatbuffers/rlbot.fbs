@@ -639,7 +639,22 @@ enum GameMap : byte {
   SaltyShores_Night,
   NeonFields,
   DFHStadium_Circuit,
-  DeadeyeCanyon
+  DeadeyeCanyon,
+  StarbaseArc_Aftermath,
+  Wasteland_Night,
+  BeckwithPark_GothamNight,
+  ForbiddenTemple_Day,
+  UrbanCentral_Haunted,
+  ChampionsField_NFL,
+  ThrowbackStadium_Snowy,
+  Basin,
+  Corridor,
+  Loophole,
+  Galleon,
+  GalleonRetro,
+  Hourglass,
+  Barricade,
+  Colossus,
 }
 
 enum MatchLength : byte {

@@ -94,6 +94,21 @@ game_map_dict = {
     "NeonFields": "music_p",
     "DFHStadium_Circuit": "Stadium_Race_Day_P",
     "DeadeyeCanyon": "Outlaw_P",
+    "StarbaseArc_Aftermath": "ARC_Darc_P",
+    "Wasteland_Night": "Wasteland_Night_S_P",
+    'BeckwithPark_GothamNight': "Park_Bman_P",
+    "ForbiddenTemple_Day": "CHN_Stadium_Day_P",
+    "UrbanCentral_Haunted": "Haunted_TrainStation_P",
+    "ChampionsField_NFL": "BB_P",
+    "ThrowbackStadium_Snowy": "ThrowbackHockey_p",
+    "Basin": "Labs_Basin_P",
+    "Corridor": "Labs_Corridor_P",
+    "Loophole": "Labs_Holyfield_P",
+    "Galleon": "Labs_Galleon_P",
+    "GalleonRetro": "Labs_Galleon_Mast_P",
+    "Hourglass": "Labs_PillarGlass_P",
+    "Barricade": "Labs_PillarHeat_P",
+    "Colossus": "Labs_PillarWings_P",
 }
 
 map_types = list(game_map_dict.keys())
