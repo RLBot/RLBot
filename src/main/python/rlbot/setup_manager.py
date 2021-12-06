@@ -1,3 +1,5 @@
+import signal
+
 import multiprocessing as mp
 import os
 import sys
@@ -237,8 +239,8 @@ class SetupManager:
                 if launch_with_epic_login_trick(ideal_args):
                     return
                 else:
-                    self.logger.info("Epic login trick seems to have failed, falling back to simple Epic launch.")
-            # Fall back to simple if the tricks failed or we opted out of tricks.
+                    self.logger.info("Epic login trick seems to have failed!")
+                    # Try Steam after this.
             if launch_with_epic_simple(ideal_args):
                 return
 
@@ -342,7 +344,7 @@ class SetupManager:
                         do_post_setup = False
                     else:
                         checked_environment_requirements.add(bundle.requirements_file)
-                
+
                 builder = EnvBuilderWithRequirements(bundle=script_config_bundle, do_post_setup=do_post_setup)
                 builder.create(Path(script_config_bundle.config_directory) / 'venv')
 
@@ -535,7 +537,7 @@ class SetupManager:
             process = subprocess.Popen(
                 [
                     executable,
-                    script_config_bundle.script_file, 
+                    script_config_bundle.script_file,
                     '--matchcomms-url', self.matchcomms_server.root_url.geturl()
                 ],
                 cwd=Path(script_config_bundle.config_directory).parent
@@ -726,6 +728,15 @@ class SetupManager:
         self.num_metadata_received = 0
 
     def kill_agent_process_ids(self, pids: Set[int]):
+        for pid in pids:
+            try:
+                process = psutil.Process(pid)
+                process.send_signal(signal.SIGTERM)
+            except Exception as ex:
+                self.logger.warn(f"Got {ex} while terminating pid {pid}.")
+
+        time.sleep(.5)
+
         for pid in pids:
             try:
                 parent = psutil.Process(pid)

@@ -1,10 +1,15 @@
+import psutil
+import time
+
+import re
+
 import json
 import os
 import subprocess
 import webbrowser
 from pathlib import Path
 from time import sleep
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import is_process_running
@@ -28,31 +33,85 @@ def launch_with_epic_simple(ideal_args: List[str]) -> bool:
     return False
 
 
+def get_my_documents_folder() -> Path:
+    """
+    https://stackoverflow.com/a/30924555/280852
+    """
+    import ctypes.wintypes
+    CSIDL_PERSONAL = 5       # My Documents
+    SHGFP_TYPE_CURRENT = 0   # Get current, not default value
+
+    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
+    return Path(str(buf.value))
+
+
+def get_rocket_league_log_path() -> Path:
+    return get_my_documents_folder() / 'My Games' / 'Rocket League' / 'TAGame' / 'Logs' / 'Launch.log'
+
+
+def args_contain_auth_info(args: List[str]) -> bool:
+    return True in ["AUTH_LOGIN" in arg for arg in args]
+
+def get_auth_args_from_process() -> Union[List[str], None]:
+    rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
+    if rl_running:
+        try:
+            all_args = process.cmdline()
+        except psutil.NoSuchProcess:
+            return None
+        if args_contain_auth_info(all_args):
+            return all_args[1:]  # Snip off the executable arg
+    return None
+
+def get_auth_args_from_logs() -> Union[List[str], None]:
+    # Log: Command line: -AUTH_LOGIN=unused -AUTH_PASSWORD=f7a32f56ea -AUTH_TYPE=exchangecode -epicapp=Sugar -epicenv=Prod -EpicPortal  -epicusername="tare-hart" -epicuserid=41276a00c2c54f -epiclocale=en -epicsandboxid=9773aa1aa54f4f
+    rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
+    if rl_running:
+        log_file = get_rocket_league_log_path()
+        if log_file.exists():
+            log_text = log_file.read_text()
+            match = re.search("^Log: Command line: (.*)$", log_text, re.MULTILINE)
+            if match is not None:
+                args_str = match.group(1)
+                all_args = args_str.split(' ')
+                if args_contain_auth_info(all_args):
+                    return all_args
+    return None
+
 def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
     try:
         logger = get_logger(DEFAULT_LOGGER)
 
-        # launch using shortcut technique
-        webbrowser.open('com.epicgames.launcher://apps/Sugar?action=launch&silent=true')
+        launch_with_epic_simple(ideal_args)
+
         process = None
-        for i in range(10):
+        while True:
             sleep(1)
             rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
             if rl_running:
                 break
+            logger.info("Waiting for RocketLeague.exe to start...")
 
-        if process is None:
-            return False
+        while True:
+            all_args = get_auth_args_from_process()
+            if all_args is not None:
+                break
+            all_args = get_auth_args_from_logs()
+            if all_args is not None:
+                break
+            time.sleep(1)
+            logger.info("Waiting for Rocket League args...")
 
-        # get the args from the process
-        all_args = process.cmdline()
-
+        rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
         process.kill()
-        all_args[1:1] = ideal_args
-        logger.info(f"Killed old rocket league, reopening with {all_args}")
-        subprocess.Popen(all_args, shell=True)
+        modified_args = ideal_args + all_args
+        logger.info(f"Killed old rocket league, reopening with {modified_args}")
+        launch_with_epic_simple(modified_args)
         return True
-    except:
+    except Exception as ex:
+        logger.warn(f"Trouble with epic launch: {ex}")
         return False
 
 
