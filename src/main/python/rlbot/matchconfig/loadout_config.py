@@ -1,5 +1,25 @@
 from dataclasses import dataclass
 
+def cleanup_zombie_flatbuffers():
+    try:
+        from flatbuffers import Builder
+    except ModuleNotFoundError as e:
+        import psutil
+        from pathlib import Path
+        from shutil import rmtree
+        flatbuffers_path = Path(psutil.__path__[0]).parent / 'flatbuffers-1.9.dist-info'
+        if flatbuffers_path.exists():
+            print("Removing flatbuffers dist-info folder.")
+            for i in range(10):
+                print("################################################")
+            print("HELLO RLBOT USER, please try launching again, it will probably work next time!")
+            rmtree(str(flatbuffers_path))
+            exit(1)
+        else:
+            print(f"Path {flatbuffers_path} did not exist.")
+            raise e
+cleanup_zombie_flatbuffers()
+
 from flatbuffers import Builder
 from rlbot.messages.flat import LoadoutPaint, PlayerLoadout, Color as FlatColor
 from rlbot.utils.structures.start_match_structures import PlayerConfiguration

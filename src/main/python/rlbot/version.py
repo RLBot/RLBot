@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.61.0'
+__version__ = '1.61.1'
 
 release_notes = {
-    '1.61.0': """
+    '1.61.1': """
     Getting flatbuffers from pypi instead of bundling the source directly. - tarehart + CodeRed
     """,
     '1.60.0': """
