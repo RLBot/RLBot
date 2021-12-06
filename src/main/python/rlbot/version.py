@@ -4,9 +4,12 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.61.1'
+__version__ = '1.62.0'
 
 release_notes = {
+    '1.62.0': """
+    Updating strategy for launching Epic version of Rocket League. - tarehart
+    """,
     '1.61.1': """
     Getting flatbuffers from pypi instead of bundling the source directly. - tarehart + CodeRed
     """,

@@ -1,3 +1,7 @@
+import time
+
+import re
+
 import json
 import os
 import subprocess
@@ -28,31 +32,63 @@ def launch_with_epic_simple(ideal_args: List[str]) -> bool:
     return False
 
 
+def get_my_documents_folder() -> Path:
+    """
+    https://stackoverflow.com/a/30924555/280852
+    """
+    import ctypes.wintypes
+    CSIDL_PERSONAL = 5       # My Documents
+    SHGFP_TYPE_CURRENT = 0   # Get current, not default value
+
+    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
+    return Path(str(buf.value))
+
+
+def get_rocket_league_log_path() -> Path:
+    return get_my_documents_folder() / 'My Games' / 'Rocket League' / 'TAGame' / 'Logs' / 'Launch.log'
+
+
 def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
     try:
         logger = get_logger(DEFAULT_LOGGER)
 
-        # launch using shortcut technique
-        webbrowser.open('com.epicgames.launcher://apps/Sugar?action=launch&silent=true')
+        launch_with_epic_simple(ideal_args)
+        time_limit = 20
         process = None
-        for i in range(10):
+        for i in range(time_limit):
             sleep(1)
             rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
             if rl_running:
                 break
 
         if process is None:
+            logger.warn(f"Rocket League didn't open within {time_limit} seconds.")
             return False
 
-        # get the args from the process
-        all_args = process.cmdline()
+        for _ in range(60):
+            log_file = get_rocket_league_log_path()
+            log_text = log_file.read_text()
+            match = re.search("^Log: Command line: (.*)$", log_text, re.MULTILINE)
+            if match is not None:
+                break
+            time.sleep(1)
 
-        process.kill()
-        all_args[1:1] = ideal_args
-        logger.info(f"Killed old rocket league, reopening with {all_args}")
-        subprocess.Popen(all_args, shell=True)
-        return True
-    except:
+        if match is not None:
+            args_str = match.group(1)
+            all_args = args_str.split(' ')
+            rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
+            process.kill()
+            modified_args = ideal_args + all_args
+            logger.info(f"Killed old rocket league, reopening with {modified_args}")
+            launch_with_epic_simple(modified_args)
+            subprocess.Popen(all_args, shell=True)
+            return True
+        logger.warn(f"Was not  able to find command line args in the log file!")
+        return False
+    except Exception as ex:
+        logger.warn(f"Trouble with epic launch: {ex}")
         return False
 
 
