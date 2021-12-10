@@ -103,6 +103,7 @@ def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bo
             continue
     # If matching processes were found, check for correct arguments.
     if len(matching_processes) != 0:
+        mismatch_found = False
         for process in matching_processes:
             try:
                 args = process.cmdline()[1:]
@@ -114,10 +115,15 @@ def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bo
                 else:
                     # If this process has not been skipped, it matches all arguments.
                     return True, process
+                mismatch_found = True
             except psutil.AccessDenied:
                 print(f"Access denied when trying to look at cmdline of {process}!")
-        # If we didn't return yet it means all matching programs were skipped.
-        raise WrongProcessArgs(f"{program} is not running with required arguments: {required_args}!")
+            except psutil.NoSuchProcess:
+                # process died whilst we were looking at it, so pretend we found none, it will get handles another time
+                pass
+        if mismatch_found:
+            # If we didn't return yet it means all matching programs were skipped.
+            raise WrongProcessArgs(f"{program} is not running with required arguments: {required_args}!")
     # No matching processes.
     return False, None
 
