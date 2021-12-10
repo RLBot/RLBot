@@ -116,8 +116,12 @@ def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bo
                     return True, process
             except psutil.AccessDenied:
                 print(f"Access denied when trying to look at cmdline of {process}!")
-        # If we didn't return yet it means all matching programs were skipped.
-        raise WrongProcessArgs(f"{program} is not running with required arguments: {required_args}!")
+            except psutil.NoSuchProcess:
+                # process died whilst we were looking at it, so pretend we found none, it will get handles another time
+                break
+        else:
+            # If we didn't return yet it means all matching programs were skipped.
+            raise WrongProcessArgs(f"{program} is not running with required arguments: {required_args}!")
     # No matching processes.
     return False, None
 
