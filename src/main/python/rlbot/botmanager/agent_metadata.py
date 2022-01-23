@@ -11,7 +11,7 @@ class AgentMetadata:
                  helper_process_request: HelperProcessRequest = None):
         """
         :param index: The player index, i.e. "this is player number <index>".
-        :param name: The agent's name.
+        :param name: The agent's name. This is the deduped name, e.g. if there are multiple of the bot it may be MyBot (2)
         :param team: 0 for blue team or 1 for orange team.
         :param pids: A list all the process ids that this bot uses (including the ones inside the python process).
         :param helper_process_request: A helper process which can be shared, e.g. with other bots of the same type.

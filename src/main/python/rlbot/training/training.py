@@ -250,6 +250,8 @@ def _setup_match(match_config: MatchConfig, manager: SetupManager):
     manager.launch_early_start_bot_processes()
     manager.start_match()
     manager.launch_bot_processes()
+    time.sleep(.5)
+    manager.try_recieve_agent_metadata()  # Sometimes this launches bots!
 
 
 def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Optional[Result]:
@@ -268,26 +270,18 @@ def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> O
 
 def _grade_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Result:
     grade = None
-    rate_limit = rate_limiter.RateLimiter(120)
-    last_tick_game_time = None  # What the tick time of the last observed tick was
     game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
     # Run until the Exercise finishes.
     while grade is None:
 
         # Read from game data shared memory
-        game_interface.update_live_data_packet(game_tick_packet)
+        game_interface.fresh_live_data_packet(game_tick_packet, 100, 99)
 
-        # Run ex.on_tick() only if the game_info has updated.
-        tick_game_time = game_tick_packet.game_info.seconds_elapsed
-        if tick_game_time != last_tick_game_time:
-            last_tick_game_time = tick_game_time
-            try:
-                grade = ex.on_tick(game_tick_packet)
-                ex.render(game_interface.renderer)
-            except Exception as e:
-                return Result(ex, seed, FailDueToExerciseException(e, traceback.format_exc()))
-
-        rate_limit.acquire()
+        try:
+            grade = ex.on_tick(game_tick_packet)
+            ex.render(game_interface.renderer)
+        except Exception as e:
+            return Result(ex, seed, FailDueToExerciseException(e, traceback.format_exc()))
 
     return Result(ex, seed, grade)
