@@ -81,10 +81,15 @@ def get_auth_args_from_logs() -> Union[List[str], None]:
     return None
 
 def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
+    """
+    This needs to fail gracefully! Sometimes people only have the Steam version,
+    so we want to be able to fall back to Steam if Epic is going nowhere.
+    """
     try:
         logger = get_logger(DEFAULT_LOGGER)
 
-        launch_with_epic_simple(ideal_args)
+        if not launch_with_epic_simple(ideal_args):
+            return False
 
         process = None
         while True:
