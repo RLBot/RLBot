@@ -35,7 +35,7 @@ class ValidPacketDetector:
                     except KeyError:
                         pass
 
-                if len(spawn_ids) == 0 and self.expected_count == packet.PlayersLength():
+                if len(spawn_ids) == 0 and self.expected_count <= packet.PlayersLength():
                     self.logger.info('Packets are looking good, all spawn ids accounted for!')
                     return
                 elif i > 4:
