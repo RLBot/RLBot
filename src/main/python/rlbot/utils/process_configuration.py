@@ -91,7 +91,7 @@ def extract_all_pids(agent_metadata_map):
     return pids
 
 
-def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bool, Union[psutil.Process, None]]:
+def get_process(program, scriptname, required_args: Set[str]) -> Union[psutil.Process, None]:
     # Find processes which contain the program or script name.
     matching_processes = []
     for process in psutil.process_iter():
@@ -114,7 +114,7 @@ def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bo
                         break
                 else:
                     # If this process has not been skipped, it matches all arguments.
-                    return True, process
+                    return process
                 mismatch_found = True
             except psutil.AccessDenied:
                 print(f"Access denied when trying to look at cmdline of {process}!")
@@ -125,8 +125,13 @@ def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bo
             # If we didn't return yet it means all matching programs were skipped.
             raise WrongProcessArgs(f"{program} is not running with required arguments: {required_args}!")
     # No matching processes.
-    return False, None
+    return None
 
+
+def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bool, Union[psutil.Process, None]]:
+    process = get_process(program, scriptname, required_args)
+    return process is not None, process
+    
 
 class WrongProcessArgs(UserWarning):
     pass
