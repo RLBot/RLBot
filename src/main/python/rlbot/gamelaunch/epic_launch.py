@@ -12,7 +12,7 @@ from time import sleep
 from typing import Optional, List, Union
 
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
-from rlbot.utils.process_configuration import is_process_running
+from rlbot.utils.process_configuration import get_process
 
 
 def launch_with_epic_simple(ideal_args: List[str]) -> bool:
@@ -55,8 +55,8 @@ def args_contain_auth_info(args: List[str]) -> bool:
     return True in ["AUTH_LOGIN" in arg for arg in args]
 
 def get_auth_args_from_process() -> Union[List[str], None]:
-    rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
-    if rl_running:
+    process = get_process('RocketLeague.exe', 'RocketLeague.exe', set())
+    if process is not None:
         try:
             all_args = process.cmdline()
         except psutil.NoSuchProcess:
@@ -67,8 +67,8 @@ def get_auth_args_from_process() -> Union[List[str], None]:
 
 def get_auth_args_from_logs() -> Union[List[str], None]:
     # Log: Command line: -AUTH_LOGIN=unused -AUTH_PASSWORD=f7a32f56ea -AUTH_TYPE=exchangecode -epicapp=Sugar -epicenv=Prod -EpicPortal  -epicusername="tare-hart" -epicuserid=41276a00c2c54f -epiclocale=en -epicsandboxid=9773aa1aa54f4f
-    rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
-    if rl_running:
+    process = get_process('RocketLeague.exe', 'RocketLeague.exe', set())
+    if process is not None:
         log_file = get_rocket_league_log_path()
         if log_file.exists():
             log_text = log_file.read_text()
@@ -94,8 +94,8 @@ def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
         process = None
         while True:
             sleep(1)
-            rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
-            if rl_running:
+            process = get_process('RocketLeague.exe', 'RocketLeague.exe', set())
+            if process is not None:
                 break
             logger.info("Waiting for RocketLeague.exe to start...")
 
@@ -109,7 +109,6 @@ def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
             time.sleep(1)
             logger.info("Waiting for Rocket League args...")
 
-        rl_running, process = is_process_running('RocketLeague.exe', 'RocketLeague.exe', set())
         process.kill()
         modified_args = ideal_args + all_args
         logger.info(f"Killed old rocket league, reopening with {modified_args}")
