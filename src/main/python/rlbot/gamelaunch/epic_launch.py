@@ -109,7 +109,13 @@ def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
             time.sleep(1)
             logger.info("Waiting for Rocket League args...")
 
-        process.kill()
+        process = get_process('RocketLeague.exe', 'RocketLeague.exe', set())
+        if process:
+            try:
+                process.kill()
+            except psutil.NoSuchProcess:
+                # the process killed itself before we did, but result is the same.
+                pass
         modified_args = ideal_args + all_args
         logger.info(f"Killed old rocket league, reopening with {modified_args}")
         launch_with_epic_simple(modified_args)
