@@ -727,36 +727,38 @@ class SetupManager:
         self.bot_processes.clear()
         self.num_metadata_received = 0
 
+    def send_sigterm_recursive(self, pid: int) -> List[psutil.Process]:
+        """
+        Returns the list of processes under the pid and including the pid for further handling,
+        because they may become orphaned by the sigterm.
+        """
+        all_processes = []
+        immediate_children = []
+        try:
+            process = psutil.Process(pid)
+            immediate_children = [c for c in process.children(recursive=False)]
+            all_processes = [process] + [c for c in process.children(recursive=True)]
+            process.send_signal(signal.SIGTERM)
+        except Exception as ex:
+            self.logger.debug(f"Got {ex} while sending sigterm to pid {pid}.")
+
+        for c in immediate_children:
+            self.send_sigterm_recursive(c.pid)
+
+        return all_processes
+
     def kill_agent_process_ids(self, pids: Set[int]):
+        all_processes = []
         for pid in pids:
-            try:
-                process = psutil.Process(pid)
-                process.send_signal(signal.SIGTERM)
-            except Exception as ex:
-                self.logger.warn(f"Got {ex} while terminating pid {pid}.")
+            all_processes += self.send_sigterm_recursive(pid)
 
         time.sleep(.5)
 
-        for pid in pids:
+        for c in all_processes:
             try:
-                parent = psutil.Process(pid)
-                for child in parent.children(recursive=True):  # or parent.children() for recursive=False
-                    self.logger.info(f"Killing {child.pid} (child of {pid})")
-                    try:
-                        child.kill()
-                    except psutil.NoSuchProcess:
-                        self.logger.info("Already dead.")
-                self.logger.info(f"Killing {pid}")
-                try:
-                    parent.kill()
-                except psutil.NoSuchProcess:
-                    self.logger.info("Already dead.")
-            except psutil.NoSuchProcess:
-                self.logger.info("Can't fetch parent process, already dead.")
-            except psutil.AccessDenied as ex:
-                self.logger.error(f"Access denied when trying to kill a bot pid! {ex}")
+                c.kill()
             except Exception as ex:
-                self.logger.error(f"Unexpected exception when trying to kill a bot pid! {ex}")
+                self.logger.debug(f"Got {ex} while killing pid {pid}.")
 
     def kill_matchcomms_server(self):
         if self.matchcomms_server:
