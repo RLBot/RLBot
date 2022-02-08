@@ -141,10 +141,7 @@ class SetupManager:
     python_files = None
     bot_bundles: List[BotConfigBundle] = None
     match_config: MatchConfig = None
-    agent_metadata_queue = mp.Queue()
     extension = None
-    bot_processes: Dict[int, BotProcessInfo] = {}
-    script_processes: Dict[int, subprocess.Popen] = {}
 
     def __init__(self):
         self.logger = get_logger(DEFAULT_LOGGER)
@@ -160,6 +157,9 @@ class SetupManager:
         self.matchcomms_server: MatchcommsServerThread = None
         self.early_start_seconds = 0
         self.num_metadata_received = 0
+        self.agent_metadata_queue = mp.Queue()
+        self.bot_processes: Dict[int, BotProcessInfo] = {}
+        self.script_processes: Dict[int, subprocess.Popen] = {}
 
     def is_rocket_league_running(self, port) -> bool:
         """
@@ -488,7 +488,7 @@ class SetupManager:
 
             if participant_index not in self.bot_processes:
                 bundle = get_bot_config_bundle(player_config.config_path)
-                name = str(self.match_config.player_configs[i].deduped_name)
+                deduped_name = str(self.match_config.player_configs[i].deduped_name)
                 if bundle.supports_standalone:
                     executable = sys.executable
                     if bundle.use_virtual_environment:
@@ -497,7 +497,7 @@ class SetupManager:
                         executable,
                         bundle.python_file,
                         '--config-file', str(player_config.config_path),
-                        '--name', name,
+                        '--name', deduped_name,
                         '--team', str(self.teams[i]),
                         '--player-index', str(participant_index),
                         '--spawn-id', str(spawn_id),
@@ -506,7 +506,7 @@ class SetupManager:
                     self.bot_processes[participant_index] = BotProcessInfo(process=None, subprocess=process, player_config=player_config)
 
                     # Insert immediately into the agent metadata map because the standalone process has no way to communicate it back out
-                    self.agent_metadata_map[participant_index] = AgentMetadata(participant_index, name, self.teams[i], {process.pid})
+                    self.agent_metadata_map[participant_index] = AgentMetadata(participant_index, deduped_name, self.teams[i], {process.pid})
                 else:
                     reload_request = mp.Event()
                     quit_callback = mp.Event()
@@ -514,7 +514,7 @@ class SetupManager:
                     self.bot_quit_callbacks.append(quit_callback)
                     process = mp.Process(target=SetupManager.run_agent,
                                          args=(self.quit_event, quit_callback, reload_request, self.bot_bundles[i],
-                                               name,
+                                               deduped_name,
                                                self.teams[i], participant_index, self.python_files[i], self.agent_metadata_queue,
                                                match_config, self.matchcomms_server.root_url, spawn_id))
                     process.start()
@@ -632,6 +632,9 @@ class SetupManager:
             try:
                 single_agent_metadata: AgentMetadata = self.agent_metadata_queue.get(timeout=0.1)
                 num_recieved += 1
+                if single_agent_metadata.name not in [pc.deduped_name for pc in self.match_config.player_configs]:
+                    self.logger.warn(f"Got agent metadata for {single_agent_metadata.name} but it shouldn't be running!")
+
                 self.helper_process_manager.start_or_update_helper_process(single_agent_metadata)
                 self.agent_metadata_map[single_agent_metadata.index] = single_agent_metadata
                 process_configuration.configure_processes(self.agent_metadata_map, self.logger)
@@ -678,6 +681,14 @@ class SetupManager:
             self.kill_agent_process_ids(process_configuration.extract_all_pids(self.agent_metadata_map))
 
         self.kill_matchcomms_server()
+
+        # Drain the agent_metadata_queue to make sure nothing rears its head later.
+        while True:  # will exit on queue.Empty
+            try:
+                metadata = self.agent_metadata_queue.get(timeout=0.1)
+                self.logger.warn(f"Drained out metadata for {metadata.name} during shutdown!")
+            except queue.Empty:
+                break
 
         # The quit event can only be set once. Let's reset to our initial state
         self.quit_event = mp.Event()

@@ -23,6 +23,8 @@ from rlbot.messages.flat.PlayerStatEvent import PlayerStatEvent
 from rlbot.messages.flat.QuickChat import QuickChat
 from rlbot.utils.logging_utils import get_logger
 
+# We can connect to RLBot.exe on this port.
+RLBOT_SOCKETS_PORT = 23234
 
 class SocketDataType(IntEnum):
     GAME_TICK_PACKET = 1
@@ -113,14 +115,14 @@ class SocketRelay:
         self.socket.settimeout(self.connection_timeout)
         for i in range(int(self.connection_timeout * 10)):
             try:
-                self.socket.connect(('127.0.0.1', 23234))
+                self.socket.connect(('127.0.0.1', RLBOT_SOCKETS_PORT))
                 break
             except ConnectionRefusedError:
                 sleep(.1)
 
         self.socket.settimeout(None)
         self.is_connected = True
-        self.logger.info("Connected!")
+        self.logger.info(f"Socket manager connected to port {RLBOT_SOCKETS_PORT} from port {self.socket.getsockname()[1]}!")
         for handler in self.on_connect_handlers:
             handler()
 
