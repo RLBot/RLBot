@@ -190,7 +190,7 @@ def run_exercises(setup_manager: SetupManager, exercises: Iterable[Exercise], se
                 time.sleep(0.03)
 
                 update_row('>>>>', ren.renderman.white)
-                result = _grade_exercise(game_interface, exercise, seed)
+                result = _grade_exercise(setup_manager, exercise, seed)
 
                 if isinstance(result.grade, Pass):
                     update_row('PASS', ren.renderman.green)
@@ -250,8 +250,6 @@ def _setup_match(match_config: MatchConfig, manager: SetupManager):
     manager.launch_early_start_bot_processes()
     manager.start_match()
     manager.launch_bot_processes()
-    time.sleep(.5)
-    manager.try_recieve_agent_metadata()  # Sometimes this launches bots!
 
 
 def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Optional[Result]:
@@ -268,20 +266,30 @@ def _setup_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> O
     game_interface.set_game_state(game_state)
 
 
-def _grade_exercise(game_interface: GameInterface, ex: Exercise, seed: int) -> Result:
+def _grade_exercise(setup_manager: SetupManager, ex: Exercise, seed: int) -> Result:
     grade = None
+    rate_limit = rate_limiter.RateLimiter(120)
+    metadata_ticker = rate_limiter.RateLimiter(2)
+    game_interface = setup_manager.game_interface
     game_tick_packet = GameTickPacket()  # We want to do a deep copy for game inputs so people don't mess with em
 
     # Run until the Exercise finishes.
     while grade is None:
 
         # Read from game data shared memory
-        game_interface.fresh_live_data_packet(game_tick_packet, 100, 99)
+        game_interface.update_live_data_packet(game_tick_packet)
 
         try:
             grade = ex.on_tick(game_tick_packet)
             ex.render(game_interface.renderer)
+            if metadata_ticker.acquire_if_ready():
+                # Check for agent metadata regularly. Ensures bots are properly started,
+                # constrained to certain CPU cores, and run at high process priority.
+                # This mimics what RLBotGUI does during a match.
+                setup_manager.try_recieve_agent_metadata()
         except Exception as e:
             return Result(ex, seed, FailDueToExerciseException(e, traceback.format_exc()))
+
+        rate_limit.acquire()
 
     return Result(ex, seed, grade)

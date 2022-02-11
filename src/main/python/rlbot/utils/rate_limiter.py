@@ -12,14 +12,22 @@ class RateLimiter:
     # Assumes acquring 1 permit
     def acquire(self):
         while True:
-            now = time.perf_counter()
-            self.accumulator += now - self.then
-            self.then = now
-            if self.accumulator > self.time_per_tick:
-                self.accumulator -= self.time_per_tick
+            if self.acquire_if_ready():
                 break
             else:
                 time.sleep(0.002)
+
+    def acquire_if_ready(self) -> bool:
+        """
+        A non-blocking check to see if the next tick is ready now.
+        """
+        now = time.perf_counter()
+        self.accumulator += now - self.then
+        self.then = now
+        if self.accumulator > self.time_per_tick:
+            self.accumulator -= self.time_per_tick
+            return True
+        return False
 
 
 if __name__ == '__main__':
