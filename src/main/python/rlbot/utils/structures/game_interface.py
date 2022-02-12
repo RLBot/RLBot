@@ -14,7 +14,6 @@ from rlbot.messages.flat.MatchSettings import MatchSettings as MatchSettingsPack
 from rlbot.messages.flat.BallPrediction import BallPrediction as BallPredictionPacket
 from rlbot.messages.flat.FieldInfo import FieldInfo
 from rlbot.messages.flat.QuickChatMessages import QuickChatMessages
-from rlbot.messages.flat.GameTickPacket import GameTickPacket as Gtp
 from rlbot.utils.file_util import get_python_root
 from rlbot.utils.game_state_util import GameState, CarState, Physics, Vector3
 from rlbot.utils.packetanalysis.valid_packet_detector import ValidPacketDetector
@@ -28,10 +27,13 @@ from rlbot.utils.structures.game_status import RLBotCoreStatus
 from rlbot.utils.structures.rigid_body_struct import RigidBodyTick
 from rlbot.utils.structures.start_match_structures import MatchSettings
 
+USE_OLD_LAUNCH = False
+
 if platform.system() == 'Windows':
     dll_name_64 = 'RLBot_Core_Interface.dll'
     dll_name_32 = 'RLBot_Core_Interface_32.dll'
 elif platform.system() == 'Linux':
+    USE_OLD_LAUNCH = True
     dll_name_64 = 'libRLBotInterface.so'
     dll_name_32 = 'libRLBotInterface32.so'
 elif platform.system() == 'Darwin':
@@ -188,7 +190,23 @@ class GameInterface:
     def update_match_data_packet(self):
         pass
 
+    def _old_start_match(self):
+        self.wait_until_loaded()
+        self.wait_until_ready_to_communicate()
+        # self.game_input_packet.bStartMatch = True
+        rlbot_status = self.game.StartMatch(self.start_match_configuration)
+
+        if rlbot_status != 0:
+            exception_class = get_exception_from_error_code(rlbot_status)
+            raise exception_class()
+
+        self.logger.debug('Starting match with status: %s', RLBotCoreStatus.status_list[rlbot_status])
+
     def start_match(self):
+        if USE_OLD_LAUNCH:
+            self._old_start_match()
+            return
+
         socket_relay = SocketRelay()
         match_config = self.match_config
 
@@ -264,8 +282,47 @@ class GameInterface:
             raise TimeoutError("RLBot took too long to initialize! Was Rocket League started with the -rlbot flag? "
                             "If you're not sure, close Rocket League and let us open it for you next time!")
 
+    def _old_wait_until_valid_packet(self):
+        self.logger.info('Waiting for valid packet...')
+        expected_count = self.start_match_configuration.num_players
+
+        for i in range(0, 300):
+            packet = game_data_struct.GameTickPacket()
+            self.update_live_data_packet(packet)
+            if not packet.game_info.is_match_ended:
+                spawn_ids = set()
+                for k in range(0, expected_count):
+                    player_config = self.start_match_configuration.player_configuration[k]
+                    if player_config.rlbot_controlled and player_config.spawn_id > 0:
+                        spawn_ids.add(player_config.spawn_id)
+
+                for n in range(0, packet.num_cars):
+                    try:
+                        spawn_ids.remove(packet.game_cars[n].spawn_id)
+                    except KeyError:
+                        pass
+
+                if len(spawn_ids) == 0 and expected_count <= self.start_match_configuration.num_players:
+                    self.logger.info('Packets are looking good, all spawn ids accounted for!')
+                    return
+                elif i > 4:
+                    car_states = {}
+                    for k in range(0, self.start_match_configuration.num_players):
+                        player_info = packet.game_cars[k]
+                        if player_info.spawn_id > 0:
+                            car_states[k] = CarState(physics=Physics(velocity=Vector3(z=500)))
+                    if len(car_states) > 0:
+                        self.logger.info("Scooting bots out of the way to allow more to spawn!")
+                        self.set_game_state(GameState(cars=car_states))
+
+            time.sleep(0.1)
+        self.logger.info('Gave up waiting for valid packet :(')
 
     def wait_until_valid_packet(self):
+        if USE_OLD_LAUNCH:
+            self._old_wait_until_valid_packet()
+            return
+
         detector = ValidPacketDetector(self.match_config)
         detector.wait_until_valid_packet()
 

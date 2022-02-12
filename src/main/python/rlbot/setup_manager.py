@@ -46,7 +46,7 @@ from rlbot.utils.class_importer import import_class_with_base, import_agent
 from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import WrongProcessArgs
 from rlbot.utils.structures.start_match_structures import MAX_PLAYERS
-from rlbot.utils.structures.game_interface import GameInterface
+from rlbot.utils.structures.game_interface import GameInterface, USE_OLD_LAUNCH
 from rlbot.utils.config_parser import mergeTASystemSettings, cleanUpTASystemSettings
 from rlbot.parsing.rlbot_config_parser import LAUNCHER_PREFERENCE_KEY
 from rlbot.matchcomms.server import MatchcommsServerThread
@@ -352,6 +352,10 @@ class SetupManager:
         self.game_interface.match_config = match_config
         self.game_interface.start_match_flatbuffer = match_config.create_flatbuffer()
 
+        if USE_OLD_LAUNCH:
+            self.start_match_configuration = match_config.create_match_settings()
+            self.game_interface.start_match_configuration = self.start_match_configuration
+
     def load_config(self, framework_config: ConfigObject = None, config_location=DEFAULT_RLBOT_CONFIG_LOCATION,
                     bot_configs=None,
                     looks_configs=None):
@@ -454,7 +458,11 @@ class SetupManager:
         # Launch processes
         # TODO: this might be the right moment to fix the player indices based on a game tick packet.
         if not early_starters_only:
-            packet = get_one_packet()
+            if USE_OLD_LAUNCH:
+                packet = game_data_struct.GameTickPacket()
+                self.game_interface.update_live_data_packet(packet)
+            else:
+                packet = get_one_packet()
 
         # TODO: root through the packet and find discrepancies in the player index mapping.
         for i in range(min(self.num_participants, len(match_config.player_configs))):
@@ -474,8 +482,9 @@ class SetupManager:
                 participant_index = None
 
                 self.logger.info(f'Player in slot {i} was sent with spawn id {spawn_id}, will search in the packet.')
-                for n in range(0, packet.PlayersLength()):
-                    packet_spawn_id = packet.Players(n).SpawnId()
+                num_players = packet.num_cars if USE_OLD_LAUNCH else packet.PlayersLength()
+                for n in range(0, num_players):
+                    packet_spawn_id = packet.game_cars[n].spawn_id if USE_OLD_LAUNCH else packet.Players(n).SpawnId()
                     if spawn_id == packet_spawn_id:
                         self.logger.info(f'Looks good, considering participant index to be {n}')
                         participant_index = n
