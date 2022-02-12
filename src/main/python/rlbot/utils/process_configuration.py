@@ -131,7 +131,26 @@ def get_process(program, scriptname, required_args: Set[str]) -> Union[psutil.Pr
 def is_process_running(program, scriptname, required_args: Set[str]) -> Tuple[bool, Union[psutil.Process, None]]:
     process = get_process(program, scriptname, required_args)
     return process is not None, process
-    
+
+
+def append_child_pids(agent_metadata_map: Dict[int, AgentMetadata]) -> bool:
+    found_unreported_pids = False
+    for md in agent_metadata_map.values():
+        traversed_pids = set()
+        for pid in md.pids:
+            if pid not in traversed_pids:
+                traversed_pids.add(pid)
+                try:
+                    process = psutil.Process(pid)
+                    child_pids = [c.pid for c in  process.children(recursive=True)]
+                    traversed_pids.update(child_pids)
+                except:
+                    pass
+        if len(md.pids) < len(traversed_pids):
+            found_unreported_pids = True
+        md.pids = list(traversed_pids)
+    return found_unreported_pids
+
 
 class WrongProcessArgs(UserWarning):
     pass

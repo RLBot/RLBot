@@ -640,7 +640,15 @@ class SetupManager:
                 process_configuration.configure_processes(self.agent_metadata_map, self.logger)
             except queue.Empty:
                 self.num_metadata_received += num_recieved
-                return num_recieved
+                break
+
+        # Let's go through the agent metadata map and see if we can expand it with any child processes.
+        # We'll do it every time this function is called (generall periodically),
+        # we don't know when an agent might spawn another process.
+        if process_configuration.append_child_pids(self.agent_metadata_map):
+            process_configuration.configure_processes(self.agent_metadata_map, self.logger)
+
+        return num_recieved
 
     def reload_all_agents(self, quiet=False):
         if not quiet:
