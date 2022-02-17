@@ -1,7 +1,7 @@
+import os
 import sys
 from pathlib import Path
-from subprocess import PIPE, Popen, run
-from threading import Thread
+from subprocess import run
 from types import SimpleNamespace
 from typing import List
 from venv import EnvBuilder
@@ -12,9 +12,40 @@ from rlbot.parsing.bot_config_bundle import RunnableConfigBundle
 class EnvBuilderWithRequirements(EnvBuilder):
 
     def __init__(self, bundle: RunnableConfigBundle, do_post_setup: bool=True):
-        super().__init__(system_site_packages=True, clear=False, with_pip=False)
+        # Install pip by default and add RLBot's already installed packages as a base set of dependencies
+        # Allows bots with requirements like "rlbot" to not have to reinstall the rlbot package
+        # Also allows bots to pin to specific versions of a package, even if a different version is installed in rlbot
+        super().__init__(system_site_packages=True, with_pip=True) 
         self.bundle = bundle
         self.do_post_setup = do_post_setup
+
+    def create(self, env_dir):
+        """
+        Create a virtual environment in a directory.
+        Changed so system site packages is configured before post_setup is ran.
+
+        :param env_dir: The target directory to create an environment in.
+        """
+
+        env_dir = os.path.abspath(env_dir)
+        context = self.ensure_directories(env_dir)
+        # See issue 24875. We need system_site_packages to be False
+        # until after pip is installed.
+        true_system_site_packages = self.system_site_packages
+        self.system_site_packages = False
+        self.create_configuration(context)
+        self.setup_python(context)
+        if self.with_pip:
+            self._setup_pip(context)
+        if not self.upgrade:
+            self.setup_scripts(context)
+        if true_system_site_packages:
+            # We had set it to False before, now
+            # restore it and rewrite the configuration
+            self.system_site_packages = True
+            self.create_configuration(context)
+        if not self.upgrade:
+            self.post_setup(context)
 
     def post_setup(self, context: SimpleNamespace) -> None:
         if not self.do_post_setup:
@@ -28,8 +59,9 @@ class EnvBuilderWithRequirements(EnvBuilder):
         sys.stderr.write(f'Installing {requirements}...\n')
         sys.stderr.flush()
 
-        args = [context.env_exe, '-m', 'ensurepip']
-        finished_process = self.run_and_dump(args, timeout=120)
+        # Actually update pip
+        args = [context.env_exe, '-m', 'pip', 'install', '-U', 'pip']
+        finished_process = self.run_and_dump(args, timeout=300)
 
         # Install in the virtual environment
         args = [context.env_exe, '-m', 'pip', 'install', '-U', '-r', requirements]
