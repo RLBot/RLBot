@@ -59,6 +59,10 @@ class EnvBuilderWithRequirements(EnvBuilder):
         sys.stderr.write(f'Installing {requirements}...\n')
         sys.stderr.flush()
 
+        # Make sure pip is installed
+        args = [context.env_exe, '-m', 'ensurepip']
+        finished_process = self.run_and_dump(args, timeout=120)
+
         # Actually update pip
         args = [context.env_exe, '-m', 'pip', 'install', '-U', 'pip']
         finished_process = self.run_and_dump(args, timeout=300)
