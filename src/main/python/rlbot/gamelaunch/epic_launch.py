@@ -166,7 +166,9 @@ def locate_epic_games_launcher_rocket_league_binary() -> Optional[Path]:
         binary_data = search_for_manifest_file(path)
 
         if binary_data is not None:
-            return Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
+            path = Path(binary_data['InstallLocation']) / binary_data['LaunchExecutable']
+            if path.is_file():
+                return path
 
     # Nothing found in registry? Try C:\ProgramData\Epic\EpicGamesLauncher
     # Or consider using %programdata%
