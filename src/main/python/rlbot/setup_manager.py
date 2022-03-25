@@ -501,7 +501,10 @@ class SetupManager:
                 if bundle.supports_standalone:
                     executable = sys.executable
                     if bundle.use_virtual_environment:
-                        executable = str(Path(bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
+                        if platform.system() == "Windows":
+                            executable = str(Path(bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
+                        else:
+                            executable = str(Path(bundle.config_directory) / 'venv' / 'bin' / 'python')
                     process = subprocess.Popen([
                         executable,
                         bundle.python_file,
