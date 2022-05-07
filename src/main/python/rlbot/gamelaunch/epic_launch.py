@@ -15,11 +15,16 @@ from rlbot.utils.logging_utils import get_logger, DEFAULT_LOGGER
 from rlbot.utils.process_configuration import get_process
 
 
-def launch_with_epic_simple(ideal_args: List[str]) -> bool:
+def launch_with_epic_simple(ideal_args: List[str], launcher_preference = None) -> bool:
     logger = get_logger(DEFAULT_LOGGER)
     try:
         # Try launch via Epic Games
-        epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
+        epic_exe_path = None
+        if launcher_preference is not None:
+            epic_exe_path = launcher_preference.rocket_league_exe_path
+        if epic_exe_path is None:
+            epic_exe_path = locate_epic_games_launcher_rocket_league_binary()
+
         if epic_exe_path is not None:
             exe_and_args = [str(epic_exe_path)] + ideal_args
             logger.info(f'Launching Rocket League with: {exe_and_args}')
@@ -80,7 +85,7 @@ def get_auth_args_from_logs() -> Union[List[str], None]:
                     return all_args
     return None
 
-def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
+def launch_with_epic_login_trick(ideal_args: List[str], launcher_preference) -> bool:
     """
     This needs to fail gracefully! Sometimes people only have the Steam version,
     so we want to be able to fall back to Steam if Epic is going nowhere.
@@ -88,17 +93,18 @@ def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
     try:
         logger = get_logger(DEFAULT_LOGGER)
 
-        if not launch_with_epic_simple(ideal_args):
+        if not launch_with_epic_simple(ideal_args, launcher_preference):
             return False
 
         process = None
+        logger.info("Waiting for RocketLeague.exe to start...")
         while True:
             sleep(1)
             process = get_process('RocketLeague.exe', 'RocketLeague.exe', set())
             if process is not None:
                 break
-            logger.info("Waiting for RocketLeague.exe to start...")
 
+        logger.info("Waiting for Rocket League args...")
         while True:
             all_args = get_auth_args_from_process()
             if all_args is not None:
@@ -107,7 +113,6 @@ def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
             if all_args is not None:
                 break
             time.sleep(1)
-            logger.info("Waiting for Rocket League args...")
 
         process = get_process('RocketLeague.exe', 'RocketLeague.exe', set())
         if process:
@@ -118,7 +123,7 @@ def launch_with_epic_login_trick(ideal_args: List[str]) -> bool:
                 pass
         modified_args = ideal_args + all_args
         logger.info(f"Killed old rocket league, reopening with {modified_args}")
-        launch_with_epic_simple(modified_args)
+        launch_with_epic_simple(modified_args, launcher_preference)
         return True
     except Exception as ex:
         logger.warn(f"Trouble with epic launch: {ex}")

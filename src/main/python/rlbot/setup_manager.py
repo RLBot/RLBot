@@ -75,9 +75,11 @@ class ROCKET_LEAGUE_PROCESS_INFO:
 @dataclass
 class RocketLeagueLauncherPreference:
     STEAM = 'steam'
-    EPIC = 'epic'
+    EPIC = 'epic' # This tries epic first, then falls back to steam. Weird name is for backwards compat.
+    EPIC_ONLY = 'epic_only'
     preferred_launcher: str
     use_login_tricks: bool
+    rocket_league_exe_path: Optional[Path] = None
 
 
 # By default, we will attempt Epic with login tricks, then fall back to Steam.
@@ -205,7 +207,8 @@ class SetupManager:
         elif not self.is_rocket_league_running(port):
             mergeTASystemSettings()
             pref = launcher_preference or self.launcher_preference or DEFAULT_LAUNCHER_PREFERENCE
-            self.launch_rocket_league(port=port, launcher_preference=pref)
+            if not self.launch_rocket_league(port=port, launcher_preference=pref):
+                raise Exception("Failed to launch Rocket League!")
 
         try:
             self.logger.info("Loading interface...")
@@ -228,23 +231,38 @@ class SetupManager:
                 return int(rocket_league_port)
         return None
 
-    def launch_rocket_league(self, port, launcher_preference: RocketLeagueLauncherPreference = DEFAULT_LAUNCHER_PREFERENCE):
+    def launch_rocket_league(self, port, launcher_preference: RocketLeagueLauncherPreference = DEFAULT_LAUNCHER_PREFERENCE) -> bool:
+        if launcher_preference.preferred_launcher == RocketLeagueLauncherPreference.EPIC_ONLY:
+            return self.launch_rocket_league_with_epic(port,  launcher_preference)
+        elif launcher_preference.preferred_launcher == RocketLeagueLauncherPreference.STEAM:
+            return self.launch_rocket_league_with_steam(port)
+        elif launcher_preference.preferred_launcher == RocketLeagueLauncherPreference.EPIC:
+            # Historically, the preference of EPIC has caused RLBot to try Epic first, then Steam.
+            # Keeping that behavior for backwards compatibility.
+            epic_worked = self.launch_rocket_league_with_epic(port, launcher_preference)
+            if epic_worked:
+                return True
+            self.logger.info("Epic launch has failed, falling back to Steam!")
+            return self.launch_rocket_league_with_steam(port)
+    
+    def launch_rocket_league_with_epic(self, port, launcher_preference: RocketLeagueLauncherPreference) -> bool:
         """
         Launches Rocket League but does not connect to it.
         """
         ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
 
-        if launcher_preference.preferred_launcher == RocketLeagueLauncherPreference.EPIC:
-            if launcher_preference.use_login_tricks:
-                if launch_with_epic_login_trick(ideal_args):
-                    return
-                else:
-                    self.logger.info("Epic login trick seems to have failed!")
-                    # Try Steam after this.
-            if launch_with_epic_simple(ideal_args):
-                return
+        if launcher_preference.use_login_tricks:
+            if launch_with_epic_login_trick(ideal_args, launcher_preference):
+                return True
+            else:
+                self.logger.info("Epic login trick seems to have failed!")
+        if launch_with_epic_simple(ideal_args, launcher_preference):
+            return True
 
+    def launch_rocket_league_with_steam(self, port) -> bool:
         # Try launch via Steam.
+        ideal_args = ROCKET_LEAGUE_PROCESS_INFO.get_ideal_args(port)
+
         steam_exe_path = try_get_steam_executable_path()
         if steam_exe_path:  # Note: This Python 3.8 feature would be useful here https://www.python.org/dev/peps/pep-0572/#abstract
             exe_and_args = [
@@ -254,7 +272,7 @@ class SetupManager:
             ] + ideal_args
             self.logger.info(f'Launching Rocket League with: {exe_and_args}')
             _ = subprocess.Popen(exe_and_args)  # This is deliberately an orphan process.
-            return
+            return True
 
         self.logger.warning(f'Launching Rocket League using Steam-only fall-back launch method with args: {ideal_args}')
         self.logger.info("You should see a confirmation pop-up, if you don't see it then click on Steam! "
@@ -270,7 +288,7 @@ class SetupManager:
 
             try:
                 _ = subprocess.Popen(linux_args)
-                return
+                return True
             except OSError:
                 self.logger.warning('Could not launch Steam executable on Linux.')
 
@@ -280,6 +298,8 @@ class SetupManager:
         except webbrowser.Error:
             self.logger.warning(
                 'Unable to launch Rocket League. Please launch Rocket League manually using the -rlbot option to continue.')
+            return False
+        return True
 
     def load_match_config(self, match_config: MatchConfig, bot_config_overrides={}):
         """
