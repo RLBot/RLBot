@@ -85,7 +85,7 @@ def get_auth_args_from_logs() -> Union[List[str], None]:
                     return all_args
     return None
 
-def launch_with_epic_login_trick(ideal_args: List[str], launcher_preference) -> bool:
+def launch_with_epic_login_trick(ideal_args: List[str], launcher_preference = None) -> bool:
     """
     This needs to fail gracefully! Sometimes people only have the Steam version,
     so we want to be able to fall back to Steam if Epic is going nowhere.
