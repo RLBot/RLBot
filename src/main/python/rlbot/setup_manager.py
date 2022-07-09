@@ -564,7 +564,10 @@ class SetupManager:
                 continue
             executable = sys.executable
             if script_config_bundle.use_virtual_environment:
-                executable = str(Path(script_config_bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
+                if platform.system() == "Windows":
+                    executable = str(Path(script_config_bundle.config_directory) / 'venv' / 'Scripts' / 'python.exe')
+                else:
+                    executable = str(Path(script_config_bundle.config_directory) / 'venv' / 'bin' / 'python')
 
             process = subprocess.Popen(
                 [
