@@ -11,7 +11,7 @@ setuptools.setup(
     name='rlbot',
     packages=setuptools.find_packages(),
     install_requires=[
-        'flatbuffers==1.9',
+        'flatbuffers==1.12',
         'psutil==5.8.0',
         'inputs',
         'websockets',
