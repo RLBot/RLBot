@@ -37,6 +37,7 @@ setuptools.setup(
     ],
     package_data={
         'rlbot': [
+            "**/*.csv",
             '**/*.json',
             '**/*.png',
             '**/*.md',
