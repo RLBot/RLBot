@@ -62,8 +62,8 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 class ROCKET_LEAGUE_PROCESS_INFO:
     GAMEID = 252950
-    PROGRAM_NAME = 'RocketLeague.exe'
-    PROGRAM = 'RocketLeague.exe'
+    PROGRAM_NAME = 'RocketLeague.exe' if platform.system() == 'Windows' else 'RocketLeague'
+    PROGRAM = 'RocketLeague.exe' if platform.system() == 'Windows' else 'RocketLeague'
     REQUIRED_ARGS = {r'-rlbot', r'RLBot_ControllerURL=127.0.0.1:[0-9]+'}
 
     @staticmethod
