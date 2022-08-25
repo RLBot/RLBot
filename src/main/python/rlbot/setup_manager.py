@@ -62,8 +62,8 @@ RLBOT_CONFIGURATION_HEADER = 'RLBot Configuration'
 
 class ROCKET_LEAGUE_PROCESS_INFO:
     GAMEID = 252950
-    PROGRAM_NAME = 'RocketLeague.exe'
-    PROGRAM = 'RocketLeague.exe'
+    PROGRAM_NAME = 'RocketLeague.exe' if platform.system() == 'Windows' else 'RocketLeague'
+    PROGRAM = 'RocketLeague.exe' if platform.system() == 'Windows' else 'RocketLeague'
     REQUIRED_ARGS = {r'-rlbot', r'RLBot_ControllerURL=127.0.0.1:[0-9]+'}
 
     @staticmethod
@@ -352,7 +352,14 @@ class SetupManager:
                         checked_environment_requirements.add(bundle.requirements_file)
 
                 builder = EnvBuilderWithRequirements(bundle=bundle, do_post_setup=do_post_setup)
-                builder.create(Path(bundle.config_directory) / 'venv')
+                path = Path(bundle.config_directory) / 'venv'
+                if not path.exists():
+                    builder.create(path)
+                else:
+                    env_dir = os.path.abspath(path)
+                    context = builder.ensure_directories(env_dir)
+                    if not builder.upgrade:
+                        builder.post_setup(context)
 
         for script_config in match_config.script_configs:
             script_config_bundle = get_script_config_bundle(script_config.config_path)
@@ -366,7 +373,14 @@ class SetupManager:
                         checked_environment_requirements.add(bundle.requirements_file)
 
                 builder = EnvBuilderWithRequirements(bundle=script_config_bundle, do_post_setup=do_post_setup)
-                builder.create(Path(script_config_bundle.config_directory) / 'venv')
+                path = Path(script_config_bundle.config_directory) / 'venv'
+                if not path.exists():
+                    builder.create(path)
+                else:
+                    env_dir = os.path.abspath(path)
+                    context = builder.ensure_directories(env_dir)
+                    if not builder.upgrade:
+                        builder.post_setup(context)
 
         self.match_config = match_config
         self.game_interface.match_config = match_config
@@ -539,6 +553,7 @@ class SetupManager:
 
                     # Insert immediately into the agent metadata map because the standalone process has no way to communicate it back out
                     self.agent_metadata_map[participant_index] = AgentMetadata(participant_index, deduped_name, self.teams[i], {process.pid})
+                    self.num_metadata_received += 1
                 else:
                     reload_request = mp.Event()
                     quit_callback = mp.Event()
