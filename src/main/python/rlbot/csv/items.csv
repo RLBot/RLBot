@@ -4737,6 +4737,7 @@
 7358,Hat,Product_TA ProductsDB.Products.hat_sogb,Space Queen
 7359,Wheels,Product_TA ProductsDB.Products.wheel_sog,GRIMES
 7360,Skin,Product_TA ProductsDB.Products.skin_octane_tigerstripes,Octane: Tyger
+7361,Skin,Product_TA ProductsDB.Products.pack_octanecountryskin,Federation Decals
 7363,Skin,Product_TA ProductsDB.Products.skin_musclecar_flex,Dominus: Flex
 7364,Wheels,Product_TA ProductsDB.Products.wheel_exotic_flare,Troika: Roasted
 7366,SupersonicTrail,Product_TA ProductsDB.Products.ss_braid,Braided
@@ -5096,15 +5097,24 @@
 7861,PaintFinish,Product_TA ProductsDB.Products.paintfinish_windows,Windowed
 7863,GoalExplosion,Product_TA ProductsDB.Products.Explosion_MiniRLBalls_Gold,Ballistic Pro
 7864,EngineAudio,Product_TA ProductsDB.Products.engineaudio_hic,Honda Civic Type R
+7867,Antenna,Product_TA ProductsDB.Products.flag_was22_h,Washington Commanders
+7868,Skin,Product_TA ProductsDB.Products.skin_Force_FBwas22,Breakout: Washington Commanders
+7869,Skin,Product_TA ProductsDB.Products.skin_Grain_FBwas22,Fennec: Washington Commanders
+7870,Skin,Product_TA ProductsDB.Products.skin_musclecar_was22_h,Dominus: Washington Commanders
+7871,Skin,Product_TA ProductsDB.Products.skin_Octane_FBwas22,Octane: Washington Commanders
+7872,Hat,Product_TA ProductsDB.Products.hat_nfl_was22,Washington Commanders
 7873,Wheels,Product_TA ProductsDB.Products.wheel_chief_psplus,Metalwork RBY
 7874,Hat,Product_TA ProductsDB.Products.hat_headphones_psplus,MMS RBY
 7876,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_AT8,Accolade VIII
 7880,Hat,Product_TA ProductsDB.Products.hat_xo,XnO
+7888,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_fbwas22,Washington Commanders
+7889,PlayerBanner,Product_TA ProductsDB.Products.PlayerBanner_Loy,San Diego Loyal
 7895,Hat,Product_TA ProductsDB.Products.hat_shoes,Fresh Kicks
 7896,Wheels,Product_TA ProductsDB.Products.wheel_streetclock_glitch,Tic-King: Glitched
 7898,Hat,Product_TA ProductsDB.Products.hat_phatcap,Big Cap
 7899,Wheels,Product_TA ProductsDB.Products.wheel_neka_hatch,Proffer: Hatch
 7900,Skin,Product_TA ProductsDB.Products.skin_chevronshuffle_psplus,Caution Waves RBY
+7903,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_fiesta22,Calacas
 7904,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_hic,Honda Civic Type R
 7905,Boost,Product_TA ProductsDB.Products.Boost_S7_01,S7 - Bronze
 7906,Boost,Product_TA ProductsDB.Products.Boost_S7_02,S7 - Silver
@@ -5119,16 +5129,21 @@
 7915,PlayerAvatarBorder,Product_TA ProductsDB.Products.avatarborder_shoelace,Laced Up
 7917,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_kettle,Kettle Bell
 7920,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_subway,Metro
-7923,Antenna,Product_TA ProductsDB.Products.antenna_cantstopme,Can?t Stop Me
+7923,Antenna,Product_TA ProductsDB.Products.antenna_cantstopme,Can't Stop Me
 7924,EngineAudio,Product_TA ProductsDB.Products.engineaudio_hic_t2,Honda Civic Type R-LE
 7925,Boost,Product_TA ProductsDB.Products.boost_street,Sprattle
 7926,GoalExplosion,Product_TA ProductsDB.Products.explosion_street,Savage Spray
 7927,SupersonicTrail,Product_TA ProductsDB.Products.ss_Krylo,Sprattle
 7928,Wheels,Product_TA ProductsDB.Products.wheel_sido_flare,Module: Roasted
 7931,Skin,Product_TA ProductsDB.Products.Skin_sugacrown,Majesty
+7934,Skin,Product_TA ProductsDB.Products.skin_octane_sdl,Octane: San Diego Loyal (Siempre Leal)
+7935,Skin,Product_TA ProductsDB.Products.skin_octane_sdl2,Octane: San Diego Loyal (Home)
+7936,Skin,Product_TA ProductsDB.Products.skin_octane_sdl3,Octane: San Diego Loyal (Away)
+7937,Skin,Product_TA ProductsDB.Products.skin_octane_sdl4,Octane: San Diego Loyal (Special Edition)
 7944,Skin,Product_TA ProductsDB.Products.Skin_Octane_Quads_Color,Octane: Wrapstar
 7947,Body,Product_TA ProductsDB.Products.body_hic_t1,Honda Civic Type R
 7948,Body,Product_TA ProductsDB.Products.body_hic_t2,Honda Civic Type R-LE
+7951,Skin,Product_TA ProductsDB.Products.skin_octane_elin,Octane: Síganme los Buenos
 7952,Skin,Product_TA ProductsDB.Products.skin_hic_01_tierall,Honda Civic Type R: 10-94
 7955,MusicStingers,Product_TA ProductsDB.Products.album_anthem_monstercat_vol2022,RL X Monstercat 2022
 7956,MusicStingers,Product_TA ProductsDB.Products.Anthem_AthenaAndsmle_Moment,Moment
@@ -5144,13 +5159,206 @@
 7974,Skin,Product_TA ProductsDB.Products.skin_hic_frosted,Honda Civic Type R: Ombre
 7975,Skin,Product_TA ProductsDB.Products.skin_hic_huntress,Honda Civic Type R: Huntress
 7976,Skin,Product_TA ProductsDB.Products.skin_hic_quads_color_tierall,Honda Civic Type R: Wrapstar
+7984,Hat,Product_TA ProductsDB.Products.hat_elin,Antenitas de Vinil
 7986,Wheels,Product_TA ProductsDB.Products.Wheel_Yilmaz_Holographic,Maz: Holographic
 7987,Skin,Product_TA ProductsDB.Products.Skin_octane_crowntress,Octane: Kingtress
+7991,Wheels,Product_TA ProductsDB.Products.wheel_elin,Más Rápido que una Tortuga
 7994,Wheels,Product_TA ProductsDB.Products.wheel_quads_inverted,Franko Fone: Inverted
 7995,Skin,Product_TA ProductsDB.Products.skin_hic_quads_se_tierall,Honda Civic Type R: Wrapstar: Remixed
 7997,MusicStingers,Product_TA ProductsDB.Products.Anthem_RadioClassics_Vol1_04,Low Rider
+8010,Wheels,Product_TA ProductsDB.Products.wheel_Gnarly,Charly
+8013,Skin,Product_TA ProductsDB.Products.skin_grain_spacestation_away,Fennec: Spacestation Gaming (Away)
+8014,Skin,Product_TA ProductsDB.Products.skin_grain_spacestation_home,Fennec: Spacestation Gaming (Home)
+8015,Skin,Product_TA ProductsDB.Products.skin_musclecar_spacestation_away,Dominus: Spacestation Gaming (Away)
+8016,Skin,Product_TA ProductsDB.Products.skin_musclecar_spacestation_home,Dominus: Spacestation Gaming (Home)
+8017,Skin,Product_TA ProductsDB.Products.skin_octane_spacestation_away,Octane: Spacestation Gaming (Away)
+8018,Skin,Product_TA ProductsDB.Products.skin_octane_spacestation_home,Octane: Spacestation Gaming (Home)
 8021,MusicStingers,Product_TA ProductsDB.Products.anthem_oddkidout_cinema_featmarlhy_fameandfortunevip,CINEMA (feat. Marlhy) (Fame & Fortune VIP)
 8022,PlayerAvatarBorder,Product_TA ProductsDB.Products.avatarborder_spray_paint,Spray?d
 8023,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_phat_cap,Cannon
+8025,Skin,Product_TA ProductsDB.Products.skin_grain_rogue_away,Fennec: Rogue (Away)
+8026,Skin,Product_TA ProductsDB.Products.skin_grain_rogue_home,Fennec: Rogue (Home)
+8027,Skin,Product_TA ProductsDB.Products.skin_musclecar_rogue_away,Dominus: Rogue (Away)
+8028,Skin,Product_TA ProductsDB.Products.skin_musclecar_rogue_home,Dominus: Rogue (Home)
+8029,Skin,Product_TA ProductsDB.Products.skin_octane_rogue_away,Octane: Rogue (Away)
+8030,Skin,Product_TA ProductsDB.Products.skin_octane_rogue_home,Octane: Rogue (Home)
+8031,Skin,Product_TA ProductsDB.Products.skin_grain_fazeclan_away,Fennec: FaZe Clan (Away)
+8032,Skin,Product_TA ProductsDB.Products.Skin_Grain_FaZeClan_Home,Fennec: FaZe Clan (Home)
+8033,Skin,Product_TA ProductsDB.Products.skin_musclecar_fazeclan_away,Dominus: FaZe Clan (Away)
+8034,Skin,Product_TA ProductsDB.Products.Skin_Musclecar_FaZeClan_Home,Dominus: FaZe Clan (Home)
+8035,Skin,Product_TA ProductsDB.Products.skin_octane_fazeclan_away,Octane: FaZe Clan (Away)
+8036,Skin,Product_TA ProductsDB.Products.Skin_Octane_FaZeClan_Home,Octane: FaZe Clan (Home)
+8037,Skin,Product_TA ProductsDB.Products.skin_grain_oxygen_away,Fennec: Oxygen Esports (Away)
+8038,Skin,Product_TA ProductsDB.Products.skin_grain_oxygen_home,Fennec: Oxygen Esports (Home)
+8039,Skin,Product_TA ProductsDB.Products.skin_musclecar_oxygen_away,Dominus: Oxygen Esports (Away)
+8040,Skin,Product_TA ProductsDB.Products.skin_musclecar_oxygen_home,Dominus: Oxygen Esports (Home)
+8041,Skin,Product_TA ProductsDB.Products.skin_octane_oxygen_away,Octane: Oxygen Esports (Away)
+8042,Skin,Product_TA ProductsDB.Products.skin_octane_oxygen_home,Octane: Oxygen Esports (Home)
 8043,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_roller_skates,Sk8s
+8044,PlayerBanner,Product_TA ProductsDB.Products.playerbanner_elin,Héroe Colorado
+8046,Skin,Product_TA ProductsDB.Products.skin_grain_pwr_away,Fennec: PWR (Away)
+8047,Skin,Product_TA ProductsDB.Products.skin_grain_pwr_home,Fennec: PWR (Home)
+8048,Skin,Product_TA ProductsDB.Products.skin_musclecar_pwr_away,Dominus: PWR (Away)
+8049,Skin,Product_TA ProductsDB.Products.skin_musclecar_pwr_home,Dominus: PWR (Home)
+8050,Skin,Product_TA ProductsDB.Products.skin_octane_pwr_away,Octane: PWR (Away)
+8051,Skin,Product_TA ProductsDB.Products.skin_octane_pwr_home,Octane: PWR (Home)
+8052,Skin,Product_TA ProductsDB.Products.skin_grain_nrg_away,Fennec: NRG (Away)
+8053,Skin,Product_TA ProductsDB.Products.skin_grain_nrg_home,Fennec: NRG (Home)
+8054,Skin,Product_TA ProductsDB.Products.skin_musclecar_nrg_away,Dominus: NRG (Away)
+8055,Skin,Product_TA ProductsDB.Products.skin_musclecar_nrg_home,Dominus: NRG (Home)
+8056,Skin,Product_TA ProductsDB.Products.skin_octane_nrg_away,Octane: NRG (Away)
+8057,Skin,Product_TA ProductsDB.Products.skin_octane_NRG_home,Octane: NRG (Home)
+8058,Skin,Product_TA ProductsDB.Products.skin_grain_g2esports_away,Fennec: G2 Esports (Away)
+8059,Skin,Product_TA ProductsDB.Products.Skin_Grain_G2Esports_Home,Fennec: G2 Esports (Home)
+8060,Skin,Product_TA ProductsDB.Products.skin_musclecar_g2esports_away,Dominus: G2 Esports (Away)
+8061,Skin,Product_TA ProductsDB.Products.skin_musclecar_g2esports_home,Dominus: G2 Esports (Home)
+8062,Skin,Product_TA ProductsDB.Products.skin_octane_g2esports_away,Octane: G2 Esports (Away)
+8063,Skin,Product_TA ProductsDB.Products.skin_octane_g2esports_home,Octane: G2 Esports (Home)
+8064,Skin,Product_TA ProductsDB.Products.skin_grain_ghost_away,Fennec: Ghost Gaming (Away)
+8065,Skin,Product_TA ProductsDB.Products.skin_grain_ghost_home,Fennec: Ghost Gaming (Home)
+8066,Skin,Product_TA ProductsDB.Products.skin_musclecar_ghost_away,Dominus: Ghost Gaming (Away)
+8067,Skin,Product_TA ProductsDB.Products.skin_musclecar_ghost_home,Dominus: Ghost Gaming (Home)
+8068,Skin,Product_TA ProductsDB.Products.skin_octane_ghost_away,Octane: Ghost Gaming (Away)
+8069,Skin,Product_TA ProductsDB.Products.skin_octane_ghost_home,Octane: Ghost Gaming (Home)
+8070,Skin,Product_TA ProductsDB.Products.skin_grain_renegades_away,Fennec: Renegades (Away)
+8071,Skin,Product_TA ProductsDB.Products.skin_grain_renegades_home,Fennec: Renegades (Home)
+8072,Skin,Product_TA ProductsDB.Products.skin_musclecar_renegades_away,Dominus: Renegades (Away)
+8073,Skin,Product_TA ProductsDB.Products.skin_musclecar_renegades_home,Dominus: Renegades (Home)
+8074,Skin,Product_TA ProductsDB.Products.skin_octane_renegades_away,Octane: Renegades (Away)
+8075,Skin,Product_TA ProductsDB.Products.skin_octane_renegades_home,Octane: Renegades (Home)
+8076,Skin,Product_TA ProductsDB.Products.skin_grain_moist_away,Fennec: Moist Esports (Away)
+8077,Skin,Product_TA ProductsDB.Products.skin_grain_moist_home,Fennec: Moist Esports (Home)
+8078,Skin,Product_TA ProductsDB.Products.skin_grain_teamfalcons_away,Fennec: Team Falcons (Away)
+8079,Skin,Product_TA ProductsDB.Products.skin_grain_teamfalcons_home,Fennec: Team Falcons (Home)
+8080,Skin,Product_TA ProductsDB.Products.skin_grain_teamvitality_away,Fennec: Team Vitality (Away)
+8081,Skin,Product_TA ProductsDB.Products.skin_grain_teamvitality_home,Fennec: Team Vitality (Home)
+8082,Skin,Product_TA ProductsDB.Products.skin_musclecar_moist_away,Dominus: Moist Esports (Away)
+8083,Skin,Product_TA ProductsDB.Products.skin_musclecar_moist_home,Dominus: Moist Esports (Home)
+8084,Skin,Product_TA ProductsDB.Products.skin_octane_moist_away,Octane: Moist Esports (Away)
+8085,Skin,Product_TA ProductsDB.Products.skin_octane_moist_home,Octane: Moist Esports (Home)
+8088,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamfalcons_away,Dominus: Team Falcons (Away)
+8089,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamfalcons_home,Dominus: Team Falcons (Home)
+8090,Skin,Product_TA ProductsDB.Products.skin_octane_teamfalcons_away,Octane: Team Falcons (Away)
+8091,Skin,Product_TA ProductsDB.Products.skin_octane_teamfalcons_home,Octane: Team Falcons (Home)
+8092,Skin,Product_TA ProductsDB.Products.skin_octane_teamvitality_away,Octane: Team Vitality (Away)
+8093,Skin,Product_TA ProductsDB.Products.skin_octane_teamvitality_home,Octane: Team Vitality (Home)
+8094,Skin,Product_TA ProductsDB.Products.skin_grain_opticgaming_away,Fennec: OpTic Gaming (Away)
+8095,Skin,Product_TA ProductsDB.Products.skin_grain_opticgaming_home,Fennec: OpTic Gaming (Home)
+8096,Skin,Product_TA ProductsDB.Products.skin_musclecar_opticgaming_away,Dominus: OpTic Gaming (Away)
+8097,Skin,Product_TA ProductsDB.Products.skin_musclecar_opticgaming_home,Dominus: OpTic Gaming (Home)
+8098,Skin,Product_TA ProductsDB.Products.skin_octane_opticgaming_away,Octane: OpTic Gaming (Away)
+8099,Skin,Product_TA ProductsDB.Products.skin_octane_opticgaming_home,Octane: OpTic Gaming (Home)
+8100,Skin,Product_TA ProductsDB.Products.skin_grain_evilgeniuses_away,Fennec: Evil Geniuses (Away)
+8101,Skin,Product_TA ProductsDB.Products.skin_grain_evilgeniuses_home,Fennec: Evil Geniuses (Home)
+8102,Skin,Product_TA ProductsDB.Products.skin_musclecar_evilgeniuses_away,Dominus: Evil Geniuses (Away)
+8103,Skin,Product_TA ProductsDB.Products.skin_musclecar_evilgeniuses_home,Dominus: Evil Geniuses (Home)
+8104,Skin,Product_TA ProductsDB.Products.skin_octane_evilgeniuses_away,Octane: Evil Geniuses (Away)
+8105,Skin,Product_TA ProductsDB.Products.skin_octane_evilgeniuses_home,Octane: Evil Geniuses (Home)
+8106,Skin,Product_TA ProductsDB.Products.skin_grain_pioneers_away,Fennec: Kansas City Pioneers (Away)
+8107,Skin,Product_TA ProductsDB.Products.skin_grain_pioneers_home,Fennec: Kansas City Pioneers (Home)
+8108,Skin,Product_TA ProductsDB.Products.skin_musclecar_pioneers_away,Dominus: Kansas City Pioneers (Away)
+8109,Skin,Product_TA ProductsDB.Products.skin_musclecar_pioneers_home,Dominus: Kansas City Pioneers (Home)
+8110,Skin,Product_TA ProductsDB.Products.skin_octane_pioneers_away,Octane: Kansas City Pioneers (Away)
+8111,Skin,Product_TA ProductsDB.Products.skin_octane_pioneers_home,Octane: Kansas City Pioneers (Home)
+8113,Skin,Product_TA ProductsDB.Products.skin_grain_bds_away,Fennec: Team BDS (Away)
+8114,Skin,Product_TA ProductsDB.Products.skin_grain_bds_home,Fennec: Team BDS (Home)
+8115,Skin,Product_TA ProductsDB.Products.skin_musclecar_bds_away,Dominus: Team BDS (Away)
+8116,Skin,Product_TA ProductsDB.Products.skin_musclecar_bds_home,Dominus: Team BDS (Home)
+8117,Skin,Product_TA ProductsDB.Products.skin_octane_bds_away,Octane: Team BDS (Away)
+8118,Skin,Product_TA ProductsDB.Products.skin_octane_bds_home,Octane: Team BDS (Home)
+8135,Skin,Product_TA ProductsDB.Products.skin_grain_v1_away,Fennec: Version1 (Away)
+8136,Skin,Product_TA ProductsDB.Products.skin_grain_v1_home,Fennec: Version1 (Home)
+8137,Skin,Product_TA ProductsDB.Products.skin_musclecar_v1_away,Dominus: Version1 (Away)
+8138,Skin,Product_TA ProductsDB.Products.skin_musclecar_v1_home,Dominus: Version1 (Home)
+8139,Skin,Product_TA ProductsDB.Products.skin_octane_v1_away,Octane: Version1 (Away)
+8140,Skin,Product_TA ProductsDB.Products.skin_octane_v1_home,Octane: Version1 (Home)
+8141,MusicStingers,Product_TA ProductsDB.Products.Album_Anthem_Fiesta_Latina2022,Fiesta Latina 2022
+8143,MusicStingers,Product_TA ProductsDB.Products.Anthem_LiuAndSamanthaMachado_NaveEspacial,Nave Espacial
+8144,MusicStingers,Product_TA ProductsDB.Products.anthem_SlowMotion_ButBaby,But Baby
+8159,Skin,Product_TA ProductsDB.Products.skin_grain_furia_away,Fennec: Furia (Away)
+8160,Skin,Product_TA ProductsDB.Products.skin_grain_furia_home,Fennec: Furia (Home)
+8161,Skin,Product_TA ProductsDB.Products.skin_musclecar_furia_away,Dominus: Furia (Away)
+8162,Skin,Product_TA ProductsDB.Products.skin_musclecar_furia_home,Dominus: Furia (Home)
+8163,Skin,Product_TA ProductsDB.Products.skin_octane_furia_away,Octane: Furia (Away)
+8164,Skin,Product_TA ProductsDB.Products.skin_octane_furia_home,Octane: Furia (Home)
+8167,Skin,Product_TA ProductsDB.Products.skin_grain_teamliquid_away,Fennec: Team Liquid (Away)
+8168,Skin,Product_TA ProductsDB.Products.skin_grain_teamliquid_home,Fennec: Team Liquid (Home)
+8169,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamliquid_away,Dominus: Team Liquid (Away)
+8170,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamliquid_home,Dominus: Team Liquid (Home)
+8171,Skin,Product_TA ProductsDB.Products.skin_octane_teamliquid_away,Octane: Team Liquid (Away)
+8172,Skin,Product_TA ProductsDB.Products.Skin_Octane_TeamLiquid_Home,Octane: Team Liquid (Home)
+8173,Skin,Product_TA ProductsDB.Products.skin_grain_luminosity_away,Fennec: Luminosity Gaming (Away)
+8174,Skin,Product_TA ProductsDB.Products.skin_grain_luminosity_home,Fennec: Luminosity Gaming (Home)
+8175,Skin,Product_TA ProductsDB.Products.skin_musclecar_luminosity_away,Dominus: Luminosity Gaming (Away)
+8176,Skin,Product_TA ProductsDB.Products.skin_musclecar_luminosity_home,Dominus: Luminosity Gaming (Home)
+8177,Skin,Product_TA ProductsDB.Products.skin_octane_luminosity_away,Octane: Luminosity Gaming (Away)
+8178,Skin,Product_TA ProductsDB.Products.skin_octane_luminosity_home,Octane: Luminosity Gaming (Home)
+8179,Skin,Product_TA ProductsDB.Products.skin_grain_guild_away,Fennec: Guild (Away)
+8180,Skin,Product_TA ProductsDB.Products.skin_grain_guild_home,Fennec: Guild (Home)
+8181,Skin,Product_TA ProductsDB.Products.skin_musclecar_guild_away,Dominus: Guild (Away)
+8182,Skin,Product_TA ProductsDB.Products.skin_musclecar_guild_home,Dominus: Guild (Home)
+8183,Skin,Product_TA ProductsDB.Products.skin_octane_guild_away,Octane: Guild (Away)
+8184,Skin,Product_TA ProductsDB.Products.skin_octane_guild_home,Octane: Guild (Home)
+8185,Skin,Product_TA ProductsDB.Products.skin_grain_teamsecret_away,Fennec: Team Secret (Away)
+8186,Skin,Product_TA ProductsDB.Products.skin_grain_teamsecret_home,Fennec: Team Secret (Home)
+8189,Skin,Product_TA ProductsDB.Products.skin_octane_teamsecret_away,Octane: Team Secret (Away)
+8224,Skin,Product_TA ProductsDB.Products.skin_octane_ecuador,Octane: Ecuador
+8261,PremiumInventory,Product_TA ProductsDB.Products.CrateUnlocked_Halloween22,Golden Pumpkin '22
+8262,GoalExplosion,Product_TA ProductsDB.Products.explosion_mexico,Chipote Chillón
+8266,MusicStingers,Product_TA ProductsDB.Products.anthem_slowmotionandloudtech_goback,Go Back
+8268,Skin,Product_TA ProductsDB.Products.skin_grain_dignitas_away,Fennec: Dignitas (Away)
+8269,Skin,Product_TA ProductsDB.Products.skin_grain_dignitas_home,Fennec: Dignitas (Home)
+8270,Skin,Product_TA ProductsDB.Products.skin_musclecar_dignitas_away,Dominus: Dignitas (Away)
+8271,Skin,Product_TA ProductsDB.Products.skin_musclecar_dignitas_home,Dominus: Dignitas (Home)
+8272,Skin,Product_TA ProductsDB.Products.skin_octane_dignitas_away,Octane: Dignitas (Away)
+8273,Skin,Product_TA ProductsDB.Products.skin_octane_dignitas_home,Octane: Dignitas (Home)
 8281,MusicStingers,Product_TA ProductsDB.Products.anthem_athena_smleandisaacapp_moment_worldsversion,Moment (Worlds Version)
+8307,Skin,Product_TA ProductsDB.Products.skin_grain_soniqs_away,Fennec: Susquehanna Soniqs (Away)
+8308,Skin,Product_TA ProductsDB.Products.skin_grain_soniqs_home,Fennec: Susquehanna Soniqs (Home)
+8309,Skin,Product_TA ProductsDB.Products.skin_musclecar_soniqs_away,Dominus: Susquehanna Soniqs (Away)
+8310,Skin,Product_TA ProductsDB.Products.skin_musclecar_soniqs_home,Dominus: Susquehanna Soniqs (Home)
+8311,Skin,Product_TA ProductsDB.Products.skin_octane_soniqs_away,Octane: Susquehanna Soniqs (Away)
+8312,Skin,Product_TA ProductsDB.Products.skin_octane_soniqs_home,Octane: Susquehanna Soniqs (Home)
+8318,Skin,Product_TA ProductsDB.Products.pack_NWCdecals,Nike Federation Decals
+8325,Skin,Product_TA ProductsDB.Products.skin_grain_endpoint_away,Fennec: Endpoint (Away)
+8326,Skin,Product_TA ProductsDB.Products.skin_grain_endpoint_home,Fennec: Endpoint (Home)
+8327,Skin,Product_TA ProductsDB.Products.skin_musclecar_endpoint_away,Dominus: Endpoint (Away)
+8328,Skin,Product_TA ProductsDB.Products.skin_musclecar_endpoint_home,Dominus: Endpoint (Home)
+8329,Skin,Product_TA ProductsDB.Products.skin_octane_endpoint_away,Octane: Endpoint (Away)
+8330,Skin,Product_TA ProductsDB.Products.skin_octane_endpoint_home,Octane: Endpoint (Home)
+8336,PlayerBanner,Product_TA ProductsDB.Products.pack_genericcountrybanners,Federation Banners
+8338,Skin,Product_TA ProductsDB.Products.pack_rlcs2223,RLCS '22-'23
+8352,Skin,Product_TA ProductsDB.Products.skin_octane_teamsecret_home,Octane: Team Secret (Home)
+8362,Skin,Product_TA ProductsDB.Products.skin_grain_complexity_away,Fennec: Complexity (Away)
+8363,Skin,Product_TA ProductsDB.Products.skin_grain_complexity_home,Fennec: Complexity (Home)
+8364,Skin,Product_TA ProductsDB.Products.skin_musclecar_complexity_away,Dominus: Complexity (Away)
+8365,Skin,Product_TA ProductsDB.Products.skin_musclecar_complexity_home,Dominus: Complexity (Home)
+8366,Skin,Product_TA ProductsDB.Products.skin_octane_complexity_away,Octane: Complexity (Away)
+8367,Skin,Product_TA ProductsDB.Products.skin_octane_complexity_home,Octane: Complexity (Home)
+8370,Skin,Product_TA ProductsDB.Products.skin_grain_karminecorp_away,Fennec: Karmine Corp (Away)
+8371,Skin,Product_TA ProductsDB.Products.skin_grain_karminecorp_home,Fennec: Karmine Corp (Home)
+8372,Skin,Product_TA ProductsDB.Products.skin_musclecar_karminecorp_away,Dominus: Karmine Corp (Away)
+8373,Skin,Product_TA ProductsDB.Products.skin_musclecar_karminecorp_home,Dominus: Karmine Corp (Home)
+8374,Skin,Product_TA ProductsDB.Products.skin_octane_karminecorp_away,Octane: Karmine Corp (Away)
+8375,Skin,Product_TA ProductsDB.Products.skin_octane_karminecorp_home,Octane: Karmine Corp (Home)
+8377,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamvitality_away,Dominus: Team Vitality (Away)
+8378,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamvitality_home,Dominus: Team Vitality (Home)
+8379,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamsecret_away,Dominus: Team Secret (Away)
+8380,Skin,Product_TA ProductsDB.Products.skin_musclecar_teamsecret_home,Dominus: Team Secret (Home)
+8400,MusicStingers,Product_TA ProductsDB.Products.anthem_mikeault_gametime,Game Time (feat. Dr. Awkward)
+8413,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCA,Africa
+8414,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCAO,Asia & Oceania
+8415,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCEE,Eastern Europe
+8416,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCME,Middle East
+8417,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCNA,North America
+8418,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCNE,Northern Europe
+8419,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCSA,South America
+8420,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCSE,Southern Europe
+8421,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCWE,Western Europe
+8442,PremiumInventory,Product_TA ProductsDB.Products.crateunlocked_WCBNRS,Federation Banners
+8445,ESportsTeam,Product_TA ProductsDB.Products.ESportsTeam_KansasCityPioneers,Kansas City Pioneers
+8446,ESportsTeam,Product_TA ProductsDB.Products.ESportsTeam_Luminosity,Luminosity Gaming
+8447,ESportsTeam,Product_TA ProductsDB.Products.ESportsTeam_MoistEsports,Moist Esports
+8448,ESportsTeam,Product_TA ProductsDB.Products.ESportsTeam_OpticGaming,OpTic Gaming
+8449,ESportsTeam,Product_TA ProductsDB.Products.ESportsTeam_TeamFalcons,Team Falcons
+8450,ESportsTeam,Product_TA ProductsDB.Products.ESportsTeam_TeamSecret,Team Secret
