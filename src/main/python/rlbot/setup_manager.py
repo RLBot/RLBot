@@ -338,7 +338,7 @@ class SetupManager:
             checked_environment_requirements = set()
             online = True
         except URLError:
-            print("The user is offline, skipping upgrade the bot requirements")
+            self.logger.warn("The user is offline, skipping upgrade the bot requirements")
             online = False
 
         for bundle in self.bot_bundles:
@@ -548,7 +548,7 @@ class SetupManager:
                         '--player-index', str(participant_index),
                         '--spawn-id', str(spawn_id),
                         '--matchcomms-url', self.matchcomms_server.root_url.geturl()
-                    ], cwd=Path(bundle.config_directory).parent)
+                    ], cwd=Path(bundle.config_directory).parent, stdin=subprocess.PIPE)
                     self.bot_processes[participant_index] = BotProcessInfo(process=None, subprocess=process, player_config=player_config)
 
                     # Insert immediately into the agent metadata map because the standalone process has no way to communicate it back out
@@ -590,7 +590,8 @@ class SetupManager:
                     script_config_bundle.script_file,
                     '--matchcomms-url', self.matchcomms_server.root_url.geturl()
                 ],
-                cwd=Path(script_config_bundle.config_directory).parent
+                cwd=Path(script_config_bundle.config_directory).parent,
+                stdin=subprocess.PIPE
             )
             self.logger.info(f"Started script with pid {process.pid} using {process.args}")
             self.script_processes[process.pid] = process
