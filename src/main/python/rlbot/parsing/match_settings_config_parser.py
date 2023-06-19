@@ -115,6 +115,10 @@ game_map_dict = {
     "SovereignHeights": "Street_P",
     "Hoops_TheBlock": "HoopsStreet_P",
     "Farmstead_Spooky": "Farm_HW_P",
+    "ChampionsField_NikeFC": "swoosh_p",
+    "ForbiddenTemple_FireAndIce": "fni_stadium_p",
+    "DeadeyeCanyon_Oasis": "outlaw_oasis_p",
+    "EstadioVida_Dusk": "ff_dusk_p",
 }
 
 map_types = list(game_map_dict.keys())
