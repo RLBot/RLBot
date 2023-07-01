@@ -22,6 +22,7 @@ from rlbot.utils.structures.game_interface import GameInterface
 from selenium import webdriver
 from selenium.common.exceptions import SessionNotCreatedException
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -118,7 +119,8 @@ class ScratchManager(BotHelperProcess):
 
             try:
                 driver_path = self.get_driver_path_retryable()
-                driver = webdriver.Chrome(driver_path, chrome_options=options)
+                service = Service(executable_path=driver_path)
+                driver = webdriver.Chrome(service=service, options=options)
                 driver.get(
                     f"http://scratch.rlbot.org?host=localhost:{str(self.port)}&players={players_string}&awaitBotFile=1")
 
