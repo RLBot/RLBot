@@ -17,7 +17,7 @@ setuptools.setup(
         'websockets',
         'dataclasses',  # Python 3.6 compatibility
         'webdriver_manager',  # For scratch bots
-        'selenium',  # For scratch bots
+        'selenium==4.*',  # For scratch bots
         'requirements-parser',
         'docopt',  # Used by standalone agents
     ],
