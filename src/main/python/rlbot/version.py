@@ -4,10 +4,10 @@
 # 3) we can import it into your module module
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '1.62.2'
+__version__ = '1.62.3'
 
 release_notes = {
-    '1.62.2': """
+    '1.62.3': """
     Updating strategy for launching Epic version of Rocket League. - tarehart
     Fixing race conditions in the Epic launch process. - SavageSnowgoose
     Restoring ability to fall back to Steam after failed Epic launch. - tarehart
