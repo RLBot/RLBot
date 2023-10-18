@@ -36,8 +36,8 @@ class MatchcommsClient:
             async with websockets.connect(urlunparse(self.broadcast_url)) as websocket:
                 io_task = self.event_loop.create_task(asyncio.wait(
                     [
-                        read_into_queue(websocket, self.incoming_broadcast),
-                        send_from_queue(websocket, self.outgoing_broadcast),
+                        asyncio.create_task(read_into_queue(websocket, self.incoming_broadcast)),
+                        asyncio.create_task(send_from_queue(websocket, self.outgoing_broadcast)),
                     ],
                     return_when=asyncio.FIRST_COMPLETED
                 ))
