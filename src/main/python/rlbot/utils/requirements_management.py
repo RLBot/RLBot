@@ -44,6 +44,7 @@ def get_missing_packages(requirements_file: str = None, special_reqs: List[str] 
 
 
 def install_requirements_file(requirements_file, python_executable=sys.executable):
+    print("hello!")
     return subprocess.call([python_executable, "-m", "pip", "install", '-r', requirements_file])
 
 
