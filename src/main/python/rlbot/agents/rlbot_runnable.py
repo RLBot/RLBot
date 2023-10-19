@@ -9,6 +9,7 @@ NAME_KEY = "name"
 SUPPORTS_EARLY_START_KEY = "supports_early_start"
 REQUIRES_TKINTER = "requires_tkinter"
 USE_VIRTUAL_ENVIRONMENT_KEY = "use_virtual_environment"
+REQUIRED_PYTHON_37 = "requires_py37"
 
 
 class RLBotRunnable:
@@ -74,6 +75,8 @@ class RLBotRunnable:
                                   description="True if the tkinter library is needed.")
         location_config.add_value(USE_VIRTUAL_ENVIRONMENT_KEY, bool,
                                   description="True if the runnable wants to run in a virtual environment.")
+        location_config.add_value(REQUIRED_PYTHON_37, bool,
+                                  description="True if the runnable requires Python 3.7.")
 
         details_config = config.add_header_name(DETAILS_HEADER)
         details_config.add_value('developer', str, description="Name of the bot's creator/developer")
