@@ -470,3 +470,5 @@ build32/
 
 # This is a crash report used by RLBot binary
 backtrace.dump
+
+**/dll/*
