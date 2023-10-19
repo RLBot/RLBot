@@ -87,8 +87,7 @@ class EnvBuilderWithRequirements(EnvBuilder):
         """
 
         if sys.version_info == (3, 7):
-            super().ensure_directories(env_dir)
-            return
+            return super().ensure_directories(env_dir)
 
         def create_if_needed(d):
             if not os.path.exists(d):
