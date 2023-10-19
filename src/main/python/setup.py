@@ -12,7 +12,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'flatbuffers==1.12',
-        'psutil==5.8.0',
+        'psutil==5.*',
         'inputs',
         'websockets',
         'dataclasses',  # Python 3.6 compatibility
