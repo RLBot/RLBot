@@ -10,7 +10,7 @@ from rlbot.agents.base_agent import BaseAgent, BOT_CONFIG_MODULE_HEADER, BOT_NAM
     PYTHON_FILE_KEY, LOGO_FILE_KEY, SUPPORTS_EARLY_START_KEY, LOADOUT_GENERATOR_FILE_KEY, SUPPORTS_STANDALONE
 from rlbot.agents.base_loadout_generator import BaseLoadoutGenerator
 from rlbot.agents.base_script import SCRIPT_FILE_KEY, BaseScript
-from rlbot.agents.rlbot_runnable import RLBotRunnable, REQUIREMENTS_FILE_KEY, REQUIRES_TKINTER, USE_VIRTUAL_ENVIRONMENT_KEY
+from rlbot.agents.rlbot_runnable import REQUIRED_PYTHON_37, RLBotRunnable, REQUIREMENTS_FILE_KEY, REQUIRES_TKINTER, USE_VIRTUAL_ENVIRONMENT_KEY
 from rlbot.utils.requirements_management import get_missing_packages, get_packages_needing_upgrade
 from rlbot.matchconfig.loadout_config import LoadoutConfig
 from rlbot.parsing.agent_config_parser import create_looks_configurations, PARTICIPANT_CONFIGURATION_HEADER, \
@@ -34,6 +34,7 @@ class RunnableConfigBundle:
         self.supports_early_start = self.base_agent_config.get(BOT_CONFIG_MODULE_HEADER, SUPPORTS_EARLY_START_KEY)
         self.requirements_file = self.get_absolute_path(BOT_CONFIG_MODULE_HEADER, REQUIREMENTS_FILE_KEY)
         self.use_virtual_environment = self.base_agent_config.getboolean(BOT_CONFIG_MODULE_HEADER, USE_VIRTUAL_ENVIRONMENT_KEY)
+        self.requires_py37 = self.base_agent_config.getboolean(BOT_CONFIG_MODULE_HEADER, REQUIRED_PYTHON_37)
 
     def get_logo_file(self):
         # logo.png is a convention we established during the wintertide tournament.

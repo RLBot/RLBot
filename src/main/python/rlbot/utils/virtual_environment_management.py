@@ -1,8 +1,10 @@
 import os
+import platform
 import sys
 from pathlib import Path
 from subprocess import run
 from types import SimpleNamespace
+import types
 from typing import List
 from venv import EnvBuilder
 
@@ -74,7 +76,77 @@ class EnvBuilderWithRequirements(EnvBuilder):
         if finished_process.returncode > 0:
             sys.stderr.write('FAILED to install requirements!')
             return
-        sys.stderr.write('done.\n')
+        sys.stderr.write('done.\n')   
+
+    def ensure_directories(self, env_dir):
+        """
+        Create the directories for the environment.
+
+        Returns a context object which holds paths in the environment,
+        for use by subsequent logic.
+        """
+
+        def create_if_needed(d):
+            if not os.path.exists(d):
+                os.makedirs(d)
+            elif os.path.islink(d) or os.path.isfile(d):
+                raise ValueError('Unable to create directory %r' % d)
+
+        if os.pathsep in os.fspath(env_dir):
+            raise ValueError(f'Refusing to create a venv in {env_dir} because '
+                             f'it contains the PATH separator {os.pathsep}.')
+        if os.path.exists(env_dir) and self.clear:
+            self.clear_directory(env_dir)
+        context = types.SimpleNamespace()
+        context.env_dir = env_dir
+        context.env_name = os.path.split(env_dir)[1]
+        prompt = self.prompt if self.prompt is not None else context.env_name
+        context.prompt = '(%s) ' % prompt
+        create_if_needed(env_dir)
+        executable = sys._base_executable
+        if not executable:  # see gh-96861
+            raise ValueError('Unable to determine path to the running '
+                            'Python interpreter. Provide an explicit path or '
+                            'check that your PATH environment variable is '
+                            'correctly set.')
+        dirname, exename = os.path.split(os.path.abspath(executable))
+
+        binpath = self._venv_path(env_dir, 'scripts')
+        context.env_exe = os.path.join(binpath, exename)
+        is_current_version = True
+
+        if not os.path.exists(context.env_exe):
+            exename_old = 'python.exe' if platform.system() == "Windows" else 'python3'
+            env_exe = os.path.join(binpath, exename_old)
+            if os.path.exists(env_exe):
+                is_current_version = False
+                exename = exename_old
+                context.env_exe = env_exe
+        context.python_exe = exename
+
+        if is_current_version:
+            context.executable = executable
+            context.python_dir = dirname
+
+            incpath = self._venv_path(env_dir, 'include')
+            libpath = self._venv_path(env_dir, 'purelib')
+            context.inc_path = incpath
+            create_if_needed(incpath)
+            create_if_needed(libpath)
+            # Issue 21197: create lib64 as a symlink to lib on 64-bit non-OS X POSIX
+            if ((sys.maxsize > 2**32) and (os.name == 'posix') and
+                (sys.platform != 'darwin')):
+                link_path = os.path.join(env_dir, 'lib64')
+                if not os.path.exists(link_path):   # Issue #21643
+                    os.symlink('lib', link_path)
+            context.bin_path = binpath
+            context.bin_name = os.path.relpath(binpath, env_dir)
+            create_if_needed(binpath)
+
+        # Assign and update the command to use when launching the newly created
+        # environment, in case it isn't simply the executable script (e.g. bpo-45337)
+        context.env_exec_cmd = context.env_exe
+        return context
 
     def run_and_dump(self, args: List[str], timeout: int):
         finished_process = run(args, cwd=self.bundle.config_directory, capture_output=False, timeout=timeout)
