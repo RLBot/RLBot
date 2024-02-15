@@ -119,6 +119,11 @@ game_map_dict = {
     "ForbiddenTemple_FireAndIce": "fni_stadium_p",
     "DeadeyeCanyon_Oasis": "outlaw_oasis_p",
     "EstadioVida_Dusk": "ff_dusk_p",
+    "Mannfield_Dusk": "eurostadium_dusk_p",
+    "Farmstead_Pitched": "farm_grs_p",
+    "Farmstead_Upsidedown": "farm_hw_p",
+    "Wasteland_Pitched": "wasteland_grs_p",
+    "Neotokyo_Hacked": "neotokyo_hax_p",
 }
 
 map_types = list(game_map_dict.keys())
