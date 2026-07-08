@@ -5,13 +5,22 @@
 </p>
 
 [<img src="https://img.shields.io/pypi/v/rlbot.svg">](https://pypi.org/project/rlbot/)
-[<img src="https://img.shields.io/bintray/v/rlbotofficial/RLBotMaven/rlbot-framework">](https://bintray.com/rlbotofficial/RLBotMaven/rlbot-framework)
+[<img src="https://img.shields.io/maven-central/v/org.rlbot.commons/framework">](https://bintray.com/rlbotofficial/RLBotMaven/rlbot-framework)
 [<img src="https://img.shields.io/nuget/v/RLBot.Framework">](https://www.nuget.org/packages/RLBot.Framework/)
 [<img src="https://img.shields.io/crates/v/rlbot">](https://crates.io/crates/rlbot)
 [<img src="https://img.shields.io/discord/348658686962696195.svg?colorB=7581dc&logo=discord&logoColor=white">](https://discord.gg/zbaAKPt)
 
 RLBot is a framework for creating bots for Rocket League's offline modes, just for fun.
 It provides values from the game like positions and velocities for cars and ball, and carries back button presses. RLBot was developed in collaboration is Psyonix, the developers of Rocket League, and it is therefore safe to use and cannot be used for cheating.
+
+
+> [!IMPORTANT]
+> RLBot v5 has been released!
+> Learn more about RLBot v5 at https://wiki.rlbot.org/v5/framework/v5/.
+> Find RLBot v5's core repository at https://github.com/RLBot/core.
+
+> [!WARNING]
+> RLBot v4 is deprecated and will not receive more updates.
 
 ## Want to play against bots?
 
