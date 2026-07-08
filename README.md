@@ -1,25 +1,4 @@
-# YOU PROBABLY SHOULDN'T PULL THIS REPO
-
-## Bot Makers Read This!
-
-***If you just want to make a bot, you don't need to be here. Instead, start with one of these:***
- - Python - https://github.com/RLBot/RLBotPythonExample
- - Java - https://github.com/RLBot/RLBotJavaExample
- - C# (and other .NET languages) - https://github.com/RLBot/RLBotCSharpExample
- - Scratch - https://github.com/RLBot/RLBotScratchInterface
- - Rust - https://crates.io/crates/rlbot
-
-***If you just want to play with some bots, you can go to [RLBotGUI](https://github.com/RLBot/RLBotGUI) to easily start matches with bots***
-
-## Framework Contributors
-
-This repository is currently incomplete to meet the legal needs of the Psyonix API. It is missing the source code behind RLBot.exe, and a few other files. If you want to make a code change that involves RLBot.exe (or the interface dll since it's closely related), you'll need some help from someone with access to the closed repo.
-
-We expect we'll be able to open-source everything eventually, and then this repo will be back in business.
-
-**NOTICE:** We intend to cherry-pick any commits you make here into the closed repo. At a later date, when we have permission to open-source everything, we will **force push** the closed repo to this master branch. Your commits will still be there with proper attribution, but if you have any work in progress, it will need to be rebased at that time.
-
-# RLBot
+# RLBot v4 (Deprecated)
 
 <p align="center">
   <img width="512" height="158" src="https://github.com/drssoccer55/RLBot/blob/master/images/RLBot.png">
@@ -31,16 +10,38 @@ We expect we'll be able to open-source everything eventually, and then this repo
 [<img src="https://img.shields.io/crates/v/rlbot">](https://crates.io/crates/rlbot)
 [<img src="https://img.shields.io/discord/348658686962696195.svg?colorB=7581dc&logo=discord&logoColor=white">](https://discord.gg/zbaAKPt)
 
+RLBot is a framework for creating bots for Rocket League's offline modes, just for fun.
+It provides values from the game like positions and velocities for cars and ball, and carries back button presses. RLBot was developed in collaboration is Psyonix, the developers of Rocket League, and it is therefore safe to use and cannot be used for cheating.
 
+## Want to play against bots?
 
-## Framework Info
+People looking for bot opponents should check out the RLBotGUI available at https://rlbot.org/.
 
-The RLBot framework helps people create bots for use in Rocket League's offline modes, just for fun.
-It provides values from the game like car and ball position, and carries back button presses.
-RLBot works for up to 10 bots reliably; it can be used up to 64, but can result in issues (bots disappearing after goals, spawning inside one another, etc).
+RLBotGUI features:
+- A wide variety of community made bots to play against.
+- A Story Mode with a series of escalating challenges.
+- Developer tools such as appearance editor and state-setting sandbox.
+
+Repository: https://github.com/RLBot/RLBotGUI
+
+## Want to make a bot?
+
+If you just want to make a bot, you probably want to start with one of these:
+
+- Python - https://github.com/RLBot/RLBotPythonExample
+- Java - https://github.com/RLBot/RLBotJavaExample
+- C# (and other .NET languages) - https://github.com/RLBot/RLBotCSharpExample
+- Scratch - https://github.com/RLBot/RLBotScratchInterface
+- Rust - https://crates.io/crates/rlbot
+
+Find all officially supported languages at https://rlbot.org/. You can also find a ton of resources on the [wiki](https://wiki.rlbot.org/v4/).
+
+## Framework Development
+
+This repository is currently incomplete to meet the legal needs of the Psyonix API. It is missing the source code behind RLBot.exe, and a few other files. If you want to make a code change that involves RLBot.exe (or the interface dll since it's closely related), you'll need some help from someone with access to the closed repo. Any commits to this repo will be pull to the closed-source repo.
 
 ### Requirements
-Rocket League, Python 3.6+
+Rocket League, Python 3.11+
 
 ### Quick Start
 
@@ -68,29 +69,19 @@ https://pypi.org/project/rlbot/, the easiest way to do that is simply `pip unins
 the next time you execute a bat file from one of the RLBot*Example repos, a fresh copy will be
 installed from pip.
 
-### Wikis
+## Extras
 
-There's tons of good information at https://github.com/RLBot/RLBot/wiki
+### Community
 
-### Extras
+- We have a [Discord server](https://discord.gg/VZJKWwJ) (the heart of the community, please join!)
+- See tournament VODs on our [Youtube Channel](https://www.youtube.com/@RLBotOfficial).
+- We also have a [subreddit](https://www.reddit.com/r/RocketLeagueBots/).
+- Our machine-learning users hangs out at [RLGym](https://rlgym.org/).
 
-#### Community Info
- - We have a [Discord server](https://discord.gg/VZJKWwJ) (the heart of the community, please join!)
- - [We also have a subreddit.](https://www.reddit.com/r/RocketLeagueBots/)
- - We are now on v4 of RLBot so be wary of outdated information.
+### Tournaments
+Our community regularly hosts tournaments. Here's the highlights from the RLBot Championship 2024.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/MEYizL1FQBs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-#### Video Example
-[![Video](https://github.com/drssoccer55/RLBot/blob/master/images/vid2thumb6.JPG)](https://youtu.be/aAXe21m0vWo)
-
-#### Tournament History
-Tournament results are recorded in our [braacket league](https://braacket.com/league/rlbot).
-
-Videos:
- - [Tournament 1 highlights](https://www.youtube.com/watch?v=PY0ggWbpsPg)
- - [Tournament 1 1v1 highlights](https://www.youtube.com/watch?v=mqXwSqy_TOw)
- - [Tournament 2 2v2 highlights](https://www.youtube.com/watch?v=U-esRgPSfn4)
- - [Full video of the first tournament, day 1](https://youtu.be/SKIw4f0ZBxE)
-
-#### The best part
-Psyonix Cone gave us a thumbs up!
+### Psyonix Approved
+RLBot was developed in collaboration with Psyonix. Thanks, Psyonix Cone!
 ![Thumbs up](https://github.com/drssoccer55/RLBot/blob/master/images/psyonixcone.jpg)
